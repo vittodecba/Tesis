@@ -1,0 +1,17 @@
+/AtonBeerTesis/.vs
+/AtonBeerTesis/AtonBeerTesis.Infrastructure/obj
+/AtonBeerTesis/AtonBeerTesis.Infrastructure/bin
+/AtonBeerTesis/AtonBeerTesis/bin
+/AtonBeerTesis/AtonBeerTesis.Application/bin
+/AtonBeerTesis/AtonBeerTesis.Domain/bin
+/AtonBeerTesis/.vs
+/AtonBeerTesis/.vs
+*.bin
+/AtonBeerTesis/.vs
+
+# Ignorar basura de Visual Studio
+.vs/
+**/.vs/
+**/bin/
+**/obj/
+*.user

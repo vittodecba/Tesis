@@ -1,3 +1,6 @@
+using AtonBeerTesis.Application.Interfaces;
+using AtonBeerTesis.Application.Services;
+
 
 namespace AtonBeerTesis
 {
@@ -6,6 +9,7 @@ namespace AtonBeerTesis
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
             // Add services to the container.
 
