@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtonBeerTesis", "AtonBeerTesis\AtonBeerTesis.csproj", "{F0FBEA29-0618-43B3-ACB2-417E64159BA0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtonBeerTesis", "AtonBeerTesis\AtonBeerTesis.csproj", "{F0FBEA29-0618-43B3-ACB2-417E64159BA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtonBeerTesis.Domain", "AtonBeerTesis.Domain\AtonBeerTesis.Domain.csproj", "{4AD89279-B20B-4CE5-B1AC-DDF89015B334}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtonBeerTesis.Infrastructure", "AtonBeerTesis.Infrastructure\AtonBeerTesis.Infrastructure.csproj", "{F872E23D-E7DF-4643-8554-867D206E53EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtonBeerTesis.Application", "AtonBeerTesis.Application\AtonBeerTesis.Application.csproj", "{B959B33B-638F-4BA5-A095-52949C187E43}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{F0FBEA29-0618-43B3-ACB2-417E64159BA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0FBEA29-0618-43B3-ACB2-417E64159BA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F0FBEA29-0618-43B3-ACB2-417E64159BA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AD89279-B20B-4CE5-B1AC-DDF89015B334}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AD89279-B20B-4CE5-B1AC-DDF89015B334}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AD89279-B20B-4CE5-B1AC-DDF89015B334}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AD89279-B20B-4CE5-B1AC-DDF89015B334}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F872E23D-E7DF-4643-8554-867D206E53EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F872E23D-E7DF-4643-8554-867D206E53EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F872E23D-E7DF-4643-8554-867D206E53EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F872E23D-E7DF-4643-8554-867D206E53EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B959B33B-638F-4BA5-A095-52949C187E43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B959B33B-638F-4BA5-A095-52949C187E43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B959B33B-638F-4BA5-A095-52949C187E43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B959B33B-638F-4BA5-A095-52949C187E43}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
