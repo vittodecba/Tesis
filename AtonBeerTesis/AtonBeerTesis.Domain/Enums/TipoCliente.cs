@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AtonBeerTesis.Domain.Enums
 {
-    internal enum TipoCliente
+    public enum TipoCliente
     {
         Franquicia = 1,
         Externo = 2

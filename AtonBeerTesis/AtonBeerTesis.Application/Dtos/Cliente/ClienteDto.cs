@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace AtonBeerTesis.Application.Dtos.Cliente
 {
-    internal class ClienteDto
+    public class ClienteDto
     {
-        
+        public int IdCliente { get; set; }
+
+
         public string TipoCliente { get; set; } = null!;
         public string EstadoCliente { get; set; } = null!;
 

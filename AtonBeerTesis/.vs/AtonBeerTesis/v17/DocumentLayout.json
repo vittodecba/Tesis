@@ -3,20 +3,68 @@
   "WorkspaceRootPath": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.application\\services\\clienteservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\services\\clienteservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.application\\common\\cuitvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\common\\cuitvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|solutionrelative:atonbeertesis.infrastructure\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\repositories\\clienterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|solutionrelative:atonbeertesis.infrastructure\\repositories\\clienterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.application\\interfaces\\iclienterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\interfaces\\iclienterepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\controllers\\clientescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\controllers\\clientescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.application\\interfaces\\iclienteservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\interfaces\\iclienteservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.application\\dtos\\cliente\\clientedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\dtos\\cliente\\clientedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.domain\\entidades\\clientes.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|solutionrelative:atonbeertesis.domain\\entidades\\clientes.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.domain\\enums\\tipocliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|solutionrelative:atonbeertesis.domain\\enums\\tipocliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.domain\\enums\\estadocliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|solutionrelative:atonbeertesis.domain\\enums\\estadocliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.domain\\enums\\tipocliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|solutionrelative:atonbeertesis.domain\\enums\\tipocliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.domain\\entidades\\clientes.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|solutionrelative:atonbeertesis.domain\\entidades\\clientes.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.application\\dtos\\cliente\\actualizarclientedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\dtos\\cliente\\actualizarclientedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.application\\dtos\\cliente\\crearclientedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\dtos\\cliente\\crearclientedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,7 +74,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 10,
           "Children": [
             {
               "$type": "Bookmark",
@@ -54,54 +102,210 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CuitValidator.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Common\\CuitValidator.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Common\\CuitValidator.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Common\\CuitValidator.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Common\\CuitValidator.cs",
+              "ViewState": "AQIAAAcAAAAAAAAAAAAQwCcAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T22:01:26.793Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\appsettings.json",
+              "RelativeDocumentMoniker": "AtonBeerTesis\\appsettings.json",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\appsettings.json",
+              "RelativeToolTip": "AtonBeerTesis\\appsettings.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-01-08T21:50:20.765Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ClienteRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\ClienteRepository.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Repositories\\ClienteRepository.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\ClienteRepository.cs",
+              "RelativeToolTip": "AtonBeerTesis.Infrastructure\\Repositories\\ClienteRepository.cs",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAAACoAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T21:47:27.593Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
+              "RelativeToolTip": "AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABwAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T21:46:59.022Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Program.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis\\Program.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Program.cs",
+              "RelativeToolTip": "AtonBeerTesis\\Program.cs",
+              "ViewState": "AQIAAAkAAAAAAAAAAAAAABsAAAACAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T21:37:29.623Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ClienteService.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Services\\ClienteService.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Services\\ClienteService.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Services\\ClienteService.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Services\\ClienteService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAHcAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T21:34:44.136Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "appsettings.Development.json",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\appsettings.Development.json",
+              "RelativeDocumentMoniker": "AtonBeerTesis\\appsettings.Development.json",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\appsettings.Development.json",
+              "RelativeToolTip": "AtonBeerTesis\\appsettings.Development.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-01-08T21:50:24.197Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "ClienteDto.cs",
               "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\Cliente\\ClienteDto.cs",
               "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Dtos\\Cliente\\ClienteDto.cs",
               "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\Cliente\\ClienteDto.cs",
               "RelativeToolTip": "AtonBeerTesis.Application\\Dtos\\Cliente\\ClienteDto.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAIAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-01-08T16:32:31.017Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "EstadoCliente.cs",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Enums\\EstadoCliente.cs",
-              "RelativeDocumentMoniker": "AtonBeerTesis.Domain\\Enums\\EstadoCliente.cs",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Enums\\EstadoCliente.cs",
-              "RelativeToolTip": "AtonBeerTesis.Domain\\Enums\\EstadoCliente.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAUAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-08T15:37:49.39Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 11,
               "Title": "TipoCliente.cs",
               "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Enums\\TipoCliente.cs",
               "RelativeDocumentMoniker": "AtonBeerTesis.Domain\\Enums\\TipoCliente.cs",
               "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Enums\\TipoCliente.cs",
               "RelativeToolTip": "AtonBeerTesis.Domain\\Enums\\TipoCliente.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAATAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-01-08T15:34:30.045Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 9,
+              "Title": "IClienteService.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Interfaces\\IClienteService.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Interfaces\\IClienteService.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Interfaces\\IClienteService.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Interfaces\\IClienteService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABMAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T20:50:34.462Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ClientesController.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Controllers\\ClientesController.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis\\Controllers\\ClientesController.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Controllers\\ClientesController.cs",
+              "RelativeToolTip": "AtonBeerTesis\\Controllers\\ClientesController.cs",
+              "ViewState": "AQIAAC0AAAAAAAAAAAA7wEYAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T20:28:49.13Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "IClienteRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Interfaces\\IClienteRepository.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Interfaces\\IClienteRepository.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Interfaces\\IClienteRepository.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Interfaces\\IClienteRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABEAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T20:52:05.003Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "EstadoCliente.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Enums\\EstadoCliente.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Domain\\Enums\\EstadoCliente.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Enums\\EstadoCliente.cs",
+              "RelativeToolTip": "AtonBeerTesis.Domain\\Enums\\EstadoCliente.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T15:37:49.39Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
               "Title": "Clientes.cs",
               "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entidades\\Clientes.cs",
               "RelativeDocumentMoniker": "AtonBeerTesis.Domain\\Entidades\\Clientes.cs",
               "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entidades\\Clientes.cs",
               "RelativeToolTip": "AtonBeerTesis.Domain\\Entidades\\Clientes.cs",
-              "ViewState": "AQIAAAcAAAAAAAAAAAAUwCEAAAAEAAAA",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAcwCUAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-01-08T14:47:36.673Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "ActualizarClienteDto.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\Cliente\\ActualizarClienteDto.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Dtos\\Cliente\\ActualizarClienteDto.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\Cliente\\ActualizarClienteDto.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Dtos\\Cliente\\ActualizarClienteDto.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABcAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T20:36:52.711Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "CrearClienteDto.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\Cliente\\CrearClienteDto.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Dtos\\Cliente\\CrearClienteDto.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\Cliente\\CrearClienteDto.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Dtos\\Cliente\\CrearClienteDto.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABkAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T20:33:27.099Z",
               "EditorCaption": ""
             }
           ]

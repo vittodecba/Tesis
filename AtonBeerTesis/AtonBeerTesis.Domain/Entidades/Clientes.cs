@@ -3,7 +3,7 @@
 
 namespace AtonBeerTesis.Domain.Entities;
 
-internal class Cliente
+public class Cliente
 {
     // Identificación
     public int IdCliente { get; set; }
