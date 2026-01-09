@@ -1,7 +1,16 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.domain\\enums\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|solutionrelative:atonbeertesis.domain\\enums\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.domain\\entidades\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|solutionrelative:atonbeertesis.domain\\entidades\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -34,6 +43,32 @@
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Enums\\Class1.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Domain\\Enums\\Class1.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Enums\\Class1.cs",
+              "RelativeToolTip": "AtonBeerTesis.Domain\\Enums\\Class1.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T20:06:54.331Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entidades\\Class1.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Domain\\Entidades\\Class1.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entidades\\Class1.cs",
+              "RelativeToolTip": "AtonBeerTesis.Domain\\Entidades\\Class1.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T20:06:32.377Z",
+              "EditorCaption": ""
             }
           ]
         }

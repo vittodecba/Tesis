@@ -1,17 +1,15 @@
-/AtonBeerTesis/.vs
-/AtonBeerTesis/AtonBeerTesis.Infrastructure/obj
-/AtonBeerTesis/AtonBeerTesis.Infrastructure/bin
-/AtonBeerTesis/AtonBeerTesis/bin
-/AtonBeerTesis/AtonBeerTesis.Application/bin
-/AtonBeerTesis/AtonBeerTesis.Domain/bin
-/AtonBeerTesis/.vs
-/AtonBeerTesis/.vs
-*.bin
-/AtonBeerTesis/.vs
-
-# Ignorar basura de Visual Studio
+# Basura de Visual Studio
 .vs/
 **/.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Carpetas de Compilación (lo que genera ruido)
 **/bin/
 **/obj/
-*.user
+
+# Otros
+.idea/
+.vscode/
