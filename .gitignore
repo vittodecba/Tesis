@@ -13,3 +13,5 @@
 # Otros
 .idea/
 .vscode/
+*.v2
+/AtonBeerTesis/.vs
