@@ -15,5 +15,7 @@ namespace AtonBeerTesis.Application.Interfaces
 
         List<string> GetTiposCliente();
         List<string> GetEstadosCliente();
+        Task<bool> PatchAsync(int id, PatchClienteDto dto);
+
     }
 }

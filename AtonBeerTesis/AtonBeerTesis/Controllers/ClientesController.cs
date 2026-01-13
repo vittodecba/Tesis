@@ -49,6 +49,22 @@ namespace AtonBeerTesis.Controllers
             if (!ok) return NotFound();
             return NoContent();
         }
+        [HttpPatch("{id:int}")]
+        public async Task<IActionResult> Patch(int id, [FromBody] PatchClienteDto dto)
+        {
+            try
+            {
+                var ok = await _clienteService.PatchAsync(id, dto);
+                if (!ok) return NotFound();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                // más adelante lo refinamos a ValidationProblem/BadRequest prolijo
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
         // DELETE (lógico): api/clientes/5
         [HttpDelete("{id:int}")]

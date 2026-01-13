@@ -118,6 +118,41 @@ namespace AtonBeerTesis.Application.Services
             await _clienteRepository.UpdateAsync(cliente);
             return true;
         }
+        public async Task<bool> PatchAsync(int id, PatchClienteDto dto)
+        {
+            var cliente = await _clienteRepository.GetByIdAsync(id);
+            if (cliente is null) return false;
+
+            // Strings simples
+            if (dto.RazonSocial is not null) cliente.RazonSocial = dto.RazonSocial;
+            if (dto.Email is not null) cliente.Email = dto.Email;
+            if (dto.Ubicacion is not null) cliente.Ubicacion = dto.Ubicacion;
+
+            if (dto.ContactoNombre is not null) cliente.ContactoNombre = dto.ContactoNombre;
+            if (dto.ContactoTelefono is not null) cliente.ContactoTelefono = dto.ContactoTelefono;
+            if (dto.ContactoEmail is not null) cliente.ContactoEmail = dto.ContactoEmail;
+
+            // Enums (solo si vienen)
+            if (dto.TipoCliente is not null)
+            {
+                if (!Enum.TryParse<TipoCliente>(dto.TipoCliente, true, out var tipo))
+                    throw new Exception("Tipo de cliente inválido");
+
+                cliente.Tipocliente = tipo; // OJO: en tu entidad es Tipocliente
+            }
+
+            if (dto.EstadoCliente is not null)
+            {
+                if (!Enum.TryParse<EstadoCliente>(dto.EstadoCliente, true, out var estado))
+                    throw new Exception("Estado de cliente inválido");
+
+                cliente.EstadoCliente = estado;
+            }
+
+            await _clienteRepository.UpdateAsync(cliente);
+            return true;
+        }
+
 
         public async Task<bool> DeactivateAsync(int id)
         {
@@ -145,6 +180,7 @@ namespace AtonBeerTesis.Application.Services
         {
             IdCliente = c.IdCliente,
             RazonSocial = c.RazonSocial,
+            Cuit = c.Cuit,
             TipoCliente = c.Tipocliente.ToString(),
             Ubicacion = c.Ubicacion,
 
