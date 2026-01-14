@@ -7,16 +7,28 @@
       "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\farma\\onedrive\\documentos\\github\\tesis\\atonbeertesis\\atonbeertesis\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\farma\\onedrive\\documentos\\github\\tesis\\atonbeertesis\\atonbeertesis.application\\services\\usuarioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\services\\usuarioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\farma\\onedrive\\documentos\\github\\tesis\\atonbeertesis\\atonbeertesis.application\\interfaces\\iusuarioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\interfaces\\iusuarioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|c:\\users\\farma\\onedrive\\documentos\\github\\tesis\\atonbeertesis\\atonbeertesis.domain\\entidades\\usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|solutionrelative:atonbeertesis.domain\\entidades\\usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\farma\\onedrive\\documentos\\github\\tesis\\atonbeertesis\\atonbeertesis\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Migrations\\20260113060811_Inicial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:AtonBeerTesis.Infrastructure\\Migrations\\20260113060811_Inicial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|c:\\users\\farma\\onedrive\\documentos\\github\\tesis\\atonbeertesis\\atonbeertesis.domain\\entidades\\rol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|solutionrelative:atonbeertesis.domain\\entidades\\rol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\farma\\onedrive\\documentos\\github\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\migrations\\20260113060811_inicial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|solutionrelative:atonbeertesis.infrastructure\\migrations\\20260113060811_inicial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 11,
           "Children": [
             {
               "$type": "Bookmark",
@@ -50,7 +62,59 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UsuarioController.cs",
+              "DocumentMoniker": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Controllers\\UsuarioController.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis\\Controllers\\UsuarioController.cs",
+              "ToolTip": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Controllers\\UsuarioController.cs",
+              "RelativeToolTip": "AtonBeerTesis\\Controllers\\UsuarioController.cs",
+              "ViewState": "AQIAADUAAAAAAAAAAAAowEcAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-14T05:11:45.586Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "UsuarioService.cs",
+              "DocumentMoniker": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Services\\UsuarioService.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Services\\UsuarioService.cs",
+              "ToolTip": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Services\\UsuarioService.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Services\\UsuarioService.cs",
+              "ViewState": "AQIAAD0AAAAAAAAAAAAkwG4AAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-14T05:09:45.703Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IUsuarioService.cs",
+              "DocumentMoniker": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Interfaces\\IUsuarioService.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Interfaces\\IUsuarioService.cs",
+              "ToolTip": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Interfaces\\IUsuarioService.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Interfaces\\IUsuarioService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-14T05:08:53.482Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Usuario.cs",
+              "DocumentMoniker": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entidades\\Usuario.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Domain\\Entidades\\Usuario.cs",
+              "ToolTip": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entidades\\Usuario.cs",
+              "RelativeToolTip": "AtonBeerTesis.Domain\\Entidades\\Usuario.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABgAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-14T04:51:53.752Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "20260113060811_Inicial.cs",
               "DocumentMoniker": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Migrations\\20260113060811_Inicial.cs",
               "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Migrations\\20260113060811_Inicial.cs",
@@ -58,12 +122,11 @@
               "RelativeToolTip": "AtonBeerTesis.Infrastructure\\Migrations\\20260113060811_Inicial.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAIAAAARAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-13T06:08:11.814Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-13T06:08:11.814Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 5,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\appsettings.json",
               "RelativeDocumentMoniker": "AtonBeerTesis\\appsettings.json",
@@ -71,8 +134,7 @@
               "RelativeToolTip": "AtonBeerTesis\\appsettings.json",
               "ViewState": "AQIAAAcAAAAAAAAAAAAYwAsAAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-01-13T05:58:59.469Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-13T05:58:59.469Z"
             },
             {
               "$type": "Document",
@@ -82,22 +144,9 @@
               "RelativeDocumentMoniker": "AtonBeerTesis\\Program.cs",
               "ToolTip": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Program.cs",
               "RelativeToolTip": "AtonBeerTesis\\Program.cs",
-              "ViewState": "AQIAACUAAAAAAAAAAAAUwCsAAAAAAAAA",
+              "ViewState": "AQIAAAsAAAAAAAAAAADwvywAAAAqAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-01-13T05:35:18.482Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Rol.cs",
-              "DocumentMoniker": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entidades\\Rol.cs",
-              "RelativeDocumentMoniker": "AtonBeerTesis.Domain\\Entidades\\Rol.cs",
-              "ToolTip": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entidades\\Rol.cs",
-              "RelativeToolTip": "AtonBeerTesis.Domain\\Entidades\\Rol.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAABAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-12T06:53:31.735Z",
               "EditorCaption": ""
             }
           ]
