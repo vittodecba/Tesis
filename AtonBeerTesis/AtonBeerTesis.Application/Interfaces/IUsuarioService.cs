@@ -4,7 +4,7 @@ namespace AtonBeerTesis.Application.Interfaces
 {
     public interface IUsuarioService
     {
-        Task<List<UsuarioDto>> GetAllAsync();
+        Task<List<UsuarioDto>> GetAllAsync(bool mostrarInactivos);
         Task<UsuarioDto?> GetByIdAsync(int id);
 
         // Crear usuario nuevo

@@ -16,9 +16,10 @@ namespace AtonBeerTesis.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] bool mostrarInactivos = false)
         {
-            var usuarios = await _usuarioService.GetAllAsync();
+            // Ahora le pasamos el valor que elijas al servicio
+            var usuarios = await _usuarioService.GetAllAsync(mostrarInactivos);
             return Ok(usuarios);
         }
 

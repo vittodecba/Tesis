@@ -19,6 +19,8 @@
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public int RolId { get; set; } // El ID del rol que elegimos en el desplegable
+        public string ConfirmarPassword { get; set; }
+
     }
 
     // 3. Para EDITAR uno existente

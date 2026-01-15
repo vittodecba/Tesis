@@ -14,11 +14,19 @@ namespace AtonBeerTesis.Application.Services
             _usuarioRepository = usuarioRepository;
         }
 
-        public async Task<List<UsuarioDto>> GetAllAsync()
+        // --- CAMBIO AQUÍ: Agregamos el parámetro 'mostrarInactivos' ---
+        public async Task<List<UsuarioDto>> GetAllAsync(bool mostrarInactivos)
         {
+            // 1. Traemos todo de la base de datos
             var usuarios = await _usuarioRepository.GetAllAsync();
 
-            // Convertimos la Entidad (BD) a DTO (Frontend)
+            // 2. Si NO queremos ver inactivos, filtramos
+            if (!mostrarInactivos)
+            {
+                usuarios = usuarios.Where(u => u.Activo == true).ToList();
+            }
+
+            // 3. Convertimos a DTO
             return usuarios.Select(u => new UsuarioDto
             {
                 Id = u.Id,
@@ -26,7 +34,6 @@ namespace AtonBeerTesis.Application.Services
                 Apellido = u.Apellido,
                 Email = u.Email,
                 Activo = u.Activo,
-                // Si tiene rol, mostramos el nombre. Si no, "Sin Rol"
                 RolNombre = u.Rol != null ? u.Rol.Nombre : "Sin Rol"
             }).ToList();
         }
@@ -49,7 +56,18 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task<UsuarioDto> CreateAsync(UsuarioCreateDto dto)
         {
-            // Validamos que el email no exista ya 
+            // --- VALIDACIONES ---
+            if (!dto.Email.Contains("@") || !dto.Email.Contains("."))
+            {
+                throw new Exception("El email no es válido (debe contener @ y .).");
+            }
+
+            if (dto.Password != dto.ConfirmarPassword)
+            {
+                throw new Exception("Las contraseñas no coinciden.");
+            }
+
+            // Validar existencia
             var existente = await _usuarioRepository.GetByEmailAsync(dto.Email);
             if (existente != null)
             {
@@ -81,7 +99,6 @@ namespace AtonBeerTesis.Application.Services
             var usuario = await _usuarioRepository.GetByIdAsync(id);
             if (usuario == null) throw new Exception("Usuario no encontrado");
 
-            // Si cambió el email, verificamos que el nuevo no esté ocupado
             if (usuario.Email != dto.Email)
             {
                 var emailOcupado = await _usuarioRepository.GetByEmailAsync(dto.Email);
@@ -99,7 +116,6 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task DeleteAsync(int id)
         {
-            // Baja Lógica: Invertimos el estado (si es true pasa a false)
             var usuario = await _usuarioRepository.GetByIdAsync(id);
             if (usuario != null)
             {
