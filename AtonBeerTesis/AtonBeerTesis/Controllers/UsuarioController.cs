@@ -3,6 +3,7 @@ using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entidades;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace AtonBeerTesis.Controllers
 {
     [Route("api/[controller]")]
@@ -10,9 +11,11 @@ namespace AtonBeerTesis.Controllers
     public class UsuarioController : BaseController
     {
        private readonly IUsuarioRepository _usuarioRepository;
-        public UsuarioController(IUsuarioRepository usuarioRepository)
+        private readonly ITokenService _tokenService; // Para poder acceder a las configuraciones del appsettings.json
+        public UsuarioController(IUsuarioRepository usuarioRepository, ITokenService tokenService)
         {
             _usuarioRepository = usuarioRepository;
+            _tokenService = tokenService;
         }
         [HttpGet]
         public async Task<IActionResult> GetallAsync()
@@ -36,5 +39,27 @@ namespace AtonBeerTesis.Controllers
             var UsuarioGuardado = await _usuarioRepository.AddAsync(nuevUsuario);
             return Ok(UsuarioGuardado);
         }
+        [HttpPost("login")]
+        public async Task<IActionResult> PostAsync([FromBody] LoginDto Dto)
+        {
+            var usuario = await _usuarioRepository.ObtenerPorEmailAsync(Dto.Email);
+            //Valido que el usuario exista y que la contraseña sea correcta
+            if (usuario == null || usuario.Contraseña != Dto.Contraseña)
+            {
+                return Unauthorized("Credenciales invalidas, reintente nuevamente");
+            }
+            //Genero el token JWT
+            var token = _tokenService.GenerarTokenJWT(usuario);
+            //Retorno el token al cliente junto con los datos del usuario
+            return Ok(new
+            {
+                Mensaje = "Inicio de sesión exitoso",
+                Token = token,
+                Id = usuario.id,
+                Nombre = usuario.Nombre,
+                RolId = usuario.RolId,
+                Email = usuario.Email
+            });
+        }        
     }
 }
