@@ -1,4 +1,5 @@
 ﻿using AtonBeerTesis.Domain.Entidades;
+using AtonBeerTesis.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
@@ -11,5 +12,6 @@ namespace AtonBeerTesis.Infrastructure.Data
         }
 
         public DbSet<Rol> Roles { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
     }
 }
