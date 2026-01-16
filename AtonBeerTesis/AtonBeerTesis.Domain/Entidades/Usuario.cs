@@ -15,6 +15,12 @@ namespace AtonBeerTesis.Domain.Entities
         public string Password { get; set; } = string.Empty;
         public bool Activo { get; set; } = true;
 
+        // Token para recuperar contraseña (puede estar vacío si no pidió nada)
+        public string? TokenRecuperacion { get; set; }
+
+        // Fecha y hora en que vence ese token
+        public DateTime? TokenExpiracion { get; set; }
+
         // Relación con ROL:
         // Acá le decimos que cada Usuario tiene UN Rol asignado.
         public int RolId { get; set; }

@@ -3,7 +3,7 @@ using AtonBeerTesis.Domain.Interfaces;
 using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace AtonBeerTesis.Infrastructure.Repositorios
+namespace AtonBeerTesis.Infrastructure.Repositories
 {
     public class UsuarioRepository : IUsuarioRepository
     {

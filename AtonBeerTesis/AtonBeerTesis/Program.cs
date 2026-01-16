@@ -27,11 +27,15 @@ namespace AtonBeerTesis
             builder.Services.AddScoped<AtonBeerTesis.Domain.Interfaces.IRolRepository, AtonBeerTesis.Infrastructure.Repositories.RolRepository>();
             builder.Services.AddScoped<AtonBeerTesis.Application.Interfaces.IRolService, AtonBeerTesis.Application.Services.RolService>();
 
-            // USUARIOS (NUEVO)
-            // Nota: Acá le puse "Repositorios" en español porque así creamos la carpeta recién.
-            builder.Services.AddScoped<AtonBeerTesis.Domain.Interfaces.IUsuarioRepository, AtonBeerTesis.Infrastructure.Repositorios.UsuarioRepository>();
+            // USUARIOS
+            builder.Services.AddScoped<AtonBeerTesis.Domain.Interfaces.IUsuarioRepository, AtonBeerTesis.Infrastructure.Repositories.UsuarioRepository>();
             builder.Services.AddScoped<AtonBeerTesis.Application.Interfaces.IUsuarioService, AtonBeerTesis.Application.Services.UsuarioService>();
 
+            // AUTH (AGREGADO: ESTO FALTABA PARA QUE FUNCIONE EL LOGIN Y RECUPERAR)
+            builder.Services.AddScoped<AtonBeerTesis.Application.Interfaces.IAuthService, AtonBeerTesis.Application.Services.AuthService>();
+
+            // EMAIL
+            builder.Services.AddScoped<AtonBeerTesis.Application.Interfaces.IEmailService, AtonBeerTesis.Infrastructure.Services.EmailService>();
 
             // ---------------------------------------------------------
 
