@@ -12,10 +12,12 @@ namespace AtonBeerTesis.Controllers
     {
        private readonly IUsuarioRepository _usuarioRepository;
         private readonly ITokenService _tokenService; // Para poder acceder a las configuraciones del appsettings.json
-        public UsuarioController(IUsuarioRepository usuarioRepository, ITokenService tokenService)
+        private readonly IHistorialAccesoRepository _historialAccesoRepository; //Repositorio para manejar el historial de accesos
+        public UsuarioController(IUsuarioRepository usuarioRepository, ITokenService tokenService, IHistorialAccesoRepository historialAccesoRepository)
         {
             _usuarioRepository = usuarioRepository;
             _tokenService = tokenService;
+            _historialAccesoRepository = historialAccesoRepository;
         }
         [HttpGet]
         public async Task<IActionResult> GetallAsync()
@@ -23,7 +25,7 @@ namespace AtonBeerTesis.Controllers
             var usuario = await _usuarioRepository.GetAllAsync();            
             return Ok(usuario);
         }
-        [HttpPost]
+        [HttpPost("Registro")]
         public async Task<IActionResult> PostAsync([FromBody] UsuarioDto Dto)
         {
             var nuevUsuario = new Usuario
@@ -36,21 +38,62 @@ namespace AtonBeerTesis.Controllers
                 Activo = true
             };
             //Guardo en la base de datos el nuevo usuario usando el repositorio
-            var UsuarioGuardado = await _usuarioRepository.AddAsync(nuevUsuario);
-            return Ok(UsuarioGuardado);
+            await _usuarioRepository.AddAsync(nuevUsuario);
+            var UsuarioGuardado = await _usuarioRepository.ObtenerPorEmailAsync(Dto.Email);
+            return Ok(new
+            {
+                Success = true,
+                message = "Usuario registrado exitosamente",
+                data = new
+                {
+                    id = UsuarioGuardado.id,
+                    Nombre = UsuarioGuardado.Nombre,
+                    email = UsuarioGuardado.Email,
+                    rol = UsuarioGuardado.Rol != null ? UsuarioGuardado.Rol.NombreRol : "No asignado"
+                },
+                StatusCode = 200
+            });
         }
-        [HttpPost("login")]
+        [HttpPost("login")]//Voy a agregar al login 
         public async Task<IActionResult> PostAsync([FromBody] LoginDto Dto)
         {
             var usuario = await _usuarioRepository.ObtenerPorEmailAsync(Dto.Email);
             //Valido que el usuario exista y que la contraseña sea correcta
-            if (usuario == null || usuario.Contraseña != Dto.Contraseña)
+            if (usuario == null)
             {
-                return Unauthorized("Credenciales invalidas, reintente nuevamente");
+                await _historialAccesoRepository.Addasync(new HistorialAcceso
+                {
+                    //Aca el usuario no existe, por lo tanto no puedo guardar el UsuarioId
+                    EmailIntentado = Dto.Email,
+                    Exitoso = false,
+                    Detalles = "Email no registrado",
+                    FechaIntento = DateTime.Now
+                });
+                return Unauthorized("Email no registrado, reintente nuevamente");
+            }
+            if (usuario.Contraseña != Dto.Contraseña)
+            {
+                await _historialAccesoRepository.Addasync(new HistorialAcceso
+                {
+                    UsuarioId = usuario.id,//Aca el usuario ya existe, pero la contraseña es incorrecta
+                    EmailIntentado = Dto.Email,
+                 Exitoso = false,
+                 Detalles = "Contraseña incorrecta",
+                 FechaIntento= DateTime.Now
+                });
+                return Unauthorized("Contraseña incorrecta, reintente nuevamente");
             }
             //Genero el token JWT
             var token = _tokenService.GenerarTokenJWT(usuario);
             //Retorno el token al cliente junto con los datos del usuario
+            await _historialAccesoRepository.Addasync(new HistorialAcceso
+            {
+                UsuarioId = usuario.id,//Aca el login fue exitoso, por lo tanto guardo el UsuarioId
+                EmailIntentado = Dto.Email,
+             Exitoso = true,
+             Detalles = "Login exitoso",
+             FechaIntento= DateTime.Now
+            });
             return Ok(new
             {
                 Mensaje = "Inicio de sesión exitoso",
@@ -60,6 +103,21 @@ namespace AtonBeerTesis.Controllers
                 RolId = usuario.RolId,
                 Email = usuario.Email
             });
-        }        
+        }
+        [HttpGet("HistorialAcceso")]//Endpoint para obtener el historial de accesos con filtros opcionales
+        public async Task<IActionResult> ObtenerHistorialAsync([FromQuery] string? email, [FromQuery] DateTime? fecha, [FromQuery] bool? exito)
+        {
+            var historial = await _historialAccesoRepository.ObtenerHistorialAsync(email, fecha, exito);
+            var resultado = historial.Select(h => new
+            {
+                h.Id,
+                Usuario = h.Usuario != null ? h.Usuario.Nombre : "Desconocido",
+                Email = h.EmailIntentado,
+                Fecha = h.FechaIntento.ToString("d"),
+                Exitoso = h.Exitoso,
+                Detalles = h.Detalles
+            });
+            return Ok(new {Success=true, data = resultado});
+        }
     }
 }

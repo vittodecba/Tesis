@@ -14,7 +14,9 @@ namespace AtonBeerTesis.Infrastructure.Repositories
     {
         public async Task<Usuario?> ObtenerPorEmailAsync(string email)
         {
-           return await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
+           return await _context.usuarios
+                .Include(u => u.Rol) // Incluye que rol tiene el usuario registrado
+                .FirstOrDefaultAsync(u => u.Email == email);
         }
     }
 }

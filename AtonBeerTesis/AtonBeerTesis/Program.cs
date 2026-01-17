@@ -25,6 +25,8 @@ namespace AtonBeerTesis
             builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
             //Agrego el servicio de Token
             builder.Services.AddScoped<ITokenService, TokenService>();
+            //Agrego el repositorio de HistorialAcceso
+            builder.Services.AddScoped<IHistorialAccesoRepository, HistorialAccesoRepository>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

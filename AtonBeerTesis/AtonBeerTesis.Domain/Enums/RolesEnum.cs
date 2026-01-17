@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AtonBeerTesis.Domain.Enums
 {
-    internal enum RolesEnum// Para que salga esa lista de seleccion
+    internal enum RolesEnum// Para que salga esa lista de seleccion en el front end
     {
         Gerente = 1,
         Cocinero = 2,

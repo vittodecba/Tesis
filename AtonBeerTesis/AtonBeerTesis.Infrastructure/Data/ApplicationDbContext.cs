@@ -14,6 +14,7 @@ namespace AtonBeerTesis.Infrastructure.Data
         //Cada DbSet representa una tabla en la base de datos
         public DbSet<Usuario> usuarios { get; set; }
         public DbSet<Rol> roles { get; set; }
+        public DbSet<HistorialAcceso> historialAccesos { get; set; }
         //Esto es el constructor que recibe las opciones de configuracion para el DbContext
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
