@@ -25,7 +25,14 @@ namespace AtonBeerTesis
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
+            // Configuracion de CORS para permitir solicitudes desde el front-end Angular
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngular",
+                    policy => policy.WithOrigins("http://localhost:4200") // La URL del Front Angular
+                                    .AllowAnyMethod()                     // Permite GET, POST, PUT, DELETE
+                                    .AllowAnyHeader());                   // Permite headers de JSON
+            });
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -36,12 +43,9 @@ namespace AtonBeerTesis
             }
 
             app.UseHttpsRedirection();
-
+            app.UseCors("AllowAngular"); // Habilita la politica de CORS
             app.UseAuthorization();
-
-
             app.MapControllers();
-
             app.Run();
         }
     }

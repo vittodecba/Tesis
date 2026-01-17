@@ -20,7 +20,7 @@ namespace AtonBeerTesis.Controllers
             var usuario = await _usuarioRepository.GetAllAsync();            
             return Ok(usuario);
         }
-        [HttpPost]
+        [HttpPost("Registro")]
         public async Task<IActionResult> PostAsync([FromBody] UsuarioDto Dto)
         {
             var nuevUsuario = new Usuario
