@@ -1,4 +1,4 @@
-﻿using AtonBeerTesis.Domain.Entities;
+using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Interfaces;
 using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +16,6 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task<List<Usuario>> GetAllAsync()
         {
-            // Incluimos "Rol" para traer el nombre del rol junto con el usuario
             return await _context.Usuarios
                 .Include(u => u.Rol)
                 .ToListAsync();
@@ -31,8 +30,11 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task<Usuario?> GetByEmailAsync(string email)
         {
-            // Agregamos AsNoTracking() para que no se quede esperando si la fila está bloqueada
-            return await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email);
+            // Mantenemos este que es el que usa tu Login
+            return await _context.Usuarios
+                .Include(u => u.Rol) // Agregamos esto para que el Login sepa qué Rol tiene el usuario
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task AddAsync(Usuario usuario)

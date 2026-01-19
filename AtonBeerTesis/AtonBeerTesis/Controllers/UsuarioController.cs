@@ -1,24 +1,32 @@
-﻿using AtonBeerTesis.Application.Interfaces;
+using AtonBeerTesis.Application.Interfaces;
+using AtonBeerTesis.Application.Dtos;
 using AtonBeerTesis.Dtos;
+using AtonBeerTesis.Domain.Entities; // O .Entidades, usá el que no te de error
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace AtonBeerTesis.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuarioController : ControllerBase
+    public class UsuarioController : ControllerBase // O BaseController si lo prefieres
     {
         private readonly IUsuarioService _usuarioService;
+        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly ITokenService _tokenService;
 
-        public UsuarioController(IUsuarioService usuarioService)
+        public UsuarioController(IUsuarioService usuarioService, IUsuarioRepository usuarioRepository, ITokenService tokenService)
         {
             _usuarioService = usuarioService;
+            _usuarioRepository = usuarioRepository;
+            _tokenService = tokenService;
         }
+
+        // --- Metodos Santi (Gestión) ---
 
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] bool mostrarInactivos = false)
         {
-            // Ahora le pasamos el valor que elijas al servicio
             var usuarios = await _usuarioService.GetAllAsync(mostrarInactivos);
             return Ok(usuarios);
         }
@@ -31,43 +39,78 @@ namespace AtonBeerTesis.Controllers
             return Ok(usuario);
         }
 
-        [HttpPost]
+         [HttpPost]
+
         public async Task<IActionResult> Create(UsuarioCreateDto dto)
+
         {
+
             try
+
             {
+
                 var nuevoUsuario = await _usuarioService.CreateAsync(dto);
+
                 return CreatedAtAction(nameof(GetById), new { id = nuevoUsuario.Id }, nuevoUsuario);
+
             }
+
             catch (Exception ex)
+
             {
+
                 // Si el mail ya existe, devolvemos error 400 (Bad Request)
+
                 return BadRequest(ex.Message);
+
             }
+
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UsuarioUpdateDto dto)
-        {
-            if (id != dto.Id) return BadRequest("El ID no coincide");
+        // --- Metodos Valen (Auth) ---
 
-            try
+        [HttpPost("registro")]
+        public async Task<IActionResult> PostAsync([FromBody] UsuarioDto Dto)
+        {
+            var nuevUsuario = new Usuario
             {
-                await _usuarioService.UpdateAsync(id, dto);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+                Nombre = Dto.Nombre,
+                Apellido = Dto.Apellido,
+                Email = Dto.Email,
+                Contraseña = Dto.ConfirmarContrasena,
+                RolId = Dto.RolId, // Aquí podrías forzar un 2 si quieres
+                Activo = true
+            };
+            await _usuarioRepository.AddAsync(nuevUsuario);
+            return Ok(nuevUsuario);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> ToggleActivo(int id)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto Dto)
         {
-            // Esto ejecuta la baja lógica (activar/desactivar)
-            await _usuarioService.DeleteAsync(id);
-            return NoContent();
+            
+            var usuario = await _usuarioRepository.GetByEmailAsync(Dto.Email);
+            
+            if (usuario == null || usuario.Contraseña != Dto.Contrasena)
+            {
+                return Unauthorized("Credenciales invalidas, reintente nuevamente");
+            }
+
+            var token = _tokenService.GenerarTokenJWT(usuario);
+            
+            return Ok(new {
+                success = true,
+                message = "Inicio de sesión exitoso",
+                data = new {
+                    token = token,
+                    usuario = new {
+                        id = usuario.Id,
+                        nombre = usuario.Nombre,
+                        email = usuario.Email,
+                        rolId = usuario.RolId
+                    }
+                }
+            });
         }
     }
 }
