@@ -13,3 +13,7 @@
 # Otros
 .idea/
 .vscode/
+/AtonBeerV3/node_modules
+/AtonBeerV3/.angular
+/AtonBeerTesis/AtonBeerTesis.Application/obj
+/AtonBeerTesis/.vs
