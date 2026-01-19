@@ -3,8 +3,12 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'register',
+    redirectTo: 'login',
     pathMatch: 'full'
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
   },
   {
     path: 'register',
@@ -12,6 +16,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'register'
+    redirectTo: 'login'
   }
 ];

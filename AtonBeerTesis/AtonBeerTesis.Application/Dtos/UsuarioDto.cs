@@ -19,11 +19,11 @@ namespace AtonBeerTesis.Application.Dtos
 
         [Required(ErrorMessage = "La contraseña es obligatoria.")]
         [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres.")]
-        public string Contraseña { get; set; } = string.Empty;
+        public string Contrasena { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Debe confirmar la contraseña.")]
         [Compare("Contraseña", ErrorMessage = "Las contraseñas no coinciden.")] // Criterio: Coincidencia de la contrasena
-        public string ConfirmarContraseña { get; set; } = string.Empty;
+        public string ConfirmarContrasena { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Debe seleccionar un Rol.")]
         public int RolId { get; set; } // Criterio: Selección de lista (envían el ID del Enum)

@@ -14,3 +14,13 @@ export interface UsuarioResponse {
   rolId: number;
   rolNombre?: string;
 }
+
+export interface UsuarioLogin {
+  email: string;
+  contrasena: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  usuario: UsuarioResponse;
+}

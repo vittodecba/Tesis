@@ -23,7 +23,7 @@ namespace AtonBeerTesis.Controllers
             var usuario = await _usuarioRepository.GetAllAsync();            
             return Ok(usuario);
         }
-        [HttpPost]
+        [HttpPost("registro")]
         public async Task<IActionResult> PostAsync([FromBody] UsuarioDto Dto)
         {
             var nuevUsuario = new Usuario
@@ -31,7 +31,7 @@ namespace AtonBeerTesis.Controllers
                 Nombre = Dto.Nombre,
                 Apellido = Dto.Apellido,
                 Email = Dto.Email,
-                Contraseña = Dto.ConfirmarContraseña,
+                Contraseña = Dto.ConfirmarContrasena,
                 RolId = Dto.RolId,
                 Activo = true
             };
@@ -44,7 +44,7 @@ namespace AtonBeerTesis.Controllers
         {
             var usuario = await _usuarioRepository.ObtenerPorEmailAsync(Dto.Email);
             //Valido que el usuario exista y que la contraseña sea correcta
-            if (usuario == null || usuario.Contraseña != Dto.Contraseña)
+            if (usuario == null || usuario.Contraseña != Dto.Contrasena)
             {
                 return Unauthorized("Credenciales invalidas, reintente nuevamente");
             }
@@ -53,12 +53,22 @@ namespace AtonBeerTesis.Controllers
             //Retorno el token al cliente junto con los datos del usuario
             return Ok(new
             {
-                Mensaje = "Inicio de sesión exitoso",
-                Token = token,
-                Id = usuario.id,
-                Nombre = usuario.Nombre,
-                RolId = usuario.RolId,
-                Email = usuario.Email
+                success = true,
+                message = "Inicio de sesión exitoso",
+                //Esto ayuda a que el 'map' de Angular lo encuentre
+                data = new
+                {
+                    token = token,
+                    //Agrupo los datos en un objeto 
+                    usuario = new
+                    {
+                        id = usuario.id,
+                        nombre = usuario.Nombre,
+                        apellido = usuario.Apellido,
+                        email = usuario.Email,
+                        rolId = usuario.RolId
+                    }
+                }
             });
         }        
     }
