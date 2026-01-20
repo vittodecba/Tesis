@@ -1,8 +1,8 @@
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Application.Dtos;
-using AtonBeerTesis.Dtos;
-using AtonBeerTesis.Domain.Entities; // O .Entidades, usá el que no te de error
+using AtonBeerTesis.Domain.Entities; 
 using Microsoft.AspNetCore.Mvc;
+using AtonBeerTesis.Domain.Interfaces;
 
 
 namespace AtonBeerTesis.Controllers
@@ -70,14 +70,14 @@ namespace AtonBeerTesis.Controllers
         // --- Metodos Valen (Auth) ---
 
         [HttpPost("registro")]
-        public async Task<IActionResult> PostAsync([FromBody] UsuarioDto Dto)
+        public async Task<IActionResult> PostAsync([FromBody] UsuarioCreateDto Dto)
         {
             var nuevUsuario = new Usuario
             {
                 Nombre = Dto.Nombre,
                 Apellido = Dto.Apellido,
                 Email = Dto.Email,
-                Contraseña = Dto.ConfirmarContrasena,
+                Contrasena = Dto.ConfirmarPassword,
                 RolId = Dto.RolId, // Aquí podrías forzar un 2 si quieres
                 Activo = true
             };
@@ -91,7 +91,7 @@ namespace AtonBeerTesis.Controllers
             
             var usuario = await _usuarioRepository.GetByEmailAsync(Dto.Email);
             
-            if (usuario == null || usuario.Contraseña != Dto.Contrasena)
+            if (usuario == null || usuario.Contrasena != Dto.Contrasena)
             {
                 return Unauthorized("Credenciales invalidas, reintente nuevamente");
             }

@@ -1,5 +1,4 @@
-﻿using AtonBeerTesis.Domain.Entidades;
-using AtonBeerTesis.Domain.Entities;
+﻿using AtonBeerTesis.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 

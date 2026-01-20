@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using AtonBeerTesis.Infrastructure.Data;
 using AtonBeerTesis.Application.Interfaces;
-using AtonBeerTesis.Domain.Entidades;
+using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Infrastructure.Repositories;
 using AtonBeerTesis.Application.Services;
+using AtonBeerTesis.Domain.Interfaces;
+
 namespace AtonBeerTesis
 {
     public class Program

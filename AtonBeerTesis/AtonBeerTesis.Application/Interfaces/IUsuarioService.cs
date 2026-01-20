@@ -1,4 +1,5 @@
-﻿using AtonBeerTesis.Dtos;
+﻿using AtonBeerTesis.Domain.Entities;
+using AtonBeerTesis.Application.Dtos;
 
 namespace AtonBeerTesis.Application.Interfaces
 {

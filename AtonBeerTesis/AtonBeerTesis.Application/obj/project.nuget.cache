@@ -1,8 +1,18 @@
 {
   "version": 2,
-  "dgSpecHash": "5UaFyUlDnHKSGslL0P/tDANMqMLe3kFPHT9/OY2T6YstD6Hbl6pv8226SPGcuYKN7WxFCZAC7IFmaz68YWGgag==",
+  "dgSpecHash": "I7ysiGTzmWgpl2n2hkzZ0sxggS/uPumx8aqkNvzs/drIlyOKlsmvoCTmkWzoiAxYXnp4NCmPOIwcdTptSlZPvQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\Farma\\OneDrive\\Documentos\\GitHub\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\Farma\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\8.0.0\\microsoft.extensions.configuration.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\Farma\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\Farma\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\Farma\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
+    "C:\\Users\\Farma\\.nuget\\packages\\microsoft.identitymodel.abstractions\\8.15.0\\microsoft.identitymodel.abstractions.8.15.0.nupkg.sha512",
+    "C:\\Users\\Farma\\.nuget\\packages\\microsoft.identitymodel.jsonwebtokens\\8.15.0\\microsoft.identitymodel.jsonwebtokens.8.15.0.nupkg.sha512",
+    "C:\\Users\\Farma\\.nuget\\packages\\microsoft.identitymodel.logging\\8.15.0\\microsoft.identitymodel.logging.8.15.0.nupkg.sha512",
+    "C:\\Users\\Farma\\.nuget\\packages\\microsoft.identitymodel.tokens\\8.15.0\\microsoft.identitymodel.tokens.8.15.0.nupkg.sha512",
+    "C:\\Users\\Farma\\.nuget\\packages\\system.identitymodel.tokens.jwt\\8.15.0\\system.identitymodel.tokens.jwt.8.15.0.nupkg.sha512"
+  ],
   "logs": []
 }

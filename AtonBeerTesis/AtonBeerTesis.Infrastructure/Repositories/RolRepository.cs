@@ -1,4 +1,4 @@
-﻿using AtonBeerTesis.Domain.Entidades;
+﻿using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Interfaces;
 using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;

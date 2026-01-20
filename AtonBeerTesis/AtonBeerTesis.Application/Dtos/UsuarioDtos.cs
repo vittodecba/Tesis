@@ -1,6 +1,8 @@
-﻿namespace AtonBeerTesis.Dtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AtonBeerTesis.Application.Dtos
 {
-    // 1. Para mostrar en la lista (lo que ve el usuario)
+    // 1. DTO PARA LEER (GET) - Lo que devolvés al frontend
     public class UsuarioDto
     {
         public int Id { get; set; }
@@ -8,22 +10,34 @@
         public string Apellido { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public bool Activo { get; set; }
-        public string RolNombre { get; set; } = string.Empty; // Para mostrar "Supervisor" en vez de un número
+        public string RolNombre { get; set; } = string.Empty; // Ej: "Gerente"
     }
 
-    // 2. Para CREAR uno nuevo
+    // 2. DTO PARA CREAR (POST) - Lo que recibís en el Registro
     public class UsuarioCreateDto
     {
+        [Required(ErrorMessage = "El nombre es obligatorio")]
         public string Nombre { get; set; } = string.Empty;
-        public string Apellido { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public int RolId { get; set; } // El ID del rol que elegimos en el desplegable
-        public string ConfirmarPassword { get; set; }
 
+        [Required(ErrorMessage = "El apellido es obligatorio")]
+        public string Apellido { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "El email es obligatorio")]
+        [EmailAddress(ErrorMessage = "Formato de email inválido")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [MinLength(6, ErrorMessage = "Mínimo 6 caracteres")]
+        public string Password { get; set; } = string.Empty;
+
+        [Compare("Password", ErrorMessage = "Las contraseñas no coinciden")]
+        public string ConfirmarPassword { get; set; } = string.Empty;
+
+        [Required]
+        public int RolId { get; set; }
     }
 
-    // 3. Para EDITAR uno existente
+    // 3. DTO PARA ACTUALIZAR (PUT)
     public class UsuarioUpdateDto
     {
         public int Id { get; set; }

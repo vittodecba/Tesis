@@ -1,6 +1,7 @@
 ﻿using AtonBeerTesis.Application.DTOs;
 using AtonBeerTesis.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using AtonBeerTesis.Domain.Entities;
 
 namespace AtonBeerTesis.API.Controllers
 {

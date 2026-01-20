@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AtonBeerTesis.Domain.Entidades;
+using AtonBeerTesis.Domain.Entities;
+using AtonBeerTesis.Application.Dtos;
 
 namespace AtonBeerTesis.Infrastructure.Data
 {
@@ -37,10 +38,12 @@ namespace AtonBeerTesis.Infrastructure.Data
             base.OnModelCreating(modelBuilder);
             //Aca hago para que el rol se cargue con datos en la BD
             modelBuilder.Entity<Rol>().HasData(
-                new Rol { Id = 1, NombreRol = "Gerente" },
-                new Rol { Id = 2, NombreRol = "Cocinero" },
-                new Rol { Id = 3, NombreRol = "ResponsablePlanta" }
-                );
+     new Rol { Id = 1, Nombre = "Cocinero", Descripcion = "Registra y consulta procesos productivos, recetas, fermentaciones y estado de barriles." },
+     new Rol { Id = 2, Nombre = "ResponsablePlanta", Descripcion = "Supervisa la producción y controla el stock de insumos, barriles y latas." },
+     new Rol { Id = 3, Nombre = "ResponsablePedidos", Descripcion = "Registra pedidos, controla entregas y actualiza el estado de los pedidos." },
+     new Rol { Id = 4, Nombre = "Gerente", Descripcion = "Gestiona clientes y realiza seguimiento de pedidos." },
+     new Rol { Id = 5, Nombre = "GerenteMayor", Descripcion = "Consulta ventas y reportes de ventas para análisis y toma de decisiones." }
+ );
         }
     }
 }

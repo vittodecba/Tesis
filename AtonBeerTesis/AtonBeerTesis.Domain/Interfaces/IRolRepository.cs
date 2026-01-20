@@ -1,4 +1,4 @@
-﻿using AtonBeerTesis.Domain.Entidades;
+﻿using AtonBeerTesis.Domain.Entities;
 
 namespace AtonBeerTesis.Domain.Interfaces
 {

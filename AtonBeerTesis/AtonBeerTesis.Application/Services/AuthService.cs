@@ -70,7 +70,7 @@ namespace AtonBeerTesis.Application.Services
             }
 
             // 3. CAMBIAMOS LA CONTRASEÑA
-            usuario.Password = dto.NuevaPassword; // Acá guardamos la nueva clave
+            usuario.Contrasena = dto.NuevaPassword; // Acá guardamos la nueva clave
 
             // 4. LIMPIAMOS EL TOKEN (Para que no se pueda usar de nuevo)
             usuario.TokenRecuperacion = null;

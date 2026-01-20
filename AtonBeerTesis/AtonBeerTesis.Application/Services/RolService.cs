@@ -1,6 +1,6 @@
 ﻿using AtonBeerTesis.Application.DTOs;
 using AtonBeerTesis.Application.Interfaces;
-using AtonBeerTesis.Domain.Entidades;
+using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Interfaces;
 
 namespace AtonBeerTesis.Application.Services

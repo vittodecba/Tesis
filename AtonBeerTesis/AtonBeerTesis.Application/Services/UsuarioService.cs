@@ -1,8 +1,7 @@
 ﻿using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Interfaces;
-using AtonBeerTesis.Dtos;
-
+using AtonBeerTesis.Application.Dtos;
 namespace AtonBeerTesis.Application.Services
 {
     public class UsuarioService : IUsuarioService
@@ -79,7 +78,7 @@ namespace AtonBeerTesis.Application.Services
                 Nombre = dto.Nombre,
                 Apellido = dto.Apellido,
                 Email = dto.Email,
-                Password = dto.Password,
+                Contrasena = dto.Password,
                 RolId = dto.RolId,
                 Activo = true
             };
