@@ -13,6 +13,6 @@ namespace AtonBeerTesis.Application.Dtos
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
         [Required]
-        public string Contraseña { get; set; } = string.Empty;
+        public string Contrasena { get; set; } = string.Empty;
     }
 }
