@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AtonBeerTesis.Application.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,9 @@ namespace AtonBeerTesis.Application.Interfaces
     {
         // Definimos que existirá un método para cerrar sesión
         Task<bool> Logout();
+
+        Task RecuperarContrasena(string email);
+
+        Task RestablecerContrasena(RestablecerContrasenaDto dto);
     }
 }

@@ -1,16 +1,14 @@
 # Basura de Visual Studio
 .vs/
-**/.vs/
+[Bb]in/
+[Oo]bj/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
 
-# Carpetas de Compilación (lo que genera ruido)
-**/bin/
-**/obj/
-
 # Otros
 .idea/
 .vscode/
-/AtonBeerTesis/AtonBeerTesis/obj
+node_modules/
+.angular/
