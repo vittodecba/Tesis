@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink], // Esto es lo que permite que ande el enlace
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
 })
 export class LoginComponent {
@@ -43,10 +43,10 @@ export class LoginComponent {
           text: `Hola ${response.usuario.nombre}`,
           timer: 1500,
           showConfirmButton: false
+        }).then(() => {
+           // --- CORREGIDO: Ahora sí te lleva al dashboard ---
+           this.router.navigate(['/dashboard']); 
         });
-        
-        // Cuando quieras que te mande a la pantalla principal dsp de loguearte, descomenta la linea de abajo:
-        // this.router.navigate(['/dashboard']); 
       },
       error: (error) => {
         this.isLoading = false;

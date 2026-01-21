@@ -65,13 +65,13 @@ export class RegisterComponent {
     this.isLoading = true;
     const formValues = this.registerForm.value;
 
-    // --- CORRECCIÓN CLAVE: Sin "ñ" para que el servidor lo entienda ---
+    // --- CORRECCIÓN APLICADA: Mapeo exacto con Swagger (en inglés) ---
     const usuarioDto = {
       Nombre: formValues.nombre,
       Apellido: formValues.apellido,
       Email: formValues.email,
-      Contrasena: formValues.contrasena,           // Cambiado: "Contrasena" (con n)
-      ConfirmarContrasena: formValues.confirmarContrasena, // Cambiado: "ConfirmarContrasena" (con n)
+      password: formValues.contrasena,           // Corregido: matchea con el back
+      confirmarPassword: formValues.confirmarContrasena, // Corregido: matchea con el back
       RolId: Number(formValues.rolId)
     };
 
@@ -89,6 +89,7 @@ export class RegisterComponent {
       },
       error: (error) => {
         this.isLoading = false;
+        console.error('Error detallado:', error); // Agregué esto para ver más info en consola si falla
         Swal.fire({
           icon: 'error',
           title: 'Error en el registro',
