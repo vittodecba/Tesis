@@ -1,14 +1,22 @@
-# Basura de Visual Studio
-.vs/
-[Bb]in/
-[Oo]bj/
+# --- Extensiones de Usuario ---
 *.user
 *.suo
-*.userosscache
-*.sln.docstates
+*.useros
 
-# Otros
+# --- Carpetas de Compilación (Súper importante) ---
+bin/
+obj/
+/AtonBeerTesis.Application/bin/
+/AtonBeerTesis.Application/obj/
+/AtonBeerTesis.Domain/bin/
+/AtonBeerTesis.Domain/obj/
+/AtonBeerTesis.Infrastructure/bin/
+/AtonBeerTesis.Infrastructure/obj/
+
+# --- Visual Studio ---
+.vs/
 .idea/
-.vscode/
-node_modules/
-.angular/
+
+# --- Bases de Datos Locales ---
+*.mdf
+*.ldf
