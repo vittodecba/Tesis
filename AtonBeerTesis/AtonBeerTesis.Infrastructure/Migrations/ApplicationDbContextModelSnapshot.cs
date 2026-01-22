@@ -44,8 +44,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.Property<string>("Cuit")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(120)
@@ -78,7 +77,12 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.HasKey("IdCliente");
 
+                    b.HasIndex("Cuit")
+                        .IsUnique();
+
                     b.ToTable("Clientes");
+                });
+
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Rol", b =>
                 {
                     b.Property<int>("Id")
