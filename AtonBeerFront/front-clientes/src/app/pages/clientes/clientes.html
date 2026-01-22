@@ -1,0 +1,177 @@
+<div class="page">
+  <div class="header">
+    <div class="title">
+      <h1>Clientes</h1>
+      <p>Gestión de franquicias y clientes externos</p>
+    </div>
+    <div class="actions">
+      <div class="search">
+        <lucide-icon [img]="Search" class="icon" [size]="18"></lucide-icon>
+        <input
+          placeholder="Buscar por nombre o CUIT..."
+          [(ngModel)]="filtroBusqueda"
+          (input)="aplicarFiltros()"
+        />
+      </div>
+      <button class="btnPrimary" type="button" (click)="openCreate()">
+        <lucide-icon [img]="Plus" class="icon" [size]="18"></lucide-icon>
+        Nuevo Cliente
+      </button>
+    </div>
+  </div>
+
+  <div class="filters-container">
+    <div class="filter-box">
+      <span class="filter-label">Filtrar por Tipo</span>
+      <select [(ngModel)]="filtroTipo" (change)="aplicarFiltros()" class="filter-select">
+        <option value="">Todos los tipos</option>
+        <option value="Externo">Externo</option>
+        <option value="Franquicia">Franquicia</option>
+      </select>
+    </div>
+
+    <div class="filter-box">
+      <span class="filter-label">Filtrar por Estado</span>
+      <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()" class="filter-select">
+        <option value="">Todos los estados</option>
+        <option value="Activo">Activos</option>
+        <option value="Inactivo">Inactivos</option>
+      </select>
+    </div>
+
+    <div class="filter-actions">
+      <button
+        class="btn-clear"
+        *ngIf="filtroTipo || filtroEstado || filtroBusqueda"
+        (click)="filtroTipo = ''; filtroEstado = ''; filtroBusqueda = ''; aplicarFiltros()"
+      >
+        <lucide-icon [img]="X" [size]="14"></lucide-icon>
+        Limpiar Filtros
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th>Ubicación</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of clientesFiltrados">
+          <td class="strong">{{ c.razonSocial }}</td>
+          <td>
+            <span class="badge" [class.badgeOrange]="c.tipoCliente === 'Franquicia'">{{
+              c.tipoCliente
+            }}</span>
+          </td>
+          <td>{{ c.ubicacion }}</td>
+          <td>
+            <label class="switch">
+              <input
+                type="checkbox"
+                [checked]="c.estadoCliente === 'Activo'"
+                (change)="toggleEstado(c)"
+              />
+              <span class="slider"></span>
+            </label>
+            <span class="status-text">{{ c.estadoCliente }}</span>
+          </td>
+          <td class="actionsCol">
+            <button class="iconBtn edit" (click)="openEdit(c)">
+              <lucide-icon [img]="Pencil" [size]="16"></lucide-icon>
+            </button>
+            <button class="iconBtn summary" (click)="verResumen(c)">
+              <lucide-icon [img]="FileText" [size]="16"></lucide-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="clientesFiltrados.length === 0 && !cargando">
+      No se encontraron clientes con esos filtros.
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showCreate" (click)="closeModals()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ isEditing ? 'Modificar Cliente' : 'Nuevo Cliente' }}</h2>
+      <button class="close-btn" type="button" (click)="closeModals()">×</button>
+    </div>
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+      <div class="form-scroll">
+        <div class="section-title">Datos de la Empresa</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Razón Social *</label><input formControlName="razonSocial" />
+          </div>
+          <div class="field"><label>CUIT</label><input formControlName="cuit" /></div>
+          <div class="field">
+            <label>Tipo *</label>
+            <select formControlName="tipoCliente">
+              <option value="Externo">Externo</option>
+              <option value="Franquicia">Franquicia</option>
+            </select>
+          </div>
+          <div class="field"><label>Ubicación *</label><input formControlName="ubicacion" /></div>
+        </div>
+        <div class="section-title">Contacto</div>
+        <div class="form-grid">
+          <div class="field full">
+            <label>Nombre</label><input formControlName="contactoNombre" />
+          </div>
+          <div class="field">
+            <label>Teléfono</label><input formControlName="contactoTelefono" />
+          </div>
+          <div class="field"><label>Email</label><input formControlName="contactoEmail" /></div>
+        </div>
+      </div>
+      <div class="error-msg" *ngIf="createError">{{ createError }}</div>
+      <div class="modal-footer">
+        <button type="button" class="btnSecondary" (click)="closeModals()">Cancelar</button>
+        <button type="submit" class="btnPrimary" [disabled]="saving">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showSummary && selectedCliente" (click)="closeModals()">
+  <div class="modal-content summary-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Resumen: {{ selectedCliente.razonSocial }}</h2>
+      <button class="close-btn" (click)="closeModals()">×</button>
+    </div>
+    <div class="summary-body">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <lucide-icon [img]="Package" class="m-icon blue"></lucide-icon>
+          <div class="m-data">
+            <span class="m-label">Información</span>
+            <span class="m-value">Pedidos: {{ selectedCliente.totalPedidos || 0 }}</span>
+          </div>
+        </div>
+        <div class="metric-card">
+          <lucide-icon [img]="Calendar" class="m-icon green"></lucide-icon>
+          <div class="m-data">
+            <span class="m-label">Última Compra</span>
+            <span class="m-value">{{
+              (selectedCliente.ultimaCompra | date: 'dd/MM/yy') || 'Sin compras'
+            }}</span>
+          </div>
+        </div>
+      </div>
+      <p><strong>CUIT:</strong> {{ selectedCliente.cuit }}</p>
+      <p><strong>Ubicación:</strong> {{ selectedCliente.ubicacion }}</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btnSecondary" (click)="closeModals()">Cerrar Resumen</button>
+    </div>
+  </div>
+</div>
