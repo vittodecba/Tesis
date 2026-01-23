@@ -1,24 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using AtonBeerTesis.Domain.Entities;
+// Agregamos los usings de ambas ramas
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AtonBeerTesis.Domain.Entidades;
 
 namespace AtonBeerTesis.Infrastructure.Data
 {
-    //El db context es la clase principal que se encarga de la comunicacion con la base de datos
     public class ApplicationDbContext : DbContext
     {
-        //Cada DbSet representa una tabla en la base de datos
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options) { }
+
+        // Aquí juntamos todas las tablas (DbSets)
+        public DbSet<Cliente> Clientes => Set<Cliente>();
         public DbSet<Usuario> usuarios { get; set; }
         public DbSet<Rol> roles { get; set; }
         public DbSet<HistorialAcceso> historialAccesos { get; set; }
-        //Esto es el constructor que recibe las opciones de configuracion para el DbContext
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-        {
-        }
         //Constructor vacio
         protected ApplicationDbContext()
         {
@@ -29,19 +27,35 @@ namespace AtonBeerTesis.Infrastructure.Data
             base.OnConfiguring(optionsBuilder);
         }
 
-        //Este metodo se genera justo antes de dar inicio a la BD, a diferencia del OnConfiguring que se ejecuta antes de eso.
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
-            //Esto dice explicitamente que la entidad StudentsEntity se mapea a la tabla Students
-            modelBuilder.Entity<Usuario>().ToTable("Usuarios");
             base.OnModelCreating(modelBuilder);
-            //Aca hago para que el rol se cargue con datos en la BD
+
+            // --- Configuración de Clientes (Viene de HEAD) ---
+            modelBuilder.Entity<Cliente>(entity =>
+            {
+                entity.HasKey(x => x.IdCliente);
+                entity.Property(x => x.RazonSocial).IsRequired().HasMaxLength(150);
+                modelBuilder.Entity<Cliente>().HasIndex(c => c.Cuit).IsUnique();
+                entity.Property(x => x.Ubicacion).IsRequired().HasMaxLength(120);
+                entity.Property(x => x.Email).HasMaxLength(120);
+                entity.Property(x => x.ContactoNombre).HasMaxLength(120);
+                entity.Property(x => x.ContactoTelefono).HasMaxLength(40);
+                entity.Property(x => x.ContactoEmail).HasMaxLength(120);
+                entity.Property(x => x.Tipocliente).HasConversion<int>();
+                entity.Property(x => x.EstadoCliente).HasConversion<int>();
+            });
+
+            // --- Configuración de Usuarios y Roles (Viene de tu rama) ---
+            modelBuilder.Entity<Usuario>().ToTable("Usuarios");
+
             modelBuilder.Entity<Rol>().HasData(
-                new Rol { Id = 1, NombreRol = "Gerente" },
-                new Rol { Id = 2, NombreRol = "Cocinero" },
-                new Rol { Id = 3, NombreRol = "ResponsablePlanta" }
-                );
+                new Rol { Id = 1, Nombre = "Cocinero", Descripcion = "Registra y consulta procesos productivos, recetas, fermentaciones y estado de barriles." },
+                new Rol { Id = 2, Nombre = "ResponsablePlanta", Descripcion = "Supervisa la producción y controla el stock de insumos, barriles y latas." },
+                new Rol { Id = 3, Nombre = "ResponsablePedidos", Descripcion = "Registra pedidos, controla entregas y actualiza el estado de los pedidos." },
+                new Rol { Id = 4, Nombre = "Gerente", Descripcion = "Gestiona clientes y realiza seguimiento de pedidos." },
+                new Rol { Id = 5, Nombre = "GerenteMayor", Descripcion = "Consulta ventas y reportes de ventas para análisis y toma de decisiones." }
+            );
         }
     }
 }

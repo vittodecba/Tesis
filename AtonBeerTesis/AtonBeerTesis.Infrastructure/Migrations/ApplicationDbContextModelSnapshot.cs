@@ -22,6 +22,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            // 1. TU TABLA DE HISTORIAL 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entidades.HistorialAcceso", b =>
                 {
                     b.Property<int>("Id")
@@ -54,7 +55,70 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.ToTable("historialAccesos");
                 });
 
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entidades.Rol", b =>
+            // 2. TABLA DE CLIENTES 
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Cliente", b =>
+                {
+                    b.Property<int>("IdCliente")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCliente"));
+
+                    b.Property<string>("ContactoEmail")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("ContactoNombre")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("ContactoTelefono")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("Cuit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<int>("EstadoCliente")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RazonSocial")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int>("Tipocliente")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalPedidos")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Ubicacion")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<DateTime?>("UltimaCompra")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UltimoPedido")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("IdCliente");
+
+                    b.HasIndex("Cuit")
+                        .IsUnique();
+
+                    b.ToTable("Clientes");
+                });
+
+            // 3. TABLA DE ROLES 
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Rol", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -62,9 +126,15 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("NombreRol")
+                    b.Property<string>("Descripcion")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -74,27 +144,43 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            NombreRol = "Gerente"
+                            Descripcion = "Registra y consulta procesos productivos, recetas, fermentaciones y estado de barriles.",
+                            Nombre = "Cocinero"
                         },
                         new
                         {
                             Id = 2,
-                            NombreRol = "Cocinero"
+                            Descripcion = "Supervisa la producción y controla el stock de insumos, barriles y latas.",
+                            Nombre = "ResponsablePlanta"
                         },
                         new
                         {
                             Id = 3,
-                            NombreRol = "ResponsablePlanta"
+                            Descripcion = "Registra pedidos, controla entregas y actualiza el estado de los pedidos.",
+                            Nombre = "ResponsablePedidos"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Descripcion = "Gestiona clientes y realiza seguimiento de pedidos.",
+                            Nombre = "Gerente"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Descripcion = "Consulta ventas y reportes de ventas para análisis y toma de decisiones.",
+                            Nombre = "GerenteMayor"
                         });
                 });
 
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entidades.Usuario", b =>
+            // 4. TABLA DE USUARIOS 
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Usuario", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
@@ -103,7 +189,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Contraseña")
+                    b.Property<string>("Contrasena")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -118,36 +204,40 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Property<int>("RolId")
                         .HasColumnType("int");
 
-                    b.HasKey("id");
+                    b.Property<DateTime?>("TokenExpiracion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TokenRecuperacion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("RolId");
 
                     b.ToTable("Usuarios", (string)null);
                 });
 
+            // 5. RELACIONES             
+            // Relación Historial -> Usuario
             modelBuilder.Entity("AtonBeerTesis.Domain.Entidades.HistorialAcceso", b =>
-                {
-                    b.HasOne("AtonBeerTesis.Domain.Entidades.Usuario", "Usuario")
+                {                    
+                    b.HasOne("AtonBeerTesis.Domain.Entities.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId");
 
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entidades.Usuario", b =>
+            // Relación Usuario -> Rol
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Usuario", b =>
                 {
-                    b.HasOne("AtonBeerTesis.Domain.Entidades.Rol", "Rol")
-                        .WithMany("Usuarios")
+                    b.HasOne("AtonBeerTesis.Domain.Entities.Rol", "Rol")
+                        .WithMany()
                         .HasForeignKey("RolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Rol");
-                });
-
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entidades.Rol", b =>
-                {
-                    b.Navigation("Usuarios");
                 });
 #pragma warning restore 612, 618
         }

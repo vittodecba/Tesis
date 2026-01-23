@@ -1,0 +1,107 @@
+<div class="shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brandIcon">
+        <lucide-icon [img]="Beer" [size]="18"></lucide-icon>
+      </div>
+      <div class="brandText">
+        <div class="brandTitle">Aton Beer</div>
+        <div class="brandSub">Sistema de Gestión</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a
+        class="navItem"
+        routerLink="/inicio"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <lucide-icon [img]="Home" class="navIcon" [size]="18"></lucide-icon>
+        <span>Inicio</span>
+      </a>
+
+      <a class="navItem" routerLink="/insumos" routerLinkActive="active">
+        <lucide-icon [img]="ClipboardList" class="navIcon" [size]="18"></lucide-icon>
+        <span>Insumos</span>
+      </a>
+
+      <a class="navItem" routerLink="/recetas" routerLinkActive="active">
+        <lucide-icon [img]="BookOpen" class="navIcon" [size]="18"></lucide-icon>
+        <span>Recetas</span>
+      </a>
+
+      <a class="navItem" routerLink="/planificacion" routerLinkActive="active">
+        <lucide-icon [img]="CalendarDays" class="navIcon" [size]="18"></lucide-icon>
+        <span>Planificación</span>
+      </a>
+
+      <a class="navItem" routerLink="/fermentacion" routerLinkActive="active">
+        <lucide-icon [img]="FlaskConical" class="navIcon" [size]="18"></lucide-icon>
+        <span>Fermentación</span>
+      </a>
+
+      <a class="navItem" routerLink="/stock" routerLinkActive="active">
+        <lucide-icon [img]="Boxes" class="navIcon" [size]="18"></lucide-icon>
+        <span>Stock</span>
+      </a>
+
+      <a class="navItem" routerLink="/clientes" routerLinkActive="active">
+        <lucide-icon [img]="Users" class="navIcon" [size]="18"></lucide-icon>
+        <span>Clientes</span>
+      </a>
+
+      <a class="navItem" routerLink="/pedidos" routerLinkActive="active">
+        <lucide-icon [img]="Receipt" class="navIcon" [size]="18"></lucide-icon>
+        <span>Pedidos</span>
+      </a>
+
+      <a class="navItem" routerLink="/barriles" routerLinkActive="active">
+        <lucide-icon [img]="Barrel" class="navIcon" [size]="18"></lucide-icon>
+        <span>Seguimiento Barriles</span>
+      </a>
+
+      <a class="navItem" routerLink="/ventas" routerLinkActive="active">
+        <lucide-icon [img]="CreditCard" class="navIcon" [size]="18"></lucide-icon>
+        <span>Ventas</span>
+      </a>
+
+      <a class="navItem" routerLink="/reportes" routerLinkActive="active">
+        <lucide-icon [img]="LineChart" class="navIcon" [size]="18"></lucide-icon>
+        <span>Reportes de Ventas</span>
+      </a>
+    </nav>
+
+    <div class="logout">
+      <button class="logoutBtn" type="button">
+        <lucide-icon [img]="LogOut" class="navIcon" [size]="18"></lucide-icon>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbarLeft">
+        <div class="pageTitle">{{ pageTitle }}</div>
+        <div class="pageSub">{{ pageSub }}</div>
+      </div>
+
+      <div class="topbarRight">
+        <div class="user">
+          <div class="userName">Juan Carlos Pérez</div>
+          <div class="userRole">Gerente Mayor</div>
+        </div>
+        <div class="avatar">
+          <lucide-icon [img]="User" [size]="18"></lucide-icon>
+        </div>
+      </div>
+    </header>
+
+    <section class="content">
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+</div>

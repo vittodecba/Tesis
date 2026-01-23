@@ -1,17 +1,22 @@
-# Basura de Visual Studio
-.vs/
-**/.vs/
+# --- Extensiones de Usuario ---
 *.user
 *.suo
-*.userosscache
-*.sln.docstates
+*.useros
 
-# Carpetas de Compilación (lo que genera ruido)
-**/bin/
-**/obj/
+# --- Carpetas de Compilación (Súper importante) ---
+bin/
+obj/
+/AtonBeerTesis.Application/bin/
+/AtonBeerTesis.Application/obj/
+/AtonBeerTesis.Domain/bin/
+/AtonBeerTesis.Domain/obj/
+/AtonBeerTesis.Infrastructure/bin/
+/AtonBeerTesis.Infrastructure/obj/
 
-# Otros
+# --- Visual Studio ---
+.vs/
 .idea/
-.vscode/
-*.v2
-/AtonBeerTesis/.vs
+
+# --- Bases de Datos Locales ---
+*.mdf
+*.ldf

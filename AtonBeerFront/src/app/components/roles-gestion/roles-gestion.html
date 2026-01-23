@@ -1,0 +1,48 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Gestión de Roles</h2>
+    <button class="btn btn-primary" (click)="toggleFormulario()">
+      {{ mostrarFormulario ? 'Cancelar' : '+ Nuevo Rol' }}
+    </button>
+  </div>
+
+  <div *ngIf="mostrarFormulario" class="card p-4 mb-3 bg-light shadow-sm">
+    <h5 class="mb-3">{{ idEdicion ? 'Editar Rol' : 'Nuevo Rol' }}</h5>
+    
+    <div class="mb-3">
+      <label class="form-label">Nombre del Rol</label>
+      <input type="text" class="form-control" placeholder="Ej: Mantenimiento" [(ngModel)]="formNombre">
+    </div>
+    
+    <div class="mb-3">
+      <label class="form-label">Descripción</label>
+      <input type="text" class="form-control" placeholder="Descripción de tareas" [(ngModel)]="formDescripcion">
+    </div>
+
+    <button class="btn btn-success" (click)="guardarRol()">
+      {{ idEdicion ? 'Actualizar Cambios' : 'Guardar Rol' }}
+    </button>
+  </div>
+
+  <table class="table table-striped table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th style="width: 200px;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let rol of roles">
+        <td>{{ rol.id }}</td>
+        <td>{{ rol.nombre }}</td>
+        <td>{{ rol.descripcion }}</td>
+        <td>
+          <button class="btn btn-warning btn-sm me-2" (click)="cargarDatosEdicion(rol)">Editar</button>
+          <button class="btn btn-danger btn-sm" (click)="eliminarRol(rol.id)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

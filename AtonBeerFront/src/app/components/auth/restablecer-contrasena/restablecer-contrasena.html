@@ -1,0 +1,32 @@
+<div class="container-fluid d-flex justify-content-center align-items-center vh-100 bg-light">
+  <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
+    
+    <div class="text-center mb-4">
+      <h2 class="fw-bold text-primary">Crear Nueva Contraseña</h2>
+      <p class="text-muted">Ingresá el código que recibiste por mail y tu nueva clave.</p>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Tu Email</label>
+      <input type="email" class="form-control" [(ngModel)]="email" placeholder="Confirmá tu email">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Código de Seguridad</label>
+      <input type="text" class="form-control" [(ngModel)]="token" placeholder="Pegá el código largo aquí">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Nueva Contraseña</label>
+      <input type="password" class="form-control" [(ngModel)]="nuevaPassword" placeholder="******">
+    </div>
+
+    <button 
+      class="btn btn-success w-100 py-2 mb-3" 
+      (click)="cambiarContrasena()" 
+      [disabled]="cargando">
+      {{ cargando ? 'Guardando...' : 'Cambiar Contraseña' }}
+    </button>
+
+  </div>
+</div>

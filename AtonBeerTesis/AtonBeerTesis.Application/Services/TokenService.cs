@@ -1,5 +1,5 @@
 ﻿using AtonBeerTesis.Application.Interfaces;
-using AtonBeerTesis.Domain.Entidades;
+using AtonBeerTesis.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;//Nuevo, para criptografia
 using System.IdentityModel.Tokens.Jwt;//Nuevo, para crear tokens
@@ -26,7 +26,7 @@ namespace AtonBeerTesis.Application.Services
                 {
                 //Obtengo los claims del usuario, para guardarlos en el token, claims = datos del usuario.
                     new Claim(JwtRegisteredClaimNames.Sub, usuario.Email),//esto quiere decir "subject", el tema del token, en este caso el email
-                    new Claim("id", usuario.id.ToString()),
+                    new Claim("id", usuario.Id.ToString()),
                     new Claim("nombre", usuario.Nombre),
                     new Claim("rolId", usuario.RolId.ToString()),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())// Esto genera un ID unico para cada token de manera que no se repita
