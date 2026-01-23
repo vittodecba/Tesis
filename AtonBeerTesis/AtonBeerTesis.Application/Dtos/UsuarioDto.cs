@@ -22,7 +22,7 @@ namespace AtonBeerTesis.Application.Dtos
         public string Contrasena { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Debe confirmar la contraseña.")]
-        [Compare("Contraseña", ErrorMessage = "Las contraseñas no coinciden.")] // Criterio: Coincidencia de la contrasena
+        [Compare("Contrasena", ErrorMessage = "Las contraseñas no coinciden.")] // Criterio: Coincidencia de la contrasena
         public string ConfirmarContrasena { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Debe seleccionar un Rol.")]

@@ -1,0 +1,57 @@
+<div class="p-6 bg-white rounded-xl shadow-lg m-4">
+  <h2 class="text-2xl font-bold text-[#4A2C2A] mb-6">Auditoría de Accesos</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+    <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
+      <input type="text" [(ngModel)]="filtros.email" (input)="aplicarFiltros()" placeholder="Buscar email..." class="w-full p-2 border rounded-md text-sm outline-none focus:ring-2 focus:ring-orange-500">
+    </div>
+    <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Fecha</label>
+      <input type="date" [(ngModel)]="filtros.fecha" (change)="aplicarFiltros()" class="w-full p-2 border rounded-md text-sm outline-none">
+    </div>
+    <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Estado</label>
+      <select [(ngModel)]="filtros.exito" (change)="aplicarFiltros()" class="w-full p-2 border rounded-md text-sm outline-none">
+        <option value="">Todos</option>
+        <option value="true">Exitosos</option>
+        <option value="false">Fallidos</option>
+      </select>
+    </div>
+    <div class="flex items-end">
+      <button (click)="limpiar()" class="text-sm text-orange-600 font-medium hover:underline p-2">Limpiar</button>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto border border-gray-100 rounded-lg">
+    <table class="w-full text-left">
+      <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+        <tr>
+          <th class="p-4">Fecha</th>
+          <th class="p-4">Usuario</th>
+          <th class="p-4">Email</th>
+          <th class="p-4 text-center">Estado</th>
+          <th class="p-4">Detalles</th> 
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        @for (item of historial; track $index) {
+          <tr class="hover:bg-gray-50 transition">
+            <td class="p-4 text-sm">{{ item.fecha }}</td>
+            <td class="p-4 text-sm font-medium">{{ item.usuario }}</td>
+            <td class="p-4 text-sm">{{ item.email }}</td>
+            <td class="p-4 text-center">
+              <span [ngClass]="item.exitoso ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" 
+                    class="px-2 py-1 rounded text-xs font-bold">
+                {{ item.exitoso ? 'EXITOSO' : 'FALLIDO' }}
+              </span>
+            </td>
+            <td class="p-4 text-sm text-gray-600 italic">
+              {{ item.detalles || 'Sin observaciones' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

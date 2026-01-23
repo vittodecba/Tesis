@@ -36,30 +36,43 @@ export class LoginComponent {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
+        this.isLoading = false;
+        
+        // 1. PRIMERO verificamos el Rol
+        const rol = response.usuario.rolId;
+
+        if (rol !== 1) {
+          // Si NO es admin, tiramos el error DIRECTAMENTE y cortamos acá
+          console.warn('Usuario no es admin, bloqueando acceso.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Acceso Denegado',
+            text: 'Tu usuario no tiene permisos de administrador para entrar al sistema.',
+            confirmButtonColor: '#E67E22'
+          });
+          
+          // Limpiamos la sesión para que no quede nada guardado
+          this.authService.logout(); 
+          return; // El return hace que NO se ejecute nada de lo que sigue abajo
+        }
+
+        // 2. SI ES ADMIN, recién ahora mostramos el éxito y navegamos
         Swal.fire({
           icon: 'success',
           title: '¡Bienvenido!',
           text: `Hola ${response.usuario.nombre}`,
           timer: 1500,
           showConfirmButton: false
+        }).then(() => {
+          this.router.navigate(['/dashboard/historial']);
         });
-        //this.router.navigate(['/dashboard']);//
       },
       error: (error) => {
         this.isLoading = false;
-        
-        let errorMessage = 'Credenciales incorrectas';
-        
-        if (error.status === 401) {
-          errorMessage = 'Email o contraseña incorrectos';
-        } else if (error.status === 0) {
-          errorMessage = 'No se pudo conectar con el servidor';
-        }
-
         Swal.fire({
           icon: 'error',
           title: 'Error de autenticación',
-          text: errorMessage,
+          text: 'Credenciales incorrectas',
           confirmButtonColor: '#E67E22'
         });
       }

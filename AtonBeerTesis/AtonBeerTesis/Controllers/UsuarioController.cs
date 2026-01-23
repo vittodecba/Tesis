@@ -54,16 +54,16 @@ namespace AtonBeerTesis.Controllers
                 StatusCode = 200
             });
         }
-        [HttpPost("login")]//Voy a agregar al login 
-        public async Task<IActionResult> PostAsync([FromBody] LoginDto Dto)
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginAsync([FromBody] LoginDto Dto)
         {
             var usuario = await _usuarioRepository.ObtenerPorEmailAsync(Dto.Email);
-            //Valido que el usuario exista y que la contraseña sea correcta
+
+            // 1. CASO: El usuario no existe o sea el email no esta registrado.
             if (usuario == null)
             {
                 await _historialAccesoRepository.Addasync(new HistorialAcceso
                 {
-                    //Aca el usuario no existe, por lo tanto no puedo guardar el UsuarioId
                     EmailIntentado = Dto.Email,
                     Exitoso = false,
                     Detalles = "Email no registrado",
@@ -71,37 +71,50 @@ namespace AtonBeerTesis.Controllers
                 });
                 return Unauthorized("Email no registrado, reintente nuevamente");
             }
-            if (usuario.Contraseña != Dto.Contraseña)
+
+            // 2. CASO: Contraseña incorrecta
+            if (usuario.Contraseña != Dto.Contrasena)
             {
                 await _historialAccesoRepository.Addasync(new HistorialAcceso
                 {
-                    UsuarioId = usuario.id,//Aca el usuario ya existe, pero la contraseña es incorrecta
+                    UsuarioId = usuario.id,
                     EmailIntentado = Dto.Email,
-                 Exitoso = false,
-                 Detalles = "Contraseña incorrecta",
-                 FechaIntento= DateTime.Now
+                    Exitoso = false,
+                    Detalles = "Contraseña incorrecta",
+                    FechaIntento = DateTime.Now
                 });
                 return Unauthorized("Contraseña incorrecta, reintente nuevamente");
             }
-            //Genero el token JWT
+
+            // 3. CASO: Login Exitoso
             var token = _tokenService.GenerarTokenJWT(usuario);
-            //Retorno el token al cliente junto con los datos del usuario
+
             await _historialAccesoRepository.Addasync(new HistorialAcceso
             {
-                UsuarioId = usuario.id,//Aca el login fue exitoso, por lo tanto guardo el UsuarioId
+                UsuarioId = usuario.id,
                 EmailIntentado = Dto.Email,
-             Exitoso = true,
-             Detalles = "Login exitoso",
-             FechaIntento= DateTime.Now
+                Exitoso = true,
+                Detalles = "Login exitoso",
+                FechaIntento = DateTime.Now
             });
+
+            // Retorno con la estructura que espera Angular
             return Ok(new
             {
-                Mensaje = "Inicio de sesión exitoso",
-                Token = token,
-                Id = usuario.id,
-                Nombre = usuario.Nombre,
-                RolId = usuario.RolId,
-                Email = usuario.Email
+                success = true,
+                message = "Inicio de sesión exitoso",
+                data = new
+                {
+                    token = token,
+                    usuario = new
+                    {
+                        id = usuario.id,
+                        nombre = usuario.Nombre,
+                        apellido = usuario.Apellido,
+                        email = usuario.Email,
+                        rolId = usuario.RolId
+                    }
+                }
             });
         }
         [HttpGet("HistorialAcceso")]//Endpoint para obtener el historial de accesos con filtros opcionales
@@ -119,37 +132,6 @@ namespace AtonBeerTesis.Controllers
             });
             return Ok(new {Success=true, data = resultado});
         }
-        [HttpPost("login")]
-        public async Task<IActionResult> PostAsync([FromBody] LoginDto Dto)
-        {
-            var usuario = await _usuarioRepository.ObtenerPorEmailAsync(Dto.Email);
-            //Valido que el usuario exista y que la contraseña sea correcta
-            if (usuario == null || usuario.Contraseña != Dto.Contrasena)
-            {
-                return Unauthorized("Credenciales invalidas, reintente nuevamente");
-            }
-            //Genero el token JWT
-            var token = _tokenService.GenerarTokenJWT(usuario);
-            //Retorno el token al cliente junto con los datos del usuario
-            return Ok(new
-            {
-                success = true,
-                message = "Inicio de sesión exitoso",
-                //Esto ayuda a que el 'map' de Angular lo encuentre
-                data = new
-                {
-                    token = token,
-                    //Agrupo los datos en un objeto 
-                    usuario = new
-                    {
-                        id = usuario.id,
-                        nombre = usuario.Nombre,
-                        apellido = usuario.Apellido,
-                        email = usuario.Email,
-                        rolId = usuario.RolId
-                    }
-                }
-            });
-        }        
+       
     }
 }
