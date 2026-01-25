@@ -11,6 +11,8 @@ import {
   LucideAngularModule,
   Search,
   Plus,
+  User,
+  Phone,
   X,
   Pencil,
   FileText,
@@ -27,13 +29,16 @@ import { ClientesApiService } from '../../services/clientes-api';
   selector: 'app-clientes',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, LucideAngularModule],
-  templateUrl: './clientes.html',
-  styleUrls: ['./clientes.scss'],
+  templateUrl: './clientes.component.html',
+  styleUrls: ['./clientes.component.scss'],
 })
 export class ClientesComponent implements OnInit {
+  // Iconos para la interfaz - IMPORTANTE: Declarar los que usas en el HTML
   Search = Search;
   Plus = Plus;
   X = X;
+  User = User; // <--- Agregado para solucionar el error de tu captura
+  Phone = Phone;
   Pencil = Pencil;
   FileText = FileText;
   Calendar = Calendar;
@@ -47,12 +52,10 @@ export class ClientesComponent implements OnInit {
   clientesFiltrados: any[] = [];
   cargando = false;
 
-  // Filtros
   filtroBusqueda: string = '';
   filtroTipo: string = '';
   filtroEstado: string = '';
 
-  // Modales
   showCreate = false;
   showSummary = false;
   isEditing = false;
@@ -96,7 +99,6 @@ export class ClientesComponent implements OnInit {
     });
   }
 
-  // --- LÓGICA DE FILTRADO ---
   aplicarFiltros(): void {
     this.clientesFiltrados = this.clientes.filter((c) => {
       const cumpleBusqueda =
@@ -104,7 +106,6 @@ export class ClientesComponent implements OnInit {
         c.cuit.includes(this.filtroBusqueda);
       const cumpleTipo = this.filtroTipo === '' || c.tipoCliente === this.filtroTipo;
       const cumpleEstado = this.filtroEstado === '' || c.estadoCliente === this.filtroEstado;
-
       return cumpleBusqueda && cumpleTipo && cumpleEstado;
     });
   }
@@ -114,7 +115,7 @@ export class ClientesComponent implements OnInit {
     this.api.patch(cliente.idCliente, { estadoCliente: nuevoEstado }).subscribe({
       next: () => {
         cliente.estadoCliente = nuevoEstado;
-        this.aplicarFiltros(); // Re-filtramos por si el filtro de estado está activo
+        this.aplicarFiltros();
       },
       error: () => {
         this.loadClientes();

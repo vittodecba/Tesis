@@ -22,7 +22,7 @@ export class LoginComponent {
   constructor() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      contrasena: ['', [Validators.required]]
+      contrasena: ['', [Validators.required]],
     });
   }
 
@@ -42,17 +42,17 @@ export class LoginComponent {
           title: '¡Bienvenido!',
           text: `Hola ${response.usuario.nombre}`,
           timer: 1500,
-          showConfirmButton: false
+          showConfirmButton: false,
         }).then(() => {
-           // --- CORREGIDO: Ahora sí te lleva al dashboard ---
-           this.router.navigate(['/dashboard']); 
+          // --- CORREGIDO: Ahora sí te lleva al dashboard ---
+          this.router.navigate(['/inicio']);
         });
       },
       error: (error) => {
         this.isLoading = false;
-        
+
         let errorMessage = 'Credenciales incorrectas';
-        
+
         if (error.status === 401) {
           errorMessage = 'Email o contraseña incorrectos';
         } else if (error.status === 0) {
@@ -63,9 +63,9 @@ export class LoginComponent {
           icon: 'error',
           title: 'Error de autenticación',
           text: errorMessage,
-          confirmButtonColor: '#E67E22'
+          confirmButtonColor: '#E67E22',
         });
-      }
+      },
     });
   }
 }

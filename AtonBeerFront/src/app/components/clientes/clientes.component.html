@@ -66,9 +66,9 @@
         <tr *ngFor="let c of clientesFiltrados">
           <td class="strong">{{ c.razonSocial }}</td>
           <td>
-            <span class="badge" [class.badgeOrange]="c.tipoCliente === 'Franquicia'">{{
-              c.tipoCliente
-            }}</span>
+            <span class="badge" [class.badgeOrange]="c.tipoCliente === 'Franquicia'">
+              {{ c.tipoCliente }}
+            </span>
           </td>
           <td>{{ c.ubicacion }}</td>
           <td>
@@ -145,9 +145,15 @@
 <div class="modal-overlay" *ngIf="showSummary && selectedCliente" (click)="closeModals()">
   <div class="modal-content summary-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Resumen: {{ selectedCliente.razonSocial }}</h2>
+      <div class="header-with-badge">
+        <h2>Resumen: {{ selectedCliente.razonSocial }}</h2>
+        <span class="badge" [class.badgeOrange]="selectedCliente.tipoCliente === 'Franquicia'">
+          {{ selectedCliente.tipoCliente }}
+        </span>
+      </div>
       <button class="close-btn" (click)="closeModals()">×</button>
     </div>
+
     <div class="summary-body">
       <div class="metrics-grid">
         <div class="metric-card">
@@ -167,9 +173,37 @@
           </div>
         </div>
       </div>
-      <p><strong>CUIT:</strong> {{ selectedCliente.cuit }}</p>
-      <p><strong>Ubicación:</strong> {{ selectedCliente.ubicacion }}</p>
+
+      <div class="summary-details">
+        <div class="detail-item">
+          <span class="detail-label">CUIT</span>
+          <span class="detail-value">{{ selectedCliente.cuit || 'No registrado' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Ubicación</span>
+          <span class="detail-value">{{ selectedCliente.ubicacion }}</span>
+        </div>
+
+        <hr class="summary-divider" />
+
+        <div class="section-title-summary">Contacto Principal</div>
+        <div class="contact-info-grid">
+          <div class="contact-method">
+            <lucide-icon [img]="User" [size]="16" class="contact-icon"></lucide-icon>
+            <span>{{ selectedCliente.contactoNombre || 'Sin nombre de contacto' }}</span>
+          </div>
+          <div class="contact-method" *ngIf="selectedCliente.contactoTelefono">
+            <lucide-icon [img]="Phone" [size]="16" class="contact-icon"></lucide-icon>
+            <span>{{ selectedCliente.contactoTelefono }}</span>
+          </div>
+          <div class="contact-method" *ngIf="selectedCliente.contactoEmail">
+            <lucide-icon [img]="Mail" [size]="16" class="contact-icon"></lucide-icon>
+            <span class="email-link">{{ selectedCliente.contactoEmail }}</span>
+          </div>
+        </div>
+      </div>
     </div>
+
     <div class="modal-footer">
       <button class="btnSecondary" (click)="closeModals()">Cerrar Resumen</button>
     </div>

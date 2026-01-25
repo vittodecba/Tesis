@@ -13,6 +13,77 @@
   gap: 24px;
   margin-bottom: 16px;
 }
+.summary-modal {
+  max-width: 500px;
+
+  .header-with-badge {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    h2 {
+      margin: 0;
+    }
+  }
+}
+
+.summary-details {
+  margin-top: 20px;
+
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 14px;
+    .detail-label {
+      color: #64748b;
+      font-weight: 500;
+    }
+    .detail-value {
+      color: #1e293b;
+      font-weight: 600;
+    }
+  }
+}
+
+.summary-divider {
+  border: 0;
+  border-top: 1px solid #e2e8f0;
+  margin: 16px 0;
+}
+
+.section-title-summary {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.contact-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 12px;
+
+  .contact-method {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #334155;
+
+    .contact-icon {
+      color: #f59e0b;
+    }
+    .email-link {
+      color: #2563eb;
+      font-weight: 500;
+    }
+  }
+}
 
 .title h1 {
   margin: 0;

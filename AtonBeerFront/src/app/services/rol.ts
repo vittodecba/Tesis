@@ -3,14 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RolService {
-
   // Tu puerto 7118
-  private apiUrl = 'https://localhost:7118/api/Roles';
+  // Ejemplo de cambio en el servicio de login/registro
+  private apiUrl = 'http://localhost:5190/api/Usuario';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   // 1. OBTENER (GET)
   getRoles(): Observable<any> {

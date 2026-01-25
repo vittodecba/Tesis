@@ -4,13 +4,13 @@ import { Observable } from 'rxjs';
 import { Usuario, UsuarioCreate, UsuarioUpdate } from '../Interfaces/usuario.interface';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UsuarioService {
-  
-  private apiUrl = 'https://localhost:7118/api/Usuario';
+  // Ejemplo de cambio en el servicio de login/registro
+  private apiUrl = 'http://localhost:5190/api/Usuario';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   // 1. MODIFICADO: Ahora acepta el booleano para filtrar
   getUsuarios(mostrarInactivos: boolean = false): Observable<Usuario[]> {

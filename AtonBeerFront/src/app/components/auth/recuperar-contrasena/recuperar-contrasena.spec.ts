@@ -1,18 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RecuperarContrasena } from './recuperar-contrasena';
+import { RecuperarContrasenaComponent } from './recuperar-contrasena';
 
 describe('RecuperarContrasena', () => {
-  let component: RecuperarContrasena;
-  let fixture: ComponentFixture<RecuperarContrasena>;
+  let component: RecuperarContrasenaComponent;
+  let fixture: ComponentFixture<RecuperarContrasenaComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RecuperarContrasena]
-    })
-    .compileComponents();
+      imports: [RecuperarContrasenaComponent],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(RecuperarContrasena);
+    fixture = TestBed.createComponent(RecuperarContrasenaComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

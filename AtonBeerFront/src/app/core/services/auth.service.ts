@@ -1,53 +1,69 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, BehaviorSubject, map} from 'rxjs';
-import { UsuarioRegistro, UsuarioLogin, LoginResponse, UsuarioResponse } from '../models/usuario.models';
+import { Observable, tap, BehaviorSubject, map } from 'rxjs';
+import {
+  UsuarioRegistro,
+  UsuarioLogin,
+  LoginResponse,
+  UsuarioResponse,
+} from '../models/usuario.models';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  
-  private readonly API_URL = 'https://localhost:7118/api/Usuario';
+
+  // URL CORREGIDA: Sin "s" en http y puerto 5190
+  // Dentro de la clase AuthService
+  private readonly API_URL = 'http://localhost:5190/api/Usuario'; // IMPORTANTE: http (sin s)
   private readonly TOKEN_KEY = 'aton_token';
   private readonly USER_KEY = 'aton_user';
-  
+
   private currentUserSubject = new BehaviorSubject<UsuarioResponse | null>(this.getStoredUser());
   public currentUser$ = this.currentUserSubject.asObservable();
 
   register(datos: UsuarioRegistro): Observable<any> {
     return this.http.post(`${this.API_URL}/registro`, datos);
   }
-login(credenciales: UsuarioLogin): Observable<LoginResponse> {
-  return this.http.post<any>(`${this.API_URL}/login`, credenciales).pipe(
-    map(response => {
-       const nivel1 = response.data || response;
-       const nivel2 = nivel1.data || nivel1; 
-       const usuarioObj = nivel2.usuario || nivel2.Usuario || nivel1.usuario || {};
-       // ARMADO DE RESPUESTA
-       return {
-         token: nivel2.token || nivel2.Token || nivel1.token || "",
-         usuario: {
-           id: usuarioObj.id || usuarioObj.Id || 0,
-           nombre: usuarioObj.nombre || usuarioObj.Nombre || "Usuario",
-           apellido: usuarioObj.apellido || usuarioObj.Apellido || "",
-           email: usuarioObj.email || usuarioObj.Email || "",
-           rolId: usuarioObj.rolId || usuarioObj.RolId || 0,
-           rolNombre: usuarioObj.rolNombre
-         }
-       } as LoginResponse;
-    }),
-    
-    tap(dataAdaptada => {
+
+  login(credenciales: UsuarioLogin): Observable<LoginResponse> {
+    return this.http.post<any>(`${this.API_URL}/login`, credenciales).pipe(
+      map((response) => {
+        const nivel1 = response.data || response;
+        const nivel2 = nivel1.data || nivel1;
+        const usuarioObj = nivel2.usuario || nivel2.Usuario || nivel1.usuario || {};
+
+        return {
+          token: nivel2.token || nivel2.Token || nivel1.token || '',
+          usuario: {
+            id: usuarioObj.id || usuarioObj.Id || 0,
+            nombre: usuarioObj.nombre || usuarioObj.Nombre || 'Usuario',
+            apellido: usuarioObj.apellido || usuarioObj.Apellido || '',
+            email: usuarioObj.email || usuarioObj.Email || '',
+            rolId: usuarioObj.rolId || usuarioObj.RolId || 0,
+            rolNombre: usuarioObj.rolNombre,
+          },
+        } as LoginResponse;
+      }),
+      tap((dataAdaptada) => {
         if (dataAdaptada.token) {
           this.setSession(dataAdaptada);
         }
-    })
-  );
-}
+      }),
+    );
+  }
+
+  recuperarContrasena(email: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/recuperar-contrasena`, { email });
+  }
+
+  restablecerContrasena(datos: any): Observable<any> {
+    return this.http.post(`${this.API_URL}/restablecer-contrasena`, datos);
+  }
+
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
@@ -75,7 +91,6 @@ login(credenciales: UsuarioLogin): Observable<LoginResponse> {
   }
 
   isAuthenticated(): boolean {
-    const token = this.getToken();
-    return !!token;
+    return !!this.getToken();
   }
 }

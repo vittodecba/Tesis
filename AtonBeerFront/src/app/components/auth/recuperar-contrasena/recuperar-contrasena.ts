@@ -1,42 +1,37 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Para usar ngModel
-import { AuthService } from '../../../services/auth.service'; // Tu servicio nuevo
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2'; // Para alertas lindas
+import { AuthService } from '../../../core/services/auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-recuperar-contrasena',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Importamos FormsModule acá
+  imports: [CommonModule, FormsModule],
   templateUrl: './recuperar-contrasena.html',
-  styleUrl: './recuperar-contrasena.css'
 })
 export class RecuperarContrasenaComponent {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   email: string = '';
   cargando: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  enviarSolicitud(): void {
+    if (!this.email) return;
 
-  enviarSolicitud() {
-    if (!this.email) {
-      Swal.fire('Error', 'Por favor ingresá tu email.', 'error');
-      return;
-    }
-
-    this.cargando = true; // Activa el circulito de carga
-
+    this.cargando = true;
     this.authService.recuperarContrasena(this.email).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this.cargando = false;
-        Swal.fire('¡Enviado!', 'Revisá tu correo, te enviamos un código.', 'success');
-        // Acá podríamos redirigir a la pantalla de poner el token, 
-        // pero primero vamos a crearla en el siguiente paso.
+        Swal.fire('Enviado', 'Revisa tu correo electrónico', 'success');
+        this.router.navigate(['/login']);
       },
-      error: (error) => {
+      error: (err: any) => {
         this.cargando = false;
-        Swal.fire('Error', 'No se pudo enviar el correo. Verificá que el email sea correcto.', 'error');
-      }
+        Swal.fire('Error', 'No se pudo enviar el correo', 'error');
+      },
     });
   }
 }
