@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '../../../services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({

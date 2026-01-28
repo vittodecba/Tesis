@@ -4,6 +4,7 @@ using AtonBeerTesis.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AtonBeerTesis.Domain.Entidades;
 
 namespace AtonBeerTesis.Infrastructure.Data
 {

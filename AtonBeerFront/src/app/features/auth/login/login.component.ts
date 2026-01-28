@@ -1,8 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+// CORRECCIÓN: Ruta al servicio (3 niveles arriba)
+import { AuthService } from '../../../services/auth.service'; 
 import Swal from 'sweetalert2';
 
 @Component({
@@ -16,7 +17,7 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  loginForm: FormGroup;
+  loginForm: FormGroup; 
   isLoading = false;
 
   constructor() {
@@ -40,30 +41,18 @@ export class LoginComponent {
         Swal.fire({
           icon: 'success',
           title: '¡Bienvenido!',
-          text: `Hola ${response.usuario.nombre}`,
+          text: 'Inicio de sesión exitoso',
           timer: 1500,
           showConfirmButton: false
-        }).then(() => {
-           // --- CORREGIDO: Ahora sí te lleva al dashboard ---
-           this.router.navigate(['/dashboard']); 
         });
+        this.router.navigate(['/dashboard']);
       },
       error: (error) => {
         this.isLoading = false;
-        
-        let errorMessage = 'Credenciales incorrectas';
-        
-        if (error.status === 401) {
-          errorMessage = 'Email o contraseña incorrectos';
-        } else if (error.status === 0) {
-          errorMessage = 'No se pudo conectar con el servidor';
-        }
-
         Swal.fire({
           icon: 'error',
-          title: 'Error de autenticación',
-          text: errorMessage,
-          confirmButtonColor: '#E67E22'
+          title: 'Error',
+          text: error.error?.mensaje || 'Credenciales incorrectas'
         });
       }
     });

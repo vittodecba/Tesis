@@ -27,7 +27,8 @@ export class HistorialComponent implements OnInit {
     this.historialService.getHistorial(this.filtros).subscribe({
       next: (res: any) => {
         // Accedemos al segundo nivel de data según tu Swagger
-        this.historial = res?.data?.data || [];
+        console.log('📦 DATOS OK', res); // <--- AGREGÁ ESTO
+        this.historial = res.data || [];
       },
       error: (err) => console.error('Error:', err)
     });

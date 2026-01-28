@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260122045914_Inicial_Merge")]
-    partial class Inicial_Merge
+    [Migration("20260123212704_InicialCompleta")]
+    partial class InicialCompleta
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,38 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entidades.HistorialAcceso", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Detalles")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmailIntentado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Exitoso")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("FechaIntento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("historialAccesos");
+                });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Cliente", b =>
                 {
@@ -182,6 +214,15 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.HasIndex("RolId");
 
                     b.ToTable("Usuarios", (string)null);
+                });
+
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entidades.HistorialAcceso", b =>
+                {
+                    b.HasOne("AtonBeerTesis.Domain.Entities.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Usuario", b =>

@@ -22,7 +22,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            // 1. TU TABLA DE HISTORIAL 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entidades.HistorialAcceso", b =>
                 {
                     b.Property<int>("Id")
@@ -55,7 +54,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.ToTable("historialAccesos");
                 });
 
-            // 2. TABLA DE CLIENTES 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Cliente", b =>
                 {
                     b.Property<int>("IdCliente")
@@ -117,7 +115,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.ToTable("Clientes");
                 });
 
-            // 3. TABLA DE ROLES 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Rol", b =>
                 {
                     b.Property<int>("Id")
@@ -173,7 +170,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         });
                 });
 
-            // 4. TABLA DE USUARIOS 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -217,10 +213,8 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.ToTable("Usuarios", (string)null);
                 });
 
-            // 5. RELACIONES             
-            // Relación Historial -> Usuario
             modelBuilder.Entity("AtonBeerTesis.Domain.Entidades.HistorialAcceso", b =>
-                {                    
+                {
                     b.HasOne("AtonBeerTesis.Domain.Entities.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId");
@@ -228,7 +222,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Navigation("Usuario");
                 });
 
-            // Relación Usuario -> Rol
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Usuario", b =>
                 {
                     b.HasOne("AtonBeerTesis.Domain.Entities.Rol", "Rol")

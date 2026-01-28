@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicial_Merge : Migration
+    public partial class InicialCompleta : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -77,6 +77,28 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "historialAccesos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UsuarioId = table.Column<int>(type: "int", nullable: true),
+                    EmailIntentado = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FechaIntento = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Exitoso = table.Column<bool>(type: "bit", nullable: false),
+                    Detalles = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_historialAccesos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_historialAccesos_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.InsertData(
                 table: "roles",
                 columns: new[] { "Id", "Descripcion", "Nombre" },
@@ -96,6 +118,11 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_historialAccesos_UsuarioId",
+                table: "historialAccesos",
+                column: "UsuarioId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Usuarios_RolId",
                 table: "Usuarios",
                 column: "RolId");
@@ -106,6 +133,9 @@ namespace AtonBeerTesis.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Clientes");
+
+            migrationBuilder.DropTable(
+                name: "historialAccesos");
 
             migrationBuilder.DropTable(
                 name: "Usuarios");

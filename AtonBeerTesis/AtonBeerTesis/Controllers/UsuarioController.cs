@@ -3,6 +3,8 @@ using AtonBeerTesis.Application.Dtos;
 using AtonBeerTesis.Domain.Entities; 
 using Microsoft.AspNetCore.Mvc;
 using AtonBeerTesis.Domain.Interfaces;
+using AtonBeerTesis.Domain.Entidades;
+
 
 namespace AtonBeerTesis.Controllers
 {

@@ -27,8 +27,8 @@ import { ClientesApiService } from '../../services/clientes-api';
   selector: 'app-clientes',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, LucideAngularModule],
-  templateUrl: './clientes.html',
-  styleUrls: ['./clientes.scss'],
+  templateUrl: './clientes.component.html',
+  styleUrls: ['./clientes.component.scss'],
 })
 export class ClientesComponent implements OnInit {
   Search = Search;

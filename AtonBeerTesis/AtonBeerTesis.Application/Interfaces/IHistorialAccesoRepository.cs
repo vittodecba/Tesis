@@ -9,7 +9,7 @@ namespace AtonBeerTesis.Application.Interfaces
 {
     public interface IHistorialAccesoRepository
     {
-        Task Addasync(HistorialAcceso historialAcceso);
+        Task AddAsync(HistorialAcceso historialAcceso);
         Task<IEnumerable<HistorialAcceso>> GetAllAsync();
         Task<IEnumerable<HistorialAcceso>> ObtenerHistorialAsync(string?  email, DateTime? fecha, bool? exito);
     }

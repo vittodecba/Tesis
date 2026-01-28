@@ -2,8 +2,11 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+
+// 👇 CORRECCIÓN 1: Apuntamos al servicio correcto (3 niveles arriba)
+
 import Swal from 'sweetalert2';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -52,12 +55,8 @@ export class RegisterComponent {
   getFieldError(fieldName: string): string {
     const field = this.registerForm.get(fieldName);
     
-    if (field?.hasError('required')) {
-      return 'Este campo es obligatorio';
-    }
-    if (field?.hasError('email')) {
-      return 'Ingrese un email válido';
-    }
+    if (field?.hasError('required')) return 'Este campo es obligatorio';
+    if (field?.hasError('email')) return 'Ingrese un email válido';
     if (field?.hasError('minlength')) {
       const minLength = field.errors?.['minlength'].requiredLength;
       return `Mínimo ${minLength} caracteres`;
@@ -65,7 +64,7 @@ export class RegisterComponent {
     return '';
   }
 
-onSubmit(): void {
+  onSubmit(): void {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       return;
@@ -84,20 +83,19 @@ onSubmit(): void {
     this.isLoading = true;
     const formValues = this.registerForm.value;
 
-    // --- TRADUCCIÓN: De Angular (sin ñ) a C# (con Ñ) ---
+    // --- TRADUCCIÓN: De Angular a C# ---
     const usuarioDto = {
       Nombre: formValues.nombre,
       Apellido: formValues.apellido,
       Email: formValues.email,
-      // Izquierda: C# (Ñ)  <---  Derecha: Angular (n)
-      Contraseña: formValues.contrasena,           
-      ConfirmarContraseña: formValues.confirmarContrasena, 
+      // 👇 CORRECCIÓN 2: Corregí "Pasword" a "Password" (o como lo tenga tu C#)
+      Password: formValues.contrasena,           
+      ConfirmarPassword: formValues.confirmarContrasena, 
       RolId: Number(formValues.rolId)
     };
 
-    console.log('Enviando paquete a C#:', usuarioDto); // Mira esto en la consola F12
+    console.log('Enviando paquete a C#:', usuarioDto);
 
-    // Usamos 'as any' para evitar que TypeScript se queje de la Ñ
     this.authService.register(usuarioDto as any).subscribe({
       next: () => {
         Swal.fire({

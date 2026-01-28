@@ -56,7 +56,7 @@ export class LoginComponent {
           return; // El return hace que NO se ejecute nada de lo que sigue abajo
         }
 
-        // 2. SI ES ADMIN, recién ahora mostramos el éxito y navegamos
+        // 2. SI ES ADMIN, recién ahora mostramos el éxito y navegamos al home
         Swal.fire({
           icon: 'success',
           title: '¡Bienvenido!',
@@ -64,7 +64,8 @@ export class LoginComponent {
           timer: 1500,
           showConfirmButton: false
         }).then(() => {
-          this.router.navigate(['/dashboard/historial']);
+          // AHORA REDIRIGE AL HOME
+          this.router.navigate(['/dashboard/home']);
         });
       },
       error: (error) => {

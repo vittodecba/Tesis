@@ -20,7 +20,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             _context = context;
         }
         //Agrega un nuevo registro de historial de acceso
-        public async Task Addasync(HistorialAcceso historialAcceso)
+        public async Task AddAsync(HistorialAcceso historialAcceso)
         {
             await _context.historialAccesos.AddAsync(historialAcceso);//Agrega un nuevo registro a la tabla HistorialAccesos
             await _context.SaveChangesAsync();//Guarda los cambios en la base de datos

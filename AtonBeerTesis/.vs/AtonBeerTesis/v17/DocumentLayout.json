@@ -1,34 +1,62 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\",
+  "WorkspaceRootPath": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis.application\\dtos\\usuariodtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\dtos\\usuariodtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\migrations\\20260123212704_inicialcompleta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|solutionrelative:atonbeertesis.infrastructure\\migrations\\20260123212704_inicialcompleta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\repositories\\historialaccesorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|solutionrelative:atonbeertesis.infrastructure\\repositories\\historialaccesorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|solutionrelative:atonbeertesis.infrastructure\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\migrations\\20260122045914_inicial_merge.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|solutionrelative:atonbeertesis.infrastructure\\migrations\\20260122045914_inicial_merge.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis.application\\interfaces\\iusuarioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\interfaces\\iusuarioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\repositories\\rolrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|solutionrelative:atonbeertesis.infrastructure\\repositories\\rolrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis.domain\\interfaces\\iusuariorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|solutionrelative:atonbeertesis.domain\\interfaces\\iusuariorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\repositories\\usuariorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis.domain\\entidades\\historialacceso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|solutionrelative:atonbeertesis.domain\\entidades\\historialacceso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis.application\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis.application\\interfaces\\ihistorialaccesorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\interfaces\\ihistorialaccesorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\repositories\\usuariorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|solutionrelative:atonbeertesis.infrastructure\\repositories\\usuariorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\repositories\\rolrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|solutionrelative:atonbeertesis.infrastructure\\repositories\\rolrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\valen\\onedrive\\escritorio\\tesis\\tesis\\atonbeertesis\\atonbeertesis\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,12 +66,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 14,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:130:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
@@ -61,90 +85,175 @@
               "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "appsettings.Development.json",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\appsettings.Development.json",
-              "RelativeDocumentMoniker": "AtonBeerTesis\\appsettings.Development.json",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\appsettings.Development.json",
-              "RelativeToolTip": "AtonBeerTesis\\appsettings.Development.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-01-22T20:40:47.209Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ApplicationDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
-              "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
-              "RelativeToolTip": "AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Title": "20260123212704_InicialCompleta.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Migrations\\20260123212704_InicialCompleta.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Migrations\\20260123212704_InicialCompleta.cs",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Migrations\\20260123212704_InicialCompleta.cs",
+              "RelativeToolTip": "AtonBeerTesis.Infrastructure\\Migrations\\20260123212704_InicialCompleta.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAQwCcAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-22T20:40:41.945Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "20260122045914_Inicial_Merge.cs",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Migrations\\20260122045914_Inicial_Merge.cs",
-              "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Migrations\\20260122045914_Inicial_Merge.cs",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Migrations\\20260122045914_Inicial_Merge.cs",
-              "RelativeToolTip": "AtonBeerTesis.Infrastructure\\Migrations\\20260122045914_Inicial_Merge.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAApAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-22T04:59:14.825Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-23T21:27:06.1Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
+              "RelativeToolTip": "AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAiwBMAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-23T21:13:02.658Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "HistorialAccesoRepository.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\HistorialAccesoRepository.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Repositories\\HistorialAccesoRepository.cs",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\HistorialAccesoRepository.cs",
+              "RelativeToolTip": "AtonBeerTesis.Infrastructure\\Repositories\\HistorialAccesoRepository.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAAABYAAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-23T21:11:48.407Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "HistorialAcceso.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entidades\\HistorialAcceso.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Domain\\Entidades\\HistorialAcceso.cs",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entidades\\HistorialAcceso.cs",
+              "RelativeToolTip": "AtonBeerTesis.Domain\\Entidades\\HistorialAcceso.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAAAAsAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-23T21:08:27.768Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "LoginDto.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\LoginDto.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Dtos\\LoginDto.cs",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\LoginDto.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Dtos\\LoginDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-23T21:06:00.65Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "IUsuarioRepository.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Interfaces\\IUsuarioRepository.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Domain\\Interfaces\\IUsuarioRepository.cs",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Interfaces\\IUsuarioRepository.cs",
+              "RelativeToolTip": "AtonBeerTesis.Domain\\Interfaces\\IUsuarioRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-23T21:01:47.874Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "IHistorialAccesoRepository.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Interfaces\\IHistorialAccesoRepository.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Interfaces\\IHistorialAccesoRepository.cs",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Interfaces\\IHistorialAccesoRepository.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Interfaces\\IHistorialAccesoRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-23T20:59:32.565Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "UsuarioController.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Controllers\\UsuarioController.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis\\Controllers\\UsuarioController.cs",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Controllers\\UsuarioController.cs",
+              "RelativeToolTip": "AtonBeerTesis\\Controllers\\UsuarioController.cs",
+              "ViewState": "AgIAAJIAAAAAAAAAAAAwwJsAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-23T20:57:08.86Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "IUsuarioService.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Interfaces\\IUsuarioService.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Interfaces\\IUsuarioService.cs",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Interfaces\\IUsuarioService.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Interfaces\\IUsuarioService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-23T20:53:12.502Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UsuarioDtos.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\UsuarioDtos.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Dtos\\UsuarioDtos.cs",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\UsuarioDtos.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Dtos\\UsuarioDtos.cs",
+              "ViewState": "AgIAAC8AAAAAAAAAAAA1wDoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-23T20:49:24.426Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
               "Title": "RolRepository.cs",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\RolRepository.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\RolRepository.cs",
               "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Repositories\\RolRepository.cs",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\RolRepository.cs",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\RolRepository.cs",
               "RelativeToolTip": "AtonBeerTesis.Infrastructure\\Repositories\\RolRepository.cs",
-              "ViewState": "AQIAABoAAAAAAAAAAAAIwCUAAAAAAAAA",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-01-22T04:53:46.479Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 13,
               "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\appsettings.json",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\appsettings.json",
               "RelativeDocumentMoniker": "AtonBeerTesis\\appsettings.json",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\appsettings.json",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\appsettings.json",
               "RelativeToolTip": "AtonBeerTesis\\appsettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAIAAADmAAAA",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAADmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-01-22T04:42:00.243Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-22T04:42:00.243Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 11,
               "Title": "UsuarioRepository.cs",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\UsuarioRepository.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\UsuarioRepository.cs",
               "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Repositories\\UsuarioRepository.cs",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\UsuarioRepository.cs",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\UsuarioRepository.cs",
               "RelativeToolTip": "AtonBeerTesis.Infrastructure\\Repositories\\UsuarioRepository.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABQAAAAfAAAA",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-01-22T04:55:05.63Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 2,
               "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Program.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Program.cs",
               "RelativeDocumentMoniker": "AtonBeerTesis\\Program.cs",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Program.cs",
+              "ToolTip": "C:\\Users\\valen\\OneDrive\\Escritorio\\Tesis\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Program.cs",
               "RelativeToolTip": "AtonBeerTesis\\Program.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAXAAAA",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAACsAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-01-13T05:35:18.482Z"
             }

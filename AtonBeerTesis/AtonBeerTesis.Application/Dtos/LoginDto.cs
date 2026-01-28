@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AtonBeerTesis.Application.Dtos
+namespace AtonBeerTesis.Application.Dto
 {
     public class LoginDto
     {

@@ -33,7 +33,7 @@ namespace AtonBeerTesis.Application.Dtos
         [Compare("Password", ErrorMessage = "Las contraseñas no coinciden")]
         public string ConfirmarPassword { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "Debe seleccionar un Rol.")]
         public int RolId { get; set; }
     }
 
@@ -46,5 +46,14 @@ namespace AtonBeerTesis.Application.Dtos
         public string Email { get; set; } = string.Empty;
         public int RolId { get; set; }
         public bool Activo { get; set; }
+    }
+    // 4. DTO PARA LOGIN
+    public class LoginDto
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+        [Required]
+        public string Contrasena { get; set; } = string.Empty;
     }
 }

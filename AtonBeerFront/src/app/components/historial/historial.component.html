@@ -12,7 +12,7 @@
     </div>
     <div>
       <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Estado</label>
-      <select [(ngModel)]="filtros.exito" (change)="aplicarFiltros()" class="w-full p-2 border rounded-md text-sm outline-none">
+      <select [(ngModel)]="exitoSelect" (change)="aplicarFiltros()" class="w-full p-2 border rounded-md text-sm outline-none">
         <option value="">Todos</option>
         <option value="true">Exitosos</option>
         <option value="false">Fallidos</option>
@@ -31,42 +31,28 @@
           <th class="p-4">Usuario</th>
           <th class="p-4">Email</th>
           <th class="p-4 text-center">Estado</th>
-          <th class="p-4">Detalles</th> </tr>
+          <th class="p-4">Detalles</th> 
+        </tr>
       </thead>
-      <tbody>
-        <tr *ngFor="let item of historial" class="border-b border-gray-100 hover:bg-gray-50 transition">
-          
-          <td class="p-4 text-gray-700 font-medium">
-            {{ item.fecha }}
-          </td>
-
-          <td class="p-4">
-            <div class="font-bold text-gray-800">
-               {{ item.usuario || 'Anónimo' }}
-            </div>
-            <div class="text-xs text-gray-500">
-               {{ item.email }}
-            </div>
-          </td>
-
-          <td class="p-4 text-center">
-            <span [class]="item.exitoso ? 'bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold' : 'bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold'">
-              {{ item.exitoso ? 'EXITOSO' : 'FALLIDO' }}
-            </span>
-          </td>
-
-          <td class="p-4 text-gray-500 text-sm italic">
-            {{ item.detalle || (item.exitoso ? 'Acceso correcto' : 'Credenciales inválidas') }}
-          </td>
-
-        </tr>
-
-        <tr *ngIf="historial.length === 0">
-          <td colspan="4" class="p-8 text-center text-gray-400">
-            No se encontraron registros. <br>
-            <span class="text-xs">(Probá borrar los filtros)</span>
-          </td>
-        </tr>
+      <tbody class="divide-y divide-gray-100">
+        @for (item of historial; track $index) {
+          <tr class="hover:bg-gray-50 transition">
+            <td class="p-4 text-sm">{{ item.fechaIntento | date:'short' }}</td> <td class="p-4 text-sm font-medium">{{ item.usuarioId || 'Anónimo' }}</td>
+            <td class="p-4 text-sm">{{ item.emailIntentado }}</td>
+            <td class="p-4 text-center">
+              <span [ngClass]="item.exitoso ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" class="px-2 py-1 rounded text-xs font-bold">
+                {{ item.exitoso ? 'EXITOSO' : 'FALLIDO' }}
+              </span>
+            </td>
+            <td class="p-4 text-sm text-gray-500 italic">
+              {{ item.detalles || 'Sin observaciones' }}
+            </td>
+          </tr>
+        } @empty {
+            <tr>
+                <td colspan="5" class="p-4 text-center text-gray-500">No hay registros</td>
+            </tr>
+        }
       </tbody>
     </table>
   </div>
