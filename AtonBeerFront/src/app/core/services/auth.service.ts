@@ -16,14 +16,21 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  // URL CORREGIDA: Sin "s" en http y puerto 5190
-  // Dentro de la clase AuthService
-  private readonly API_URL = 'http://localhost:5190/api/Usuario'; // IMPORTANTE: http (sin s)
+  private readonly API_URL = 'http://localhost:5190/api/Usuario';
   private readonly TOKEN_KEY = 'aton_token';
   private readonly USER_KEY = 'aton_user';
 
-  private currentUserSubject = new BehaviorSubject<UsuarioResponse | null>(this.getStoredUser());
+  // Cambiamos esto para que por defecto sea null y solo lea del storage si es necesario
+  private currentUserSubject = new BehaviorSubject<UsuarioResponse | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+
+  constructor() {
+    // Solo cargamos el usuario si el token existe
+    const user = this.getStoredUser();
+    if (user && this.getToken()) {
+      this.currentUserSubject.next(user);
+    }
+  }
 
   register(datos: UsuarioRegistro): Observable<any> {
     return this.http.post(`${this.API_URL}/registro`, datos);
@@ -65,8 +72,7 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
+    localStorage.clear(); // Limpia TODO para asegurar que no quede basura
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }
@@ -83,7 +89,11 @@ export class AuthService {
 
   private getStoredUser(): UsuarioResponse | null {
     const userStr = localStorage.getItem(this.USER_KEY);
-    return userStr ? JSON.parse(userStr) : null;
+    try {
+      return userStr ? JSON.parse(userStr) : null;
+    } catch (e) {
+      return null;
+    }
   }
 
   getCurrentUser(): UsuarioResponse | null {

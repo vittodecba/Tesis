@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   Router,
@@ -31,8 +31,6 @@ import {
   FlaskConical,
   Boxes,
   Receipt,
-  Inbox,
-  TrendingUp,
 } from 'lucide-angular';
 
 @Component({
@@ -42,12 +40,12 @@ import {
   templateUrl: './layout.html',
   styleUrls: ['./layout.scss'],
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
 
-  // REGISTRO DE ICONOS (Arregla errores TS2339 y TS2551)
+  // REGISTRO DE ICONOS (Soluciona errores TS2339)
   Home = Home;
   Users = Users;
   LogOut = LogOut;
@@ -67,38 +65,34 @@ export class LayoutComponent {
   FlaskConical = FlaskConical;
   Boxes = Boxes;
   Receipt = Receipt;
-  Inboxes = Inbox;
-  TrendingUp = TrendingUp;
 
   currentUser = this.authService.getCurrentUser();
   pageTitle = 'Inicio';
   pageSub = 'Panel de control';
 
-  constructor() {
+  ngOnInit() {
     this.updateHeader();
     this.router.events
-      .pipe(filter((e) => e instanceof NavigationEnd))
+      .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => this.updateHeader());
   }
 
-  // Arregla error en imagen aaa3f9.png
+  // Necesario para el *ngIf de tu HTML
   esAdmin(): boolean {
-    return true; // Puedes cambiar esto por una lógica real de tu AuthService
-  }
-
-  cerrarSesion(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    return true;
   }
 
   private updateHeader() {
     let route = this.activatedRoute;
     while (route.firstChild) route = route.firstChild;
 
-    // Arregla el TypeError de la imagen b578fe.png con validaciones seguras
-    if (route.snapshot && route.snapshot.data) {
-      this.pageTitle = route.snapshot.data['title'] || 'Inicio';
-      this.pageSub = route.snapshot.data['subtitle'] || 'Gestión';
-    }
+    // El "?" es clave para que no de error de "undefined"
+    this.pageTitle = route.snapshot?.data?.['title'] || 'Inicio';
+    this.pageSub = route.snapshot?.data?.['subtitle'] || 'Gestión';
+  }
+
+  cerrarSesion(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

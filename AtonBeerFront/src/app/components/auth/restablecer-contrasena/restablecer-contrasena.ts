@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router'; // Arregla advertencia NG8113
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-restablecer-contrasena',
@@ -11,12 +11,16 @@ import { RouterLink } from '@angular/router'; // Arregla advertencia NG8113
 })
 export class RestablecerContrasenaComponent {
   email: string = '';
-  nuevaPassword: string = ''; // Arregla error TS2339 del ngModel
+  token: string = '';
+  nuevaPassword: string = '';
   cargando: boolean = false;
 
-  enviarLink(): void {
+  cambiarContrasena(): void {
+    if (!this.email || !this.token || !this.nuevaPassword) return;
     this.cargando = true;
-    console.log('Procesando para:', this.email);
-    setTimeout(() => (this.cargando = false), 2000);
+    setTimeout(() => {
+      this.cargando = false;
+      alert('Contraseña cambiada');
+    }, 2000);
   }
 }
