@@ -10,17 +10,21 @@ import { RouterLink } from '@angular/router';
   templateUrl: './restablecer-contrasena.html',
 })
 export class RestablecerContrasenaComponent {
+  // Definición de variables necesarias para el nuevo HTML
   email: string = '';
-  token: string = '';
-  nuevaPassword: string = '';
   cargando: boolean = false;
 
-  cambiarContrasena(): void {
-    if (!this.email || !this.token || !this.nuevaPassword) return;
+  enviarSolicitud() {
+    if (!this.email) return;
+
     this.cargando = true;
+
+    // Simulación de lógica de envío
+    console.log('Enviando código a:', this.email);
+
     setTimeout(() => {
       this.cargando = false;
-      alert('Contraseña cambiada');
+      alert('Si el correo existe, recibirás un código pronto.');
     }, 2000);
   }
 }
