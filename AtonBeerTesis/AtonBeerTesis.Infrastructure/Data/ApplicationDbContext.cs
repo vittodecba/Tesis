@@ -4,6 +4,7 @@ using AtonBeerTesis.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AtonBeerTesis.Domain.Entidades;
 
 namespace AtonBeerTesis.Infrastructure.Data
 {
@@ -16,6 +17,9 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<Cliente> Clientes => Set<Cliente>();
         public DbSet<Usuario> usuarios { get; set; }
         public DbSet<Rol> roles { get; set; }
+        public DbSet<HistorialAcceso> historialAccesos { get; set; }
+        public DbSet<MovimientoStock> movimientosStock { get; set; }
+        public DbSet<ProductoPrueba> productoPruebas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

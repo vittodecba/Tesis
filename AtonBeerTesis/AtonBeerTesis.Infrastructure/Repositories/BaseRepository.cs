@@ -2,6 +2,7 @@
 using AtonBeerTesis.Infrastructure.Data;    // Para ver ApplicationDbContext
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using AtonBeerTesis.Domain.Interfaces;
 
 namespace AtonBeerTesis.Infrastructure.Repositories
 {

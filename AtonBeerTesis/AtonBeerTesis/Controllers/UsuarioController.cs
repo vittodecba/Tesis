@@ -3,6 +3,7 @@ using AtonBeerTesis.Application.Dtos;
 using AtonBeerTesis.Domain.Entities; 
 using Microsoft.AspNetCore.Mvc;
 using AtonBeerTesis.Domain.Interfaces;
+using AtonBeerTesis.Application.Dto;
 
 
 namespace AtonBeerTesis.Controllers
@@ -12,10 +13,10 @@ namespace AtonBeerTesis.Controllers
     public class UsuarioController : ControllerBase // O BaseController si lo prefieres
     {
         private readonly IUsuarioService _usuarioService;
-        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly AtonBeerTesis.Domain.Interfaces.IUsuarioRepository _usuarioRepository;
         private readonly ITokenService _tokenService;
 
-        public UsuarioController(IUsuarioService usuarioService, IUsuarioRepository usuarioRepository, ITokenService tokenService)
+        public UsuarioController(IUsuarioService usuarioService, AtonBeerTesis.Domain.Interfaces.IUsuarioRepository usuarioRepository, ITokenService tokenService)
         {
             _usuarioService = usuarioService;
             _usuarioRepository = usuarioRepository;
