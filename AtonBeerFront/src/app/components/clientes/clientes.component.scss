@@ -299,23 +299,40 @@ select {
 }
 
 /* Botón */
+/* Botón Primary - MISMO que Gestión de Roles */
 .btnPrimary {
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 30px;
-  padding: 0 16px;
-  border-radius: 12px;
-  background: #16a34a;
-  color: #fff;
+  height: 44px; /* más parecido al de Roles */
+  padding: 0 22px;
+  border-radius: 16px;
   border: none;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
+
+  /* 👇 gradiente exacto como Roles */
+  background: linear-gradient(90deg, #4a2c2a 0%, #e67e22 100%);
+  color: #ffffff;
+
+  /* 👇 sombra como Roles */
+  box-shadow: 0 10px 18px rgba(17, 24, 39, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
 }
 
 .btnPrimary:hover {
-  background: #15803d;
+  transform: scale(1.04);
+  box-shadow: 0 14px 22px rgba(17, 24, 39, 0.22);
+  filter: brightness(1.02);
+}
+
+.btnPrimary:active {
+  transform: scale(1.01);
 }
 
 /* Iconos lucide */
@@ -752,11 +769,40 @@ input:disabled {
 }
 
 /* --- Aton Roles Palette Override --- */
+/* Botón Primary - MISMO que Gestión de Roles */
 .btnPrimary {
-  background: #e67e22 !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px; /* más parecido al de Roles */
+  padding: 0 22px;
+  border-radius: 16px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+
+  /* 👇 gradiente exacto como Roles */
+  background: linear-gradient(90deg, #4a2c2a 0%, #e67e22 100%);
+  color: #ffffff;
+
+  /* 👇 sombra como Roles */
+  box-shadow: 0 10px 18px rgba(17, 24, 39, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
 }
+
 .btnPrimary:hover {
-  background: #d35400 !important;
+  transform: scale(1.04);
+  box-shadow: 0 14px 22px rgba(17, 24, 39, 0.22);
+  filter: brightness(1.02);
+}
+
+.btnPrimary:active {
+  transform: scale(1.01);
 }
 
 /* Switch checked: mismo acento naranja */
