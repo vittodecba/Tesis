@@ -1,8 +1,7 @@
 ﻿using AtonBeerTesis.Domain.Entities;
-
 namespace AtonBeerTesis.Domain.Interfaces
 {
-    public interface IUsuarioRepository
+    public interface IUsuarioRepository : IRepository<Usuario>
     {
         // Tarea 324: Listar usuarios
         Task<List<Usuario>> GetAllAsync();
@@ -18,6 +17,5 @@ namespace AtonBeerTesis.Domain.Interfaces
 
         // Tarea 325 y 326: Editar y Activar/Desactivar
         Task UpdateAsync(Usuario usuario);
-
     }
 }
