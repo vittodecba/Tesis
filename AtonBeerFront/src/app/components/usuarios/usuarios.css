@@ -1,125 +1,85 @@
-/* Estilos generales del contenedor */
-.contenedor-principal {
-    padding: 20px;
-    font-family: Arial, sans-serif;
-  }
-  
-  h2 {
-    color: #333;
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 10px;
-  }
-  
-  /* --- BOTONES --- */
-  button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    color: white;
-    margin-right: 5px;
-  }
-  
-  .btn-nuevo {
-    background-color: #007bff; /* Azul */
-    margin-bottom: 15px;
-    font-size: 14px;
-  }
-  
-  .btn-editar {
-    background-color: #ffc107; /* Amarillo */
-    color: #333;
-  }
-  
-  .btn-rojo {
-    background-color: #dc3545; /* Rojo */
-  }
-  
-  .btn-verde {
-    background-color: #28a745; /* Verde */
-  }
-  
-  .btn-guardar {
-    background-color: #28a745;
-  }
-  
-  .btn-cancelar {
-    background-color: #6c757d; /* Gris */
-  }
-  
-  button:hover {
-    opacity: 0.9;
-  }
-  
-  /* --- TABLA --- */
-  .tabla-usuarios {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  }
-  
-  .tabla-usuarios th, .tabla-usuarios td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-  }
-  
-  .tabla-usuarios th {
-    background-color: #f8f9fa;
-    color: #333;
-  }
-  
-  .tabla-usuarios tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-  
-  .tabla-usuarios tr:hover {
-    background-color: #e9ecef;
-  }
-  
-  /* --- MODAL (La ventana flotante) --- */
-  .modal-fondo {
-    position: fixed; /* Se queda quieto aunque hagas scroll */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo negro semitransparente */
-    display: flex;
-    justify-content: center; /* Centrado horizontal */
-    align-items: center; /* Centrado vertical */
-    z-index: 1000; /* Siempre arriba de todo */
-  }
-  
-  .modal-contenido {
-    background-color: white;
-    padding: 25px;
-    border-radius: 8px;
-    width: 400px; /* Ancho de la ventana */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  }
-  
-  .modal-contenido label {
-    display: block;
-    margin-top: 10px;
-    font-weight: bold;
-    font-size: 14px;
-  }
-  
-  .modal-contenido input, .modal-contenido select {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; /* Para que el padding no rompa el ancho */
-  }
-  
-  .acciones-modal {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
+/* Tipografía / base ya la maneja el layout global,
+   esto es solo para detalles del modal e inputs de bootstrap */
+
+.usuarios-modal {
+  border-radius: 16px !important;
+  overflow: hidden;
+  border: 1px solid rgba(230, 126, 34, 0.15);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+.usuarios-modal-header {
+  background: #4a2c2a !important;
+  padding: 14px 18px !important;
+  border-bottom: none !important;
+}
+
+.usuarios-close {
+  filter: invert(1);
+  opacity: 0.9;
+}
+
+.usuarios-modal-body {
+  padding: 18px !important;
+}
+
+.usuarios-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.usuarios-input {
+  border-radius: 12px !important;
+  border: 1px solid #e5e7eb !important;
+  padding: 10px 12px !important;
+  outline: none !important;
+}
+
+.usuarios-input:focus {
+  border-color: #e67e22 !important;
+  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18) !important;
+}
+
+.usuarios-modal-footer {
+  border-top: 1px solid #f3f4f6 !important;
+  padding: 14px 18px !important;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.usuarios-btnPrimary {
+  border: none;
+  border-radius: 12px;
+  height: 40px;
+  padding: 0 18px;
+  font-weight: 800;
+  cursor: pointer;
+  color: #fff;
+  background: #e67e22;
+  transition: 0.2s;
+}
+
+.usuarios-btnPrimary:hover {
+  background: #d35400;
+}
+
+.usuarios-btnSecondary {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  height: 40px;
+  padding: 0 18px;
+  font-weight: 800;
+  cursor: pointer;
+  color: #6b7280;
+  background: #fff;
+  transition: 0.2s;
+}
+
+.usuarios-btnSecondary:hover {
+  background: #f9fafb;
+  color: #111827;
+  border-color: #d1d5db;
+}
