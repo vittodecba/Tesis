@@ -1,0 +1,175 @@
+<div class="page">
+  <!-- TOOLBAR (arriba, reemplaza las cards) -->
+  <div class="toolbar">
+    <div class="toolbarLeft">
+      <div class="search">
+        <input
+          [(ngModel)]="q"
+          type="text"
+          placeholder="Buscar por lote, formato, capacidad o fecha..."
+          class="input"
+        />
+      </div>
+
+      <select [(ngModel)]="filtroFormato" class="select">
+        <option value="Todos los formatos">Todos los formatos</option>
+        <option value="Barril">Barril</option>
+        <option value="Lata">Lata</option>
+      </select>
+    </div>
+
+    <div class="toolbarRight">
+      <button class="btn btnPrimary" type="button">+ Ingreso</button>
+      <button class="btn btnDanger" type="button">− Egreso</button>
+      <button class="btn btnGhost" type="button">Ajuste</button>
+      <button class="btn btnGhost" type="button">Transferir</button>
+      <button class="btn btnGhost" type="button">Conteo</button>
+    </div>
+  </div>
+
+  <!-- ENVASADOS RECIENTES -->
+  <div class="card">
+    <div class="cardHeader">
+      <div>
+        <div class="cardTitle">Envasados Recientes</div>
+        <div class="cardSub">Últimos movimientos de envasado por lote y formato</div>
+      </div>
+
+      <!-- dropdown como en la captura (pero ya filtra con el select de arriba, esto es visual) -->
+      <select class="select compact" [(ngModel)]="filtroFormato">
+        <option value="Todos los formatos">Todos los formatos</option>
+        <option value="Barril">Barril</option>
+        <option value="Lata">Lata</option>
+      </select>
+    </div>
+
+    <div class="tableWrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>FECHA</th>
+            <th>LOTE</th>
+            <th>FORMATO</th>
+            <th>CAPACIDAD</th>
+            <th>CANTIDAD</th>
+            <th class="right">ESTADO</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let e of envasadosFiltrados">
+            <td class="muted">{{ e.fecha }}</td>
+
+            <td>
+              <span [class]="loteClass(e.formato)">{{ e.lote }}</span>
+            </td>
+
+            <td>
+              <div class="format">
+                <span
+                  class="dot"
+                  [ngClass]="{ dotBlue: e.formato === 'Barril', dotGreen: e.formato === 'Lata' }"
+                ></span>
+                <span class="strong">{{ e.formato }}</span>
+              </div>
+            </td>
+
+            <td class="strong">{{ e.capacidad }}</td>
+
+            <td class="muted">{{ e.cantidad }} {{ e.unidad }}</td>
+
+            <td class="right">
+              <span [class]="estadoClass(e.estado)">{{ e.estado }}</span>
+            </td>
+          </tr>
+
+          <tr *ngIf="envasadosFiltrados.length === 0">
+            <td colspan="6" class="empty">No hay resultados con esos filtros.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BLOQUE INFERIOR: Stock por Formato + Stock por Estilo -->
+  <div class="grid2">
+    <!-- Stock por Formato -->
+    <div class="card">
+      <div class="cardHeader">
+        <div>
+          <div class="cardTitle">Stock por Formato</div>
+          <div class="cardSub">Distribución en % y litros equivalentes</div>
+        </div>
+      </div>
+
+      <div class="donutWrap">
+        <!-- donut “fake” con CSS (sin librerías) -->
+        <div
+          class="donut"
+          [style.background]="
+            'conic-gradient(#3B82F6 0 ' +
+            stockFormato[0].porcentaje +
+            '%, #10B981 ' +
+            stockFormato[0].porcentaje +
+            '% 100%)'
+          "
+        ></div>
+
+        <div class="legend">
+          <div class="legendRow" *ngFor="let s of stockFormato">
+            <span
+              class="legendDot"
+              [ngClass]="{ ldBlue: s.formato === 'Barril', ldGreen: s.formato === 'Lata' }"
+            ></span>
+            <div class="legendText">
+              <div class="strong">{{ s.formato }}</div>
+              <div class="muted">{{ s.porcentaje }}% · {{ s.litros }}L</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stock por Estilo -->
+    <div class="card">
+      <div class="cardHeader">
+        <div>
+          <div class="cardTitle">Stock por Estilo</div>
+          <div class="cardSub">Litros totales por estilo</div>
+        </div>
+      </div>
+
+      <div class="bars">
+        <div class="barRow" *ngFor="let s of stockEstilo">
+          <div class="barLeft">
+            <span
+              class="styleDot"
+              [ngClass]="{
+                sdOrange: s.estilo.toLowerCase().includes('ipa'),
+                sdBlue: s.estilo.toLowerCase().includes('lager'),
+                sdGreen: s.estilo.toLowerCase().includes('stout'),
+                sdPurple: !(
+                  s.estilo.toLowerCase().includes('ipa') ||
+                  s.estilo.toLowerCase().includes('lager') ||
+                  s.estilo.toLowerCase().includes('stout')
+                ),
+              }"
+            ></span>
+            <span class="strong">{{ s.estilo }}</span>
+          </div>
+
+          <div class="barMid">
+            <div class="track">
+              <div
+                [class]="estiloBarClass(s.estilo)"
+                [style.width.%]="(s.litros / maxLitrosEstilo) * 100"
+              ></div>
+            </div>
+          </div>
+
+          <div class="barRight strong">{{ s.litros }}L</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

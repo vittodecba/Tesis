@@ -1,19 +1,23 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './components/layout/layout';
 import { LoginComponent } from './features/auth/login/login.component';
-import { RegisterComponent } from './features/auth/register/register.component'; // Asegúrate de que esta ruta sea correcta
+import { RegisterComponent } from './features/auth/register/register.component';
 import { RestablecerContrasenaComponent } from './components/auth/restablecer-contrasena/restablecer-contrasena';
 import { ClientesComponent } from './components/clientes/clientes.component';
 import { InicioComponent } from './components/Inicio/inicio.component';
 import { UsuariosComponent } from './components/usuarios/usuarios';
 import { RolesGestion } from './components/roles-gestion/roles-gestion';
+import { StockGestion } from './components/stock/stock-gestion'; // 👈 IMPORT NUEVO
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  { path: 'registro', component: RegisterComponent }, // <-- Ahora el botón de registro funcionará
-  { path: 'recuperar-password', component: RestablecerContrasenaComponent }, // <-- Para el link de "¿Olvidaste tu contraseña?"
 
+  // 🔐 AUTH (fuera del layout)
+  { path: 'login', component: LoginComponent },
+  { path: 'registro', component: RegisterComponent },
+  { path: 'recuperar-password', component: RestablecerContrasenaComponent },
+
+  // 🧠 APP (con layout)
   {
     path: '',
     component: LayoutComponent,
@@ -38,7 +42,17 @@ export const routes: Routes = [
         component: RolesGestion,
         data: { title: 'Roles', subtitle: 'Permisos del sistema' },
       },
+      {
+        path: 'stock',
+        component: StockGestion,
+        data: {
+          title: 'Stock',
+          subtitle: 'Control de productos, latas y barriles',
+        },
+      },
     ],
   },
+
+  // fallback
   { path: '**', redirectTo: 'login' },
 ];
