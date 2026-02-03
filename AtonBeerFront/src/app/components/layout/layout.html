@@ -82,31 +82,6 @@
         <span>Reportes de Ventas</span>
       </a>
     </nav>
-    <div class="nav-section">
-      <span class="section-label">Administración</span>
-
-      <a routerLink="/clientes" routerLinkActive="active" class="nav-item">
-        <lucide-icon [img]="Users" [size]="20"></lucide-icon>
-        <span>Clientes</span>
-      </a>
-
-      <div class="nav-group">
-        <div class="nav-item-header">
-          <lucide-icon [img]="ShieldCheck" [size]="20"></lucide-icon>
-          <span>Seguridad</span>
-        </div>
-        <div class="nav-sub-items">
-          <a routerLink="/usuarios" routerLinkActive="active" class="sub-item">
-            <lucide-icon [img]="UserCog" [size]="16"></lucide-icon>
-            <span>Gestionar Usuarios</span>
-          </a>
-          <a routerLink="/roles" routerLinkActive="active" class="sub-item">
-            <lucide-icon [img]="Lock" [size]="16"></lucide-icon>
-            <span>Gestionar Roles</span>
-          </a>
-        </div>
-      </div>
-    </div>
 
     <div class="logout">
       <button class="logoutBtn" type="button" (click)="cerrarSesion()">
