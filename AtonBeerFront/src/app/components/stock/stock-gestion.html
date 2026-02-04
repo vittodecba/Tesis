@@ -1,173 +1,508 @@
-<div class="page">
-  <!-- TOOLBAR (arriba, reemplaza las cards) -->
-  <div class="toolbar">
-    <div class="toolbarLeft">
-      <div class="search">
-        <input
-          [(ngModel)]="q"
-          type="text"
-          placeholder="Buscar por lote, formato, capacidad o fecha..."
-          class="input"
-        />
-      </div>
-
-      <select [(ngModel)]="filtroFormato" class="select">
-        <option value="Todos los formatos">Todos los formatos</option>
-        <option value="Barril">Barril</option>
-        <option value="Lata">Lata</option>
-      </select>
+<div class="stockShell">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+      <h2 class="text-3xl font-bold" [style.color]="COLORS.brown">Stock</h2>
+      <p class="text-gray-600">
+        Visualizá rápido cuánto tenés y consultá el historial de movimientos.
+      </p>
     </div>
 
-    <div class="toolbarRight">
-      <button class="btn btnPrimary" type="button">+ Ingreso</button>
-      <button class="btn btnDanger" type="button">− Egreso</button>
-      <button class="btn btnGhost" type="button">Ajuste</button>
-      <button class="btn btnGhost" type="button">Transferir</button>
-      <button class="btn btnGhost" type="button">Conteo</button>
+    <div class="flex flex-wrap gap-3 items-center">
+      <button
+        (click)="openModal()"
+        class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-md text-white hover:shadow-lg"
+        [style.backgroundImage]="
+          'linear-gradient(to right,' + COLORS.brown + ',' + COLORS.orange + ')'
+        "
+      >
+        <!-- plus -->
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        Agregar producto
+      </button>
     </div>
   </div>
 
-  <!-- ENVASADOS RECIENTES -->
-  <div class="card">
-    <div class="cardHeader">
-      <div>
-        <div class="cardTitle">Envasados Recientes</div>
-        <div class="cardSub">Últimos movimientos de envasado por lote y formato</div>
-      </div>
+  <!-- Tabs (afuera del header) -->
+  <div class="mb-6 flex flex-wrap gap-2">
+    <button
+      class="px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm border"
+      [ngClass]="
+        tab === 'stock'
+          ? 'text-white border-transparent'
+          : 'bg-white text-gray-700 border-gray-100 hover:bg-orange-50/50'
+      "
+      [style.backgroundImage]="
+        tab === 'stock'
+          ? 'linear-gradient(to right,' + COLORS.brown + ',' + COLORS.orange + ')'
+          : null
+      "
+      (click)="setTab('stock')"
+    >
+      Stock
+    </button>
 
-      <!-- dropdown como en la captura (pero ya filtra con el select de arriba, esto es visual) -->
-      <select class="select compact" [(ngModel)]="filtroFormato">
-        <option value="Todos los formatos">Todos los formatos</option>
-        <option value="Barril">Barril</option>
-        <option value="Lata">Lata</option>
-      </select>
+    <button
+      class="px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm border"
+      [ngClass]="
+        tab === 'movimientos'
+          ? 'text-white border-transparent'
+          : 'bg-white text-gray-700 border-gray-100 hover:bg-orange-50/50'
+      "
+      [style.backgroundImage]="
+        tab === 'movimientos'
+          ? 'linear-gradient(to right,' + COLORS.brown + ',' + COLORS.orange + ')'
+          : null
+      "
+      (click)="setTab('movimientos')"
+    >
+      Movimientos
+    </button>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8" *ngIf="tab === 'stock'">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+      <p class="text-sm text-gray-600">Total en stock (todas las unidades)</p>
+      <p class="text-3xl font-extrabold mt-2" [style.color]="COLORS.brown">{{ totalAll() }}</p>
     </div>
 
-    <div class="tableWrap">
-      <table class="table">
-        <thead>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+      <p class="text-sm text-gray-600">Productos en estado crítico</p>
+      <p class="text-3xl font-extrabold mt-2" [style.color]="COLORS.brown">{{ criticalCount() }}</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+      <p class="text-sm text-gray-600">Acción rápida</p>
+      <button
+        type="button"
+        class="mt-3 w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-md text-white"
+        [style.backgroundColor]="COLORS.orange"
+      >
+        <!-- history -->
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v5l3 3" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M3 12a9 9 0 1015.364-6.364"
+          />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4v6h6" />
+        </svg>
+        Registrar movimiento
+      </button>
+    </div>
+  </div>
+
+  <!-- STOCK -->
+  <div *ngIf="tab === 'stock'" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div
+      *ngFor="let p of products"
+      class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+    >
+      <!-- Card header clickable -->
+      <button
+        type="button"
+        (click)="toggleExpand(p.id)"
+        class="w-full text-left p-5 hover:bg-orange-50/40 transition"
+      >
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex items-start gap-4">
+            <div
+              class="w-11 h-11 rounded-xl flex items-center justify-center"
+              [style.backgroundColor]="'rgba(230,126,34,0.12)'"
+              [style.color]="COLORS.orange"
+            >
+              <!-- icon keg/can -->
+              <svg
+                *ngIf="!isCan(p)"
+                class="w-6 h-6"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M8 3h8"></path>
+                <path d="M7 7h10"></path>
+                <path d="M8 21h8"></path>
+                <path d="M7 7v14"></path>
+                <path d="M17 7v14"></path>
+                <path d="M9 7v14" opacity=".35"></path>
+                <path d="M15 7v14" opacity=".35"></path>
+              </svg>
+
+              <svg
+                *ngIf="isCan(p)"
+                class="w-6 h-6"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M8 3h8"></path>
+                <path d="M7 6h10"></path>
+                <path d="M8 21h8"></path>
+                <path d="M7 6v15"></path>
+                <path d="M17 6v15"></path>
+                <path d="M9 6v15" opacity=".35"></path>
+                <path d="M15 6v15" opacity=".35"></path>
+              </svg>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-bold" [style.color]="COLORS.brown">{{ p.nombre }}</h3>
+              <p class="text-sm text-gray-600">
+                {{ p.estilos.length }} estilo(s) • click para
+                {{ isExpanded(p.id) ? 'ocultar' : 'ver' }} detalle
+              </p>
+            </div>
+          </div>
+
+          <div class="text-right">
+            <div class="text-3xl font-extrabold leading-none" [style.color]="COLORS.brown">
+              {{ totalProducto(p) }}
+              <span class="text-sm font-semibold text-gray-500 ml-1">{{ p.unidad }}</span>
+            </div>
+
+            <div class="mt-2 flex justify-end">
+              <ng-container
+                *ngIf="statusFor(totalProducto(p), Math.max(1, minSumProducto(p) / 2)) as st"
+              >
+                <span
+                  class="px-3 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-2"
+                  [ngClass]="toneChipClass(st.tone)"
+                >
+                  <span class="w-2 h-2 rounded-full" [ngClass]="toneDotClass(st.tone)"></span>
+                  {{ st.label }}
+                </span>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+            <ng-container
+              *ngIf="statusFor(totalProducto(p), Math.max(1, minSumProducto(p) / 2)) as st"
+            >
+              <div
+                class="h-full"
+                [ngClass]="toneBarClass(st.tone)"
+                [style.width.%]="progressPct(p)"
+              ></div>
+            </ng-container>
+          </div>
+
+          <div class="mt-2 text-xs text-gray-500 flex justify-between">
+            <span>Mínimo recomendado: {{ minSumProducto(p) }} {{ p.unidad }}</span>
+            <span class="font-medium" [style.color]="COLORS.orange">
+              {{ isExpanded(p.id) ? '▲' : '▼' }}
+            </span>
+          </div>
+        </div>
+      </button>
+
+      <!-- Expand suave -->
+      <div
+        class="expandWrap"
+        [class.expanded]="isExpanded(p.id)"
+        [attr.aria-hidden]="!isExpanded(p.id)"
+      >
+        <div class="pb-5 px-5" [class.pointer-events-none]="!isExpanded(p.id)">
+          <div class="bg-white rounded-2xl shadow-xl border border-orange-100 overflow-hidden">
+            <div class="px-6 py-4" [style.backgroundColor]="COLORS.brown">
+              <div class="flex items-center justify-between gap-3">
+                <h4 class="text-white font-semibold text-base">Detalle por estilo</h4>
+                <span class="text-white/70 text-xs">{{ p.nombre }}</span>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                  <tr>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      Estilo
+                    </th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      Stock
+                    </th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      Estado
+                    </th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      Último mov.
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-50">
+                  <tr *ngFor="let e of p.estilos" class="hover:bg-orange-50/50 transition-colors">
+                    <td class="px-6 py-4">
+                      <span
+                        class="px-3 py-1 rounded-full text-sm font-semibold"
+                        [style.backgroundColor]="'rgba(230,126,34,0.12)'"
+                        [style.color]="COLORS.orange"
+                      >
+                        {{ e.nombre }}
+                      </span>
+                    </td>
+
+                    <td class="px-6 py-4 text-sm font-medium" [style.color]="COLORS.brown">
+                      {{ e.stock }} <span class="text-gray-500 font-semibold">{{ p.unidad }}</span>
+                    </td>
+
+                    <td class="px-6 py-4">
+                      <ng-container *ngIf="statusFor(e.stock, e.min) as st">
+                        <span
+                          class="px-3 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-2"
+                          [ngClass]="toneChipClass(st.tone)"
+                        >
+                          <span
+                            class="w-2 h-2 rounded-full"
+                            [ngClass]="toneDotClass(st.tone)"
+                          ></span>
+                          {{ st.label }}
+                        </span>
+                      </ng-container>
+                    </td>
+
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ e.ultima }}</td>
+                  </tr>
+
+                  <tr *ngIf="p.estilos.length === 0">
+                    <td class="px-6 py-8 text-sm text-gray-500" colspan="4">
+                      Este producto todavía no tiene estilos cargados.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="p-5 flex flex-wrap gap-2 justify-end">
+              <button
+                type="button"
+                class="px-5 py-2 rounded-xl font-semibold transition-all duration-200 shadow-md bg-white border border-gray-100 text-gray-700 hover:bg-orange-50/50"
+              >
+                Ajustar mínimos
+              </button>
+
+              <button
+                type="button"
+                class="px-6 py-2 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-md text-white"
+                [style.backgroundColor]="COLORS.orange"
+              >
+                Registrar movimiento
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel “futuro” -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <h3 class="text-lg font-bold" [style.color]="COLORS.brown">Alertas y recomendaciones</h3>
+      <p class="text-sm text-gray-600 mt-1">
+        Acá después podés meter reglas, alertas y reposición sugerida.
+      </p>
+
+      <div class="mt-5 space-y-3">
+        <div class="p-4 rounded-xl border border-orange-100 bg-orange-50/50">
+          <p class="text-sm font-semibold" [style.color]="COLORS.brown">Sugerencia</p>
+          <p class="text-sm text-gray-600 mt-1">Marcá en rojo cuando esté debajo del mínimo.</p>
+        </div>
+        <div class="p-4 rounded-xl border border-gray-100 bg-white">
+          <p class="text-sm font-semibold" [style.color]="COLORS.brown">Tip de UX</p>
+          <p class="text-sm text-gray-600 mt-1">Dejá el más crítico expandido por defecto.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOVIMIENTOS -->
+  <div
+    *ngIf="tab === 'movimientos'"
+    class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+  >
+    <div class="p-5 flex flex-col md:flex-row justify-between gap-3 items-start md:items-center">
+      <div>
+        <h3 class="text-lg font-bold" [style.color]="COLORS.brown">Historial de movimientos</h3>
+        <p class="text-sm text-gray-600">Entradas, salidas, ventas y ajustes.</p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+        <div class="relative w-full sm:w-64">
+          <!-- search -->
+          <svg
+            class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-4.35-4.35m1.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+
+          <input
+            [(ngModel)]="qMov"
+            placeholder="Buscar movimientos..."
+            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none transition"
+          />
+        </div>
+
+        <select
+          [(ngModel)]="tipoMov"
+          class="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none transition"
+        >
+          <option value="all">Todos los tipos</option>
+          <option value="Entrada">Entrada</option>
+          <option value="Salida">Salida</option>
+          <option value="Venta">Venta</option>
+          <option value="Ajuste">Ajuste</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-gray-50 border-b border-gray-100">
           <tr>
-            <th>FECHA</th>
-            <th>LOTE</th>
-            <th>FORMATO</th>
-            <th>CAPACIDAD</th>
-            <th>CANTIDAD</th>
-            <th class="right">ESTADO</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Fecha
+            </th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Producto
+            </th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Estilo
+            </th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Tipo</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Cantidad
+            </th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Usuario
+            </th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nota</th>
           </tr>
         </thead>
 
-        <tbody>
-          <tr *ngFor="let e of envasadosFiltrados">
-            <td class="muted">{{ e.fecha }}</td>
+        <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let m of filteredMovements()" class="hover:bg-orange-50/50 transition-colors">
+            <td class="px-6 py-4 text-sm text-gray-700">{{ m.fecha }}</td>
 
-            <td>
-              <span [class]="loteClass(e.formato)">{{ e.lote }}</span>
+            <td class="px-6 py-4">
+              <span
+                class="px-3 py-1 rounded-full text-sm font-semibold"
+                [style.backgroundColor]="'rgba(230,126,34,0.12)'"
+                [style.color]="COLORS.orange"
+              >
+                {{ m.producto }}
+              </span>
             </td>
 
-            <td>
-              <div class="format">
+            <td class="px-6 py-4 text-sm text-gray-700">{{ m.estilo }}</td>
+
+            <td class="px-6 py-4">
+              <span
+                class="px-3 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-2"
+                [ngClass]="m.cantidad < 0 ? toneChipClass('danger') : toneChipClass('ok')"
+              >
                 <span
-                  class="dot"
-                  [ngClass]="{ dotBlue: e.formato === 'Barril', dotGreen: e.formato === 'Lata' }"
+                  class="w-2 h-2 rounded-full"
+                  [ngClass]="m.cantidad < 0 ? toneDotClass('danger') : toneDotClass('ok')"
                 ></span>
-                <span class="strong">{{ e.formato }}</span>
-              </div>
+                {{ m.tipo }}
+              </span>
             </td>
 
-            <td class="strong">{{ e.capacidad }}</td>
-
-            <td class="muted">{{ e.cantidad }} {{ e.unidad }}</td>
-
-            <td class="right">
-              <span [class]="estadoClass(e.estado)">{{ e.estado }}</span>
+            <td class="px-6 py-4 text-sm font-semibold" [style.color]="COLORS.brown">
+              {{ m.cantidad > 0 ? '+' + m.cantidad : m.cantidad }}
             </td>
+
+            <td class="px-6 py-4 text-sm text-gray-700">{{ m.usuario }}</td>
+            <td class="px-6 py-4 text-sm text-gray-600">{{ m.nota }}</td>
           </tr>
 
-          <tr *ngIf="envasadosFiltrados.length === 0">
-            <td colspan="6" class="empty">No hay resultados con esos filtros.</td>
+          <tr *ngIf="filteredMovements().length === 0">
+            <td class="px-6 py-8 text-sm text-gray-500" colspan="7">
+              No hay movimientos que coincidan con el filtro.
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- BLOQUE INFERIOR: Stock por Formato + Stock por Estilo -->
-  <div class="grid2">
-    <!-- Stock por Formato -->
-    <div class="card">
-      <div class="cardHeader">
-        <div>
-          <div class="cardTitle">Stock por Formato</div>
-          <div class="cardSub">Distribución en % y litros equivalentes</div>
+  <!-- Modal Agregar Producto -->
+  <div *ngIf="modalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/30" (click)="closeModal()"></div>
+
+    <div class="relative w-full max-w-2xl">
+      <div class="bg-white rounded-2xl shadow-xl border border-orange-100 overflow-hidden">
+        <div class="px-6 py-4" [style.backgroundColor]="COLORS.brown">
+          <h5 class="text-white font-semibold text-lg">Agregar nuevo producto</h5>
         </div>
-      </div>
 
-      <div class="donutWrap">
-        <!-- donut “fake” con CSS (sin librerías) -->
-        <div
-          class="donut"
-          [style.background]="
-            'conic-gradient(#3B82F6 0 ' +
-            stockFormato[0].porcentaje +
-            '%, #10B981 ' +
-            stockFormato[0].porcentaje +
-            '% 100%)'
-          "
-        ></div>
-
-        <div class="legend">
-          <div class="legendRow" *ngFor="let s of stockFormato">
-            <span
-              class="legendDot"
-              [ngClass]="{ ldBlue: s.formato === 'Barril', ldGreen: s.formato === 'Lata' }"
-            ></span>
-            <div class="legendText">
-              <div class="strong">{{ s.formato }}</div>
-              <div class="muted">{{ s.porcentaje }}% · {{ s.litros }}L</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Stock por Estilo -->
-    <div class="card">
-      <div class="cardHeader">
-        <div>
-          <div class="cardTitle">Stock por Estilo</div>
-          <div class="cardSub">Litros totales por estilo</div>
-        </div>
-      </div>
-
-      <div class="bars">
-        <div class="barRow" *ngFor="let s of stockEstilo">
-          <div class="barLeft">
-            <span
-              class="styleDot"
-              [ngClass]="{
-                sdOrange: s.estilo.toLowerCase().includes('ipa'),
-                sdBlue: s.estilo.toLowerCase().includes('lager'),
-                sdGreen: s.estilo.toLowerCase().includes('stout'),
-                sdPurple: !(
-                  s.estilo.toLowerCase().includes('ipa') ||
-                  s.estilo.toLowerCase().includes('lager') ||
-                  s.estilo.toLowerCase().includes('stout')
-                ),
-              }"
-            ></span>
-            <span class="strong">{{ s.estilo }}</span>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del producto</label>
+            <input
+              type="text"
+              [(ngModel)]="formProductoNombre"
+              placeholder="Ej: Barril 30L, Latas 433ml..."
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none transition"
+            />
+            <p class="text-xs text-gray-500 mt-1">
+              Tip: mantené naming consistente para ordenar más fácil.
+            </p>
           </div>
 
-          <div class="barMid">
-            <div class="track">
-              <div
-                [class]="estiloBarClass(s.estilo)"
-                [style.width.%]="(s.litros / maxLitrosEstilo) * 100"
-              ></div>
-            </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Unidad</label>
+            <select
+              [(ngModel)]="formProductoUnidad"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none transition"
+            >
+              <option value="u.">u.</option>
+              <option value="cajas">cajas</option>
+              <option value="packs">packs</option>
+            </select>
           </div>
 
-          <div class="barRight strong">{{ s.litros }}L</div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button
+              (click)="closeModal()"
+              class="px-6 py-2 rounded-xl font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+            >
+              Cancelar
+            </button>
+
+            <button
+              (click)="saveProducto()"
+              class="text-white px-8 py-2 rounded-xl font-bold transition shadow-md"
+              [style.backgroundColor]="COLORS.orange"
+            >
+              Confirmar y Guardar
+            </button>
+          </div>
         </div>
       </div>
     </div>

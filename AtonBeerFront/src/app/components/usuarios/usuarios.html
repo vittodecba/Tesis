@@ -77,26 +77,34 @@
             </td>
 
             <td class="px-6 py-4 text-right">
-              <div
-                class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
+              <div class="flex justify-end gap-2">
                 <button
-                  class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                  class="px-3 py-1 text-blue-600 hover:bg-blue-50 rounded-lg transition font-bold text-sm border border-blue-100"
                   (click)="abrirModal(u)"
                   type="button"
                 >
-                  Editar
+                  Modificar
                 </button>
 
                 <button
-                  class="p-2 rounded-lg transition font-semibold"
+                  class="px-3 py-1 rounded-lg transition font-bold text-sm border"
                   [ngClass]="
-                    u.activo ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'
+                    u.activo
+                      ? 'text-orange-600 border-orange-100 hover:bg-orange-50'
+                      : 'text-green-600 border-green-100 hover:bg-green-50'
                   "
                   (click)="toggleActivo(u)"
                   type="button"
                 >
                   {{ u.activo ? 'Desactivar' : 'Activar' }}
+                </button>
+
+                <button
+                  class="px-3 py-1 text-red-600 hover:bg-red-50 rounded-lg transition font-bold text-sm border border-red-100"
+                  (click)="eliminar(u)"
+                  type="button"
+                >
+                  Borrar
                 </button>
               </div>
             </td>
@@ -112,7 +120,6 @@
     </div>
   </div>
 
-  <!-- MODAL -->
   <div
     class="modal d-block"
     tabindex="-1"
@@ -165,9 +172,7 @@
               <label class="form-label usuarios-label">Rol</label>
               <select class="form-select usuarios-input" [(ngModel)]="datosForm.rolId" name="rolId">
                 <option [value]="0">-- Seleccionar Rol --</option>
-                <option *ngFor="let r of roles" [value]="r.id">
-                  {{ r.nombre }}
-                </option>
+                <option *ngFor="let r of roles" [value]="r.id">{{ r.nombre }}</option>
               </select>
             </div>
 

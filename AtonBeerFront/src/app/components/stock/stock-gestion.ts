@@ -1,29 +1,34 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-type Formato = 'Barril' | 'Lata';
-type Estado = 'Completado' | 'En proceso' | 'Pendiente';
+type Tone = 'ok' | 'warn' | 'danger';
+type Tab = 'stock' | 'movimientos';
 
-interface EnvasadoRecienteUi {
-  fecha: string; // 17/10/2024
-  lote: string; // LT-2024-089
-  formato: Formato; // Barril/Lata
-  capacidad: string; // 50L / 733ml
-  cantidad: number; // 8 / 480
-  unidad: 'unidades'; // texto
-  estado: Estado;
+interface EstiloStock {
+  id: string;
+  nombre: string;
+  stock: number;
+  min: number;
+  ultima: string;
 }
 
-interface StockFormatoUi {
-  formato: Formato;
-  porcentaje: number; // 73.2
-  litros: number; // 2400
+interface ProductoStock {
+  id: string;
+  nombre: string;
+  unidad: string;
+  estilos: EstiloStock[];
 }
 
-interface StockEstiloUi {
-  estilo: string; // IPA
-  litros: number; // 1240
+interface MovimientoStock {
+  id: string;
+  fecha: string;
+  producto: string;
+  estilo: string;
+  tipo: 'Entrada' | 'Salida' | 'Venta' | 'Ajuste';
+  cantidad: number;
+  usuario: string;
+  nota: string;
 }
 
 @Component({
@@ -31,113 +36,238 @@ interface StockEstiloUi {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './stock-gestion.html',
-  styleUrl: './stock-gestion.scss',
+  styleUrls: ['./stock-gestion.scss'],
 })
-export class StockGestion implements OnInit {
-  // toolbar
-  filtroFormato: 'Todos los formatos' | Formato = 'Todos los formatos';
-  q = '';
+export class StockGestion {
+  Math = Math;
 
-  // data demo
-  envasados: EnvasadoRecienteUi[] = [];
-  stockFormato: StockFormatoUi[] = [];
-  stockEstilo: StockEstiloUi[] = [];
+  // Paleta (igual que tu referencia)
+  COLORS = {
+    brown: '#4A2C2A',
+    orange: '#E67E22',
+    orangeDark: '#D35400',
+  };
 
-  // escalas para barras
-  maxLitrosEstilo = 0;
+  tab: Tab = 'stock';
+  expandedId: string = 'keg-10';
 
-  ngOnInit(): void {
-    this.envasados = [
-      {
-        fecha: '17/10/2024',
-        lote: 'LT-2024-089',
-        formato: 'Barril',
-        capacidad: '50L',
-        cantidad: 8,
-        unidad: 'unidades',
-        estado: 'Completado',
-      },
-      {
-        fecha: '17/10/2024',
-        lote: 'LT-2024-088',
-        formato: 'Lata',
-        capacidad: '733ml',
-        cantidad: 480,
-        unidad: 'unidades',
-        estado: 'Completado',
-      },
-      {
-        fecha: '16/10/2024',
-        lote: 'LT-2024-087',
-        formato: 'Barril',
-        capacidad: '20L',
-        cantidad: 12,
-        unidad: 'unidades',
-        estado: 'En proceso',
-      },
-      {
-        fecha: '16/10/2024',
-        lote: 'LT-2024-086',
-        formato: 'Lata',
-        capacidad: '500ml',
-        cantidad: 360,
-        unidad: 'unidades',
-        estado: 'Completado',
-      },
-    ];
+  // Modal
+  modalOpen = false;
+  formProductoNombre = '';
+  formProductoUnidad: 'u.' | 'cajas' | 'packs' = 'u.';
 
-    this.stockFormato = [
-      { formato: 'Barril', porcentaje: 73.2, litros: 2400 },
-      { formato: 'Lata', porcentaje: 26.8, litros: 880 },
-    ];
+  // Filtros movimientos
+  qMov = '';
+  tipoMov: 'all' | MovimientoStock['tipo'] = 'all';
 
-    this.stockEstilo = [
-      { estilo: 'IPA', litros: 1240 },
-      { estilo: 'Lager', litros: 980 },
-      { estilo: 'Stout', litros: 760 },
-      { estilo: 'Wheat', litros: 300 },
-    ];
+  products: ProductoStock[] = [
+    {
+      id: 'keg-10',
+      nombre: 'Barril 10L',
+      unidad: 'u.',
+      estilos: [
+        { id: 'ipa-10', nombre: 'IPA', stock: 12, min: 6, ultima: 'Entrada +4 (Hoy)' },
+        { id: 'golden-10', nombre: 'Golden', stock: 4, min: 6, ultima: 'Salida -2 (Ayer)' },
+        { id: 'stout-10', nombre: 'Stout', stock: 8, min: 6, ultima: 'Entrada +2 (Hoy)' },
+      ],
+    },
+    {
+      id: 'keg-20',
+      nombre: 'Barril 20L',
+      unidad: 'u.',
+      estilos: [
+        { id: 'ipa-20', nombre: 'IPA', stock: 6, min: 4, ultima: 'Salida -1 (Hoy)' },
+        { id: 'golden-20', nombre: 'Golden', stock: 2, min: 4, ultima: 'Salida -1 (Ayer)' },
+        { id: 'amber-20', nombre: 'Amber', stock: 5, min: 4, ultima: 'Entrada +5 (Hace 2d)' },
+      ],
+    },
+    {
+      id: 'keg-50',
+      nombre: 'Barril 50L',
+      unidad: 'u.',
+      estilos: [
+        { id: 'ipa-50', nombre: 'IPA', stock: 2, min: 3, ultima: 'Salida -1 (Ayer)' },
+        { id: 'stout-50', nombre: 'Stout', stock: 4, min: 3, ultima: 'Entrada +1 (Hoy)' },
+      ],
+    },
+    {
+      id: 'can-473',
+      nombre: 'Latas 473ml',
+      unidad: 'u.',
+      estilos: [
+        { id: 'golden-473', nombre: 'Golden', stock: 320, min: 120, ultima: 'Venta -24 (Hoy)' },
+        { id: 'ipa-473', nombre: 'IPA', stock: 140, min: 120, ultima: 'Producción +48 (Ayer)' },
+        { id: 'porter-473', nombre: 'Porter', stock: 80, min: 120, ultima: 'Venta -12 (Hoy)' },
+      ],
+    },
+  ];
 
-    this.maxLitrosEstilo = Math.max(...this.stockEstilo.map((x) => x.litros), 1);
+  movements: MovimientoStock[] = [
+    {
+      id: 'm1',
+      fecha: '2026-02-02 10:15',
+      producto: 'Barril 20L',
+      estilo: 'IPA',
+      tipo: 'Salida',
+      cantidad: -1,
+      usuario: 'Sistema',
+      nota: 'Despacho a franquicia',
+    },
+    {
+      id: 'm2',
+      fecha: '2026-02-02 09:40',
+      producto: 'Barril 10L',
+      estilo: 'IPA',
+      tipo: 'Entrada',
+      cantidad: 4,
+      usuario: 'Juli',
+      nota: 'Envasado',
+    },
+    {
+      id: 'm3',
+      fecha: '2026-02-01 18:05',
+      producto: 'Latas 473ml',
+      estilo: 'Golden',
+      tipo: 'Venta',
+      cantidad: -24,
+      usuario: 'Sistema',
+      nota: 'Venta e-commerce',
+    },
+    {
+      id: 'm4',
+      fecha: '2026-02-01 12:30',
+      producto: 'Barril 50L',
+      estilo: 'Stout',
+      tipo: 'Entrada',
+      cantidad: 1,
+      usuario: 'Admin',
+      nota: 'Transferencia desde maduración',
+    },
+    {
+      id: 'm5',
+      fecha: '2026-01-31 20:10',
+      producto: 'Latas 473ml',
+      estilo: 'Porter',
+      tipo: 'Venta',
+      cantidad: -12,
+      usuario: 'Sistema',
+      nota: 'Venta mostrador',
+    },
+  ];
+
+  // ---------- UI ----------
+  setTab(t: Tab) {
+    this.tab = t;
   }
 
-  // filtros
-  get envasadosFiltrados(): EnvasadoRecienteUi[] {
-    const q = this.q.trim().toLowerCase();
+  isExpanded(id: string): boolean {
+    return this.expandedId === id;
+  }
 
-    return this.envasados.filter((e) => {
-      const matchQ = !q
-        ? true
-        : e.lote.toLowerCase().includes(q) ||
-          e.formato.toLowerCase().includes(q) ||
-          e.capacidad.toLowerCase().includes(q) ||
-          e.fecha.toLowerCase().includes(q);
+  toggleExpand(id: string) {
+    this.expandedId = this.expandedId === id ? '' : id;
+  }
 
-      const matchFormato =
-        this.filtroFormato === 'Todos los formatos' ? true : e.formato === this.filtroFormato;
+  // ---------- Totales / status ----------
+  totalProducto(p: ProductoStock): number {
+    return p.estilos.reduce((acc, e) => acc + (e.stock ?? 0), 0);
+  }
 
-      return matchQ && matchFormato;
+  minSumProducto(p: ProductoStock): number {
+    return p.estilos.reduce((acc, e) => acc + (e.min ?? 0), 0);
+  }
+
+  totalAll(): number {
+    return this.products.reduce((acc, p) => acc + this.totalProducto(p), 0);
+  }
+
+  criticalCount(): number {
+    let c = 0;
+    for (const p of this.products) {
+      const total = this.totalProducto(p);
+      const minSum = this.minSumProducto(p);
+      const s = this.statusFor(total, Math.max(1, minSum / 2));
+      if (s.tone === 'danger') c++;
+    }
+    return c;
+  }
+
+  statusFor(stock: number, min: number): { label: string; tone: Tone } {
+    if (stock <= 0) return { label: 'Sin stock', tone: 'danger' };
+    if (stock < min) return { label: 'Crítico', tone: 'danger' };
+    if (stock < min * 1.5) return { label: 'Bajo', tone: 'warn' };
+    return { label: 'OK', tone: 'ok' };
+  }
+
+  toneChipClass(tone: Tone): string {
+    if (tone === 'danger') return 'bg-red-100 text-red-700';
+    if (tone === 'warn') return 'bg-amber-100 text-amber-800';
+    return 'bg-green-100 text-green-700';
+  }
+
+  toneDotClass(tone: Tone): string {
+    if (tone === 'danger') return 'bg-red-500';
+    if (tone === 'warn') return 'bg-amber-500';
+    return 'bg-green-500';
+  }
+
+  toneBarClass(tone: Tone): string {
+    if (tone === 'danger') return 'bg-red-500';
+    if (tone === 'warn') return 'bg-amber-500';
+    return 'bg-green-500';
+  }
+
+  progressPct(p: ProductoStock): number {
+    const total = this.totalProducto(p);
+    const minSum = this.minSumProducto(p);
+    const denom = Math.max(1, minSum);
+    return Math.min(100, (total / denom) * 100);
+  }
+
+  // ---------- Movimientos ----------
+  filteredMovements(): MovimientoStock[] {
+    const q = (this.qMov ?? '').trim().toLowerCase();
+    return this.movements.filter((m) => {
+      const blob =
+        `${m.fecha} ${m.producto} ${m.estilo} ${m.tipo} ${m.usuario} ${m.nota}`.toLowerCase();
+      const matchQ = q ? blob.includes(q) : true;
+      const matchTipo = this.tipoMov === 'all' ? true : m.tipo === this.tipoMov;
+      return matchQ && matchTipo;
     });
   }
 
-  // badges
-  estadoClass(estado: Estado): string {
-    if (estado === 'Completado') return 'badge badge-ok';
-    if (estado === 'En proceso') return 'badge badge-warn';
-    return 'badge badge-neutral';
+  // ---------- Modal ----------
+  openModal() {
+    this.modalOpen = true;
+    this.formProductoNombre = '';
+    this.formProductoUnidad = 'u.';
   }
 
-  // “pastillas” de lote con color (como la captura)
-  loteClass(formato: Formato): string {
-    return formato === 'Barril' ? 'pill pill-blue' : 'pill pill-green';
+  closeModal() {
+    this.modalOpen = false;
   }
 
-  // estilo -> color de barra
-  estiloBarClass(estilo: string): string {
-    const e = estilo.toLowerCase();
-    if (e.includes('ipa')) return 'bar bar-orange';
-    if (e.includes('lager')) return 'bar bar-blue';
-    if (e.includes('stout')) return 'bar bar-green';
-    return 'bar bar-purple';
+  saveProducto() {
+    const clean = (this.formProductoNombre ?? '').trim();
+    if (!clean) return;
+
+    const id = clean.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
+
+    this.products = [
+      ...this.products,
+      {
+        id,
+        nombre: clean,
+        unidad: this.formProductoUnidad,
+        estilos: [],
+      },
+    ];
+
+    this.modalOpen = false;
+  }
+
+  // ---------- Helpers ----------
+  isCan(p: ProductoStock): boolean {
+    return p.nombre.toLowerCase().includes('lata');
   }
 }
