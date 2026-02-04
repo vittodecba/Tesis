@@ -30,22 +30,13 @@ namespace AtonBeerTesis.Api.Controllers
         {
             if (insumoDto == null) return BadRequest("Datos inválidos");
 
-            // --- VALIDACIÓN DE DUPLICADOS (NUEVO) ---
-            // Verifica si ya existe en la base de datos un insumo con el mismo Nombre y Tipo
             bool existe = await _context.Insumos.AnyAsync(x => x.NombreInsumo == insumoDto.NombreInsumo && x.Tipo == insumoDto.Tipo);
-
             if (existe)
             {
-                // Si existe, devolvemos error 400 y frenamos la ejecución
                 return BadRequest($"El insumo '{insumoDto.NombreInsumo}' de tipo '{insumoDto.Tipo}' ya existe.");
             }
-            // ----------------------------------------
 
-            // LÓGICA DE CÓDIGO AUTOMÁTICO
-            // Cuenta cuántos hay y le suma 1
             int cantidad = _context.Insumos.Count() + 1;
-
-            // Genera el texto "INS-" seguido del número con 3 cifras (ej: INS-005)
             string codigoAutomatico = "INS-" + cantidad.ToString("000");
 
             var nuevoInsumo = new Insumo
@@ -63,6 +54,51 @@ namespace AtonBeerTesis.Api.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Insumo creado con éxito" });
+        }
+
+        // --- NUEVO MÉTODO PARA MODIFICAR (PUT) ---
+        [HttpPut("{id}")]
+        public async Task<IActionResult> ActualizarInsumo(int id, [FromBody] InsumoDto insumoDto)
+        {
+            var insumo = await _context.Insumos.FindAsync(id);
+            if (insumo == null) return NotFound();
+
+            // Validación: Que no exista OTRO insumo con mismo nombre y tipo
+            bool existe = await _context.Insumos.AnyAsync(x =>
+                x.NombreInsumo == insumoDto.NombreInsumo &&
+                x.Tipo == insumoDto.Tipo &&
+                x.Id != id);
+
+            if (existe) return BadRequest($"Ya existe otro insumo con ese nombre y tipo.");
+
+            // Actualizamos los valores
+            insumo.NombreInsumo = insumoDto.NombreInsumo;
+            insumo.Tipo = insumoDto.Tipo;
+            insumo.Unidad = insumoDto.Unidad;
+            insumo.StockActual = insumoDto.StockActual;
+            insumo.Observaciones = insumoDto.Observaciones;
+            insumo.UltimaActualizacion = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Insumo actualizado con éxito" });
+
+
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> EliminarInsumo(int id)
+        {
+            var insumo = await _context.Insumos.FindAsync(id);
+
+            if (insumo == null)
+            {
+                return NotFound(new { message = "El insumo no existe." });
+            }
+
+            _context.Insumos.Remove(insumo);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Insumo eliminado correctamente." });
         }
     }
 }

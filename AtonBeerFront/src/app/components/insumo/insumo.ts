@@ -11,15 +11,20 @@ import { InsumoService } from '../../services/insumo.service';
   styleUrls: ['./insumo.css']
 })
 export class InsumoComponent implements OnInit {
-  insumos: any[] = [];
+  insumos: any[] = [];          
+  insumosOriginales: any[] = []; 
+
   mostrarModal: boolean = false;
-  
   tiposOpciones: string[] = ['Malta', 'Lúpulo', 'Levadura', 'Limpieza', 'Envases', 'Químicos', 'Otro'];
   unidadesOpciones: string[] = ['Kg', 'Gr', 'L', 'Ml', 'Unidad'];
 
+  filtroTexto: string = '';
+  filtroTipo: string = '';
+  orden: string = 'nombre';
+
   datosForm: any = {
+    id: null,
     nombreInsumo: '',
-    // codigo: '', // Ya no lo usamos, es automático
     tipo: '',
     unidad: '',
     stockActual: 0,
@@ -34,18 +39,42 @@ export class InsumoComponent implements OnInit {
 
   cargarInsumos() {
     this.insumoService.obtenerInsumos().subscribe({
-      next: (data: any) => {
-        this.insumos = data;
+      next: (data) => {
+        this.insumosOriginales = data;
+        this.aplicarFiltros(); 
       },
-      error: (err: any) => {
-        console.error('Error al cargar:', err);
-      }
+      error: (err) => console.error('Error al cargar:', err)
     });
   }
 
+  aplicarFiltros() {
+    let resultado = [...this.insumosOriginales];
+
+    if (this.filtroTexto) {
+      const busqueda = this.filtroTexto.toLowerCase();
+      resultado = resultado.filter(i => 
+        i.nombreInsumo.toLowerCase().includes(busqueda) ||
+        (i.codigo && i.codigo.toLowerCase().includes(busqueda))
+      );
+    }
+
+    if (this.filtroTipo) {
+      resultado = resultado.filter(i => i.tipo === this.filtroTipo);
+    }
+
+    resultado.sort((a, b) => {
+      if (this.orden === 'nombre') return a.nombreInsumo.localeCompare(b.nombreInsumo);
+      if (this.orden === 'stock') return b.stockActual - a.stockActual;
+      if (this.orden === 'fecha') return new Date(b.ultimaActualizacion).getTime() - new Date(a.ultimaActualizacion).getTime();
+      return 0;
+    });
+
+    this.insumos = resultado;
+  }
+
   abrirModal() {
-    this.mostrarModal = true;
     this.limpiarFormulario();
+    this.mostrarModal = true;
   }
 
   cerrarModal() {
@@ -53,42 +82,45 @@ export class InsumoComponent implements OnInit {
   }
 
   limpiarFormulario() {
-    this.datosForm = {
-      nombreInsumo: '',
-      codigo: '',
-      tipo: '',
-      unidad: '',
-      stockActual: 0,
-      observaciones: ''
-    };
+    this.datosForm = { id: null, nombreInsumo: '', tipo: '', unidad: '', stockActual: 0, observaciones: '' };
+  }
+
+  prepararEdicion(item: any) {
+    this.datosForm = { ...item };
+    this.mostrarModal = true;
   }
 
   guardar() {
-    // Validación simple en el frente
     if (!this.datosForm.nombreInsumo || !this.datosForm.tipo) {
-      alert('Por favor complete al menos el Nombre y el Tipo');
+      alert('Nombre y Tipo son obligatorios');
       return;
     }
 
-    this.insumoService.crearInsumo(this.datosForm).subscribe({
-      next: (resp) => {
-        alert('Insumo creado con éxito!');
-        this.cerrarModal();
-        this.cargarInsumos();
-      },
-      error: (err) => {
-        console.error(err);
-        
-        // --- CAMBIO ACÁ ---
-        // Si el backend manda un mensaje (ej: "El insumo ya existe"), lo mostramos.
-        // Si no, mostramos el genérico.
-        if (err.error && typeof err.error === 'string') {
-            alert(err.error); 
-        } else {
-            alert('Error al guardar. Verifique la consola.');
-        }
-        // ------------------
-      }
-    });
+    if (this.datosForm.id) {
+      this.insumoService.actualizarInsumo(this.datosForm.id, this.datosForm).subscribe({
+        next: () => this.finalizarOperacion('Insumo actualizado'),
+        error: (err) => alert(err.error || 'Error al actualizar')
+      });
+    } else {
+      this.insumoService.crearInsumo(this.datosForm).subscribe({
+        next: () => this.finalizarOperacion('Insumo creado'),
+        error: (err) => alert(err.error || 'Error al crear')
+      });
+    }
+  }
+
+  eliminar(id: number) {
+    if (confirm('¿Estás seguro de eliminar este insumo?')) {
+      this.insumoService.eliminarInsumo(id).subscribe({
+        next: () => this.cargarInsumos(),
+        error: (err) => alert('Error al eliminar')
+      });
+    }
+  }
+
+  finalizarOperacion(mensaje: string) {
+    alert(mensaje);
+    this.cerrarModal();
+    this.cargarInsumos();
   }
 }

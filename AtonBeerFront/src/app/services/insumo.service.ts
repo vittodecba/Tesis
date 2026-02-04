@@ -6,17 +6,24 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class InsumoService {
-  // Asegurate de que este puerto sea el que te funcionó (5190 sin 's')
-  private apiUrl = 'http://localhost:5190/api/Insumo';
+  private apiUrl = 'http://localhost:5190/api/Insumo'; 
 
   constructor(private http: HttpClient) { }
 
-  // ESTA ES LA FUNCIÓN QUE TE FALTABA
   obtenerInsumos(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
 
   crearInsumo(insumo: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, insumo);
+    return this.http.post(this.apiUrl, insumo);
+  }
+
+  // --- NUEVOS MÉTODOS ---
+  actualizarInsumo(id: number, insumo: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, insumo);
+  }
+
+  eliminarInsumo(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }
