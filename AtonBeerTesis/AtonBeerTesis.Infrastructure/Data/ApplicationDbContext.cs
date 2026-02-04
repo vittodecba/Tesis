@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using AtonBeerTesis.Domain.Entities;
+using AtonBeerTesis.Domain;
 // Agregamos los usings de ambas ramas
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,8 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<Cliente> Clientes => Set<Cliente>();
         public DbSet<Usuario> usuarios { get; set; }
         public DbSet<Rol> roles { get; set; }
+
+        public DbSet<Insumo> Insumos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
