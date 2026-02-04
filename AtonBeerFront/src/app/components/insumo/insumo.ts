@@ -24,6 +24,7 @@ export class InsumoComponent implements OnInit {
 
   datosForm: any = {
     id: null,
+    codigo: '',
     nombreInsumo: '',
     tipo: '',
     unidad: '',
@@ -49,7 +50,7 @@ export class InsumoComponent implements OnInit {
 
   aplicarFiltros() {
     let resultado = [...this.insumosOriginales];
-
+    
     if (this.filtroTexto) {
       const busqueda = this.filtroTexto.toLowerCase();
       resultado = resultado.filter(i => 
@@ -62,10 +63,13 @@ export class InsumoComponent implements OnInit {
       resultado = resultado.filter(i => i.tipo === this.filtroTipo);
     }
 
+    // Lógica de ordenamiento recuperada
     resultado.sort((a, b) => {
       if (this.orden === 'nombre') return a.nombreInsumo.localeCompare(b.nombreInsumo);
       if (this.orden === 'stock') return b.stockActual - a.stockActual;
-      if (this.orden === 'fecha') return new Date(b.ultimaActualizacion).getTime() - new Date(a.ultimaActualizacion).getTime();
+      if (this.orden === 'fecha') {
+        return new Date(b.ultimaActualizacion).getTime() - new Date(a.ultimaActualizacion).getTime();
+      }
       return 0;
     });
 
@@ -82,7 +86,7 @@ export class InsumoComponent implements OnInit {
   }
 
   limpiarFormulario() {
-    this.datosForm = { id: null, nombreInsumo: '', tipo: '', unidad: '', stockActual: 0, observaciones: '' };
+    this.datosForm = { id: null, codigo: '', nombreInsumo: '', tipo: '', unidad: '', stockActual: 0, observaciones: '' };
   }
 
   prepararEdicion(item: any) {
@@ -96,15 +100,20 @@ export class InsumoComponent implements OnInit {
       return;
     }
 
+    if (!this.datosForm.id) {
+      const timestamp = new Date().getTime().toString().slice(-4);
+      this.datosForm.codigo = this.datosForm.tipo.substring(0, 3).toUpperCase() + "-" + timestamp;
+    }
+
     if (this.datosForm.id) {
       this.insumoService.actualizarInsumo(this.datosForm.id, this.datosForm).subscribe({
         next: () => this.finalizarOperacion('Insumo actualizado'),
-        error: (err) => alert(err.error || 'Error al actualizar')
+        error: (err) => alert("Error: " + (err.error?.message || JSON.stringify(err.error)))
       });
     } else {
       this.insumoService.crearInsumo(this.datosForm).subscribe({
         next: () => this.finalizarOperacion('Insumo creado'),
-        error: (err) => alert(err.error || 'Error al crear')
+        error: (err) => alert("Error: " + (err.error?.message || JSON.stringify(err.error)))
       });
     }
   }
