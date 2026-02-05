@@ -22,18 +22,19 @@ namespace AtonBeerTesis.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Insumo>>> GetInsumos()
         {
-            return await _context.Insumos.ToListAsync();
+            return await _context.Insumos.Include(i => i.TipoInsumo)
+                .ToListAsync();
         }
 
         [HttpPost]
         public async Task<IActionResult> CrearInsumo([FromBody] InsumoDto insumoDto)
         {
             if (insumoDto == null) return BadRequest("Datos inválidos");
-
-            bool existe = await _context.Insumos.AnyAsync(x => x.NombreInsumo == insumoDto.NombreInsumo && x.Tipo == insumoDto.Tipo);
+                
+            bool existe = await _context.Insumos.AnyAsync(x => x.NombreInsumo == insumoDto.NombreInsumo && x.TipoInsumoId == insumoDto.TipoInsumoId);
             if (existe)
             {
-                return BadRequest($"El insumo '{insumoDto.NombreInsumo}' de tipo '{insumoDto.Tipo}' ya existe.");
+                return BadRequest($"El insumo '{insumoDto.NombreInsumo}' de tipo '{insumoDto.TipoInsumoId}' ya existe.");
             }
 
             int cantidad = _context.Insumos.Count() + 1;
@@ -43,7 +44,7 @@ namespace AtonBeerTesis.Api.Controllers
             {
                 NombreInsumo = insumoDto.NombreInsumo,
                 Codigo = codigoAutomatico,
-                Tipo = insumoDto.Tipo,
+                TipoInsumoId = insumoDto.TipoInsumoId,
                 Unidad = insumoDto.Unidad,
                 StockActual = insumoDto.StockActual,
                 UltimaActualizacion = DateTime.Now,
@@ -66,14 +67,14 @@ namespace AtonBeerTesis.Api.Controllers
             // Validación: Que no exista OTRO insumo con mismo nombre y tipo
             bool existe = await _context.Insumos.AnyAsync(x =>
                 x.NombreInsumo == insumoDto.NombreInsumo &&
-                x.Tipo == insumoDto.Tipo &&
+                x.TipoInsumoId == insumoDto.TipoInsumoId &&
                 x.Id != id);
 
             if (existe) return BadRequest($"Ya existe otro insumo con ese nombre y tipo.");
 
             // Actualizamos los valores
             insumo.NombreInsumo = insumoDto.NombreInsumo;
-            insumo.Tipo = insumoDto.Tipo;
+            insumo.TipoInsumoId = insumoDto.TipoInsumoId;
             insumo.Unidad = insumoDto.Unidad;
             insumo.StockActual = insumoDto.StockActual;
             insumo.Observaciones = insumoDto.Observaciones;
@@ -99,6 +100,47 @@ namespace AtonBeerTesis.Api.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Insumo eliminado correctamente." });
+        }
+
+        //Agrego mi PBI 88 - RECLASIFICAR INSUMO
+        [HttpPut("{idInsumo}/clasificar")]
+        public async Task<IActionResult> ReClasificarInsumo(int idInsumo, [FromBody] int nuevoTipoId)
+        {
+            var insumo = await _context.Insumos.FindAsync(idInsumo);
+            if (insumo == null || !insumo.Activo) return NotFound("Insumo no encontrado.");
+
+            var tipoExiste = await _context.TiposInsumo.AnyAsync(t => t.id == nuevoTipoId && t.Activo);
+            if (!tipoExiste) return BadRequest("Esa categoría no existe");
+
+            insumo.TipoInsumoId = nuevoTipoId;
+            await _context.SaveChangesAsync();
+            return Ok("Insumo clasificado correctamente.");
+        }
+
+        //MÉTODO DE FILTROS 
+        [HttpGet("buscar")]
+        public async Task<IActionResult> GetInsumosFiltrados(
+            [FromQuery] string? nombre,
+            [FromQuery] int? tipoId)
+        {
+            var query = _context.Insumos
+                .Include(i => i.TipoInsumo)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(nombre))
+                query = query.Where(i => i.NombreInsumo.Contains(nombre));
+
+            if (tipoId.HasValue)
+                query = query.Where(i => i.TipoInsumoId == tipoId.Value);
+
+            return Ok(await query.ToListAsync());
+        }
+
+        //DE TIPOS (Para el dropdown del Front)
+        [HttpGet("tipos")]
+        public async Task<ActionResult<IEnumerable<TipoInsumo>>> GetTipos()
+        {
+            return await _context.TiposInsumo.Where(t => t.Activo).ToListAsync();
         }
     }
 }

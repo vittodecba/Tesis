@@ -6,7 +6,7 @@
 
         public string Codigo { get; set; } // <--- Faltaba este
 
-        public string Tipo { get; set; }
+        public int TipoInsumoId { get; set; }
 
         public string Unidad { get; set; }
 
