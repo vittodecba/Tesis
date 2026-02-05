@@ -1,20 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using AtonBeerTesis.Domain.Entities; // Asegurate que este namespace coincida con tu clase TipoInsumo
 
-namespace AtonBeerTesis.Domain.Entities
+namespace AtonBeerTesis.Domain
 {
     public class Insumo
     {
-        public int id { get; set; }
-        public string Nombre { get; set; } = string.Empty;
-        public string Descripcion { get; set; } = string.Empty;//Eso para que no sea nulo
+        [Key]
+        public int Id { get; set; }
 
-        //Relacion con TipoInsumo
-        public int TipoInsumoId { get; set; }//Clave foranea
-        public TipoInsumo? TipoInsumo { get; set; }//Propiedad de navegacion, o sea lo que trae de la otra tabla
+        public string NombreInsumo { get; set; } = string.Empty;
+
+        public string Codigo { get; set; } = string.Empty;
+
+        // --- RELACIÓN CON TIPO INSUMO ---
+        public int TipoInsumoId { get; set; } 
+        public TipoInsumo? TipoInsumo { get; set; }
+
+        // --- DATOS DE TU COMPAÑERO ---
+        public string Unidad { get; set; } = string.Empty; 
+
+        public decimal StockActual { get; set; } 
+
+        public DateTime? UltimaActualizacion { get; set; }
+
+        public string Observaciones { get; set; } = string.Empty;
+
         public bool Activo { get; set; } = true;
     }
 }
