@@ -21,6 +21,43 @@ namespace AtonBeerTesis.Application.Services
             _movimientoStockRepository = movimientoStockRepository;
             _productoRepository = productoRepository;
         }
+        public async Task<IEnumerable<ProductoPrueba>> ObtenerTodosAsync()
+        {
+            return await _productoRepository.GetAllAsync();
+        }
+
+        public async Task<ProductoPrueba> ObtenerPorIdAsync(int id)
+        {
+            return await _productoRepository.FindOneAsync(id);
+        }
+
+        public async Task<bool> CrearProductoAsync(ProductoDto dto)
+        {
+            var nuevoProducto = new ProductoPrueba
+            {
+                Nombre = dto.Nombre,
+                Estilo = dto.Estilo,
+                Formato = dto.Formato,
+                UnidadMedida = dto.UnidadMedida,
+                StockActual = 0 // Todo producto nuevo nace con stock cero
+            };
+            await _productoRepository.AddAsync(nuevoProducto);
+            return true;
+        }
+
+        public async Task<bool> ActualizarProductoAsync(int id, ProductoDto dto)
+        {
+            var productoExistente = await _productoRepository.FindOneAsync(id);
+            if (productoExistente == null) throw new Exception("Producto no encontrado");
+
+            productoExistente.Nombre = dto.Nombre;
+            productoExistente.Estilo = dto.Estilo;
+            productoExistente.Formato = dto.Formato;
+            productoExistente.UnidadMedida = dto.UnidadMedida;
+
+            _productoRepository.Update(id, productoExistente);
+            return true;
+        }
         public async Task<bool> RegistrarMovimientoStockAsync(MovimientoStockDto dto)
         {
             //Obtener el producto

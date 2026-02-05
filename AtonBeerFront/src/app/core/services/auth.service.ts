@@ -43,6 +43,7 @@ export class AuthService {
         const nivel2 = nivel1.data || nivel1;
         const usuarioObj = nivel2.usuario || nivel2.Usuario || nivel1.usuario || {};
 
+        // En tu método login, busca la parte del usuario:
         return {
           token: nivel2.token || nivel2.Token || nivel1.token || '',
           usuario: {
@@ -51,7 +52,8 @@ export class AuthService {
             apellido: usuarioObj.apellido || usuarioObj.Apellido || '',
             email: usuarioObj.email || usuarioObj.Email || '',
             rolId: usuarioObj.rolId || usuarioObj.RolId || 0,
-            rolNombre: usuarioObj.rolNombre,
+            // AGREGAMOS LA OPCIÓN EN MAYÚSCULA AQUÍ:
+            rolNombre: usuarioObj.rolNombre || usuarioObj.RolNombre || 'Sin Rol',
           },
         } as LoginResponse;
       }),

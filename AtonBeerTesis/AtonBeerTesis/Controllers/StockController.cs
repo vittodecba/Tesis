@@ -17,6 +17,33 @@ namespace AtonBeerTesis.Controllers
             _stockService = stockService;
             _movimientoRepository = movimientoRepository;
         }
+
+        [HttpGet("productos")]
+        public async Task<IActionResult> GetAllProductos()
+        {
+            return Ok(await _stockService.ObtenerTodosAsync());
+        }
+
+        [HttpPost("productos")]
+        public async Task<IActionResult> CrearProducto([FromBody] ProductoDto dto)
+        {
+            await _stockService.CrearProductoAsync(dto);
+            return Ok(new { mensaje = "Producto creado exitosamente en el catálogo." });
+        }
+
+        [HttpPut("productos/{id}")]
+        public async Task<IActionResult> ActualizarProducto(int id, [FromBody] ProductoDto dto)
+        {
+            try
+            {
+                await _stockService.ActualizarProductoAsync(id, dto);
+                return Ok(new { mensaje = "Producto actualizado correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
         [HttpPost("Registrar")]
         public async Task<IActionResult> RegistrarMovimientoStock([FromBody] MovimientoStockDto dto)
         {

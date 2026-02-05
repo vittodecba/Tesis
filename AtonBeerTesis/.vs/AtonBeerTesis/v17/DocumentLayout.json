@@ -3,6 +3,42 @@
   "WorkspaceRootPath": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|solutionrelative:atonbeertesis.infrastructure\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.application\\services\\stockservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\services\\stockservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.application\\interfaces\\istockservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\interfaces\\istockservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\controllers\\stockcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\controllers\\stockcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.application\\dtos\\productodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\dtos\\productodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.application\\dtos\\movimientostockdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B959B33B-638F-4BA5-A095-52949C187E43}|AtonBeerTesis.Application\\AtonBeerTesis.Application.csproj|solutionrelative:atonbeertesis.application\\dtos\\movimientostockdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.domain\\entities\\productoprueba.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|solutionrelative:atonbeertesis.domain\\entities\\productoprueba.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.domain\\entities\\movimientostock.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4AD89279-B20B-4CE5-B1AC-DDF89015B334}|AtonBeerTesis.Domain\\AtonBeerTesis.Domain.csproj|solutionrelative:atonbeertesis.domain\\entities\\movimientostock.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -15,16 +51,8 @@
       "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\controllers\\rolescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\controllers\\stockcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\controllers\\stockcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
@@ -33,14 +61,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{F0FBEA29-0618-43B3-ACB2-417E64159BA0}|AtonBeerTesis\\AtonBeerTesis.csproj|solutionrelative:atonbeertesis\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|solutionrelative:atonbeertesis.infrastructure\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\migrations\\20260122045914_inicial_merge.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|solutionrelative:atonbeertesis.infrastructure\\migrations\\20260122045914_inicial_merge.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F872E23D-E7DF-4643-8554-867D206E53EA}|AtonBeerTesis.Infrastructure\\AtonBeerTesis.Infrastructure.csproj|c:\\users\\asus\\desktop\\pla3\\tesis\\atonbeertesis\\atonbeertesis.infrastructure\\repositories\\rolrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -58,7 +78,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 11,
           "Children": [
             {
               "$type": "Bookmark",
@@ -82,7 +102,124 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "MovimientoStockDto.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\MovimientoStockDto.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Dtos\\MovimientoStockDto.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\MovimientoStockDto.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Dtos\\MovimientoStockDto.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABEAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T18:46:48.464Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "StockService.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Services\\StockService.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Services\\StockService.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Services\\StockService.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Services\\StockService.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAowBIAAABXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T18:46:32.158Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "MovimientoStock.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entities\\MovimientoStock.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Domain\\Entities\\MovimientoStock.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entities\\MovimientoStock.cs",
+              "RelativeToolTip": "AtonBeerTesis.Domain\\Entities\\MovimientoStock.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABUAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T17:58:01.198Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ProductoPrueba.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entities\\ProductoPrueba.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Domain\\Entities\\ProductoPrueba.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Domain\\Entities\\ProductoPrueba.cs",
+              "RelativeToolTip": "AtonBeerTesis.Domain\\Entities\\ProductoPrueba.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABMAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T17:43:24.915Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "StockController.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Controllers\\StockController.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis\\Controllers\\StockController.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Controllers\\StockController.cs",
+              "RelativeToolTip": "AtonBeerTesis\\Controllers\\StockController.cs",
+              "ViewState": "AQIAABoAAAAAAAAAAAAqwC0AAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-03T00:02:38.106Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
+              "RelativeToolTip": "AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAIBJwEAAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-22T20:40:41.945Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Program.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis\\Program.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Program.cs",
+              "RelativeToolTip": "AtonBeerTesis\\Program.cs",
+              "ViewState": "AQIAACQAAAAAAAAAAAAwwDEAAABKAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-13T05:35:18.482Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IStockService.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Interfaces\\IStockService.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Interfaces\\IStockService.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Interfaces\\IStockService.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Interfaces\\IStockService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAuwBAAAABEAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T18:46:06.478Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ProductoDto.cs",
+              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\ProductoDto.cs",
+              "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Dtos\\ProductoDto.cs",
+              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Dtos\\ProductoDto.cs",
+              "RelativeToolTip": "AtonBeerTesis.Application\\Dtos\\ProductoDto.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T19:10:14.208Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "UsuarioService.cs",
               "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Application\\Services\\UsuarioService.cs",
               "RelativeDocumentMoniker": "AtonBeerTesis.Application\\Services\\UsuarioService.cs",
@@ -90,12 +227,11 @@
               "RelativeToolTip": "AtonBeerTesis.Application\\Services\\UsuarioService.cs",
               "ViewState": "AQIAAC4AAAAAAAAAAAAswGcAAAANAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-03T19:50:13.224Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-03T19:50:13.224Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 11,
               "Title": "RolesController.cs",
               "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Controllers\\RolesController.cs",
               "RelativeDocumentMoniker": "AtonBeerTesis\\Controllers\\RolesController.cs",
@@ -103,25 +239,11 @@
               "RelativeToolTip": "AtonBeerTesis\\Controllers\\RolesController.cs",
               "ViewState": "AQIAABUAAAAAAAAAAAAYwAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-03T19:49:08.046Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-03T19:49:08.046Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "StockController.cs",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Controllers\\StockController.cs",
-              "RelativeDocumentMoniker": "AtonBeerTesis\\Controllers\\StockController.cs",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Controllers\\StockController.cs",
-              "RelativeToolTip": "AtonBeerTesis\\Controllers\\StockController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-03T00:02:38.106Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 9,
               "Title": "UsuarioController.cs",
               "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Controllers\\UsuarioController.cs",
               "RelativeDocumentMoniker": "AtonBeerTesis\\Controllers\\UsuarioController.cs",
@@ -134,7 +256,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 12,
               "Title": "AuthController.cs",
               "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "AtonBeerTesis\\Controllers\\AuthController.cs",
@@ -146,31 +268,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "ApplicationDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
-              "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
-              "RelativeToolTip": "AtonBeerTesis.Infrastructure\\Data\\ApplicationDbContext.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-22T20:40:41.945Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "20260122045914_Inicial_Merge.cs",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Migrations\\20260122045914_Inicial_Merge.cs",
-              "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Migrations\\20260122045914_Inicial_Merge.cs",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Migrations\\20260122045914_Inicial_Merge.cs",
-              "RelativeToolTip": "AtonBeerTesis.Infrastructure\\Migrations\\20260122045914_Inicial_Merge.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAApAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-22T04:59:14.825Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 15,
               "Title": "RolRepository.cs",
               "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\RolRepository.cs",
               "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Repositories\\RolRepository.cs",
@@ -182,7 +280,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 13,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\appsettings.json",
               "RelativeDocumentMoniker": "AtonBeerTesis\\appsettings.json",
@@ -194,7 +292,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 16,
               "Title": "UsuarioRepository.cs",
               "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis.Infrastructure\\Repositories\\UsuarioRepository.cs",
               "RelativeDocumentMoniker": "AtonBeerTesis.Infrastructure\\Repositories\\UsuarioRepository.cs",
@@ -206,19 +304,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Program.cs",
-              "RelativeDocumentMoniker": "AtonBeerTesis\\Program.cs",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\Program.cs",
-              "RelativeToolTip": "AtonBeerTesis\\Program.cs",
-              "ViewState": "AQIAADgAAAAAAAAAAAAAAEwAAAABAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-13T05:35:18.482Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 14,
               "Title": "appsettings.Development.json",
               "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\PLA3\\Tesis\\AtonBeerTesis\\AtonBeerTesis\\appsettings.Development.json",
               "RelativeDocumentMoniker": "AtonBeerTesis\\appsettings.Development.json",

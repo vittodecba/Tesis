@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicial_Merge : Migration
+    public partial class AgregarTablasStock : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,11 +23,11 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     EstadoCliente = table.Column<int>(type: "int", nullable: false),
                     RazonSocial = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Cuit = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Ubicacion = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: false),
-                    ContactoNombre = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: true),
-                    ContactoTelefono = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
-                    ContactoEmail = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: true),
+                    ContactoNombre = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ContactoTelefono = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ContactoEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UltimaCompra = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UltimoPedido = table.Column<DateTime>(type: "datetime2", nullable: true),
                     TotalPedidos = table.Column<int>(type: "int", nullable: false)
@@ -35,6 +35,43 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Clientes", x => x.IdCliente);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MovimientosStock",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ProductoId = table.Column<int>(type: "int", nullable: false),
+                    Lote = table.Column<int>(type: "int", nullable: false),
+                    Cantidad = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    TipoMovimiento = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MotivoMovimiento = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StockPrevio = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    StockResultante = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MovimientosStock", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductosPrueba",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Estilo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Formato = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UnidadMedida = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StockActual = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductosPrueba", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -77,16 +114,38 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "historialAccesos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UsuarioId = table.Column<int>(type: "int", nullable: true),
+                    EmailIntentado = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FechaIntento = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Exitoso = table.Column<bool>(type: "bit", nullable: false),
+                    Detalles = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_historialAccesos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_historialAccesos_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.InsertData(
                 table: "roles",
                 columns: new[] { "Id", "Descripcion", "Nombre" },
                 values: new object[,]
                 {
-                    { 1, "Registra y consulta procesos productivos, recetas, fermentaciones y estado de barriles.", "Cocinero" },
-                    { 2, "Supervisa la producción y controla el stock de insumos, barriles y latas.", "ResponsablePlanta" },
-                    { 3, "Registra pedidos, controla entregas y actualiza el estado de los pedidos.", "ResponsablePedidos" },
-                    { 4, "Gestiona clientes y realiza seguimiento de pedidos.", "Gerente" },
-                    { 5, "Consulta ventas y reportes de ventas para análisis y toma de decisiones.", "GerenteMayor" }
+                    { 1, "...", "Cocinero" },
+                    { 2, "...", "ResponsablePlanta" },
+                    { 3, "...", "ResponsablePedidos" },
+                    { 4, "...", "Gerente" },
+                    { 5, "...", "GerenteMayor" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -94,6 +153,11 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 table: "Clientes",
                 column: "Cuit",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_historialAccesos_UsuarioId",
+                table: "historialAccesos",
+                column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Usuarios_RolId",
@@ -106,6 +170,15 @@ namespace AtonBeerTesis.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Clientes");
+
+            migrationBuilder.DropTable(
+                name: "historialAccesos");
+
+            migrationBuilder.DropTable(
+                name: "MovimientosStock");
+
+            migrationBuilder.DropTable(
+                name: "ProductosPrueba");
 
             migrationBuilder.DropTable(
                 name: "Usuarios");

@@ -63,24 +63,20 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCliente"));
 
                     b.Property<string>("ContactoEmail")
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContactoNombre")
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContactoTelefono")
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Cuit")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("EstadoCliente")
                         .HasColumnType("int");
@@ -124,6 +120,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Cantidad")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("Fecha")
@@ -140,9 +137,11 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("StockPrevio")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("StockResultante")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("TipoMovimiento")
@@ -151,7 +150,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("movimientosStock");
+                    b.ToTable("MovimientosStock");
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.ProductoPrueba", b =>
@@ -175,6 +174,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("StockActual")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("UnidadMedida")
@@ -183,7 +183,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("productoPruebas");
+                    b.ToTable("ProductosPrueba");
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Rol", b =>
@@ -212,31 +212,31 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Descripcion = "Registra y consulta procesos productivos, recetas, fermentaciones y estado de barriles.",
+                            Descripcion = "...",
                             Nombre = "Cocinero"
                         },
                         new
                         {
                             Id = 2,
-                            Descripcion = "Supervisa la producción y controla el stock de insumos, barriles y latas.",
+                            Descripcion = "...",
                             Nombre = "ResponsablePlanta"
                         },
                         new
                         {
                             Id = 3,
-                            Descripcion = "Registra pedidos, controla entregas y actualiza el estado de los pedidos.",
+                            Descripcion = "...",
                             Nombre = "ResponsablePedidos"
                         },
                         new
                         {
                             Id = 4,
-                            Descripcion = "Gestiona clientes y realiza seguimiento de pedidos.",
+                            Descripcion = "...",
                             Nombre = "Gerente"
                         },
                         new
                         {
                             Id = 5,
-                            Descripcion = "Consulta ventas y reportes de ventas para análisis y toma de decisiones.",
+                            Descripcion = "...",
                             Nombre = "GerenteMayor"
                         });
                 });
