@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RolService } from '../../services/rol'; 
+import { RolService } from '../../services/rol';
 
 @Component({
   selector: 'app-roles-gestion',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './roles-gestion.html',
-  styleUrl: './roles-gestion.css'
+  styleUrl: './roles-gestion.css',
 })
 export class RolesGestion implements OnInit {
   mostrarFormulario = false;
-  
+
   // Variables del formulario
   idEdicion: number | null = null;
   formNombre = '';
@@ -32,7 +32,7 @@ export class RolesGestion implements OnInit {
       next: (datos) => {
         this.roles = datos;
       },
-      error: (e) => console.error('Error al cargar roles:', e)
+      error: (e) => console.error('Error al cargar roles:', e),
     });
   }
 
@@ -53,10 +53,10 @@ export class RolesGestion implements OnInit {
 
     if (this.idEdicion) {
       // 2. EDITAR (UPDATE)
-      const rolEditado = { 
-        id: this.idEdicion, 
-        nombre: this.formNombre, 
-        descripcion: this.formDescripcion 
+      const rolEditado = {
+        id: this.idEdicion,
+        nombre: this.formNombre,
+        descripcion: this.formDescripcion,
       };
 
       this.rolService.editarRol(this.idEdicion, rolEditado).subscribe({
@@ -68,14 +68,13 @@ export class RolesGestion implements OnInit {
         error: (e) => {
           console.error('Error al editar:', e);
           alert('Hubo un error al editar el rol.');
-        }
+        },
       });
-
     } else {
       // 3. CREAR (CREATE)
-      const nuevoRol = { 
-        nombre: this.formNombre, 
-        descripcion: this.formDescripcion 
+      const nuevoRol = {
+        nombre: this.formNombre,
+        descripcion: this.formDescripcion,
       };
 
       this.rolService.crearRol(nuevoRol).subscribe({
@@ -87,7 +86,7 @@ export class RolesGestion implements OnInit {
         error: (e) => {
           console.error('Error al crear:', e);
           alert('Hubo un error al crear el rol.');
-        }
+        },
       });
     }
   }
@@ -102,7 +101,7 @@ export class RolesGestion implements OnInit {
         error: (e) => {
           console.error('Error al eliminar:', e);
           alert('No se pudo eliminar el rol (tal vez esté en uso).');
-        }
+        },
       });
     }
   }

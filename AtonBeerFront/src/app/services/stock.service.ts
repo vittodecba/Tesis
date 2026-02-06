@@ -6,7 +6,6 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class StockService {
-  // Ajustado al puerto 5190 de tu captura de Swagger
   private apiUrl = 'http://localhost:5190/api/Stock';
 
   constructor(private http: HttpClient) {}
@@ -15,11 +14,25 @@ export class StockService {
     return this.http.get<any[]>(`${this.apiUrl}/productos`);
   }
 
+  getMovimientos(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/movimientos`);
+  }
+
   crearProducto(producto: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/productos`, producto);
   }
 
-  getMovimientos(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/movimientos`);
+  actualizarProducto(id: number, producto: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/productos/${id}`, producto);
+  }
+
+  eliminarProducto(id: number): Observable<any> {
+    // OJO: Chequeá si tu apiUrl ya termina en / o no.
+    // Si tu apiUrl es '.../api/Stock', necesitás el '/productos/'
+    return this.http.delete(`${this.apiUrl}/productos/${id}`);
+  }
+
+  registrarMovimiento(dto: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/Registrar`, dto);
   }
 }

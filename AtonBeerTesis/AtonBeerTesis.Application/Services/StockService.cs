@@ -44,6 +44,21 @@ namespace AtonBeerTesis.Application.Services
             await _productoRepository.AddAsync(nuevoProducto);
             return true;
         }
+        public async Task<IEnumerable<MovimientoDetalladoDto>> ObtenerHistorialConNombresAsync()
+        {
+            var movimientos = await _movimientoStockRepository.GetAllAsync();
+            var productos = await _productoRepository.GetAllAsync();
+
+            // Hacemos un "Join" manual en memoria para traer los nombres
+            return movimientos.Select(m => new MovimientoDetalladoDto
+            {
+                Fecha = m.Fecha,
+                TipoMovimiento = m.TipoMovimiento,
+                Cantidad = m.Cantidad,
+                Motivo = m.MotivoMovimiento,
+                ProductoNombre = productos.FirstOrDefault(p => p.id == m.ProductoId)?.Nombre ?? "Producto Desconocido"
+            }).OrderByDescending(x => x.Fecha);
+        }
 
         public async Task<bool> ActualizarProductoAsync(int id, ProductoDto dto)
         {
@@ -56,6 +71,28 @@ namespace AtonBeerTesis.Application.Services
             productoExistente.UnidadMedida = dto.UnidadMedida;
 
             _productoRepository.Update(id, productoExistente);
+            return true;
+        }
+        public async Task<bool> EliminarProductoAsync(int id)
+        {
+            // 1. Verificar si el producto existe
+            var producto = await _productoRepository.FindOneAsync(id);
+            if (producto == null) return false;
+
+            // 2. Limpiar historial de movimientos
+            // Usamos FindAllAsync para obtener la lista y filtramos
+            var todosLosMovimientos = await _movimientoStockRepository.FindAllAsync();
+            var movimientosDelProducto = todosLosMovimientos.Where(m => m.ProductoId == id).ToList();
+
+            foreach (var mov in movimientosDelProducto)
+            {
+                // Tu repositorio usa Remove(params object[] keyValues) y guarda solo
+                _movimientoStockRepository.Remove(mov.Id);
+            }
+
+            // 3. Eliminar el producto
+            _productoRepository.Remove(id);
+
             return true;
         }
         public async Task<bool> RegistrarMovimientoStockAsync(MovimientoStockDto dto)
@@ -88,7 +125,8 @@ namespace AtonBeerTesis.Application.Services
                 TipoMovimiento = dto.tipoMovimiento!,
                 MotivoMovimiento = dto.motivoMovimiento!,
                 StockPrevio = producto.StockActual,
-                StockResultante = producto.StockActual
+                StockResultante = producto.StockActual,
+                Fecha = DateTime.Now,
             };
             //Persistir cambios usando los repositorios
              _productoRepository.Update(producto.id, producto);

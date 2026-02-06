@@ -1,29 +1,20 @@
-/* Panel principal: se integra bien con tu layout (.content ya tiene padding) */
 .stockShell {
-  background: rgba(255, 237, 213, 0.35); /* similar a bg-orange-50/30 */
-  border-radius: 16px; /* 2xl */
-  padding: 24px; /* p-6 */
+  background: #fdfdfd;
+  min-height: 100vh;
+  padding: 2rem;
 }
 
-/* Animación suave del expand/collapse */
 .expandWrap {
   overflow: hidden;
   max-height: 0;
   opacity: 0;
-  transform: translateY(-8px);
-  transition:
-    max-height 320ms ease-out,
-    opacity 260ms ease-out,
-    transform 260ms ease-out;
+  transition: all 0.3s ease-in-out;
+  &.expanded {
+    max-height: 800px;
+    opacity: 1;
+  }
 }
 
-.expandWrap.expanded {
-  max-height: 1200px; /* suficiente para tabla + botones */
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Evita clicks cuando está cerrado */
-.pointer-events-none {
-  pointer-events: none;
+button:active {
+  transform: scale(0.95);
 }

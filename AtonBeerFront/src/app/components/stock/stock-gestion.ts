@@ -3,20 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StockService } from '../../services/stock.service';
 
-type Tone = 'ok' | 'warn' | 'danger';
-
-interface EstiloStock {
-  id: string;
-  nombre: string;
-  stock: number;
-  min: number;
-}
-
-interface ProductoStock {
-  id: string;
-  nombre: string;
-  unidad: string;
-  estilos: EstiloStock[];
+interface FormatoAgrupado {
+  formato: string;
+  unidadMedida: string;
+  items: any[];
+  totalStock: number;
 }
 
 @Component({
@@ -30,140 +21,153 @@ export class StockGestion implements OnInit {
   COLORS = { brown: '#4A2C2A', orange: '#E67E22' };
   tab: 'stock' | 'movimientos' = 'stock';
   expandedId: string = '';
-  products: ProductoStock[] = [];
-  movements: any[] = [];
+  searchTerm: string = ''; // <--- Para el buscador
 
-  // Filtros y Variables de UI (Esto faltaba)
-  tipoMov: string = 'all';
+  formatosAgrupados: FormatoAgrupado[] = [];
+  movimientos: any[] = [];
+
+  // Modales
+  modalProdOpen = false;
+  movModalOpen = false;
+  deleteModalOpen = false;
+
+  // Estado
+  isEditing = false;
+  editProductoId: number | null = null;
+  prodAEliminar: any = null;
 
   // Formulario
-  modalOpen = false;
-  formProductoNombre = '';
-  formProductoEstilo = '';
-  formProductoUnidad = 'Litro';
+  prodEstilo = '';
+  prodFormato = '';
+  movProductoSeleccionado: any = null;
+  movCantidad: number | null = null;
 
   constructor(private stockService: StockService) {}
 
   ngOnInit() {
-    this.cargarDatos();
+    this.cargarTodo();
   }
 
-  cargarDatos() {
-    this.stockService.getProductos().subscribe({
-      next: (data) => {
-        this.products = this.agruparProductos(data);
-      },
-      error: (err) => console.error('Error cargando productos', err),
+  cargarTodo() {
+    this.stockService.getProductos().subscribe((productos: any[]) => {
+      this.agruparProductos(productos);
     });
-
-    this.stockService.getMovimientos().subscribe((data) => (this.movements = data));
+    this.stockService.getMovimientos().subscribe((movs: any[]) => {
+      this.movimientos = movs;
+    });
   }
 
-  private agruparProductos(backendData: any[]): ProductoStock[] {
-    const grupos: { [key: string]: ProductoStock } = {};
-    backendData.forEach((p) => {
-      const nombreGrupo = p.formato || 'Sin Formato';
-      if (!grupos[nombreGrupo]) {
-        grupos[nombreGrupo] = {
-          id: nombreGrupo.toLowerCase().replace(/\s+/g, '-'),
-          nombre: nombreGrupo,
-          unidad: p.unidadMedida || 'u.',
-          estilos: [],
+  agruparProductos(productos: any[]) {
+    const grupos: { [key: string]: FormatoAgrupado } = {};
+    productos.forEach((p) => {
+      const f = p.formato || p.Formato || 'Sin Formato';
+      if (!grupos[f]) {
+        grupos[f] = {
+          formato: f,
+          unidadMedida: p.unidadMedida || p.UnidadMedida || 'u.',
+          items: [],
+          totalStock: 0,
         };
       }
-      grupos[nombreGrupo].estilos.push({
-        id: p.id.toString(),
-        nombre: p.estilo || 'General',
-        stock: p.stockActual || 0,
-        min: 10,
-      });
+      grupos[f].items.push(p);
+      grupos[f].totalStock += p.stockActual || p.StockActual || 0;
     });
-    return Object.values(grupos);
+    this.formatosAgrupados = Object.values(grupos);
   }
 
-  // --- FUNCIONES QUE FALTABAN PARA EL HTML ---
+  // --- GETTER PARA EL FILTRO ---
+  get gruposFiltrados() {
+    if (!this.searchTerm.trim()) return this.formatosAgrupados;
 
-  criticalCount(): number {
-    return this.products.filter((p) => {
-      const total = this.totalProducto(p);
-      return total < this.minSumProducto(p) / 2;
-    }).length;
+    const term = this.searchTerm.toLowerCase();
+    return this.formatosAgrupados
+      .map((grupo) => {
+        const itemsFiltrados = grupo.items.filter((item) =>
+          (item.estilo || item.Estilo).toLowerCase().includes(term),
+        );
+        return { ...grupo, items: itemsFiltrados };
+      })
+      .filter((grupo) => grupo.items.length > 0);
   }
-
-  isCan(p: ProductoStock): boolean {
-    return p.nombre.toLowerCase().includes('lata');
-  }
-
-  filteredMovements() {
-    if (this.tipoMov === 'all') return this.movements;
-    return this.movements.filter((m) => m.tipoMovimiento === this.tipoMov);
-  }
-
-  // --- LÓGICA DE UI Y ESTILOS ---
-
-  totalProducto(p: ProductoStock) {
-    return p.estilos.reduce((acc, e) => acc + e.stock, 0);
-  }
-  minSumProducto(p: ProductoStock) {
-    return p.estilos.reduce((acc, e) => acc + e.min, 0);
-  }
-  totalAll() {
-    return this.products.reduce((acc, p) => acc + this.totalProducto(p), 0);
-  }
-
-  statusFor(stock: number, min: number): { label: string; tone: Tone } {
-    if (stock <= 0) return { label: 'Sin stock', tone: 'danger' };
-    if (stock < min) return { label: 'Crítico', tone: 'danger' };
-    return { label: 'OK', tone: 'ok' };
-  }
-
-  toneChipClass(t: Tone) {
-    return t === 'danger' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700';
-  }
-  toneDotClass(t: Tone) {
-    return t === 'danger' ? 'bg-red-500' : 'bg-green-500';
-  }
-  toneBarClass(t: Tone) {
-    return t === 'danger' ? 'bg-red-500' : 'bg-green-500';
-  }
-
-  progressPct(p: ProductoStock) {
-    const total = this.totalProducto(p);
-    return Math.min(100, (total / (this.minSumProducto(p) || 1)) * 100);
-  }
-
-  // --- ACCIONES ---
 
   toggleExpand(id: string) {
     this.expandedId = this.expandedId === id ? '' : id;
   }
-  isExpanded(id: string) {
-    return this.expandedId === id;
-  }
-  setTab(t: 'stock' | 'movimientos') {
-    this.tab = t;
-  }
-  openModal() {
-    this.modalOpen = true;
-  }
-  closeModal() {
-    this.modalOpen = false;
+
+  // --- ACCIONES ---
+  openCreateModal() {
+    this.isEditing = false;
+    this.editProductoId = null;
+    this.prodEstilo = '';
+    this.prodFormato = '';
+    this.modalProdOpen = true;
   }
 
-  saveProducto() {
-    if (!this.formProductoNombre || !this.formProductoEstilo) return;
-    const payload = {
-      nombre: `${this.formProductoNombre} ${this.formProductoEstilo}`,
-      estilo: this.formProductoEstilo,
-      formato: this.formProductoNombre,
-      unidadMedida: this.formProductoUnidad,
-      stockActual: 0,
+  openEditModal(item: any) {
+    this.isEditing = true;
+    this.editProductoId = item.id || item.Id;
+    this.prodEstilo = item.estilo || item.Estilo;
+    this.prodFormato = item.formato || item.Formato;
+    this.modalProdOpen = true;
+  }
+
+  guardarProducto() {
+    if (!this.prodEstilo || !this.prodFormato) return;
+    const dto = {
+      Nombre: `${this.prodFormato} ${this.prodEstilo}`,
+      Estilo: this.prodEstilo,
+      Formato: this.prodFormato,
+      UnidadMedida: 'Unidades',
     };
-    this.stockService.crearProducto(payload).subscribe(() => {
-      this.cargarDatos();
-      this.closeModal();
-      this.formProductoNombre = '';
-      this.formProductoEstilo = '';
+
+    if (this.isEditing && this.editProductoId) {
+      this.stockService
+        .actualizarProducto(this.editProductoId, dto)
+        .subscribe(() => this.finalizar());
+    } else {
+      this.stockService.crearProducto(dto).subscribe(() => this.finalizar());
+    }
+  }
+
+  confirmarEliminar(item: any) {
+    this.prodAEliminar = item;
+    this.deleteModalOpen = true;
+  }
+
+  eliminarProducto() {
+    const id = this.prodAEliminar.id || this.prodAEliminar.Id;
+    this.stockService.eliminarProducto(id).subscribe({
+      next: () => {
+        this.deleteModalOpen = false;
+        this.cargarTodo();
+      },
+      error: () => alert('Error al eliminar producto.'),
+    });
+  }
+
+  finalizar() {
+    this.modalProdOpen = false;
+    this.cargarTodo();
+  }
+
+  openMovModal(item: any) {
+    this.movProductoSeleccionado = item;
+    this.movCantidad = null;
+    this.movModalOpen = true;
+  }
+
+  confirmarMovimiento() {
+    if (!this.movProductoSeleccionado || !this.movCantidad) return;
+    const dto = {
+      productoId: this.movProductoSeleccionado.id || this.movProductoSeleccionado.Id,
+      cantidad: Math.abs(this.movCantidad),
+      tipoMovimiento: this.movCantidad > 0 ? 'Ingreso' : 'Egreso',
+      motivoMovimiento: 'Ajuste manual',
+      Fecha: new Date().toISOString(),
+    };
+    this.stockService.registrarMovimiento(dto).subscribe(() => {
+      this.movModalOpen = false;
+      this.cargarTodo();
     });
   }
 }

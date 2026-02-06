@@ -11,8 +11,16 @@ namespace AtonBeerTesis.Application.Interfaces
     public interface IStockService
     {
         Task<bool>RegistrarMovimientoStockAsync(MovimientoStockDto dto);
+
+
+        // ... tus otros métodos (Get, Post, etc)
+        Task<bool> EliminarProductoAsync(int id);
+
         Task<IEnumerable<ProductoPrueba>> ObtenerTodosAsync();
-        Task<ProductoPrueba> ObtenerPorIdAsync(int id);
+
+        Task<IEnumerable<MovimientoDetalladoDto>> ObtenerHistorialConNombresAsync();
+        
+            Task<ProductoPrueba> ObtenerPorIdAsync(int id);
         Task<bool> CrearProductoAsync(ProductoDto dto);
         Task<bool> ActualizarProductoAsync(int id, ProductoDto dto);
     }

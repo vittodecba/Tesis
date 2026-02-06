@@ -1,53 +1,60 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { StockGestion } from './stock-gestion';
 import { StockService } from '../../services/stock.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
-import { FormsModule } from '@angular/forms';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('StockGestion', () => {
   let component: StockGestion;
   let fixture: ComponentFixture<StockGestion>;
-  let stockServiceMock: any;
+  let stockServiceSpy: jasmine.SpyObj<StockService>;
 
   beforeEach(async () => {
-    // Creamos un simulador del servicio para que la prueba no intente llamar a la API real
-    stockServiceMock = {
-      getProductos: jasmine
-        .createSpy('getProductos')
-        .and.returnValue(
-          of([
-            { id: 1, formato: 'Barril', estilo: 'Rubia', stockActual: 10, unidadMedida: 'Litro' },
-          ]),
-        ),
-      getMovimientos: jasmine.createSpy('getMovimientos').and.returnValue(of([])),
-    };
+    // Creamos un "espía" para el servicio para no pegarle a la API real durante el test
+    const spy = jasmine.createSpyObj('StockService', ['getProductos', 'getMovimientos']);
+
+    // Configuramos que el espía devuelva datos de ejemplo (mock)
+    spy.getProductos.and.returnValue(
+      of([
+        {
+          id: 1,
+          nombre: 'B50L IPA',
+          estilo: 'IPA',
+          formato: 'Barril 50L',
+          unidadMedida: 'Litro',
+          stockActual: 10,
+        },
+      ]),
+    );
+    spy.getMovimientos.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [StockGestion, HttpClientTestingModule, FormsModule],
-      providers: [{ provide: StockService, useValue: stockServiceMock }],
+      imports: [StockGestion, HttpClientTestingModule],
+      providers: [{ provide: StockService, useValue: spy }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(StockGestion);
     component = fixture.componentInstance;
+    stockServiceSpy = TestBed.inject(StockService) as jasmine.SpyObj<StockService>;
     fixture.detectChanges();
   });
 
-  it('debería crear el componente', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debería agrupar productos correctamente al cargar', () => {
-    // Al iniciar, el mock devuelve 1 producto, que se agrupa en 1 formato
-    expect(component.products.length).toBe(1);
-    expect(component.products[0].nombre).toBe('Barril');
+  it('should group products by format on init', () => {
+    // Verificamos que la lógica de agrupación funcionó
+    expect(component.formatosAgrupados.length).toBe(1);
+    expect(component.formatosAgrupados[0].formato).toBe('Barril 50L');
+    expect(component.formatosAgrupados[0].items[0].estilo).toBe('IPA');
   });
 
-  it('debería alternar la expansión de una card', () => {
-    const id = 'barril';
-    component.toggleExpand(id);
-    expect(component.expandedId).toBe(id);
-    component.toggleExpand(id);
-    expect(component.expandedId).toBe('');
+  it('should open movement modal with correct product', () => {
+    const productoTest = { id: 1, nombre: 'B50L IPA' };
+    component.openMovModal(productoTest);
+
+    expect(component.movModalOpen).toBeTrue();
+    expect(component.movProductoSeleccionado.id).toBe(1);
   });
 });

@@ -17,6 +17,21 @@ namespace AtonBeerTesis.Controllers
             _stockService = stockService;
             _movimientoRepository = movimientoRepository;
         }
+        [HttpDelete("productos/{id}")]
+        public async Task<IActionResult> EliminarProducto(int id)
+        {
+            // Llamamos al servicio que ya tiene la lógica de borrar movimientos y producto
+            var resultado = await _stockService.EliminarProductoAsync(id);
+
+            if (!resultado)
+            {
+                // Si el servicio devuelve false es porque no encontró el producto
+                return NotFound(new { message = "No se encontró el producto para eliminar." });
+            }
+
+            // Si todo sale bien, devolvemos un 204 (No Content) que es el estándar para DELETE
+            return NoContent();
+        }
 
         [HttpGet("productos")]
         public async Task<IActionResult> GetAllProductos()
@@ -73,10 +88,8 @@ namespace AtonBeerTesis.Controllers
         [HttpGet("movimientos")]
         public async Task<IActionResult> GetMovimientos()
         {
-            // Esto es para que la tabla de "Envasados Recientes" tenga datos reales
-            var lista = await _movimientoRepository.GetAllAsync();
-            // Los ordenamos por fecha para que el más nuevo salga primero
-            return Ok(lista.OrderByDescending(x => x.Fecha));
+            var historial = await _stockService.ObtenerHistorialConNombresAsync();
+            return Ok(historial);
         }
     }
 }
