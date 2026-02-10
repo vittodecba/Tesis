@@ -12,7 +12,8 @@ export interface RolDto {
   providedIn: 'root',
 })
 export class RolService {
-  private apiUrl = 'http://localhost:5190/api/Roles';
+  /*private apiUrl = 'http://localhost:5190/api/Roles';*/
+  private apiUrl = 'http://localhost:7118/api/Roles'; 
 
   constructor(private http: HttpClient) {}
 

@@ -8,8 +8,9 @@ import { Usuario, UsuarioCreate, UsuarioUpdate } from '../Interfaces/usuario.int
 })
 export class UsuarioService {
   // Ejemplo de cambio en el servicio de login/registro
-  private apiUrl = 'http://localhost:5190/api/Usuario';
-
+  //Puerto Santi
+  /*private apiUrl = 'http://localhost:5190/api/Usuario';*/
+  private apiUrl = 'https://localhost:7118/api/Usuario'; 
   constructor(private http: HttpClient) {}
 
   // 1. MODIFICADO: Ahora acepta el booleano para filtrar

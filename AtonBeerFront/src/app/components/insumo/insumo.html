@@ -1,0 +1,131 @@
+<div class="p-6 min-h-screen bg-orange-50/30">
+  
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+      <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Insumos</h2>
+      <p class="text-gray-600">Administración de materia prima e inventario.</p>
+    </div>
+
+    <button
+      class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-md bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white hover:shadow-lg"
+      (click)="abrirModal()"
+      type="button"
+    >
+      + Nuevo Insumo
+    </button>
+  </div>
+
+  <div class="flex flex-wrap gap-4 mb-6 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+    <div class="relative flex-1 min-w-[250px]">
+      <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </span>
+      <input 
+        [(ngModel)]="filtroTexto" 
+        (input)="aplicarFiltros()"
+        type="text" 
+        placeholder="Buscar por nombre o código..." 
+        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#E67E22] outline-none transition"
+      />
+    </div>
+
+    <select [(ngModel)]="orden" (change)="aplicarFiltros()" class="px-4 py-2.5 bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#E67E22]">
+      <option value="nombre">Ordenar por Nombre</option>
+      <option value="stock">Más Stock primero</option>
+      <option value="fecha">Última actualización</option>
+    </select>
+
+    <select [(ngModel)]="filtroTipo" (change)="aplicarFiltros()" class="px-4 py-2.5 bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#E67E22]">
+      <option value="">Todos los tipos</option>
+      <option *ngFor="let t of tiposOpciones" [value]="t.id">{{ t.nombre }}</option>
+    </select>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-gray-50 border-b border-gray-100">
+          <tr>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Código</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Tipo</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Unidad</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Cantidad</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Fecha Act.</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let item of insumos" class="hover:bg-orange-50/50 transition-colors group">
+            <td class="px-6 py-4 text-sm font-medium text-[#4A2C2A]">
+                {{ item.nombreInsumo }}
+                <div class="text-xs text-gray-400 font-normal italic truncate max-w-[150px]">{{ item.observaciones || '' }}</div>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700 font-mono">{{ item.codigo || '---' }}</td>
+            <td class="px-6 py-4">
+              <span class="px-3 py-1 bg-orange-100 text-[#E67E22] rounded-full text-sm font-semibold">
+                {{ item.tipoNombre || 'Sin tipo' }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">{{ item.unidad }}</td>
+            <td class="px-6 py-4 text-sm font-bold text-gray-700">{{ item.stockActual }}</td>
+            <td class="px-6 py-4 text-sm text-gray-600">{{ item.ultimaActualizacion | date:'dd/MM/yyyy' }}</td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex justify-end gap-2">
+                <button (click)="prepararEdicion(item)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></button>
+                <button (click)="eliminar(item.id)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="insumos?.length === 0">
+            <td colspan="7" class="px-6 py-12 text-center text-gray-400">No se encontraron insumos.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="mostrarModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+        <div class="bg-[#4A2C2A] p-4 flex justify-between items-center">
+            <h5 class="text-white font-semibold text-lg">{{ datosForm.id ? 'Editar Insumo' : 'Nuevo Insumo' }}</h5>
+            <button (click)="cerrarModal()" class="text-white hover:text-gray-300">✕</button>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                    <input [(ngModel)]="datosForm.nombreInsumo" name="nombre" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                    <select [(ngModel)]="datosForm.tipoInsumoId" name="tipoInsumoId" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
+                        <option *ngFor="let t of tiposOpciones" [value]="t.id">{{ t.nombre }}</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
+                        <input [(ngModel)]="datosForm.stockActual" name="cantidad" type="number" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Unidad</label>
+                        <select [(ngModel)]="datosForm.unidad" name="unidad" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
+                            <option *ngFor="let u of unidadesOpciones" [value]="u">{{ u }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                    <textarea [(ngModel)]="datosForm.observaciones" name="obs" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none h-24 resize-none"></textarea>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3 border-t pt-4">
+                <button (click)="cerrarModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
+                <button (click)="guardar()" class="px-6 py-2 rounded-lg font-semibold bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white shadow hover:shadow-lg transition">Guardar</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+</div>
