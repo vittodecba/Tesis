@@ -30,7 +30,7 @@ namespace AtonBeerTesis
             {
                 options.AddPolicy("Angular", policy =>
                 {
-                    policy.WithOrigins("http://localhost:4200")
+                    policy.WithOrigins("http://localhost:4200")                   
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
@@ -63,14 +63,12 @@ namespace AtonBeerTesis
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+           // app.UseHttpsRedirection();
 
             // Usamos la política "Angular" que definimos arriba
             app.UseCors("Angular");
-
             app.UseAuthorization();
             app.MapControllers();
-
             app.Run();
         }
     }

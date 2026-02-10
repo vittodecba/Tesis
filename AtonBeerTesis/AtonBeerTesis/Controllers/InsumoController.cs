@@ -22,8 +22,28 @@ namespace AtonBeerTesis.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Insumo>>> GetInsumos()
         {
-            return await _context.Insumos.Include(i => i.TipoInsumo)
+            // IMPORTANTE:
+            // Modifique el Get, ya no devuelve la entidad Insumo directamente porque tiene relaciones con 
+            // (TipoInsumo) que generan referencias circulares y rompe todo.
+            // Por eso le agregue los dto's para que evitar errores en el Front (Angular).
+            var lista = await _context.Insumos
+                //Agrego un Include para traer el nombre del tipo de insumo y mostrarlo en el Front (en vez de solo el Id)
+                .Include(i => i.TipoInsumo)
+                // Aca es donde apunto a un DTO para evitar problemas de referencias circulares y controlar qué datos se envían al Front
+                .Select(i=> new InsumoDto
+                {
+                 NombreInsumo = i.NombreInsumo,
+                 Codigo = i.Codigo,
+                 TipoInsumoId = i.TipoInsumoId,
+                 Unidad = i.Unidad,
+                 StockActual = i.StockActual,
+                 Observaciones = i.Observaciones,
+                 UltimaActualizacion = i.UltimaActualizacion ?? DateTime.Now,
+                    //Envio el nombre del tipo de insumo para mostrarlo en el Front, si no tiene tipo le pongo "Sin tipo"
+                    TipoNombre = i.TipoInsumo != null ? i.TipoInsumo.Nombre : "Sin tipo"
+                })
                 .ToListAsync();
+            return Ok(lista);
         }
 
         [HttpPost]

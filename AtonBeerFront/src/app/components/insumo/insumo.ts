@@ -15,18 +15,25 @@ export class InsumoComponent implements OnInit {
   insumosOriginales: any[] = []; 
 
   mostrarModal: boolean = false;
-  tiposOpciones: string[] = ['Malta', 'Lúpulo', 'Levadura', 'Limpieza', 'Envases', 'Químicos', 'Otro'];
+  
+  // Ahora es un array de objetos con ID
+  tiposOpciones = [
+    { id: 1, nombre: 'Maltas' },
+    { id: 2, nombre: 'Lúpulos' },
+    { id: 3, nombre: 'Levaduras' },
+    { id: 4, nombre: 'Adjuntos' }
+  ];
   unidadesOpciones: string[] = ['Kg', 'Gr', 'L', 'Ml', 'Unidad'];
 
   filtroTexto: string = '';
-  filtroTipo: string = '';
+  filtroTipo: string = ''; // Guardará el ID del tipo seleccionado
   orden: string = 'nombre';
 
   datosForm: any = {
     id: null,
     codigo: '',
     nombreInsumo: '',
-    tipo: '',
+    tipoInsumoId: null, // Cambiado de 'tipo' a 'tipoInsumoId'
     unidad: '',
     stockActual: 0,
     observaciones: ''
@@ -35,7 +42,7 @@ export class InsumoComponent implements OnInit {
   constructor(private insumoService: InsumoService) {}
 
   ngOnInit(): void {
-     this.cargarInsumos();
+    this.cargarInsumos();
   }
 
   cargarInsumos() {
@@ -60,10 +67,10 @@ export class InsumoComponent implements OnInit {
     }
 
     if (this.filtroTipo) {
-      resultado = resultado.filter(i => i.tipo === this.filtroTipo);
+      // Filtramos por el ID del tipo de insumo
+      resultado = resultado.filter(i => i.tipoInsumoId == this.filtroTipo);
     }
 
-    // Lógica de ordenamiento recuperada
     resultado.sort((a, b) => {
       if (this.orden === 'nombre') return a.nombreInsumo.localeCompare(b.nombreInsumo);
       if (this.orden === 'stock') return b.stockActual - a.stockActual;
@@ -86,34 +93,45 @@ export class InsumoComponent implements OnInit {
   }
 
   limpiarFormulario() {
-    this.datosForm = { id: null, codigo: '', nombreInsumo: '', tipo: '', unidad: '', stockActual: 0, observaciones: '' };
+    this.datosForm = { 
+      id: null, 
+      codigo: '', 
+      nombreInsumo: '', 
+      tipoInsumoId: null, 
+      unidad: '', 
+      stockActual: 0, 
+      observaciones: '' 
+    };
   }
 
   prepararEdicion(item: any) {
+    // Al editar, nos aseguramos de pasar el ID del tipo
     this.datosForm = { ...item };
     this.mostrarModal = true;
   }
 
   guardar() {
-    if (!this.datosForm.nombreInsumo || !this.datosForm.tipo) {
+    // Validamos que tenga nombre e ID de tipo
+    if (!this.datosForm.nombreInsumo || !this.datosForm.tipoInsumoId) {
       alert('Nombre y Tipo son obligatorios');
       return;
     }
 
+    // Lógica para generar código si no tiene
     if (!this.datosForm.id) {
       const timestamp = new Date().getTime().toString().slice(-4);
-      this.datosForm.codigo = this.datosForm.tipo.substring(0, 3).toUpperCase() + "-" + timestamp;
+      this.datosForm.codigo = "INS-" + timestamp; // Simplificado porque ya no es un string directo
     }
 
     if (this.datosForm.id) {
       this.insumoService.actualizarInsumo(this.datosForm.id, this.datosForm).subscribe({
         next: () => this.finalizarOperacion('Insumo actualizado'),
-        error: (err) => alert("Error: " + (err.error?.message || JSON.stringify(err.error)))
+        error: (err) => alert("Error: " + (err.error?.message || "Error al actualizar"))
       });
     } else {
       this.insumoService.crearInsumo(this.datosForm).subscribe({
         next: () => this.finalizarOperacion('Insumo creado'),
-        error: (err) => alert("Error: " + (err.error?.message || JSON.stringify(err.error)))
+        error: (err) => alert("Error: " + (err.error?.message || "Error al crear"))
       });
     }
   }

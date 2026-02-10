@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class InsumoService {
-  private apiUrl = 'http://localhost:5190/api/Insumo'; 
-
+  //Puerto de Santi
+  private apiUrl = 'http://localhost:5190/api/Insumo?TEST=ESTE_SERVICE'; 
   constructor(private http: HttpClient) { }
 
   obtenerInsumos(): Observable<any[]> {

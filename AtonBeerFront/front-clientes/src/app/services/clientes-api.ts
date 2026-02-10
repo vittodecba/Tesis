@@ -17,8 +17,7 @@ export interface CrearClienteDto {
   providedIn: 'root',
 })
 export class ClientesApiService {
-  private baseUrl = 'http://localhost:5190/api/Clientes';
-
+  private baseUrl = 'http://localhost:5190/api/Clientes';  
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<any[]> {

@@ -37,7 +37,7 @@
 
     <select [(ngModel)]="filtroTipo" (change)="aplicarFiltros()" class="px-4 py-2.5 bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#E67E22]">
       <option value="">Todos los tipos</option>
-      <option *ngFor="let t of tiposOpciones" [value]="t">{{ t }}</option>
+      <option *ngFor="let t of tiposOpciones" [value]="t.id">{{ t.nombre }}</option>
     </select>
   </div>
 
@@ -63,7 +63,9 @@
             </td>
             <td class="px-6 py-4 text-sm text-gray-700 font-mono">{{ item.codigo || '---' }}</td>
             <td class="px-6 py-4">
-              <span class="px-3 py-1 bg-orange-100 text-[#E67E22] rounded-full text-sm font-semibold">{{ item.tipo }}</span>
+              <span class="px-3 py-1 bg-orange-100 text-[#E67E22] rounded-full text-sm font-semibold">
+                {{ item.tipoNombre || 'Sin tipo' }}
+              </span>
             </td>
             <td class="px-6 py-4 text-sm text-gray-700">{{ item.unidad }}</td>
             <td class="px-6 py-4 text-sm font-bold text-gray-700">{{ item.stockActual }}</td>
@@ -97,8 +99,8 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                    <select [(ngModel)]="datosForm.tipo" name="tipo" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
-                        <option *ngFor="let t of tiposOpciones" [value]="t">{{ t }}</option>
+                    <select [(ngModel)]="datosForm.tipoInsumoId" name="tipoInsumoId" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
+                        <option *ngFor="let t of tiposOpciones" [value]="t.id">{{ t.nombre }}</option>
                     </select>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
