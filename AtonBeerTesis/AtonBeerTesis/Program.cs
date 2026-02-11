@@ -21,7 +21,12 @@ namespace AtonBeerTesis
                 options.UseSqlServer(connectionString));
 
             // 2. Controladores y Swagger
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+            .AddJsonOptions(options =>
+             {
+                 // Esto hace que al API le de igual si mandás UnidadMedidaId o unidadmedidaid
+                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+             });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 

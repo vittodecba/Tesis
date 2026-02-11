@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260211065003_HacerTipoOpcional")]
-    partial class HacerTipoOpcional
+    [Migration("20260211154553_Insumos")]
+    partial class Insumos
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -254,7 +254,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Property<decimal>("StockActual")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("TipoInsumoId")
+                    b.Property<int>("TipoInsumoId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UltimaActualizacion")
@@ -287,7 +287,9 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 {
                     b.HasOne("AtonBeerTesis.Domain.Entities.TipoInsumo", "TipoInsumo")
                         .WithMany()
-                        .HasForeignKey("TipoInsumoId");
+                        .HasForeignKey("TipoInsumoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("AtonBeerTesis.Domain.Entities.unidadMedida", "unidadMedida")
                         .WithMany()

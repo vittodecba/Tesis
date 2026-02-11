@@ -2,6 +2,7 @@
 {
     public class InsumoDto
     {
+        public int Id { get; set; }
         public string NombreInsumo { get; set; }
 
         public string Codigo { get; set; } // <--- Faltaba este

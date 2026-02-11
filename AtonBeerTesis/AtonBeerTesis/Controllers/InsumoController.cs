@@ -24,45 +24,45 @@ namespace AtonBeerTesis.Api.Controllers
         {
             var lista = await _context.Insumos
                 .Include(i => i.TipoInsumo)
-                .Include(i => i.unidadMedida) // Agregamos el include de la unidad relacionada
+                .Include(i => i.unidadMedida)
                 .Select(i => new InsumoDto
                 {
-                    // Asumiendo que el DTO tiene estos campos
+                    Id = i.Id, // IMPORTANTE: Para que el borrado funcione en Angular
                     NombreInsumo = i.NombreInsumo,
                     Codigo = i.Codigo,
                     TipoInsumoId = i.TipoInsumoId,
-                    // CORRECCIÓN: Usamos la abreviatura de la tabla relacionada para el DTO
-                    Unidad = i.unidadMedida != null ? i.unidadMedida.Abreviatura : "N/A",
+
+                    // Ahora traemos el nombre REAL o avisamos que no hay
+                    TipoNombre = i.TipoInsumo != null ? i.TipoInsumo.Nombre : "Sin Categoría",
+
+                    unidadMedidaId = i.unidadMedidaId,
+
+                    // Traemos la abreviatura REAL (Lt, Kg, etc.)
+                    Unidad = i.unidadMedida != null ? i.unidadMedida.Abreviatura : "S/U",
+
                     StockActual = i.StockActual,
                     Observaciones = i.Observaciones,
-                    UltimaActualizacion = i.UltimaActualizacion ?? DateTime.Now,
-                    TipoNombre = i.TipoInsumo != null ? i.TipoInsumo.Nombre : "Sin tipo"
+                    UltimaActualizacion = i.UltimaActualizacion ?? DateTime.Now
                 })
                 .ToListAsync();
+
             return Ok(lista);
         }
 
         [HttpPost]
         public async Task<IActionResult> CrearInsumo([FromBody] InsumoDto insumoDto)
         {
-            if (insumoDto == null) return BadRequest("Datos inválidos");
-
-            bool existe = await _context.Insumos.AnyAsync(x => x.NombreInsumo == insumoDto.NombreInsumo && x.TipoInsumoId == insumoDto.TipoInsumoId);
-            if (existe)
-            {
-                return BadRequest($"El insumo '{insumoDto.NombreInsumo}' ya existe.");
-            }
-
-            int cantidad = _context.Insumos.Count() + 1;
-            string codigoAutomatico = "INS-" + cantidad.ToString("000");
+            // ... validaciones de null y existencia ...
 
             var nuevoInsumo = new Insumo
             {
                 NombreInsumo = insumoDto.NombreInsumo,
-                Codigo = codigoAutomatico,
+                Codigo = "INS-" + (await _context.Insumos.CountAsync() + 1).ToString("000"),
                 TipoInsumoId = insumoDto.TipoInsumoId,
-                // CORRECCIÓN: Aquí debemos usar la propiedad ID que creamos en el modelo
+
+                // FORZAMOS EL ID DIRECTAMENTE
                 unidadMedidaId = insumoDto.unidadMedidaId,
+
                 StockActual = insumoDto.StockActual,
                 UltimaActualizacion = DateTime.Now,
                 Observaciones = insumoDto.Observaciones,
@@ -70,11 +70,13 @@ namespace AtonBeerTesis.Api.Controllers
             };
 
             _context.Insumos.Add(nuevoInsumo);
-            await _context.SaveChangesAsync();
 
+            // ESTO ES LO NUEVO: Forzamos a EF a que reconozca que el ID ha cambiado
+            _context.Entry(nuevoInsumo).Property(x => x.unidadMedidaId).IsModified = true;
+
+            await _context.SaveChangesAsync();
             return Ok(new { message = "Insumo creado con éxito" });
         }
-
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarInsumo(int id, [FromBody] InsumoDto insumoDto)
         {
@@ -145,11 +147,43 @@ namespace AtonBeerTesis.Api.Controllers
 
             return Ok(await query.ToListAsync());
         }
+        // --- GESTIÓN DE TIPOS DE INSUMO  ---
+
+        [HttpPost("tipos")]
+        public async Task<IActionResult> CrearTipoInsumo([FromBody] TipoInsumo nuevoTipo)
+        {
+            if (nuevoTipo == null || string.IsNullOrEmpty(nuevoTipo.Nombre))
+                return BadRequest("El nombre del tipo es obligatorio.");
+
+            var existe = await _context.TiposInsumo.AnyAsync(t => t.Nombre == nuevoTipo.Nombre);
+            if (existe) return BadRequest("Esta categoría ya existe.");
+
+            _context.TiposInsumo.Add(nuevoTipo);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Tipo de insumo creado con éxito", id = nuevoTipo.id });
+        }
+
+        [HttpDelete("tipos/{id}")]
+        public async Task<IActionResult> EliminarTipoInsumo(int id)
+        {
+            var tipo = await _context.TiposInsumo.FindAsync(id);
+            if (tipo == null) return NotFound("El tipo no existe.");
+
+            // Validación de seguridad: No borrar si hay insumos usándolo
+            var enUso = await _context.Insumos.AnyAsync(i => i.TipoInsumoId == id);
+            if (enUso) return BadRequest("No se puede eliminar: hay insumos vinculados a esta categoría.");
+
+            _context.TiposInsumo.Remove(tipo);
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Tipo eliminado correctamente." });
+        }
 
         [HttpGet("tipos")]
         public async Task<ActionResult<IEnumerable<TipoInsumo>>> GetTipos()
         {
             return await _context.TiposInsumo.Where(t => t.Activo).ToListAsync();
         }
+
     }
 }
