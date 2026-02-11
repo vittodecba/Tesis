@@ -20,26 +20,22 @@ namespace AtonBeerTesis.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Insumo>>> GetInsumos()
+        public async Task<ActionResult<IEnumerable<InsumoDto>>> GetInsumos()
         {
-            // IMPORTANTE:
-            // Modifique el Get, ya no devuelve la entidad Insumo directamente porque tiene relaciones con 
-            // (TipoInsumo) que generan referencias circulares y rompe todo.
-            // Por eso le agregue los dto's para que evitar errores en el Front (Angular).
             var lista = await _context.Insumos
-                //Agrego un Include para traer el nombre del tipo de insumo y mostrarlo en el Front (en vez de solo el Id)
                 .Include(i => i.TipoInsumo)
-                // Aca es donde apunto a un DTO para evitar problemas de referencias circulares y controlar qué datos se envían al Front
-                .Select(i=> new InsumoDto
+                .Include(i => i.unidadMedida) // Agregamos el include de la unidad relacionada
+                .Select(i => new InsumoDto
                 {
-                 NombreInsumo = i.NombreInsumo,
-                 Codigo = i.Codigo,
-                 TipoInsumoId = i.TipoInsumoId,
-                 Unidad = i.Unidad,
-                 StockActual = i.StockActual,
-                 Observaciones = i.Observaciones,
-                 UltimaActualizacion = i.UltimaActualizacion ?? DateTime.Now,
-                    //Envio el nombre del tipo de insumo para mostrarlo en el Front, si no tiene tipo le pongo "Sin tipo"
+                    // Asumiendo que el DTO tiene estos campos
+                    NombreInsumo = i.NombreInsumo,
+                    Codigo = i.Codigo,
+                    TipoInsumoId = i.TipoInsumoId,
+                    // CORRECCIÓN: Usamos la abreviatura de la tabla relacionada para el DTO
+                    Unidad = i.unidadMedida != null ? i.unidadMedida.Abreviatura : "N/A",
+                    StockActual = i.StockActual,
+                    Observaciones = i.Observaciones,
+                    UltimaActualizacion = i.UltimaActualizacion ?? DateTime.Now,
                     TipoNombre = i.TipoInsumo != null ? i.TipoInsumo.Nombre : "Sin tipo"
                 })
                 .ToListAsync();
@@ -50,11 +46,11 @@ namespace AtonBeerTesis.Api.Controllers
         public async Task<IActionResult> CrearInsumo([FromBody] InsumoDto insumoDto)
         {
             if (insumoDto == null) return BadRequest("Datos inválidos");
-                
+
             bool existe = await _context.Insumos.AnyAsync(x => x.NombreInsumo == insumoDto.NombreInsumo && x.TipoInsumoId == insumoDto.TipoInsumoId);
             if (existe)
             {
-                return BadRequest($"El insumo '{insumoDto.NombreInsumo}' de tipo '{insumoDto.TipoInsumoId}' ya existe.");
+                return BadRequest($"El insumo '{insumoDto.NombreInsumo}' ya existe.");
             }
 
             int cantidad = _context.Insumos.Count() + 1;
@@ -65,10 +61,12 @@ namespace AtonBeerTesis.Api.Controllers
                 NombreInsumo = insumoDto.NombreInsumo,
                 Codigo = codigoAutomatico,
                 TipoInsumoId = insumoDto.TipoInsumoId,
-                Unidad = insumoDto.Unidad,
+                // CORRECCIÓN: Aquí debemos usar la propiedad ID que creamos en el modelo
+                unidadMedidaId = insumoDto.unidadMedidaId,
                 StockActual = insumoDto.StockActual,
                 UltimaActualizacion = DateTime.Now,
-                Observaciones = insumoDto.Observaciones
+                Observaciones = insumoDto.Observaciones,
+                Activo = true
             };
 
             _context.Insumos.Add(nuevoInsumo);
@@ -77,14 +75,12 @@ namespace AtonBeerTesis.Api.Controllers
             return Ok(new { message = "Insumo creado con éxito" });
         }
 
-        // --- NUEVO MÉTODO PARA MODIFICAR (PUT) ---
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarInsumo(int id, [FromBody] InsumoDto insumoDto)
         {
             var insumo = await _context.Insumos.FindAsync(id);
             if (insumo == null) return NotFound();
 
-            // Validación: Que no exista OTRO insumo con mismo nombre y tipo
             bool existe = await _context.Insumos.AnyAsync(x =>
                 x.NombreInsumo == insumoDto.NombreInsumo &&
                 x.TipoInsumoId == insumoDto.TipoInsumoId &&
@@ -95,34 +91,30 @@ namespace AtonBeerTesis.Api.Controllers
             // Actualizamos los valores
             insumo.NombreInsumo = insumoDto.NombreInsumo;
             insumo.TipoInsumoId = insumoDto.TipoInsumoId;
-            insumo.Unidad = insumoDto.Unidad;
+
+            // CORRECCIÓN: Se corrigieron los errores CS1061 y CS0117
+            // Usamos la propiedad del modelo real: UnidadMedidaId
+            insumo.unidadMedidaId = insumoDto.unidadMedidaId;
+
             insumo.StockActual = insumoDto.StockActual;
             insumo.Observaciones = insumoDto.Observaciones;
             insumo.UltimaActualizacion = DateTime.Now;
 
             await _context.SaveChangesAsync();
             return Ok(new { message = "Insumo actualizado con éxito" });
-
-
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarInsumo(int id)
         {
             var insumo = await _context.Insumos.FindAsync(id);
-
-            if (insumo == null)
-            {
-                return NotFound(new { message = "El insumo no existe." });
-            }
+            if (insumo == null) return NotFound(new { message = "El insumo no existe." });
 
             _context.Insumos.Remove(insumo);
             await _context.SaveChangesAsync();
-
             return Ok(new { message = "Insumo eliminado correctamente." });
         }
 
-        //Agrego mi PBI 88 - RECLASIFICAR INSUMO
         [HttpPut("{idInsumo}/clasificar")]
         public async Task<IActionResult> ReClasificarInsumo(int idInsumo, [FromBody] int nuevoTipoId)
         {
@@ -137,14 +129,12 @@ namespace AtonBeerTesis.Api.Controllers
             return Ok("Insumo clasificado correctamente.");
         }
 
-        //MÉTODO DE FILTROS 
         [HttpGet("buscar")]
-        public async Task<IActionResult> GetInsumosFiltrados(
-            [FromQuery] string? nombre,
-            [FromQuery] int? tipoId)
+        public async Task<IActionResult> GetInsumosFiltrados([FromQuery] string? nombre, [FromQuery] int? tipoId)
         {
             var query = _context.Insumos
                 .Include(i => i.TipoInsumo)
+                .Include(i => i.unidadMedida)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(nombre))
@@ -156,7 +146,6 @@ namespace AtonBeerTesis.Api.Controllers
             return Ok(await query.ToListAsync());
         }
 
-        //DE TIPOS (Para el dropdown del Front)
         [HttpGet("tipos")]
         public async Task<ActionResult<IEnumerable<TipoInsumo>>> GetTipos()
         {

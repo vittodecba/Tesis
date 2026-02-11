@@ -9,6 +9,8 @@ import { UsuariosComponent } from './components/usuarios/usuarios';
 import { RolesGestion } from './components/roles-gestion/roles-gestion';
 import { StockGestion } from './components/stock/stock-gestion';
 import { InsumoComponent } from './components/insumo/insumo';
+// --- Importo unidadesMedida ---
+import { UnidadMedidaComponent } from './components/unidadesMedida/unidadMedidaComponent';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -26,11 +28,17 @@ export const routes: Routes = [
       { path: 'roles', component: RolesGestion, data: { title: 'Roles', subtitle: 'Permisos del sistema' } },
       { path: 'stock', component: StockGestion, data: { title: 'Stock', subtitle: 'Control de productos' } },
       
-      // --- MOVIMOS INSUMOS AQUÍ ---
       { 
         path: 'insumos', 
         component: InsumoComponent, 
         data: { title: 'Insumos', subtitle: 'Gestión de materia prima' } 
+      },
+
+      // --- RUTA DE UNIDADES MEDIDA AGREGADA ---
+      { 
+        path: 'unidades-medida', 
+        component: UnidadMedidaComponent, 
+        data: { title: 'Unidades', subtitle: 'Gestión de medidas' } 
       },
     ],
   },

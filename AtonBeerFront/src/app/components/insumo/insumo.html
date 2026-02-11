@@ -67,7 +67,9 @@
                 {{ item.tipoNombre || 'Sin tipo' }}
               </span>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-700">{{ item.unidad }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              {{ item.unidadMedida?.abreviatura || '---' }}
+            </td>
             <td class="px-6 py-4 text-sm font-bold text-gray-700">{{ item.stockActual }}</td>
             <td class="px-6 py-4 text-sm text-gray-600">{{ item.ultimaActualizacion | date:'dd/MM/yyyy' }}</td>
             <td class="px-6 py-4 text-right">
@@ -100,6 +102,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
                     <select [(ngModel)]="datosForm.tipoInsumoId" name="tipoInsumoId" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
+                        <option [value]="null" disabled selected>Seleccione tipo</option>
                         <option *ngFor="let t of tiposOpciones" [value]="t.id">{{ t.nombre }}</option>
                     </select>
                 </div>
@@ -110,8 +113,11 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Unidad</label>
-                        <select [(ngModel)]="datosForm.unidad" name="unidad" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
-                            <option *ngFor="let u of unidadesOpciones" [value]="u">{{ u }}</option>
+                        <select [(ngModel)]="datosForm.unidadMedidaId" name="unidad" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
+                            <option [value]="null" disabled selected>Seleccione unidad</option>
+                            <option *ngFor="let u of unidadesOpciones" [value]="u.id">
+                                {{ u.nombre }} ({{ u.abreviatura }})
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -127,5 +133,4 @@
         </div>
     </div>
   </div>
-
 </div>

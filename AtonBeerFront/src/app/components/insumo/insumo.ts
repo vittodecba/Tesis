@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InsumoService } from '../../services/insumo.service';
+import { UnidadMedidaService } from '../../services/unidadMedida'; // <--- AGREGADO
 
 @Component({
   selector: 'app-insumo',
@@ -16,33 +17,49 @@ export class InsumoComponent implements OnInit {
 
   mostrarModal: boolean = false;
   
-  // Ahora es un array de objetos con ID
   tiposOpciones = [
     { id: 1, nombre: 'Maltas' },
     { id: 2, nombre: 'Lúpulos' },
     { id: 3, nombre: 'Levaduras' },
     { id: 4, nombre: 'Adjuntos' }
   ];
-  unidadesOpciones: string[] = ['Kg', 'Gr', 'L', 'Ml', 'Unidad'];
+
+  // CAMBIO: Al tener la clase unidadMedida ahora es un array vacío que se llenará desde el Service
+  unidadesOpciones: any[] = []; 
 
   filtroTexto: string = '';
-  filtroTipo: string = ''; // Guardará el ID del tipo seleccionado
+  filtroTipo: string = ''; 
   orden: string = 'nombre';
 
   datosForm: any = {
     id: null,
     codigo: '',
     nombreInsumo: '',
-    tipoInsumoId: null, // Cambiado de 'tipo' a 'tipoInsumoId'
+    tipoInsumoId: null, 
     unidad: '',
     stockActual: 0,
     observaciones: ''
   };
 
-  constructor(private insumoService: InsumoService) {}
+  // Inyecto el nuevo servicio
+  constructor(
+    private insumoService: InsumoService,
+    private unidadService: UnidadMedidaService // <--- AGREGADO
+  ) {}
 
   ngOnInit(): void {
     this.cargarInsumos();
+    this.cargarUnidades(); // <--- AGREGADO
+  }
+
+  // NUEVO MÉTODO: Trae las unidades de la DB
+  cargarUnidades() {
+    this.unidadService.getUnidades().subscribe({
+      next: (data) => {
+        this.unidadesOpciones = data;
+      },
+      error: (err) => console.error('Error al cargar unidades:', err)
+    });
   }
 
   cargarInsumos() {
@@ -67,7 +84,6 @@ export class InsumoComponent implements OnInit {
     }
 
     if (this.filtroTipo) {
-      // Filtramos por el ID del tipo de insumo
       resultado = resultado.filter(i => i.tipoInsumoId == this.filtroTipo);
     }
 
@@ -105,31 +121,32 @@ export class InsumoComponent implements OnInit {
   }
 
   prepararEdicion(item: any) {
-    // Al editar, nos aseguramos de pasar el ID del tipo
     this.datosForm = { ...item };
     this.mostrarModal = true;
   }
 
   guardar() {
-    // Validamos que tenga nombre e ID de tipo
     if (!this.datosForm.nombreInsumo || !this.datosForm.tipoInsumoId) {
       alert('Nombre y Tipo son obligatorios');
       return;
     }
+    const payload = {
+      ...this.datosForm,
+      tipoInsumoId: Number(this.datosForm.tipoInsumoId)
+    };
 
-    // Lógica para generar código si no tiene
     if (!this.datosForm.id) {
       const timestamp = new Date().getTime().toString().slice(-4);
-      this.datosForm.codigo = "INS-" + timestamp; // Simplificado porque ya no es un string directo
+      this.datosForm.codigo = "INS-" + timestamp;
     }
 
     if (this.datosForm.id) {
-      this.insumoService.actualizarInsumo(this.datosForm.id, this.datosForm).subscribe({
+      this.insumoService.actualizarInsumo(this.datosForm.id, payload).subscribe({
         next: () => this.finalizarOperacion('Insumo actualizado'),
         error: (err) => alert("Error: " + (err.error?.message || "Error al actualizar"))
       });
     } else {
-      this.insumoService.crearInsumo(this.datosForm).subscribe({
+      this.insumoService.crearInsumo(payload).subscribe({
         next: () => this.finalizarOperacion('Insumo creado'),
         error: (err) => alert("Error: " + (err.error?.message || "Error al crear"))
       });

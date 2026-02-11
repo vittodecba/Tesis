@@ -10,8 +10,8 @@
         public int TipoInsumoId { get; set; }
         public string? TipoNombre { get; set; }
         //
-        public string Unidad { get; set; }
-
+        public int unidadMedidaId { get; set; }
+        public string? Unidad { get; set; }//Este es para que el front vea el nombre
         public decimal StockActual { get; set; } // <--- Faltaba este
 
         public string Observaciones { get; set; }

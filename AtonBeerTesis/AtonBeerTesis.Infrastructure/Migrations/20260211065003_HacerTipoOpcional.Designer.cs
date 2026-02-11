@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260122045914_Inicial_Merge")]
-    partial class Inicial_Merge
+    [Migration("20260211065003_HacerTipoOpcional")]
+    partial class HacerTipoOpcional
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -141,6 +141,26 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.TipoInsumo", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("TiposInsumo");
+                });
+
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -184,6 +204,74 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.ToTable("Usuarios", (string)null);
                 });
 
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.unidadMedida", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("Abreviatura")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("unidadMedida");
+                });
+
+            modelBuilder.Entity("AtonBeerTesis.Domain.Insumo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NombreInsumo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Observaciones")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("StockActual")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("TipoInsumoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UltimaActualizacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("unidadMedidaId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TipoInsumoId");
+
+                    b.HasIndex("unidadMedidaId");
+
+                    b.ToTable("Insumos");
+                });
+
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Usuario", b =>
                 {
                     b.HasOne("AtonBeerTesis.Domain.Entities.Rol", "Rol")
@@ -193,6 +281,23 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Rol");
+                });
+
+            modelBuilder.Entity("AtonBeerTesis.Domain.Insumo", b =>
+                {
+                    b.HasOne("AtonBeerTesis.Domain.Entities.TipoInsumo", "TipoInsumo")
+                        .WithMany()
+                        .HasForeignKey("TipoInsumoId");
+
+                    b.HasOne("AtonBeerTesis.Domain.Entities.unidadMedida", "unidadMedida")
+                        .WithMany()
+                        .HasForeignKey("unidadMedidaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TipoInsumo");
+
+                    b.Navigation("unidadMedida");
                 });
 #pragma warning restore 612, 618
         }

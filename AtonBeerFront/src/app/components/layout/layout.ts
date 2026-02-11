@@ -31,6 +31,7 @@ import {
   FlaskConical,
   Boxes,
   Receipt,
+  Ruler, 
 } from 'lucide-angular';
 
 @Component({
@@ -45,7 +46,7 @@ export class LayoutComponent implements OnInit {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
 
-  // REGISTRO DE ICONOS (Soluciona errores TS2339)
+  // REGISTRO DE ICONOS 
   Home = Home;
   Users = Users;
   LogOut = LogOut;
@@ -65,6 +66,7 @@ export class LayoutComponent implements OnInit {
   FlaskConical = FlaskConical;
   Boxes = Boxes;
   Receipt = Receipt;
+  Ruler = Ruler; // <--- 2. REGISTRO AGREGADO AQUÍ
 
   currentUser = this.authService.getCurrentUser();
   pageTitle = 'Inicio';
@@ -77,7 +79,7 @@ export class LayoutComponent implements OnInit {
       .subscribe(() => this.updateHeader());
   }
 
-  // Necesario para el *ngIf de tu HTML
+  
   esAdmin(): boolean {
     return true;
   }
@@ -86,7 +88,7 @@ export class LayoutComponent implements OnInit {
     let route = this.activatedRoute;
     while (route.firstChild) route = route.firstChild;
 
-    // El "?" es clave para que no de error de "undefined"
+    
     this.pageTitle = route.snapshot?.data?.['title'] || 'Inicio';
     this.pageSub = route.snapshot?.data?.['subtitle'] || 'Gestión';
   }
