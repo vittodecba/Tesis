@@ -73,7 +73,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.Property<string>("Cuit")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
@@ -83,8 +83,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.Property<string>("RazonSocial")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Tipocliente")
                         .HasColumnType("int");
@@ -94,8 +93,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.Property<string>("Ubicacion")
                         .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UltimaCompra")
                         .HasColumnType("datetime2");
@@ -105,10 +103,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.HasKey("IdCliente");
 
-                    b.HasIndex("Cuit")
-                        .IsUnique();
-
-                    b.ToTable("Clientes");
+                    b.ToTable("Clientes", (string)null);
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.MovimientoStock", b =>
@@ -207,38 +202,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Descripcion = "...",
-                            Nombre = "Cocinero"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Descripcion = "...",
-                            Nombre = "ResponsablePlanta"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Descripcion = "...",
-                            Nombre = "ResponsablePedidos"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Descripcion = "...",
-                            Nombre = "Gerente"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Descripcion = "...",
-                            Nombre = "GerenteMayor"
-                        });
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.TipoInsumo", b =>
@@ -258,7 +221,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("TiposInsumo");
+                    b.ToTable("TiposInsumo", (string)null);
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Usuario", b =>
@@ -325,7 +288,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("unidadMedida");
+                    b.ToTable("unidadMedida", (string)null);
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Insumo", b =>
@@ -352,6 +315,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("StockActual")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("TipoInsumoId")
@@ -369,7 +333,9 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.HasIndex("unidadMedidaId");
 
-                    b.ToTable("Insumos");
+                    b.ToTable("Insumos", (string)null);
+                });
+
             modelBuilder.Entity("AtonBeerTesis.Domain.Entidades.HistorialAcceso", b =>
                 {
                     b.HasOne("AtonBeerTesis.Domain.Entities.Usuario", "Usuario")
@@ -407,6 +373,8 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Navigation("TipoInsumo");
 
                     b.Navigation("unidadMedida");
+                });
+
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Rol", b =>
                 {
                     b.Navigation("Usuarios");
