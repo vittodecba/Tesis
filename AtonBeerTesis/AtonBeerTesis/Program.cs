@@ -59,6 +59,9 @@ namespace AtonBeerTesis
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
 
+            //--- MOVIMIENTO DE STOCK ---
+            builder.Services.AddScoped<IStockService, StockService>();
+
             var app = builder.Build();
 
             // 5. Pipeline de la aplicación

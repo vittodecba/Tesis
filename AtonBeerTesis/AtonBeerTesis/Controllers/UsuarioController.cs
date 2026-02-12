@@ -1,18 +1,18 @@
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Application.Dtos;
-using AtonBeerTesis.Domain.Entities; 
+using AtonBeerTesis.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using AtonBeerTesis.Domain.Interfaces;
-
+using AtonBeerTesis.Application.Dto;
 
 namespace AtonBeerTesis.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuarioController : ControllerBase // O BaseController si lo prefieres
+    public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;
-        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IUsuarioRepository _usuarioRepository; // Para métodos de Auth directos
         private readonly ITokenService _tokenService;
 
         public UsuarioController(IUsuarioService usuarioService, IUsuarioRepository usuarioRepository, ITokenService tokenService)
@@ -21,8 +21,6 @@ namespace AtonBeerTesis.Controllers
             _usuarioRepository = usuarioRepository;
             _tokenService = tokenService;
         }
-
-        // --- Metodos Santi (Gestión) ---
 
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] bool mostrarInactivos = false)
@@ -39,78 +37,71 @@ namespace AtonBeerTesis.Controllers
             return Ok(usuario);
         }
 
-         [HttpPost]
-
+        [HttpPost]
         public async Task<IActionResult> Create(UsuarioCreateDto dto)
-
         {
-
             try
-
             {
-
                 var nuevoUsuario = await _usuarioService.CreateAsync(dto);
-
                 return CreatedAtAction(nameof(GetById), new { id = nuevoUsuario.Id }, nuevoUsuario);
-
             }
-
             catch (Exception ex)
-
             {
-
-                // Si el mail ya existe, devolvemos error 400 (Bad Request)
-
                 return BadRequest(ex.Message);
-
             }
-
         }
 
-        // --- Metodos Valen (Auth) ---
-
-        [HttpPost("registro")]
-        public async Task<IActionResult> PostAsync([FromBody] UsuarioCreateDto Dto)
+        // BOTÓN MODIFICAR
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UsuarioUpdateDto dto)
         {
-            var nuevUsuario = new Usuario
+            try
             {
-                Nombre = Dto.Nombre,
-                Apellido = Dto.Apellido,
-                Email = Dto.Email,
-                Contrasena = Dto.ConfirmarPassword,
-                RolId = Dto.RolId, // Aquí podrías forzar un 2 si quieres
-                Activo = true
-            };
-            await _usuarioRepository.AddAsync(nuevUsuario);
-            return Ok(nuevUsuario);
+                await _usuarioService.UpdateAsync(id, dto);
+                return Ok(new { message = "Usuario actualizado con éxito" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
+        // BOTÓN ACTIVAR/DESACTIVAR (Usa tu lógica de DeleteAsync que hace toggle)
+        [HttpPatch("{id}/toggle-activo")]
+        public async Task<IActionResult> ToggleActivo(int id)
+        {
+            try
+            {
+                // Tu DeleteAsync actual del Service cambia el booleano Activo
+                await _usuarioService.DeleteAsync(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // BOTÓN BORRAR (Si decides implementar borrado físico real)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePhysical(int id)
+        {
+            // Aquí podrías llamar a un método del repositorio que haga Remove() 
+            // O seguir usando el toggle según tu preferencia de negocio.
+            await _usuarioService.DeleteAsync(id);
+            return Ok(new { message = "Estado de usuario actualizado" });
+        }
+
+        // --- Auth ---
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto Dto)
         {
-            
             var usuario = await _usuarioRepository.GetByEmailAsync(Dto.Email);
-            
             if (usuario == null || usuario.Contrasena != Dto.Contrasena)
-            {
-                return Unauthorized("Credenciales invalidas, reintente nuevamente");
-            }
+                return Unauthorized("Credenciales invalidas");
 
             var token = _tokenService.GenerarTokenJWT(usuario);
-            
-            return Ok(new {
-                success = true,
-                message = "Inicio de sesión exitoso",
-                data = new {
-                    token = token,
-                    usuario = new {
-                        id = usuario.Id,
-                        nombre = usuario.Nombre,
-                        email = usuario.Email,
-                        rolId = usuario.RolId
-                    }
-                }
-            });
+            return Ok(new { success = true, data = new { token, usuario = new { id = usuario.Id, nombre = usuario.Nombre, email = usuario.Email } } });
         }
     }
 }

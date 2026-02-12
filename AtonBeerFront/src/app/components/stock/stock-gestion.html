@@ -1,173 +1,211 @@
-<div class="page">
-  <!-- TOOLBAR (arriba, reemplaza las cards) -->
-  <div class="toolbar">
-    <div class="toolbarLeft">
-      <div class="search">
-        <input
-          [(ngModel)]="q"
-          type="text"
-          placeholder="Buscar por lote, formato, capacidad o fecha..."
-          class="input"
-        />
-      </div>
-
-      <select [(ngModel)]="filtroFormato" class="select">
-        <option value="Todos los formatos">Todos los formatos</option>
-        <option value="Barril">Barril</option>
-        <option value="Lata">Lata</option>
-      </select>
+<div class="stockShell p-4 md:p-8">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h2 class="text-3xl font-bold" [style.color]="COLORS.brown">Control de Stock</h2>
+      <p class="text-gray-500">Gestión de unidades y trazabilidad.</p>
     </div>
-
-    <div class="toolbarRight">
-      <button class="btn btnPrimary" type="button">+ Ingreso</button>
-      <button class="btn btnDanger" type="button">− Egreso</button>
-      <button class="btn btnGhost" type="button">Ajuste</button>
-      <button class="btn btnGhost" type="button">Transferir</button>
-      <button class="btn btnGhost" type="button">Conteo</button>
-    </div>
+    <button
+      (click)="openCreateModal()"
+      class="px-6 py-3 rounded-xl font-bold text-white shadow-lg transition hover:scale-105"
+      [style.backgroundImage]="
+        'linear-gradient(to right,' + COLORS.brown + ',' + COLORS.orange + ')'
+      "
+    >
+      + Nuevo Producto
+    </button>
   </div>
 
-  <!-- ENVASADOS RECIENTES -->
-  <div class="card">
-    <div class="cardHeader">
-      <div>
-        <div class="cardTitle">Envasados Recientes</div>
-        <div class="cardSub">Últimos movimientos de envasado por lote y formato</div>
-      </div>
-
-      <!-- dropdown como en la captura (pero ya filtra con el select de arriba, esto es visual) -->
-      <select class="select compact" [(ngModel)]="filtroFormato">
-        <option value="Todos los formatos">Todos los formatos</option>
-        <option value="Barril">Barril</option>
-        <option value="Lata">Lata</option>
-      </select>
-    </div>
-
-    <div class="tableWrap">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>FECHA</th>
-            <th>LOTE</th>
-            <th>FORMATO</th>
-            <th>CAPACIDAD</th>
-            <th>CANTIDAD</th>
-            <th class="right">ESTADO</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr *ngFor="let e of envasadosFiltrados">
-            <td class="muted">{{ e.fecha }}</td>
-
-            <td>
-              <span [class]="loteClass(e.formato)">{{ e.lote }}</span>
-            </td>
-
-            <td>
-              <div class="format">
-                <span
-                  class="dot"
-                  [ngClass]="{ dotBlue: e.formato === 'Barril', dotGreen: e.formato === 'Lata' }"
-                ></span>
-                <span class="strong">{{ e.formato }}</span>
-              </div>
-            </td>
-
-            <td class="strong">{{ e.capacidad }}</td>
-
-            <td class="muted">{{ e.cantidad }} {{ e.unidad }}</td>
-
-            <td class="right">
-              <span [class]="estadoClass(e.estado)">{{ e.estado }}</span>
-            </td>
-          </tr>
-
-          <tr *ngIf="envasadosFiltrados.length === 0">
-            <td colspan="6" class="empty">No hay resultados con esos filtros.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="flex gap-2 mb-6">
+    <button
+      (click)="tab = 'stock'"
+      class="px-6 py-2 rounded-xl font-bold border transition"
+      [style.backgroundColor]="tab === 'stock' ? COLORS.brown : 'white'"
+      [style.color]="tab === 'stock' ? 'white' : '#666'"
+    >
+      Inventario
+    </button>
+    <button
+      (click)="tab = 'movimientos'"
+      class="px-6 py-2 rounded-xl font-bold border transition"
+      [style.backgroundColor]="tab === 'movimientos' ? COLORS.brown : 'white'"
+      [style.color]="tab === 'movimientos' ? 'white' : '#666'"
+    >
+      Historial
+    </button>
   </div>
 
-  <!-- BLOQUE INFERIOR: Stock por Formato + Stock por Estilo -->
-  <div class="grid2">
-    <!-- Stock por Formato -->
-    <div class="card">
-      <div class="cardHeader">
+  <div *ngIf="tab === 'stock'" class="mb-6 relative max-w-md">
+    <input
+      [(ngModel)]="searchTerm"
+      type="text"
+      placeholder="🔍 Buscar estilo (IPA, Honey...)"
+      class="w-full pl-6 pr-4 py-3 bg-white border-2 border-gray-100 rounded-2xl outline-none focus:border-orange-500 transition-all shadow-sm font-medium"
+    />
+  </div>
+
+  <div *ngIf="tab === 'stock'" class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+    <div
+      *ngFor="let grupo of gruposFiltrados"
+      class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+    >
+      <div
+        (click)="toggleExpand(grupo.formato)"
+        class="p-6 cursor-pointer hover:bg-gray-50 flex justify-between items-center"
+      >
         <div>
-          <div class="cardTitle">Stock por Formato</div>
-          <div class="cardSub">Distribución en % y litros equivalentes</div>
+          <span class="text-xs font-black text-orange-500 uppercase">Formato</span>
+          <h3 class="text-2xl font-bold" [style.color]="COLORS.brown">{{ grupo.formato }}</h3>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-gray-400 font-bold uppercase">Stock Total</p>
+          <span class="text-3xl font-black" [style.color]="COLORS.brown">{{
+            grupo.totalStock
+          }}</span>
         </div>
       </div>
 
-      <div class="donutWrap">
-        <!-- donut “fake” con CSS (sin librerías) -->
+      <div *ngIf="expandedId === grupo.formato" class="p-4 bg-gray-50 border-t space-y-2">
         <div
-          class="donut"
-          [style.background]="
-            'conic-gradient(#3B82F6 0 ' +
-            stockFormato[0].porcentaje +
-            '%, #10B981 ' +
-            stockFormato[0].porcentaje +
-            '% 100%)'
-          "
-        ></div>
-
-        <div class="legend">
-          <div class="legendRow" *ngFor="let s of stockFormato">
-            <span
-              class="legendDot"
-              [ngClass]="{ ldBlue: s.formato === 'Barril', ldGreen: s.formato === 'Lata' }"
-            ></span>
-            <div class="legendText">
-              <div class="strong">{{ s.formato }}</div>
-              <div class="muted">{{ s.porcentaje }}% · {{ s.litros }}L</div>
-            </div>
+          *ngFor="let item of grupo.items"
+          class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+        >
+          <span class="font-bold text-gray-700">{{ item.estilo || item.Estilo }}</span>
+          <div class="flex items-center gap-2">
+            <span class="font-black text-lg mr-2"
+              >{{ item.stockActual || item.StockActual }} u.</span
+            >
+            <button
+              (click)="openEditModal(item)"
+              class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition"
+            >
+              ✏️
+            </button>
+            <button
+              (click)="confirmarEliminar(item)"
+              class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition"
+            >
+              🗑️
+            </button>
+            <button
+              (click)="openMovModal(item)"
+              class="p-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-600 hover:text-white transition"
+            >
+              📦
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Stock por Estilo -->
-    <div class="card">
-      <div class="cardHeader">
-        <div>
-          <div class="cardTitle">Stock por Estilo</div>
-          <div class="cardSub">Litros totales por estilo</div>
+    <div *ngIf="gruposFiltrados.length === 0" class="col-span-full py-12 text-center">
+      <p class="text-gray-400 font-bold">
+        No se encontraron estilos que coincidan con "{{ searchTerm }}"
+      </p>
+    </div>
+  </div>
+
+  <div
+    *ngIf="tab === 'movimientos'"
+    class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+  >
+    <table class="w-full text-left">
+      <thead class="bg-gray-50 border-b">
+        <tr>
+          <th class="p-4 text-xs font-bold text-gray-500 uppercase">Fecha</th>
+          <th class="p-4 text-xs font-bold text-gray-500 uppercase">Producto</th>
+          <th class="p-4 text-xs font-bold text-gray-500 uppercase">Tipo</th>
+          <th class="p-4 text-xs font-bold text-gray-500 uppercase text-right">Cantidad</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        <tr *ngFor="let m of movimientos">
+          <td class="p-4 text-sm">{{ m.fecha | date: 'dd/MM/yy HH:mm' }}</td>
+          <td class="p-4 font-bold">{{ m.productoNombre }}</td>
+          <td class="p-4">
+            <span
+              class="px-2 py-1 rounded text-xs font-bold"
+              [ngClass]="
+                m.tipoMovimiento === 'Ingreso'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-red-100 text-red-700'
+              "
+            >
+              {{ m.tipoMovimiento }}
+            </span>
+          </td>
+          <td
+            class="p-4 text-right font-black"
+            [class.text-red-600]="m.tipoMovimiento === 'Egreso'"
+          >
+            {{ m.tipoMovimiento === 'Egreso' ? '-' : '+' }}{{ m.cantidad }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div
+    *ngIf="modalProdOpen"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
+  >
+    <div class="bg-white w-full max-w-md rounded-[32px] overflow-hidden shadow-2xl">
+      <div class="p-8 text-white" [style.backgroundColor]="COLORS.brown">
+        <h3 class="font-bold text-2xl">{{ isEditing ? 'Editar Producto' : 'Nuevo Producto' }}</h3>
+      </div>
+      <div class="p-8 space-y-6">
+        <input
+          [(ngModel)]="prodFormato"
+          placeholder="Formato (Ej: Barril 50L)"
+          class="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none"
+        />
+        <input
+          [(ngModel)]="prodEstilo"
+          placeholder="Estilo (Ej: IPA)"
+          class="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none"
+        />
+        <div class="flex gap-2">
+          <button
+            (click)="modalProdOpen = false"
+            class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold"
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="guardarProducto()"
+            class="flex-1 py-4 text-white rounded-2xl font-bold"
+            [style.backgroundColor]="COLORS.orange"
+          >
+            Confirmar
+          </button>
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="bars">
-        <div class="barRow" *ngFor="let s of stockEstilo">
-          <div class="barLeft">
-            <span
-              class="styleDot"
-              [ngClass]="{
-                sdOrange: s.estilo.toLowerCase().includes('ipa'),
-                sdBlue: s.estilo.toLowerCase().includes('lager'),
-                sdGreen: s.estilo.toLowerCase().includes('stout'),
-                sdPurple: !(
-                  s.estilo.toLowerCase().includes('ipa') ||
-                  s.estilo.toLowerCase().includes('lager') ||
-                  s.estilo.toLowerCase().includes('stout')
-                ),
-              }"
-            ></span>
-            <span class="strong">{{ s.estilo }}</span>
-          </div>
-
-          <div class="barMid">
-            <div class="track">
-              <div
-                [class]="estiloBarClass(s.estilo)"
-                [style.width.%]="(s.litros / maxLitrosEstilo) * 100"
-              ></div>
-            </div>
-          </div>
-
-          <div class="barRight strong">{{ s.litros }}L</div>
+  <div
+    *ngIf="deleteModalOpen"
+    class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90"
+  >
+    <div class="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl text-center">
+      <div class="p-6 bg-red-600 text-white font-bold">¿Eliminar Estilo?</div>
+      <div class="p-8">
+        <p class="mb-6">
+          ¿Estás seguro de borrar <b>{{ prodAEliminar?.estilo }}</b
+          >?
+        </p>
+        <div class="flex gap-2">
+          <button
+            (click)="deleteModalOpen = false"
+            class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold"
+          >
+            No
+          </button>
+          <button
+            (click)="eliminarProducto()"
+            class="flex-1 py-4 bg-red-600 text-white rounded-2xl font-bold"
+          >
+            Sí, Eliminar
+          </button>
         </div>
       </div>
     </div>

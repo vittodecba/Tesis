@@ -2,6 +2,7 @@
 using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Interfaces;
 using AtonBeerTesis.Application.Dtos;
+using AtonBeerTesis.Application.Dto;
 namespace AtonBeerTesis.Application.Services
 {
     public class UsuarioService : IUsuarioService
@@ -32,6 +33,7 @@ namespace AtonBeerTesis.Application.Services
                 Nombre = u.Nombre,
                 Apellido = u.Apellido,
                 Email = u.Email,
+                
                 Activo = u.Activo,
                 RolNombre = u.Rol != null ? u.Rol.Nombre : "Sin Rol"
             }).ToList();
@@ -121,6 +123,6 @@ namespace AtonBeerTesis.Application.Services
                 usuario.Activo = !usuario.Activo;
                 await _usuarioRepository.UpdateAsync(usuario);
             }
-        }
+        }     
     }
 }
