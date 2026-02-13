@@ -33,8 +33,9 @@ export class AuthService {
   }
 
   register(datos: UsuarioRegistro): Observable<any> {
-    return this.http.post(`${this.API_URL}/registro`, datos);
-  }
+  // Quitamos el "/registro" para que coincida con el [HttpPost] del controlador
+  return this.http.post(this.API_URL, datos);
+}
 
   login(credenciales: UsuarioLogin): Observable<LoginResponse> {
     return this.http.post<any>(`${this.API_URL}/login`, credenciales).pipe(

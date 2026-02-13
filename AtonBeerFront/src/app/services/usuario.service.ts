@@ -10,24 +10,27 @@ export class UsuarioService {
   constructor(private http: HttpClient) {}
 
   getUsuarios(mostrarInactivos: boolean = false): Observable<Usuario[]> {
+    // Le agregamos el parámetro a la URL: ?mostrarInactivos=true o false
     return this.http.get<Usuario[]>(`${this.apiUrl}?mostrarInactivos=${mostrarInactivos}`);
   }
 
+  // 2. Traer uno solo por ID (Para editar)
+  getUsuario(id: number): Observable<Usuario> {
+    return this.http.get<Usuario>(`${this.apiUrl}/${id}`);
+  }
+
+  // 3. Crear nuevo usuario (Task 328)
   createUsuario(usuario: UsuarioCreate): Observable<Usuario> {
     return this.http.post<Usuario>(this.apiUrl, usuario);
   }
 
+  // 4. Editar usuario (Task 330)
   updateUsuario(id: number, usuario: UsuarioUpdate): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/${id}`, usuario);
   }
 
-  // Llama al HttpPatch para cambiar Activo true/false
+  // 5. Activar/Desactivar (Task 331)
   toggleActivo(id: number): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/${id}/toggle-activo`, {});
-  }
-
-  // Borrado
-  deleteUsuario(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

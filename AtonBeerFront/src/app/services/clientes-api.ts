@@ -16,9 +16,7 @@ export interface CrearClienteDto {
 @Injectable({
   providedIn: 'root',
 })
-export class ClientesApiService {
-  // Puerto 7118 detectado en tus capturas de pantalla
-  // Cambia esto en clientes-api.ts
+export class ClientesApiService {  
   private baseUrl = 'http://localhost:5190/api/Clientes';
   constructor(private http: HttpClient) {}
 
