@@ -150,24 +150,39 @@ export class StockGestion implements OnInit {
     this.cargarTodo();
   }
 
-  openMovModal(item: any) {
-    this.movProductoSeleccionado = item;
-    this.movCantidad = null;
-    this.movModalOpen = true;
+  // Agregá esta variable arriba con las demás
+tipoMovimientoSeleccionado: 'Ingreso' | 'Egreso' = 'Ingreso';
+
+// Modificá el método para abrir el modal
+openMovModal(item: any) {
+  this.movProductoSeleccionado = item;
+  this.movCantidad = null;
+  this.tipoMovimientoSeleccionado = 'Ingreso'; // Por defecto empieza en Ingreso
+  this.movModalOpen = true;
+}
+
+// Y modificá la confirmación
+confirmarMovimiento() {
+  if (!this.movProductoSeleccionado || !this.movCantidad || this.movCantidad <= 0) {
+    alert("Por favor ingresá una cantidad válida mayor a cero");
+    return;
   }
 
-  confirmarMovimiento() {
-    if (!this.movProductoSeleccionado || !this.movCantidad) return;
-    const dto = {
-      productoId: this.movProductoSeleccionado.id || this.movProductoSeleccionado.Id,
-      cantidad: Math.abs(this.movCantidad),
-      tipoMovimiento: this.movCantidad > 0 ? 'Ingreso' : 'Egreso',
-      motivoMovimiento: 'Ajuste manual',
-      Fecha: new Date().toISOString(),
-    };
-    this.stockService.registrarMovimiento(dto).subscribe(() => {
+  const dto = {
+    productoId: this.movProductoSeleccionado.id || this.movProductoSeleccionado.Id,
+    cantidad: this.movCantidad, // Aquí ya no importa el signo, mandamos el valor absoluto
+    tipoMovimiento: this.tipoMovimientoSeleccionado,
+    motivoMovimiento: this.tipoMovimientoSeleccionado === 'Ingreso' ? 'Carga de stock' : 'Salida de stock',
+    fecha: new Date().toISOString(),
+  };
+
+  this.stockService.registrarMovimiento(dto).subscribe({
+    next: () => {
       this.movModalOpen = false;
       this.cargarTodo();
-    });
-  }
+      alert(`¡${this.tipoMovimientoSeleccionado} registrado con éxito!`);
+    },
+    error: (err) => alert(err.error?.message || "Error al registrar")
+  });
+}
 }

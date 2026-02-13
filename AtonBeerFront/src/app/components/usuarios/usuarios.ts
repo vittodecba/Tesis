@@ -53,6 +53,11 @@ export class UsuariosComponent implements OnInit {
     });
   }
 
+  // Nueva función para el checkbox de ver inactivos
+  toggleVerInactivos() {
+    this.cargarUsuarios();
+  }
+
   abrirModal(usuario?: Usuario) {
     this.mostrarModal = true;
     if (usuario) {
@@ -87,7 +92,7 @@ export class UsuariosComponent implements OnInit {
         apellido: this.datosForm.apellido,
         email: this.datosForm.email,
         rolId: Number(this.datosForm.rolId),
-        activo: true, // O mantener el actual
+        activo: true, 
       };
 
       this.usuarioService.updateUsuario(this.datosForm.id, dto).subscribe(() => {
@@ -96,7 +101,6 @@ export class UsuariosComponent implements OnInit {
         this.cargarUsuarios();
       });
     } else {
-      // Lógica de creación (la que ya tenías)
       if (this.datosForm.password !== this.datosForm.confirmarPassword) {
         alert('Las contraseñas no coinciden');
         return;
@@ -110,16 +114,17 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
+  // Esta es la función que reemplaza a "eliminar" para usar la baja lógica del back
   toggleActivo(usuario: Usuario) {
     const accion = usuario.activo ? 'desactivar' : 'activar';
     if (confirm(`¿Seguro que deseas ${accion} a ${usuario.nombre}?`)) {
-      this.usuarioService.toggleActivo(usuario.id).subscribe(() => this.cargarUsuarios());
-    }
-  }
-
-  eliminar(usuario: Usuario) {
-    if (confirm(`¿Borrar definitivamente a ${usuario.nombre}?`)) {
-      this.usuarioService.deleteUsuario(usuario.id).subscribe(() => this.cargarUsuarios());
+      this.usuarioService.toggleActivo(usuario.id).subscribe({
+        next: () => {
+          alert(`Usuario ${accion}ado con éxito`);
+          this.cargarUsuarios();
+        },
+        error: (err) => console.error("Error al cambiar estado:", err)
+      });
     }
   }
 

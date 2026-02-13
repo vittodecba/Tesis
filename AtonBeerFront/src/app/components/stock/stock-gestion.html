@@ -58,9 +58,7 @@
         </div>
         <div class="text-right">
           <p class="text-xs text-gray-400 font-bold uppercase">Stock Total</p>
-          <span class="text-3xl font-black" [style.color]="COLORS.brown">{{
-            grupo.totalStock
-          }}</span>
+          <span class="text-3xl font-black" [style.color]="COLORS.brown">{{ grupo.totalStock }}</span>
         </div>
       </div>
 
@@ -71,25 +69,15 @@
         >
           <span class="font-bold text-gray-700">{{ item.estilo || item.Estilo }}</span>
           <div class="flex items-center gap-2">
-            <span class="font-black text-lg mr-2"
-              >{{ item.stockActual || item.StockActual }} u.</span
-            >
-            <button
-              (click)="openEditModal(item)"
-              class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition"
-            >
+            <span class="font-black text-lg mr-2">{{ item.stockActual || item.StockActual }} u.</span>
+            
+            <button (click)="openEditModal(item)" class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition" title="Editar">
               ✏️
             </button>
-            <button
-              (click)="confirmarEliminar(item)"
-              class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition"
-            >
+            <button (click)="confirmarEliminar(item)" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition" title="Borrar">
               🗑️
             </button>
-            <button
-              (click)="openMovModal(item)"
-              class="p-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-600 hover:text-white transition"
-            >
+            <button (click)="openMovModal(item)" class="p-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-600 hover:text-white transition shadow-sm" title="Registrar Movimiento">
               📦
             </button>
           </div>
@@ -98,16 +86,11 @@
     </div>
 
     <div *ngIf="gruposFiltrados.length === 0" class="col-span-full py-12 text-center">
-      <p class="text-gray-400 font-bold">
-        No se encontraron estilos que coincidan con "{{ searchTerm }}"
-      </p>
+      <p class="text-gray-400 font-bold">No se encontraron estilos que coincidan con "{{ searchTerm }}"</p>
     </div>
   </div>
 
-  <div
-    *ngIf="tab === 'movimientos'"
-    class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
-  >
+  <div *ngIf="tab === 'movimientos'" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
     <table class="w-full text-left">
       <thead class="bg-gray-50 border-b">
         <tr>
@@ -122,21 +105,12 @@
           <td class="p-4 text-sm">{{ m.fecha | date: 'dd/MM/yy HH:mm' }}</td>
           <td class="p-4 font-bold">{{ m.productoNombre }}</td>
           <td class="p-4">
-            <span
-              class="px-2 py-1 rounded text-xs font-bold"
-              [ngClass]="
-                m.tipoMovimiento === 'Ingreso'
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-red-100 text-red-700'
-              "
-            >
+            <span class="px-2 py-1 rounded text-xs font-bold"
+              [ngClass]="m.tipoMovimiento === 'Ingreso' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
               {{ m.tipoMovimiento }}
             </span>
           </td>
-          <td
-            class="p-4 text-right font-black"
-            [class.text-red-600]="m.tipoMovimiento === 'Egreso'"
-          >
+          <td class="p-4 text-right font-black" [class.text-red-600]="m.tipoMovimiento === 'Egreso'">
             {{ m.tipoMovimiento === 'Egreso' ? '-' : '+' }}{{ m.cantidad }}
           </td>
         </tr>
@@ -144,37 +118,68 @@
     </table>
   </div>
 
-  <div
-    *ngIf="modalProdOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
-  >
+  <div *ngIf="modalProdOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
     <div class="bg-white w-full max-w-md rounded-[32px] overflow-hidden shadow-2xl">
       <div class="p-8 text-white" [style.backgroundColor]="COLORS.brown">
         <h3 class="font-bold text-2xl">{{ isEditing ? 'Editar Producto' : 'Nuevo Producto' }}</h3>
       </div>
       <div class="p-8 space-y-6">
-        <input
-          [(ngModel)]="prodFormato"
-          placeholder="Formato (Ej: Barril 50L)"
-          class="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none"
-        />
-        <input
-          [(ngModel)]="prodEstilo"
-          placeholder="Estilo (Ej: IPA)"
-          class="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none"
-        />
+        <input [(ngModel)]="prodFormato" placeholder="Formato (Ej: Barril 50L)" class="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none" />
+        <input [(ngModel)]="prodEstilo" placeholder="Estilo (Ej: IPA)" class="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none" />
         <div class="flex gap-2">
-          <button
-            (click)="modalProdOpen = false"
-            class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold"
-          >
+          <button (click)="modalProdOpen = false" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold">Cancelar</button>
+          <button (click)="guardarProducto()" class="flex-1 py-4 text-white rounded-2xl font-bold" [style.backgroundColor]="COLORS.orange">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="movModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+    <div class="bg-white w-full max-w-md rounded-[32px] overflow-hidden shadow-2xl">
+      <div class="p-6 text-white text-center transition-colors duration-300" 
+           [style.backgroundColor]="tipoMovimientoSeleccionado === 'Ingreso' ? '#27ae60' : '#e74c3c'">
+        <h3 class="font-bold text-2xl">Registrar {{ tipoMovimientoSeleccionado }}</h3>
+        <p class="opacity-90 font-medium">{{ movProductoSeleccionado?.estilo }} ({{ movProductoSeleccionado?.formato }})</p>
+      </div>
+
+      <div class="p-8 space-y-6">
+        <div class="flex gap-2 p-1 bg-gray-100 rounded-2xl">
+          <button 
+            (click)="tipoMovimientoSeleccionado = 'Ingreso'"
+            class="flex-1 py-3 rounded-xl font-bold transition-all"
+            [style.backgroundColor]="tipoMovimientoSeleccionado === 'Ingreso' ? 'white' : 'transparent'"
+            [style.color]="tipoMovimientoSeleccionado === 'Ingreso' ? '#27ae60' : '#666'"
+            [class.shadow-sm]="tipoMovimientoSeleccionado === 'Ingreso'">
+            📈 Ingreso
+          </button>
+          <button 
+            (click)="tipoMovimientoSeleccionado = 'Egreso'"
+            class="flex-1 py-3 rounded-xl font-bold transition-all"
+            [style.backgroundColor]="tipoMovimientoSeleccionado === 'Egreso' ? 'white' : 'transparent'"
+            [style.color]="tipoMovimientoSeleccionado === 'Egreso' ? '#e74c3c' : '#666'"
+            [class.shadow-sm]="tipoMovimientoSeleccionado === 'Egreso'">
+            📉 Egreso
+          </button>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-400 uppercase mb-2 text-center">Cantidad de Unidades</label>
+          <input
+            type="number"
+            [(ngModel)]="movCantidad"
+            placeholder="0"
+            class="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none text-3xl font-black text-center"
+          />
+        </div>
+        
+        <div class="flex gap-2 pt-2">
+          <button (click)="movModalOpen = false" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold hover:bg-gray-200 transition">
             Cancelar
           </button>
           <button
-            (click)="guardarProducto()"
-            class="flex-1 py-4 text-white rounded-2xl font-bold"
-            [style.backgroundColor]="COLORS.orange"
-          >
+            (click)="confirmarMovimiento()"
+            class="flex-1 py-4 text-white rounded-2xl font-bold shadow-lg hover:opacity-90 transition"
+            [style.backgroundColor]="COLORS.brown">
             Confirmar
           </button>
         </div>
@@ -182,30 +187,14 @@
     </div>
   </div>
 
-  <div
-    *ngIf="deleteModalOpen"
-    class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90"
-  >
+  <div *ngIf="deleteModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90">
     <div class="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl text-center">
       <div class="p-6 bg-red-600 text-white font-bold">¿Eliminar Estilo?</div>
       <div class="p-8">
-        <p class="mb-6">
-          ¿Estás seguro de borrar <b>{{ prodAEliminar?.estilo }}</b
-          >?
-        </p>
+        <p class="mb-6">¿Estás seguro de borrar <b>{{ prodAEliminar?.estilo }}</b>?</p>
         <div class="flex gap-2">
-          <button
-            (click)="deleteModalOpen = false"
-            class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold"
-          >
-            No
-          </button>
-          <button
-            (click)="eliminarProducto()"
-            class="flex-1 py-4 bg-red-600 text-white rounded-2xl font-bold"
-          >
-            Sí, Eliminar
-          </button>
+          <button (click)="deleteModalOpen = false" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold">No</button>
+          <button (click)="eliminarProducto()" class="flex-1 py-4 bg-red-600 text-white rounded-2xl font-bold">Sí, Eliminar</button>
         </div>
       </div>
     </div>
