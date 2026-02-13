@@ -163,30 +163,49 @@ eliminarTipoDeLista() {
   }
 
   guardar() {
-    if (!this.datosForm.nombreInsumo || !this.datosForm.tipoInsumoId || !this.datosForm.unidadMedidaId) {
-      alert('Nombre, Tipo y Unidad son obligatorios');
-      return;
-    }
-
-    const payload = {
-      ...this.datosForm,
-      tipoInsumoId: Number(this.datosForm.tipoInsumoId),
-      unidadMedidaId: Number(this.datosForm.unidadMedidaId)
-    };
-
-    if (this.datosForm.id) {
-      this.insumoService.actualizarInsumo(this.datosForm.id, payload).subscribe({
-        next: () => this.finalizarOperacion('Insumo actualizado'),
-        error: (err: any) => alert("Error: " + (err.error?.message || "Error al actualizar"))
-      });
-    } else {
-      this.insumoService.crearInsumo(payload).subscribe({
-        next: () => this.finalizarOperacion('Insumo creado'),
-        error: (err: any) => alert("Error: " + (err.error?.message || "Error al crear"))
-      });
-    }
+  // 1. Validaciones básicas
+  if (!this.datosForm.nombreInsumo || !this.datosForm.tipoInsumoId || !this.datosForm.unidadMedidaId) {
+    alert('Por favor, completá Nombre, Tipo y Unidad.');
+    return;
   }
 
+  // 2. Creamos el objeto
+  // Importante: Mandamos los datos sueltos, NO envueltos en otra propiedad.
+  const payload = {
+    id: this.datosForm.id ? Number(this.datosForm.id) : 0, 
+    nombreInsumo: this.datosForm.nombreInsumo,
+    codigo: this.datosForm.codigo || "",
+    tipoInsumoId: Number(this.datosForm.tipoInsumoId),
+    unidadMedidaId: Number(this.datosForm.unidadMedidaId),
+    stockActual: Number(this.datosForm.stockActual) || 0,
+    observaciones: this.datosForm.observaciones || "",
+    // Agregamos esto por si el DTO lo requiere, aunque el back lo pise
+    ultimaActualizacion: new Date().toISOString() 
+  };
+
+  console.log("Enviando este objeto al servidor:", payload);
+
+  if (payload.id > 0) {
+    // EDITAR
+    this.insumoService.actualizarInsumo(payload.id, payload).subscribe({
+      next: () => this.finalizarOperacion('Insumo actualizado con éxito'),
+      error: (err) => {
+        console.error("Error al actualizar:", err);
+        alert('Error al actualizar: ' + (err.error?.message || err.status));
+      }
+    });
+  } else {
+    // CREAR NUEVO
+    this.insumoService.crearInsumo(payload).subscribe({
+      next: () => this.finalizarOperacion('Insumo creado con éxito'),
+      error: (err) => {
+        console.error("Error al crear:", err);
+        // Si el Swagger funciona y esto falla, es por el formato del JSON
+        alert('Error al crear: Verificá los datos ingresados.');
+      }
+    });
+  }
+}
   eliminar(id: number) {
     if (confirm('¿Estás seguro de eliminar este insumo?')) {
       this.insumoService.eliminarInsumo(id).subscribe({
