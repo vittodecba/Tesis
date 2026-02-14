@@ -17,6 +17,7 @@ export class AuthService {
   private router = inject(Router);
 
   private readonly API_URL = 'http://localhost:5190/api/Usuario';
+  private readonly AUTH_URL = 'http://localhost:5190/api/Auth'; // <-- NUEVA
   private readonly TOKEN_KEY = 'aton_token';
   private readonly USER_KEY = 'aton_user';
 
@@ -35,15 +36,11 @@ export class AuthService {
   }
 
   login(credenciales: UsuarioLogin): Observable<LoginResponse> {
-    return this.http.post<any>(`${this.API_URL}/login`, credenciales).pipe(
+    return this.http.post<any>(`${this.AUTH_URL}/login`, credenciales).pipe(
       map((response) => {
-        // 1. Limpiamos el anidamiento del backend
         const nivel1 = response.data || response;
         const nivel2 = nivel1.data || nivel1;
         const u = nivel2.usuario || nivel2.Usuario || nivel1.usuario || {};
-
-        // Debug para ver la respuesta entera en la consola (F12)
-        console.log("RESPUESTA COMPLETA DEL BACKEND:", response);
 
         return {
           token: nivel2.token || nivel2.Token || nivel1.token || '',
@@ -52,9 +49,7 @@ export class AuthService {
             nombre: u.nombre || u.Nombre || 'Usuario',
             apellido: u.apellido || u.Apellido || '',
             email: u.email || u.Email || '',
-            // Buscamos el ID del rol donde sea
             rolId: u.rolId || u.RolId || nivel2.rolId || nivel2.RolId || 0,
-            // Buscamos el Nombre del rol en todas las variantes posibles
             rolNombre: u.rolNombre || u.RolNombre || u.rol?.nombre || u.Rol?.Nombre || nivel2.rolNombre || 'Rol no enviado'
           },
         } as LoginResponse;
@@ -68,11 +63,11 @@ export class AuthService {
   }
 
   recuperarContrasena(email: string): Observable<any> {
-    return this.http.post(`${this.API_URL}/recuperar-contrasena`, { email });
+    return this.http.post(`${this.AUTH_URL}/recuperar-contrasena`, { email }); // <-- CORREGIDO
   }
 
   restablecerContrasena(datos: any): Observable<any> {
-    return this.http.post(`${this.API_URL}/restablecer-contrasena`, datos);
+    return this.http.post(`${this.AUTH_URL}/restablecer-contrasena`, datos); // <-- CORREGIDO
   }
 
   logout(): void {

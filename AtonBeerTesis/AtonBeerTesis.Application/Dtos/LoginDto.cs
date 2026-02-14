@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace AtonBeerTesis.Application.Dtos
+namespace AtonBeerTesis.Application.Dto
 {
     public class LoginDto
     {
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "El email es obligatorio")]
+        [EmailAddress(ErrorMessage = "Formato de email inválido")]
         public string Email { get; set; } = string.Empty;
-        [Required]
+
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
         public string Contrasena { get; set; } = string.Empty;
     }
 }

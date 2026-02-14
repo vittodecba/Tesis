@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AtonBeerTesis.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+472c3157dc18bac170e87a0bf81297e2dee9c8a0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bd9c7701c079fa9bbd308acfee6f816cf050da47")]
 [assembly: System.Reflection.AssemblyProductAttribute("AtonBeerTesis.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AtonBeerTesis.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
