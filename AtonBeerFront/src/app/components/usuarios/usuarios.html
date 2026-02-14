@@ -6,24 +6,12 @@
     </div>
 
     <div class="flex items-center gap-4 flex-wrap">
-      <label
-        class="inline-flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm"
-      >
+      <label class="inline-flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm">
         <span class="text-sm font-semibold text-gray-700">Mostrar Inactivos</span>
-        <input
-          class="h-5 w-10 accent-[#E67E22]"
-          type="checkbox"
-          id="filtroInactivos"
-          [(ngModel)]="verInactivos"
-          (change)="cargarUsuarios()"
-        />
+        <input class="h-5 w-10 accent-[#E67E22]" type="checkbox" id="filtroInactivos" [(ngModel)]="verInactivos" (change)="cargarUsuarios()" />
       </label>
 
-      <button
-        class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-md bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white hover:shadow-lg"
-        (click)="abrirModal()"
-        type="button"
-      >
+      <button class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-md bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white hover:shadow-lg" (click)="abrirModal()" type="button">
         + Nuevo Usuario
       </button>
     </div>
@@ -34,24 +22,12 @@
       <table class="w-full text-left">
         <thead class="bg-gray-50 border-b border-gray-100">
           <tr>
-            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Nombre
-            </th>
-            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Apellido
-            </th>
-            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Email
-            </th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Apellido</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
             <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Rol</th>
-            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Estado
-            </th>
-            <th
-              class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right"
-            >
-              Acciones
-            </th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
           </tr>
         </thead>
 
@@ -61,63 +37,38 @@
             <td class="px-6 py-4 text-sm text-gray-700">{{ u.apellido }}</td>
             <td class="px-6 py-4 text-sm text-gray-600">{{ u.email }}</td>
             <td class="px-6 py-4">
-              <span
-                class="px-3 py-1 bg-orange-100 text-[#E67E22] rounded-full text-sm font-semibold"
-              >
+              <span class="px-3 py-1 bg-orange-100 text-[#E67E22] rounded-full text-sm font-semibold">
                 {{ u.rolNombre }}
               </span>
             </td>
             <td class="px-6 py-4">
-              <span
-                class="px-3 py-1 rounded-full text-sm font-semibold"
-                [ngClass]="u.activo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
-              >
+              <span class="px-3 py-1 rounded-full text-sm font-semibold" [ngClass]="u.activo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
                 {{ u.activo ? 'Activo' : 'Inactivo' }}
               </span>
             </td>
 
             <td class="px-6 py-4 text-right">
-              <div class="flex justify-end gap-2">
-                <button
-                  class="px-3 py-1 text-blue-600 hover:bg-blue-50 rounded-lg transition font-bold text-sm border border-blue-100"
-                  (click)="abrirModal(u)"
-                  type="button"
-                >
-                  Modificar
+              <div class="flex justify-end gap-4">
+                <button (click)="abrirModal(u)" class="text-[#4A2C2A] hover:scale-110 transition" title="Modificar">
+                  <lucide-icon [img]="Pencil" [size]="20"></lucide-icon>
                 </button>
 
-                <button
-                  class="px-3 py-1 rounded-lg transition font-bold text-sm border"
-                  [ngClass]="
-                    u.activo
-                      ? 'text-orange-600 border-orange-100 hover:bg-orange-50'
-                      : 'text-green-600 border-green-100 hover:bg-green-50'
-                  "
-                  (click)="toggleActivo(u)"
-                  type="button"
-                >
-                  {{ u.activo ? 'Desactivar' : 'Activar' }}
+                <button (click)="toggleActivo(u)" class="transition hover:scale-110" [ngClass]="u.activo ? 'text-red-500' : 'text-green-600'" [title]="u.activo ? 'Desactivar' : 'Activar'">
+                  <lucide-icon [img]="u.activo ? Ban : CheckCircle" [size]="20"></lucide-icon>
                 </button>
               </div>
             </td>
           </tr>
 
           <tr *ngIf="usuarios?.length === 0">
-            <td colspan="6" class="px-6 py-8 text-center text-gray-500 font-semibold">
-              No hay usuarios para mostrar.
-            </td>
+            <td colspan="6" class="px-6 py-8 text-center text-gray-500 font-semibold">No hay usuarios para mostrar.</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <div
-    class="modal d-block"
-    tabindex="-1"
-    *ngIf="mostrarModal"
-    style="background: rgba(0, 0, 0, 0.5)"
-  >
+  <div class="modal d-block" tabindex="-1" *ngIf="mostrarModal" style="background: rgba(0, 0, 0, 0.5)">
     <div class="modal-dialog">
       <div class="modal-content usuarios-modal">
         <div class="modal-header usuarios-modal-header">
@@ -129,35 +80,17 @@
           <form (ngSubmit)="guardar()">
             <div class="mb-3">
               <label class="form-label usuarios-label">Nombre</label>
-              <input
-                type="text"
-                class="form-control usuarios-input"
-                [(ngModel)]="datosForm.nombre"
-                name="nombre"
-                required
-              />
+              <input type="text" class="form-control usuarios-input" [(ngModel)]="datosForm.nombre" name="nombre" required />
             </div>
 
             <div class="mb-3">
               <label class="form-label usuarios-label">Apellido</label>
-              <input
-                type="text"
-                class="form-control usuarios-input"
-                [(ngModel)]="datosForm.apellido"
-                name="apellido"
-                required
-              />
+              <input type="text" class="form-control usuarios-input" [(ngModel)]="datosForm.apellido" name="apellido" required />
             </div>
 
             <div class="mb-3">
               <label class="form-label usuarios-label">Email</label>
-              <input
-                type="email"
-                class="form-control usuarios-input"
-                [(ngModel)]="datosForm.email"
-                name="email"
-                required
-              />
+              <input type="email" class="form-control usuarios-input" [(ngModel)]="datosForm.email" name="email" required />
             </div>
 
             <div class="mb-3">
@@ -171,29 +104,17 @@
             <div *ngIf="!esEdicion">
               <div class="mb-3">
                 <label class="form-label usuarios-label">Contraseña</label>
-                <input
-                  type="password"
-                  class="form-control usuarios-input"
-                  [(ngModel)]="datosForm.password"
-                  name="password"
-                />
+                <input type="password" class="form-control usuarios-input" [(ngModel)]="datosForm.password" name="password" />
               </div>
 
               <div class="mb-3">
                 <label class="form-label usuarios-label">Confirmar Contraseña</label>
-                <input
-                  type="password"
-                  class="form-control usuarios-input"
-                  [(ngModel)]="datosForm.confirmarPassword"
-                  name="confirmarPassword"
-                />
+                <input type="password" class="form-control usuarios-input" [(ngModel)]="datosForm.confirmarPassword" name="confirmarPassword" />
               </div>
             </div>
 
             <div class="modal-footer usuarios-modal-footer">
-              <button type="button" class="usuarios-btnSecondary" (click)="cerrarModal()">
-                Cancelar
-              </button>
+              <button type="button" class="usuarios-btnSecondary" (click)="cerrarModal()">Cancelar</button>
               <button type="submit" class="usuarios-btnPrimary">Guardar</button>
             </div>
           </form>

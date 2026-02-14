@@ -20,12 +20,10 @@ export class AuthService {
   private readonly TOKEN_KEY = 'aton_token';
   private readonly USER_KEY = 'aton_user';
 
-  // Cambiamos esto para que por defecto sea null y solo lea del storage si es necesario
   private currentUserSubject = new BehaviorSubject<UsuarioResponse | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {
-    // Solo cargamos el usuario si el token existe
     const user = this.getStoredUser();
     if (user && this.getToken()) {
       this.currentUserSubject.next(user);
@@ -33,28 +31,31 @@ export class AuthService {
   }
 
   register(datos: UsuarioRegistro): Observable<any> {
-  // Quitamos el "/registro" para que coincida con el [HttpPost] del controlador
-  return this.http.post(this.API_URL, datos);
-}
+    return this.http.post(this.API_URL, datos);
+  }
 
   login(credenciales: UsuarioLogin): Observable<LoginResponse> {
     return this.http.post<any>(`${this.API_URL}/login`, credenciales).pipe(
       map((response) => {
+        // 1. Limpiamos el anidamiento del backend
         const nivel1 = response.data || response;
         const nivel2 = nivel1.data || nivel1;
-        const usuarioObj = nivel2.usuario || nivel2.Usuario || nivel1.usuario || {};
+        const u = nivel2.usuario || nivel2.Usuario || nivel1.usuario || {};
 
-        // En tu método login, busca la parte del usuario:
+        // Debug para ver la respuesta entera en la consola (F12)
+        console.log("RESPUESTA COMPLETA DEL BACKEND:", response);
+
         return {
           token: nivel2.token || nivel2.Token || nivel1.token || '',
           usuario: {
-            id: usuarioObj.id || usuarioObj.Id || 0,
-            nombre: usuarioObj.nombre || usuarioObj.Nombre || 'Usuario',
-            apellido: usuarioObj.apellido || usuarioObj.Apellido || '',
-            email: usuarioObj.email || usuarioObj.Email || '',
-            rolId: usuarioObj.rolId || usuarioObj.RolId || 0,
-            // AGREGAMOS LA OPCIÓN EN MAYÚSCULA AQUÍ:
-            rolNombre: usuarioObj.rolNombre || usuarioObj.RolNombre || 'Sin Rol',
+            id: u.id || u.Id || 0,
+            nombre: u.nombre || u.Nombre || 'Usuario',
+            apellido: u.apellido || u.Apellido || '',
+            email: u.email || u.Email || '',
+            // Buscamos el ID del rol donde sea
+            rolId: u.rolId || u.RolId || nivel2.rolId || nivel2.RolId || 0,
+            // Buscamos el Nombre del rol en todas las variantes posibles
+            rolNombre: u.rolNombre || u.RolNombre || u.rol?.nombre || u.Rol?.Nombre || nivel2.rolNombre || 'Rol no enviado'
           },
         } as LoginResponse;
       }),
@@ -75,7 +76,7 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.clear(); // Limpia TODO para asegurar que no quede basura
+    localStorage.clear();
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }

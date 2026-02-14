@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, Pencil, Ban, CheckCircle } from 'lucide-angular';
 import { UsuarioService } from '../../services/usuario.service';
 import { RolService } from '../../services/rol';
 import { Usuario, UsuarioCreate, UsuarioUpdate } from '../../Interfaces/usuario.interface';
@@ -8,11 +9,15 @@ import { Usuario, UsuarioCreate, UsuarioUpdate } from '../../Interfaces/usuario.
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './usuarios.html',
   styleUrls: ['./usuarios.css'],
 })
 export class UsuariosComponent implements OnInit {
+  readonly Pencil = Pencil;
+  readonly Ban = Ban;
+  readonly CheckCircle = CheckCircle;
+
   usuarios: Usuario[] = [];
   roles: any[] = [];
   mostrarModal: boolean = false;
@@ -53,7 +58,6 @@ export class UsuariosComponent implements OnInit {
     });
   }
 
-  // Nueva función para el checkbox de ver inactivos
   toggleVerInactivos() {
     this.cargarUsuarios();
   }
@@ -114,13 +118,15 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
-  // Esta es la función que reemplaza a "eliminar" para usar la baja lógica del back
   toggleActivo(usuario: Usuario) {
+    // Definimos la acción para la pregunta y el estado final para el aviso
     const accion = usuario.activo ? 'desactivar' : 'activar';
+    const estadoFinal = usuario.activo ? 'desactivado' : 'activado';
+
     if (confirm(`¿Seguro que deseas ${accion} a ${usuario.nombre}?`)) {
       this.usuarioService.toggleActivo(usuario.id).subscribe({
         next: () => {
-          alert(`Usuario ${accion}ado con éxito`);
+          alert(`Usuario ${estadoFinal} con éxito`); // <-- CORREGIDO ACÁ
           this.cargarUsuarios();
         },
         error: (err) => console.error("Error al cambiar estado:", err)

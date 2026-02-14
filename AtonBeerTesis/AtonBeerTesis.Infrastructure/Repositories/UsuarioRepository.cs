@@ -31,11 +31,9 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task<Usuario?> GetByEmailAsync(string email)
         {
-            // Mantenemos este que es el que usa tu Login
             return await _context.usuarios
-                .Include(u => u.Rol) // Agregamos esto para que el Login sepa qué Rol tiene el usuario
-                .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Email == email);
+                .Include(u => u.Rol)
+                .FirstOrDefaultAsync(u => u.Email == email); // Quitamos AsNoTracking
         }
 
         public async Task AddAsync(Usuario usuario)

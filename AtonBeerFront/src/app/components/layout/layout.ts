@@ -66,20 +66,24 @@ export class LayoutComponent implements OnInit {
   FlaskConical = FlaskConical;
   Boxes = Boxes;
   Receipt = Receipt;
-  Ruler = Ruler; // <--- 2. REGISTRO AGREGADO AQUÍ
+  Ruler = Ruler;
 
-  currentUser = this.authService.getCurrentUser();
+  currentUser: any;
   pageTitle = 'Inicio';
   pageSub = 'Panel de control';
 
   ngOnInit() {
+    this.currentUser = this.authService.getCurrentUser();
     this.updateHeader();
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => this.updateHeader());
+      .subscribe(() => {
+        this.updateHeader();
+        this.currentUser = this.authService.getCurrentUser();
+      });
   }
 
-  
+  // Dejamos esto en TRUE para que NO se te borre nada del menú lateral
   esAdmin(): boolean {
     return true;
   }
@@ -87,7 +91,6 @@ export class LayoutComponent implements OnInit {
   private updateHeader() {
     let route = this.activatedRoute;
     while (route.firstChild) route = route.firstChild;
-
     
     this.pageTitle = route.snapshot?.data?.['title'] || 'Inicio';
     this.pageSub = route.snapshot?.data?.['subtitle'] || 'Gestión';

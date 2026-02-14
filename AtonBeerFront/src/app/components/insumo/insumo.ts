@@ -1,17 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, Pencil, Trash2, Plus, Search } from 'lucide-angular'; // Agregado Lucide
 import { InsumoService } from '../../services/insumo.service';
 import { UnidadMedidaService } from '../../services/unidadMedida';
 
 @Component({
   selector: 'app-insumo',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule], // Agregado LucideAngularModule
   templateUrl: './insumo.html',
   styleUrls: ['./insumo.css']
 })
 export class InsumoComponent implements OnInit {
+  // Íconos para el HTML
+  readonly Pencil = Pencil;
+  readonly Trash2 = Trash2;
+  readonly Plus = Plus;
+  readonly Search = Search;
+
   insumos: any[] = [];          
   insumosOriginales: any[] = []; 
   mostrarModal: boolean = false;  
@@ -43,69 +50,54 @@ export class InsumoComponent implements OnInit {
     this.cargarUnidades();
     this.cargarTipos(); 
   }
-  crearTipos(objetivo: string) {
-  const nombre = prompt(`Ingrese el nombre de la nueva categoría de ${objetivo}:`);
-  
-  if (nombre && nombre.trim() !== '') {   
-    const nuevoObjeto = {
-      nombre: nombre,
-      activo: true
-    };
 
-    this.insumoService.crearTipo(nuevoObjeto).subscribe({
-      next: (res: any) => {
-        alert('Categoría creada con éxito');
-        // Recargamos la lista desde el Back
-        this.insumoService.obtenerTipos().subscribe(data => {
-          this.tiposOpciones = data;       
-        
-          const creado = data.find((t: any) => t.nombre === nombre);
-          if (creado) {
-            this.datosForm.tipoInsumoId = creado.id;
-          }
-        });
-      },
-      error: (err) => alert('Error al crear: ' + err.error)
-    });
+  crearTipos(objetivo: string) {
+    const nombre = prompt(`Ingrese el nombre de la nueva categoría de ${objetivo}:`);
+    if (nombre && nombre.trim() !== '') {   
+      const nuevoObjeto = { nombre: nombre, activo: true };
+      this.insumoService.crearTipo(nuevoObjeto).subscribe({
+        next: (res: any) => {
+          alert('Categoría creada con éxito');
+          this.insumoService.obtenerTipos().subscribe(data => {
+            this.tiposOpciones = data;       
+            const creado = data.find((t: any) => t.nombre === nombre);
+            if (creado) { this.datosForm.tipoInsumoId = creado.id; }
+          });
+        },
+        error: (err) => alert('Error al crear: ' + err.error)
+      });
+    }
   }
-}
 
   cargarTipos() {
     this.insumoService.obtenerTipos().subscribe({
-      next: (data: any) => {
-        console.log('DATOS DE TIPOS RECIBIDOS:', data); // <-- REVISÁ ESTO EN LA CONSOLA F12
-        this.tiposOpciones = data;
-      },
+      next: (data: any) => { this.tiposOpciones = data; },
       error: (err: any) => console.error('Error al cargar tipos:', err)
     });
   }
-eliminarTipoDeLista() {
-  // 1. Buscamos el ID de lo que está seleccionado
-  const idABorrar = this.datosForm.tipoInsumoId;
-  if (!idABorrar) {
-    alert('Primero seleccioná en el desplegable qué tipo querés eliminar');
-    return;
+
+  eliminarTipoDeLista() {
+    const idABorrar = this.datosForm.tipoInsumoId;
+    if (!idABorrar) {
+      alert('Primero seleccioná en el desplegable qué tipo querés eliminar');
+      return;
+    }
+    const tipoCualquiera = this.tiposOpciones.find(t => t.id == idABorrar);  
+    if (confirm(`¿Estás seguro de que querés eliminar la categoría "${tipoCualquiera.nombre}"?`)) {
+      this.insumoService.eliminarTipo(idABorrar).subscribe({
+        next: () => {
+          alert('Categoría eliminada con éxito');
+          this.datosForm.tipoInsumoId = null;
+          this.cargarTipos();
+        },
+        error: (err) => alert('No se puede eliminar: ' + (err.error?.message || 'La categoría está en uso'))
+      });
+    }
   }
-  const tipoCualquiera = this.tiposOpciones.find(t => t.id == idABorrar);  
-  if (confirm(`¿Estás seguro de que querés eliminar la categoría "${tipoCualquiera.nombre}"?`)) {
-    this.insumoService.eliminarTipo(idABorrar).subscribe({
-      next: () => {
-        alert('Categoría eliminada con éxito');
-        this.datosForm.tipoInsumoId = null; // Limpiamos la selección
-        this.cargarTipos(); // Refrescamos la lista para que desaparezca del combo
-      },
-      error: (err) => {
-        // Tu Backend ya tiene la validación: si hay insumos usándolo, no te deja
-        alert('No se puede eliminar: ' + (err.error?.message || 'La categoría está en uso'));
-      }
-    });
-  }
-}
+
   cargarUnidades() {
     this.unidadService.getUnidades().subscribe({
-      next: (data: any) => {
-        this.unidadesOpciones = data;
-      },
+      next: (data: any) => { this.unidadesOpciones = data; },
       error: (err: any) => console.error('Error al cargar unidades:', err)
     });
   }
@@ -122,7 +114,6 @@ eliminarTipoDeLista() {
 
   aplicarFiltros() {
     let resultado = [...this.insumosOriginales];
-    
     if (this.filtroTexto) {
       const busqueda = this.filtroTexto.toLowerCase();
       resultado = resultado.filter(i => 
@@ -130,12 +121,7 @@ eliminarTipoDeLista() {
         (i.codigo && i.codigo.toLowerCase().includes(busqueda))
       );
     }
-
-    if (this.filtroTipo) {
-      // Usamos doble igual para permitir comparación de string con number
-      resultado = resultado.filter(i => i.tipoInsumoId == this.filtroTipo);
-    }
-
+    if (this.filtroTipo) { resultado = resultado.filter(i => i.tipoInsumoId == this.filtroTipo); }
     resultado.sort((a, b) => {
       if (this.orden === 'nombre') return a.nombreInsumo.localeCompare(b.nombreInsumo);
       if (this.orden === 'stock') return b.stockActual - a.stockActual;
@@ -146,7 +132,6 @@ eliminarTipoDeLista() {
       }
       return 0;
     });
-
     this.insumos = resultado;
   }
 
@@ -157,55 +142,37 @@ eliminarTipoDeLista() {
     this.datosForm = { id: null, codigo: '', nombreInsumo: '', tipoInsumoId: null, unidadMedidaId: null, stockActual: 0, observaciones: '' };
   }
   
-  prepararEdicion(item: any) { 
-    this.datosForm = { ...item }; 
-    this.mostrarModal = true; 
-  }
+  prepararEdicion(item: any) { this.datosForm = { ...item }; this.mostrarModal = true; }
 
   guardar() {
-  // 1. Validaciones básicas
-  if (!this.datosForm.nombreInsumo || !this.datosForm.tipoInsumoId || !this.datosForm.unidadMedidaId) {
-    alert('Por favor, completá Nombre, Tipo y Unidad.');
-    return;
+    if (!this.datosForm.nombreInsumo || !this.datosForm.tipoInsumoId || !this.datosForm.unidadMedidaId) {
+      alert('Por favor, completá Nombre, Tipo y Unidad.');
+      return;
+    }
+    const payload = {
+      id: this.datosForm.id ? Number(this.datosForm.id) : 0, 
+      nombreInsumo: this.datosForm.nombreInsumo,
+      codigo: this.datosForm.codigo || "",
+      tipoInsumoId: Number(this.datosForm.tipoInsumoId),
+      unidadMedidaId: Number(this.datosForm.unidadMedidaId),
+      stockActual: Number(this.datosForm.stockActual) || 0,
+      observaciones: this.datosForm.observaciones || "",
+      ultimaActualizacion: new Date().toISOString() 
+    };
+
+    if (payload.id > 0) {
+      this.insumoService.actualizarInsumo(payload.id, payload).subscribe({
+        next: () => this.finalizarOperacion('Insumo actualizado con éxito'),
+        error: (err) => alert('Error al actualizar: ' + (err.error?.message || err.status))
+      });
+    } else {
+      this.insumoService.crearInsumo(payload).subscribe({
+        next: () => this.finalizarOperacion('Insumo creado con éxito'),
+        error: (err) => alert('Error al crear: Verificá los datos ingresados.')
+      });
+    }
   }
 
-  // 2. Creamos el objeto
-  // Importante: Mandamos los datos sueltos, NO envueltos en otra propiedad.
-  const payload = {
-    id: this.datosForm.id ? Number(this.datosForm.id) : 0, 
-    nombreInsumo: this.datosForm.nombreInsumo,
-    codigo: this.datosForm.codigo || "",
-    tipoInsumoId: Number(this.datosForm.tipoInsumoId),
-    unidadMedidaId: Number(this.datosForm.unidadMedidaId),
-    stockActual: Number(this.datosForm.stockActual) || 0,
-    observaciones: this.datosForm.observaciones || "",
-    // Agregamos esto por si el DTO lo requiere, aunque el back lo pise
-    ultimaActualizacion: new Date().toISOString() 
-  };
-
-  console.log("Enviando este objeto al servidor:", payload);
-
-  if (payload.id > 0) {
-    // EDITAR
-    this.insumoService.actualizarInsumo(payload.id, payload).subscribe({
-      next: () => this.finalizarOperacion('Insumo actualizado con éxito'),
-      error: (err) => {
-        console.error("Error al actualizar:", err);
-        alert('Error al actualizar: ' + (err.error?.message || err.status));
-      }
-    });
-  } else {
-    // CREAR NUEVO
-    this.insumoService.crearInsumo(payload).subscribe({
-      next: () => this.finalizarOperacion('Insumo creado con éxito'),
-      error: (err) => {
-        console.error("Error al crear:", err);
-        // Si el Swagger funciona y esto falla, es por el formato del JSON
-        alert('Error al crear: Verificá los datos ingresados.');
-      }
-    });
-  }
-}
   eliminar(id: number) {
     if (confirm('¿Estás seguro de eliminar este insumo?')) {
       this.insumoService.eliminarInsumo(id).subscribe({

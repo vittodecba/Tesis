@@ -21,8 +21,11 @@ export class RegisterComponent {
 
   roles = [
     { id: 1, nombre: 'Administrador' },
+    { id: 3, nombre: 'Cocinero' },
+    { id: 4, nombre: 'Responsable de Planta' },
+    { id: 5, nombre: 'Responsable de Pedidos' },
     { id: 2, nombre: 'Gerente' },
-    { id: 3, nombre: 'Cocinero' }
+    { id: 6, nombre: 'Gerente Mayor' }
   ];
 
   constructor() {

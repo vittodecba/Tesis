@@ -12,14 +12,20 @@ namespace AtonBeerTesis.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;
-        private readonly IUsuarioRepository _usuarioRepository; // Para métodos de Auth directos
+        private readonly IUsuarioRepository _usuarioRepository;
         private readonly ITokenService _tokenService;
+        private readonly IAuthService _authService; // Agregado
 
-        public UsuarioController(IUsuarioService usuarioService, IUsuarioRepository usuarioRepository, ITokenService tokenService)
+        public UsuarioController(
+            IUsuarioService usuarioService,
+            IUsuarioRepository usuarioRepository,
+            ITokenService tokenService,
+            IAuthService authService) // Agregado
         {
             _usuarioService = usuarioService;
             _usuarioRepository = usuarioRepository;
             _tokenService = tokenService;
+            _authService = authService; // Inyectado
         }
 
         [HttpGet]
@@ -51,7 +57,6 @@ namespace AtonBeerTesis.Controllers
             }
         }
 
-        // BOTÓN MODIFICAR
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UsuarioUpdateDto dto)
         {
@@ -66,13 +71,11 @@ namespace AtonBeerTesis.Controllers
             }
         }
 
-        // BOTÓN ACTIVAR/DESACTIVAR (Usa tu lógica de DeleteAsync que hace toggle)
         [HttpPatch("{id}/toggle-activo")]
         public async Task<IActionResult> ToggleActivo(int id)
         {
             try
             {
-                // Tu DeleteAsync actual del Service cambia el booleano Activo
                 await _usuarioService.DeleteAsync(id);
                 return Ok();
             }
@@ -82,26 +85,75 @@ namespace AtonBeerTesis.Controllers
             }
         }
 
-        // BOTÓN BORRAR (Si decides implementar borrado físico real)
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePhysical(int id)
         {
-            // Aquí podrías llamar a un método del repositorio que haga Remove() 
-            // O seguir usando el toggle según tu preferencia de negocio.
             await _usuarioService.DeleteAsync(id);
             return Ok(new { message = "Estado de usuario actualizado" });
         }
 
-        // --- Auth ---
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto Dto)
         {
             var usuario = await _usuarioRepository.GetByEmailAsync(Dto.Email);
+
             if (usuario == null || usuario.Contrasena != Dto.Contrasena)
                 return Unauthorized("Credenciales invalidas");
 
             var token = _tokenService.GenerarTokenJWT(usuario);
-            return Ok(new { success = true, data = new { token, usuario = new { id = usuario.Id, nombre = usuario.Nombre, email = usuario.Email } } });
+
+            return Ok(new
+            {
+                success = true,
+                data = new
+                {
+                    token,
+                    usuario = new
+                    {
+                        id = usuario.Id,
+                        nombre = usuario.Nombre,
+                        email = usuario.Email,
+                        rolId = usuario.RolId,
+                        rolNombre = usuario.Rol?.Nombre ?? "Sin Rol"
+                    }
+                }
+            });
         }
+
+        // --- MÉTODOS DE RECUPERACIÓN AGREGADOS ---
+
+        [HttpPost("recuperar-contrasena")]
+        public async Task<IActionResult> Recuperar([FromBody] RecuperarDto dto)
+        {
+            try
+            {
+                await _authService.RecuperarContrasena(dto.Email);
+                return Ok(new { message = "Email enviado con éxito" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("restablecer-contrasena")]
+        public async Task<IActionResult> Restablecer([FromBody] RestablecerContrasenaDto dto)
+        {
+            try
+            {
+                await _authService.RestablecerContrasena(dto);
+                return Ok(new { message = "Contraseña restablecida con éxito" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+    }
+
+    // DTO pequeño para la recuperación
+    public class RecuperarDto
+    {
+        public string Email { get; set; }
     }
 }
