@@ -1,19 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Pencil, Trash2, Plus, Search } from 'lucide-angular'; // Agregado Lucide
+import { LucideAngularModule, Pencil, Trash2, Plus, Search } from 'lucide-angular';
 import { InsumoService } from '../../services/insumo.service';
 import { UnidadMedidaService } from '../../services/unidadMedida';
 
 @Component({
   selector: 'app-insumo',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule], // Agregado LucideAngularModule
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './insumo.html',
   styleUrls: ['./insumo.css']
 })
 export class InsumoComponent implements OnInit {
-  // Íconos para el HTML
   readonly Pencil = Pencil;
   readonly Trash2 = Trash2;
   readonly Plus = Plus;
@@ -51,6 +50,7 @@ export class InsumoComponent implements OnInit {
     this.cargarTipos(); 
   }
 
+  // --- GESTIÓN DE TIPOS (Existente) ---
   crearTipos(objetivo: string) {
     const nombre = prompt(`Ingrese el nombre de la nueva categoría de ${objetivo}:`);
     if (nombre && nombre.trim() !== '') {   
@@ -95,6 +95,7 @@ export class InsumoComponent implements OnInit {
     }
   }
 
+  // --- GESTIÓN DE UNIDADES (Nueva integración) ---
   cargarUnidades() {
     this.unidadService.getUnidades().subscribe({
       next: (data: any) => { this.unidadesOpciones = data; },
@@ -102,6 +103,46 @@ export class InsumoComponent implements OnInit {
     });
   }
 
+  crearUnidad() {
+    const nombre = prompt("Nombre de la unidad (ej: Kilogramos):");
+    if (!nombre) return;
+    const abreviatura = prompt("Abreviatura (ej: Kg):");
+    if (!abreviatura) return;
+
+    const nuevaUnidad = { nombre: nombre.trim(), abreviatura: abreviatura.trim() };
+    this.unidadService.crear(nuevaUnidad).subscribe({
+      next: () => {
+        alert('Unidad creada con éxito');
+        this.unidadService.getUnidades().subscribe(data => {
+          this.unidadesOpciones = data;
+          const creada = data.find((u: any) => u.nombre === nuevaUnidad.nombre);
+          if (creada) { this.datosForm.unidadMedidaId = creada.id; }
+        });
+      },
+      error: (err) => alert('Error al crear unidad')
+    });
+  }
+
+  eliminarUnidadDeLista() {
+    const idABorrar = this.datosForm.unidadMedidaId;
+    if (!idABorrar) {
+      alert('Seleccioná una unidad en el desplegable para eliminarla');
+      return;
+    }
+    const unidad = this.unidadesOpciones.find(u => u.id == idABorrar);
+    if (confirm(`¿Estás seguro de eliminar "${unidad.nombre}"?`)) {
+      this.unidadService.eliminar(idABorrar).subscribe({
+        next: () => {
+          alert('Unidad eliminada');
+          this.datosForm.unidadMedidaId = null;
+          this.cargarUnidades();
+        },
+        error: (err) => alert('No se puede eliminar: está siendo usada por insumos')
+      });
+    }
+  }
+
+  // --- LÓGICA DE INSUMOS ---
   cargarInsumos() {
     this.insumoService.obtenerInsumos().subscribe({
       next: (data: any) => {
@@ -142,7 +183,14 @@ export class InsumoComponent implements OnInit {
     this.datosForm = { id: null, codigo: '', nombreInsumo: '', tipoInsumoId: null, unidadMedidaId: null, stockActual: 0, observaciones: '' };
   }
   
-  prepararEdicion(item: any) { this.datosForm = { ...item }; this.mostrarModal = true; }
+  prepararEdicion(item: any) { 
+    this.datosForm = { 
+      ...item,
+      tipoInsumoId: item.tipoInsumoId,
+      unidadMedidaId: item.unidadMedidaId
+    }; 
+    this.mostrarModal = true; 
+  }
 
   guardar() {
     if (!this.datosForm.nombreInsumo || !this.datosForm.tipoInsumoId || !this.datosForm.unidadMedidaId) {

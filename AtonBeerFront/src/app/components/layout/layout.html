@@ -32,14 +32,16 @@
         </a>
       </ng-container>
 
+      <hr class="border-orange-200/20 my-2 mx-4" />
+
       <a class="navItem" routerLink="/insumos" routerLinkActive="active">
         <lucide-icon [img]="ClipboardList" class="navIcon" [size]="18"></lucide-icon>
         <span>Insumos</span>
       </a>
 
-      <a class="navItem" routerLink="/unidades-medida" routerLinkActive="active">
-        <lucide-icon [img]="Ruler" class="navIcon" [size]="18"></lucide-icon>
-        <span>Unidades Medida</span>
+      <a class="navItem" routerLink="/stock" routerLinkActive="active">
+        <lucide-icon [img]="Boxes" class="navIcon" [size]="18"></lucide-icon>
+        <span>Stock</span>
       </a>
 
       <a class="navItem" routerLink="/recetas" routerLinkActive="active">
@@ -57,10 +59,12 @@
         <span>Fermentación</span>
       </a>
 
-      <a class="navItem" routerLink="/stock" routerLinkActive="active">
-        <lucide-icon [img]="Boxes" class="navIcon" [size]="18"></lucide-icon>
-        <span>Stock</span>
+      <a class="navItem" routerLink="/barriles" routerLinkActive="active">
+        <lucide-icon [img]="Barrel" class="navIcon" [size]="18"></lucide-icon>
+        <span>Seguimiento Barriles</span>
       </a>
+
+      <hr class="border-orange-200/20 my-2 mx-4" />
 
       <a class="navItem" routerLink="/clientes" routerLinkActive="active">
         <lucide-icon [img]="Users" class="navIcon" [size]="18"></lucide-icon>
@@ -70,11 +74,6 @@
       <a class="navItem" routerLink="/pedidos" routerLinkActive="active">
         <lucide-icon [img]="Receipt" class="navIcon" [size]="18"></lucide-icon>
         <span>Pedidos</span>
-      </a>
-
-      <a class="navItem" routerLink="/barriles" routerLinkActive="active">
-        <lucide-icon [img]="Barrel" class="navIcon" [size]="18"></lucide-icon>
-        <span>Seguimiento Barriles</span>
       </a>
 
       <a class="navItem" routerLink="/ventas" routerLinkActive="active">
