@@ -17,15 +17,14 @@ export class AuthService {
   private router = inject(Router);
 
   private readonly API_URL = 'http://localhost:5190/api/Usuario';
+  private readonly AUTH_URL = 'http://localhost:5190/api/Auth'; // <-- NUEVA
   private readonly TOKEN_KEY = 'aton_token';
   private readonly USER_KEY = 'aton_user';
 
-  // Cambiamos esto para que por defecto sea null y solo lea del storage si es necesario
   private currentUserSubject = new BehaviorSubject<UsuarioResponse | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {
-    // Solo cargamos el usuario si el token existe
     const user = this.getStoredUser();
     if (user && this.getToken()) {
       this.currentUserSubject.next(user);
@@ -33,25 +32,25 @@ export class AuthService {
   }
 
   register(datos: UsuarioRegistro): Observable<any> {
-    return this.http.post(`${this.API_URL}/registro`, datos);
+    return this.http.post(this.API_URL, datos);
   }
 
   login(credenciales: UsuarioLogin): Observable<LoginResponse> {
-    return this.http.post<any>(`${this.API_URL}/login`, credenciales).pipe(
+    return this.http.post<any>(`${this.AUTH_URL}/login`, credenciales).pipe(
       map((response) => {
         const nivel1 = response.data || response;
         const nivel2 = nivel1.data || nivel1;
-        const usuarioObj = nivel2.usuario || nivel2.Usuario || nivel1.usuario || {};
+        const u = nivel2.usuario || nivel2.Usuario || nivel1.usuario || {};
 
         return {
           token: nivel2.token || nivel2.Token || nivel1.token || '',
           usuario: {
-            id: usuarioObj.id || usuarioObj.Id || 0,
-            nombre: usuarioObj.nombre || usuarioObj.Nombre || 'Usuario',
-            apellido: usuarioObj.apellido || usuarioObj.Apellido || '',
-            email: usuarioObj.email || usuarioObj.Email || '',
-            rolId: usuarioObj.rolId || usuarioObj.RolId || 0,
-            rolNombre: usuarioObj.rolNombre,
+            id: u.id || u.Id || 0,
+            nombre: u.nombre || u.Nombre || 'Usuario',
+            apellido: u.apellido || u.Apellido || '',
+            email: u.email || u.Email || '',
+            rolId: u.rolId || u.RolId || nivel2.rolId || nivel2.RolId || 0,
+            rolNombre: u.rolNombre || u.RolNombre || u.rol?.nombre || u.Rol?.Nombre || nivel2.rolNombre || 'Rol no enviado'
           },
         } as LoginResponse;
       }),
@@ -64,15 +63,15 @@ export class AuthService {
   }
 
   recuperarContrasena(email: string): Observable<any> {
-    return this.http.post(`${this.API_URL}/recuperar-contrasena`, { email });
+    return this.http.post(`${this.AUTH_URL}/recuperar-contrasena`, { email }); // <-- CORREGIDO
   }
 
   restablecerContrasena(datos: any): Observable<any> {
-    return this.http.post(`${this.API_URL}/restablecer-contrasena`, datos);
+    return this.http.post(`${this.AUTH_URL}/restablecer-contrasena`, datos); // <-- CORREGIDO
   }
 
   logout(): void {
-    localStorage.clear(); // Limpia TODO para asegurar que no quede basura
+    localStorage.clear();
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }

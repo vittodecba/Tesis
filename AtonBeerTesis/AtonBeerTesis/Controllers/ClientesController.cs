@@ -16,7 +16,6 @@ namespace AtonBeerTesis.Controllers
             _clienteService = clienteService;
         }
 
-        // GET: api/clientes?tipo=Externo&ubicacion=Cordoba&estado=Activo
         [HttpGet]
         public async Task<ActionResult<List<ClienteDto>>> GetAll([FromQuery] string? tipo, [FromQuery] string? ubicacion, [FromQuery] string? estado)
         {
@@ -24,7 +23,6 @@ namespace AtonBeerTesis.Controllers
             return Ok(result);
         }
 
-        // GET: api/clientes/5
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ClienteDto>> GetById(int id)
         {
@@ -33,22 +31,36 @@ namespace AtonBeerTesis.Controllers
             return Ok(cliente);
         }
 
-        // POST: api/clientes
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] CrearClienteDto dto)
         {
-            var id = await _clienteService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id }, new { id });
+            try
+            {
+                var id = await _clienteService.CreateAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id }, new { id });
+            }
+            catch (Exception ex)
+            {
+                // Así el frontend recibe el mensaje "El CUIT ingresado no es válido"
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
-        // PUT: api/clientes/5
         [HttpPut("{id:int}")]
         public async Task<ActionResult> Update(int id, [FromBody] ActualizarClienteDto dto)
         {
-            var ok = await _clienteService.UpdateAsync(id, dto);
-            if (!ok) return NotFound();
-            return NoContent();
+            try
+            {
+                var ok = await _clienteService.UpdateAsync(id, dto);
+                if (!ok) return NotFound();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
+
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> Patch(int id, [FromBody] PatchClienteDto dto)
         {
@@ -56,17 +68,14 @@ namespace AtonBeerTesis.Controllers
             {
                 var ok = await _clienteService.PatchAsync(id, dto);
                 if (!ok) return NotFound();
-
                 return NoContent();
             }
             catch (Exception ex)
             {
-                // más adelante lo refinamos a ValidationProblem/BadRequest prolijo
                 return BadRequest(new { message = ex.Message });
             }
         }
 
-        // DELETE (lógico): api/clientes/5
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Deactivate(int id)
         {
@@ -75,11 +84,9 @@ namespace AtonBeerTesis.Controllers
             return NoContent();
         }
 
-        // GET combos: api/clientes/catalogos/tipos
         [HttpGet("catalogos/tipos")]
         public ActionResult<List<string>> GetTipos() => Ok(_clienteService.GetTiposCliente());
 
-        // GET combos: api/clientes/catalogos/estados
         [HttpGet("catalogos/estados")]
         public ActionResult<List<string>> GetEstados() => Ok(_clienteService.GetEstadosCliente());
     }

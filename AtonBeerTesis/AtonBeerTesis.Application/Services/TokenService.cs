@@ -14,7 +14,7 @@ namespace AtonBeerTesis.Application.Services
 {
     public class TokenService : ITokenService
     {
-        private readonly IConfiguration _config;
+        private readonly IConfiguration _config;//Para leer la llave secreta desde appsettings.json
         public TokenService(IConfiguration config)
         {
             _config = config;

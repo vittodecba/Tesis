@@ -7,21 +7,9 @@
     <button
       (click)="toggleFormulario()"
       class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-md"
-      [ngClass]="
-        mostrarFormulario
-          ? 'bg-gray-200 text-gray-700'
-          : 'bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white hover:shadow-lg'
-      "
+      [ngClass]="mostrarFormulario ? 'bg-gray-200 text-gray-700' : 'bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white hover:shadow-lg'"
     >
-      <svg
-        *ngIf="!mostrarFormulario"
-        class="w-5 h-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
+      <lucide-icon *ngIf="!mostrarFormulario" [img]="Plus" [size]="18"></lucide-icon>
       {{ mostrarFormulario ? 'Cancelar' : 'Nuevo Rol' }}
     </button>
   </div>
@@ -29,37 +17,19 @@
   <div *ngIf="mostrarFormulario" class="max-w-2xl mb-8 transition-all duration-300">
     <div class="bg-white rounded-2xl shadow-xl border border-orange-100 overflow-hidden">
       <div class="bg-[#4A2C2A] px-6 py-4">
-        <h5 class="text-white font-semibold text-lg">
-          {{ idEdicion ? 'Editar Rol' : 'Crear Nuevo Rol' }}
-        </h5>
+        <h5 class="text-white font-semibold text-lg">{{ idEdicion ? 'Editar Rol' : 'Crear Nuevo Rol' }}</h5>
       </div>
-
       <div class="p-6 space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Rol</label>
-          <input
-            type="text"
-            [(ngModel)]="formNombre"
-            placeholder="Ej: Cocinero, Gerente..."
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none transition"
-          />
+          <input type="text" [(ngModel)]="formNombre" placeholder="Ej: Cocinero, Gerente..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] outline-none transition" />
         </div>
-
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-          <textarea
-            [(ngModel)]="formDescripcion"
-            placeholder="¿Qué permisos tiene este rol?"
-            rows="3"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none transition"
-          ></textarea>
+          <textarea [(ngModel)]="formDescripcion" placeholder="¿Qué permisos tiene este rol?" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] outline-none transition"></textarea>
         </div>
-
         <div class="flex justify-end pt-2">
-          <button
-            (click)="guardarRol()"
-            class="bg-[#E67E22] hover:bg-[#D35400] text-white px-8 py-2 rounded-lg font-bold transition shadow-md"
-          >
+          <button (click)="guardarRol()" class="bg-[#E67E22] hover:bg-[#D35400] text-white px-8 py-2 rounded-lg font-bold transition shadow-md">
             {{ idEdicion ? 'Actualizar Rol' : 'Confirmar y Guardar' }}
           </button>
         </div>
@@ -73,64 +43,31 @@
         <thead class="bg-gray-50 border-b border-gray-100">
           <tr>
             <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">ID</th>
-            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Nombre
-            </th>
-            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Descripción
-            </th>
-            <th
-              class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right"
-            >
-              Acciones
-            </th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Descripción</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-50">
           <tr *ngFor="let rol of roles" class="hover:bg-orange-50/50 transition-colors group">
             <td class="px-6 py-4 text-sm font-medium text-[#4A2C2A]">#{{ rol.id }}</td>
             <td class="px-6 py-4">
-              <span
-                class="px-3 py-1 bg-orange-100 text-[#E67E22] rounded-full text-sm font-semibold"
-              >
-                {{ rol.nombre }}
-              </span>
+              <span class="px-3 py-1 bg-orange-100 text-[#E67E22] rounded-full text-sm font-semibold">{{ rol.nombre }}</span>
             </td>
             <td class="px-6 py-4 text-sm text-gray-600 leading-relaxed">{{ rol.descripcion }}</td>
             <td class="px-6 py-4 text-right">
-              <div
-                class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <button
-                  (click)="cargarDatosEdicion(rol)"
-                  class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                  title="Editar"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
+              <div class="flex justify-end gap-4">
+                <button (click)="cargarDatosEdicion(rol)" class="text-[#4A2C2A] hover:scale-110 transition" title="Editar">
+                  <lucide-icon [img]="Pencil" [size]="20"></lucide-icon>
                 </button>
-                <button
-                  (click)="eliminarRol(rol.id)"
-                  class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                  title="Eliminar"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
+                <button (click)="eliminarRol(rol.id)" class="text-red-500 hover:scale-110 transition" title="Eliminar">
+                  <lucide-icon [img]="Trash2" [size]="20"></lucide-icon>
                 </button>
               </div>
             </td>
+          </tr>
+          <tr *ngIf="roles?.length === 0">
+            <td colspan="4" class="px-6 py-8 text-center text-gray-500 font-semibold">No hay roles cargados.</td>
           </tr>
         </tbody>
       </table>

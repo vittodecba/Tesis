@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, Pencil, Ban, CheckCircle } from 'lucide-angular';
 import { UsuarioService } from '../../services/usuario.service';
 import { RolService } from '../../services/rol';
 import { Usuario, UsuarioCreate, UsuarioUpdate } from '../../Interfaces/usuario.interface';
@@ -8,19 +9,20 @@ import { Usuario, UsuarioCreate, UsuarioUpdate } from '../../Interfaces/usuario.
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './usuarios.html',
   styleUrls: ['./usuarios.css'],
 })
 export class UsuariosComponent implements OnInit {
+  readonly Pencil = Pencil;
+  readonly Ban = Ban;
+  readonly CheckCircle = CheckCircle;
+
   usuarios: Usuario[] = [];
   roles: any[] = [];
-
   mostrarModal: boolean = false;
   esEdicion: boolean = false;
   tituloModal: string = 'Nuevo Usuario';
-
-  // 1. VARIABLE NUEVA PARA EL FILTRO
   verInactivos: boolean = false;
 
   datosForm = {
@@ -29,7 +31,7 @@ export class UsuariosComponent implements OnInit {
     apellido: '',
     email: '',
     password: '',
-    confirmarPassword: '', // 2. CAMPO NUEVO
+    confirmarPassword: '',
     rolId: 0,
   };
 
@@ -43,28 +45,25 @@ export class UsuariosComponent implements OnInit {
     this.cargarRoles();
   }
 
-  // 3. MODIFICADO: Ahora le pasa el estado del checkbox al servicio
   cargarUsuarios() {
     this.usuarioService.getUsuarios(this.verInactivos).subscribe({
-      next: (data) => {
-        this.usuarios = data;
-      },
-      error: (e) => console.error('Error cargando usuarios', e),
+      next: (data) => (this.usuarios = data),
+      error: (e) => console.error(e),
     });
   }
 
   cargarRoles() {
     this.rolService.getRoles().subscribe({
-      next: (data) => {
-        this.roles = data;
-      },
-      error: (e) => console.error('Error cargando roles', e),
+      next: (data) => (this.roles = data),
     });
+  }
+
+  toggleVerInactivos() {
+    this.cargarUsuarios();
   }
 
   abrirModal(usuario?: Usuario) {
     this.mostrarModal = true;
-
     if (usuario) {
       this.esEdicion = true;
       this.tituloModal = 'Editar Usuario';
@@ -74,7 +73,7 @@ export class UsuariosComponent implements OnInit {
         apellido: usuario.apellido,
         email: usuario.email,
         password: '',
-        confirmarPassword: '', // Limpiamos claves
+        confirmarPassword: '',
         rolId: usuario.rolId || 0,
       };
     } else {
@@ -97,46 +96,40 @@ export class UsuariosComponent implements OnInit {
         apellido: this.datosForm.apellido,
         email: this.datosForm.email,
         rolId: Number(this.datosForm.rolId),
-        activo: true,
+        activo: true, 
       };
 
       this.usuarioService.updateUsuario(this.datosForm.id, dto).subscribe(() => {
-        alert('Usuario actualizado!');
+        alert('¡Usuario modificado!');
         this.cerrarModal();
         this.cargarUsuarios();
       });
     } else {
-      // 4. VALIDACIÓN LOCAL ANTES DE ENVIAR
       if (this.datosForm.password !== this.datosForm.confirmarPassword) {
-        alert('Las contraseñas no coinciden.');
+        alert('Las contraseñas no coinciden');
         return;
       }
-
-      const dto: UsuarioCreate = {
-        nombre: this.datosForm.nombre,
-        apellido: this.datosForm.apellido,
-        email: this.datosForm.email,
-        password: this.datosForm.password,
-        confirmarPassword: this.datosForm.confirmarPassword, // Enviamos confirmación
-        rolId: Number(this.datosForm.rolId),
-      };
-
-      this.usuarioService.createUsuario(dto).subscribe({
-        next: () => {
-          alert('Usuario creado con éxito!');
-          this.cerrarModal();
-          this.cargarUsuarios();
-        },
-        error: (e) => alert('Error: ' + e.error),
+      const dto: UsuarioCreate = { ...this.datosForm, rolId: Number(this.datosForm.rolId) };
+      this.usuarioService.createUsuario(dto).subscribe(() => {
+        alert('¡Usuario creado!');
+        this.cerrarModal();
+        this.cargarUsuarios();
       });
     }
   }
 
   toggleActivo(usuario: Usuario) {
+    // Definimos la acción para la pregunta y el estado final para el aviso
     const accion = usuario.activo ? 'desactivar' : 'activar';
+    const estadoFinal = usuario.activo ? 'desactivado' : 'activado';
+
     if (confirm(`¿Seguro que deseas ${accion} a ${usuario.nombre}?`)) {
-      this.usuarioService.toggleActivo(usuario.id).subscribe(() => {
-        this.cargarUsuarios();
+      this.usuarioService.toggleActivo(usuario.id).subscribe({
+        next: () => {
+          alert(`Usuario ${estadoFinal} con éxito`); // <-- CORREGIDO ACÁ
+          this.cargarUsuarios();
+        },
+        error: (err) => console.error("Error al cambiar estado:", err)
       });
     }
   }

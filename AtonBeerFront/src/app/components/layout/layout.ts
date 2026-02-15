@@ -31,6 +31,7 @@ import {
   FlaskConical,
   Boxes,
   Receipt,
+  Ruler, 
 } from 'lucide-angular';
 
 @Component({
@@ -45,7 +46,7 @@ export class LayoutComponent implements OnInit {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
 
-  // REGISTRO DE ICONOS (Soluciona errores TS2339)
+  // REGISTRO DE ICONOS 
   Home = Home;
   Users = Users;
   LogOut = LogOut;
@@ -65,19 +66,24 @@ export class LayoutComponent implements OnInit {
   FlaskConical = FlaskConical;
   Boxes = Boxes;
   Receipt = Receipt;
+  Ruler = Ruler;
 
-  currentUser = this.authService.getCurrentUser();
+  currentUser: any;
   pageTitle = 'Inicio';
   pageSub = 'Panel de control';
 
   ngOnInit() {
+    this.currentUser = this.authService.getCurrentUser();
     this.updateHeader();
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => this.updateHeader());
+      .subscribe(() => {
+        this.updateHeader();
+        this.currentUser = this.authService.getCurrentUser();
+      });
   }
 
-  // Necesario para el *ngIf de tu HTML
+  // Dejamos esto en TRUE para que NO se te borre nada del menú lateral
   esAdmin(): boolean {
     return true;
   }
@@ -85,8 +91,7 @@ export class LayoutComponent implements OnInit {
   private updateHeader() {
     let route = this.activatedRoute;
     while (route.firstChild) route = route.firstChild;
-
-    // El "?" es clave para que no de error de "undefined"
+    
     this.pageTitle = route.snapshot?.data?.['title'] || 'Inicio';
     this.pageSub = route.snapshot?.data?.['subtitle'] || 'Gestión';
   }

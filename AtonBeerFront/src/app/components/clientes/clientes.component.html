@@ -59,16 +59,16 @@
           <th>Tipo</th>
           <th>Ubicación</th>
           <th>Estado</th>
-          <th>Acciones</th>
+          <th style="text-align: right; padding-right: 24px;">Acciones</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let c of clientesFiltrados">
           <td class="strong">{{ c.razonSocial }}</td>
           <td>
-            <span class="badge" [class.badgeOrange]="c.tipoCliente === 'Franquicia'">
-              {{ c.tipoCliente }}
-            </span>
+            <span class="badge" [class.badgeOrange]="c.tipoCliente === 'Franquicia'">{{
+              c.tipoCliente
+            }}</span>
           </td>
           <td>{{ c.ubicacion }}</td>
           <td>
@@ -82,12 +82,12 @@
             </label>
             <span class="status-text">{{ c.estadoCliente }}</span>
           </td>
-          <td class="actionsCol">
-            <button class="iconBtn edit" (click)="openEdit(c)">
-              <lucide-icon [img]="Pencil" [size]="16"></lucide-icon>
+          <td class="actions-cell">
+            <button (click)="openEdit(c)" class="action-btn edit" title="Editar">
+              <lucide-icon [img]="Pencil" [size]="20"></lucide-icon>
             </button>
-            <button class="iconBtn summary" (click)="verResumen(c)">
-              <lucide-icon [img]="FileText" [size]="16"></lucide-icon>
+            <button (click)="verResumen(c)" class="action-btn view" title="Ver Resumen">
+              <lucide-icon [img]="FileText" [size]="20"></lucide-icon>
             </button>
           </td>
         </tr>
@@ -102,8 +102,8 @@
 <div class="modal-overlay" *ngIf="showCreate" (click)="closeModals()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>{{ isEditing ? 'Modificar Cliente' : 'Nuevo Cliente' }}</h2>
-      <button class="close-btn" type="button" (click)="closeModals()">×</button>
+      <h2>{{ isEditing ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
+      <button class="close-btn" type="button" (click)="closeModals()">✕</button>
     </div>
     <form [formGroup]="form" (ngSubmit)="submitForm()">
       <div class="form-scroll">
@@ -112,7 +112,7 @@
           <div class="field">
             <label>Razón Social *</label><input formControlName="razonSocial" />
           </div>
-          <div class="field"><label>CUIT</label><input formControlName="cuit" /></div>
+          <div class="field"><label>CUIT *</label><input formControlName="cuit" /></div>
           <div class="field">
             <label>Tipo *</label>
             <select formControlName="tipoCliente">
@@ -136,7 +136,7 @@
       <div class="error-msg" *ngIf="createError">{{ createError }}</div>
       <div class="modal-footer">
         <button type="button" class="btnSecondary" (click)="closeModals()">Cancelar</button>
-        <button type="submit" class="btnPrimary" [disabled]="saving">Guardar</button>
+        <button type="submit" class="btnPrimary">Guardar</button>
       </div>
     </form>
   </div>
@@ -144,67 +144,69 @@
 
 <div class="modal-overlay" *ngIf="showSummary && selectedCliente" (click)="closeModals()">
   <div class="modal-content summary-modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <div class="header-with-badge">
+    <div class="modal-header-summary">
+      <div class="header-info">
         <h2>Resumen: {{ selectedCliente.razonSocial }}</h2>
-        <span class="badge" [class.badgeOrange]="selectedCliente.tipoCliente === 'Franquicia'">
+        <span class="badge-tag" [class.badgeOrange]="selectedCliente.tipoCliente === 'Franquicia'">
           {{ selectedCliente.tipoCliente }}
         </span>
       </div>
-      <button class="close-btn" (click)="closeModals()">×</button>
+      <button class="close-btn-summary" (click)="closeModals()">✕</button>
     </div>
 
     <div class="summary-body">
       <div class="metrics-grid">
         <div class="metric-card">
-          <lucide-icon [img]="Package" class="m-icon blue"></lucide-icon>
+          <div class="m-icon blue">
+            <lucide-icon [img]="Package" [size]="20"></lucide-icon>
+          </div>
           <div class="m-data">
             <span class="m-label">Información</span>
             <span class="m-value">Pedidos: {{ selectedCliente.totalPedidos || 0 }}</span>
           </div>
         </div>
         <div class="metric-card">
-          <lucide-icon [img]="Calendar" class="m-icon green"></lucide-icon>
+          <div class="m-icon green">
+            <lucide-icon [img]="Calendar" [size]="20"></lucide-icon>
+          </div>
           <div class="m-data">
             <span class="m-label">Última Compra</span>
-            <span class="m-value">{{
-              (selectedCliente.ultimaCompra | date: 'dd/MM/yy') || 'Sin compras'
-            }}</span>
+            <span class="m-value">{{ (selectedCliente.ultimaCompra | date: 'dd/MM/yy') || 'Sin compras' }}</span>
           </div>
         </div>
       </div>
 
-      <div class="summary-details">
-        <div class="detail-item">
-          <span class="detail-label">CUIT</span>
-          <span class="detail-value">{{ selectedCliente.cuit || 'No registrado' }}</span>
+      <div class="details-rows">
+        <div class="detail-row">
+          <span class="d-label">CUIT</span>
+          <span class="d-value">{{ selectedCliente.cuit }}</span>
         </div>
-        <div class="detail-item">
-          <span class="detail-label">Ubicación</span>
-          <span class="detail-value">{{ selectedCliente.ubicacion }}</span>
+        <div class="detail-row">
+          <span class="d-label">Ubicación</span>
+          <span class="d-value">{{ selectedCliente.ubicacion }}</span>
         </div>
+      </div>
 
-        <hr class="summary-divider" />
-
-        <div class="section-title-summary">Contacto Principal</div>
-        <div class="contact-info-grid">
-          <div class="contact-method">
-            <lucide-icon [img]="User" [size]="16" class="contact-icon"></lucide-icon>
-            <span>{{ selectedCliente.contactoNombre || 'Sin nombre de contacto' }}</span>
+      <div class="contact-section">
+        <h3 class="section-title-summary">CONTACTO PRINCIPAL</h3>
+        <div class="contact-card">
+          <div class="contact-item">
+            <lucide-icon [img]="User" [size]="16" class="c-icon"></lucide-icon>
+            <span>{{ selectedCliente.contactoNombre || 'Sin nombre asignado' }}</span>
           </div>
-          <div class="contact-method" *ngIf="selectedCliente.contactoTelefono">
-            <lucide-icon [img]="Phone" [size]="16" class="contact-icon"></lucide-icon>
-            <span>{{ selectedCliente.contactoTelefono }}</span>
+          <div class="contact-item">
+            <lucide-icon [img]="Phone" [size]="16" class="c-icon"></lucide-icon>
+            <span>{{ selectedCliente.contactoTelefono || 'Sin teléfono' }}</span>
           </div>
-          <div class="contact-method" *ngIf="selectedCliente.contactoEmail">
-            <lucide-icon [img]="Mail" [size]="16" class="contact-icon"></lucide-icon>
-            <span class="email-link">{{ selectedCliente.contactoEmail }}</span>
+          <div class="contact-item">
+            <lucide-icon [img]="Mail" [size]="16" class="c-icon"></lucide-icon>
+            <span class="email-link">{{ selectedCliente.contactoEmail || 'Sin email' }}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="modal-footer">
+    <div class="modal-footer-summary">
       <button class="btnSecondary" (click)="closeModals()">Cerrar Resumen</button>
     </div>
   </div>

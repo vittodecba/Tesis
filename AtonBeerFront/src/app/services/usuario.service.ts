@@ -3,16 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Usuario, UsuarioCreate, UsuarioUpdate } from '../Interfaces/usuario.interface';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class UsuarioService {
-  // Ejemplo de cambio en el servicio de login/registro
   private apiUrl = 'http://localhost:5190/api/Usuario';
 
   constructor(private http: HttpClient) {}
 
-  // 1. MODIFICADO: Ahora acepta el booleano para filtrar
   getUsuarios(mostrarInactivos: boolean = false): Observable<Usuario[]> {
     // Le agregamos el parámetro a la URL: ?mostrarInactivos=true o false
     return this.http.get<Usuario[]>(`${this.apiUrl}?mostrarInactivos=${mostrarInactivos}`);

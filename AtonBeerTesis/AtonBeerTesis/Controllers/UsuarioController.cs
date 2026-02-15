@@ -1,28 +1,22 @@
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Application.Dtos;
-using AtonBeerTesis.Domain.Entities; 
+using AtonBeerTesis.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using AtonBeerTesis.Domain.Interfaces;
-
+using AtonBeerTesis.Application.Dto;
 
 namespace AtonBeerTesis.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuarioController : ControllerBase // O BaseController si lo prefieres
+    public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;
-        private readonly IUsuarioRepository _usuarioRepository;
-        private readonly ITokenService _tokenService;
 
-        public UsuarioController(IUsuarioService usuarioService, IUsuarioRepository usuarioRepository, ITokenService tokenService)
+        public UsuarioController(IUsuarioService usuarioService)
         {
             _usuarioService = usuarioService;
-            _usuarioRepository = usuarioRepository;
-            _tokenService = tokenService;
         }
-
-        // --- Metodos Santi (Gestión) ---
 
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] bool mostrarInactivos = false)
@@ -39,78 +33,53 @@ namespace AtonBeerTesis.Controllers
             return Ok(usuario);
         }
 
-         [HttpPost]
-
+        [HttpPost]
         public async Task<IActionResult> Create(UsuarioCreateDto dto)
-
         {
-
             try
-
             {
-
                 var nuevoUsuario = await _usuarioService.CreateAsync(dto);
-
                 return CreatedAtAction(nameof(GetById), new { id = nuevoUsuario.Id }, nuevoUsuario);
-
             }
-
             catch (Exception ex)
-
             {
-
-                // Si el mail ya existe, devolvemos error 400 (Bad Request)
-
                 return BadRequest(ex.Message);
-
             }
-
         }
 
-        // --- Metodos Valen (Auth) ---
-
-        [HttpPost("registro")]
-        public async Task<IActionResult> PostAsync([FromBody] UsuarioCreateDto Dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UsuarioUpdateDto dto)
         {
-            var nuevUsuario = new Usuario
+            try
             {
-                Nombre = Dto.Nombre,
-                Apellido = Dto.Apellido,
-                Email = Dto.Email,
-                Contrasena = Dto.ConfirmarPassword,
-                RolId = Dto.RolId, // Aquí podrías forzar un 2 si quieres
-                Activo = true
-            };
-            await _usuarioRepository.AddAsync(nuevUsuario);
-            return Ok(nuevUsuario);
+                await _usuarioService.UpdateAsync(id, dto);
+                return Ok(new { message = "Usuario actualizado con éxito" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto Dto)
+        [HttpPatch("{id}/toggle-activo")]
+        public async Task<IActionResult> ToggleActivo(int id)
         {
-            
-            var usuario = await _usuarioRepository.GetByEmailAsync(Dto.Email);
-            
-            if (usuario == null || usuario.Contrasena != Dto.Contrasena)
+            try
             {
-                return Unauthorized("Credenciales invalidas, reintente nuevamente");
+                await _usuarioService.DeleteAsync(id);
+                return Ok();
             }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-            var token = _tokenService.GenerarTokenJWT(usuario);
-            
-            return Ok(new {
-                success = true,
-                message = "Inicio de sesión exitoso",
-                data = new {
-                    token = token,
-                    usuario = new {
-                        id = usuario.Id,
-                        nombre = usuario.Nombre,
-                        email = usuario.Email,
-                        rolId = usuario.RolId
-                    }
-                }
-            });
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePhysical(int id)
+        {
+            await _usuarioService.DeleteAsync(id);
+            return Ok(new { message = "Estado de usuario actualizado" });
         }
     }
 }

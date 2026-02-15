@@ -3,12 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+// Importamos Lucide y el ícono de la persona
+import { LucideAngularModule, UserPlus } from 'lucide-angular'; 
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  // Agregamos LucideAngularModule a los imports
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule],
   templateUrl: './register.component.html'
 })
 export class RegisterComponent {
@@ -16,13 +19,19 @@ export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  // Declaramos el ícono para usarlo en el HTML
+  UserPlus = UserPlus;
+
   registerForm: FormGroup;
   isLoading = false;
 
   roles = [
     { id: 1, nombre: 'Administrador' },
+    { id: 3, nombre: 'Cocinero' },
+    { id: 4, nombre: 'Responsable de Planta' },
+    { id: 5, nombre: 'Responsable de Pedidos' },
     { id: 2, nombre: 'Gerente' },
-    { id: 3, nombre: 'Cocinero' }
+    { id: 6, nombre: 'Gerente Mayor' }
   ];
 
   constructor() {
@@ -65,13 +74,12 @@ export class RegisterComponent {
     this.isLoading = true;
     const formValues = this.registerForm.value;
 
-    // --- CORRECCIÓN APLICADA: Mapeo exacto con Swagger (en inglés) ---
     const usuarioDto = {
       Nombre: formValues.nombre,
       Apellido: formValues.apellido,
       Email: formValues.email,
-      password: formValues.contrasena,           // Corregido: matchea con el back
-      confirmarPassword: formValues.confirmarContrasena, // Corregido: matchea con el back
+      password: formValues.contrasena,
+      confirmarPassword: formValues.confirmarContrasena,
       RolId: Number(formValues.rolId)
     };
 
@@ -89,7 +97,7 @@ export class RegisterComponent {
       },
       error: (error) => {
         this.isLoading = false;
-        console.error('Error detallado:', error); // Agregué esto para ver más info en consola si falla
+        console.error('Error detallado:', error);
         Swal.fire({
           icon: 'error',
           title: 'Error en el registro',

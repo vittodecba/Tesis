@@ -1,0 +1,151 @@
+<div class="p-6 min-h-screen bg-orange-50/30">
+  
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+      <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Insumos</h2>
+      <p class="text-gray-600">Administración de materia prima e inventario.</p>
+    </div>
+
+    <button
+      class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-md bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white hover:shadow-lg"
+      (click)="abrirModal()"
+      type="button"
+    >
+      <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
+      Nuevo Insumo
+    </button>
+  </div>
+
+  <div class="flex flex-wrap gap-4 mb-6 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+    <div class="relative flex-1 min-w-[250px]">
+      <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+        <lucide-icon [img]="Search" [size]="18"></lucide-icon>
+      </span>
+      <input 
+        [(ngModel)]="filtroTexto" 
+        (input)="aplicarFiltros()"
+        type="text" 
+        placeholder="Buscar por nombre o código..." 
+        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#E67E22] outline-none transition"
+      />
+    </div>
+
+    <select [(ngModel)]="orden" (change)="aplicarFiltros()" class="px-4 py-2.5 bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#E67E22]">
+      <option value="nombre">Ordenar por Nombre</option>
+      <option value="stock">Más Stock primero</option>
+      <option value="fecha">Última actualización</option>
+    </select>
+
+    <select [(ngModel)]="filtroTipo" (change)="aplicarFiltros()" class="px-4 py-2.5 bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#E67E22]">
+      <option value="">Todos los tipos</option>
+      <option *ngFor="let t of tiposOpciones" [value]="t.id">{{ t.nombre }}</option>
+    </select>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-gray-50 border-b border-gray-100">
+          <tr>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Código</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Tipo</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Unidad</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Cantidad</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let item of insumos" class="hover:bg-orange-50/50 transition-colors group">
+            <td class="px-6 py-4 text-sm font-medium text-[#4A2C2A]">
+                {{ item.nombreInsumo }}
+                <div class="text-xs text-gray-400 font-normal italic truncate max-w-[150px]">{{ item.observaciones || '' }}</div>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700 font-mono">{{ item.codigo || '---' }}</td>
+            <td class="px-6 py-4">
+              <span class="px-3 py-1 bg-orange-100 text-[#E67E22] rounded-full text-sm font-semibold">
+                {{ item.tipoNombre || 'Sin tipo' }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">{{ item.unidad || '---' }}</td>
+            <td class="px-6 py-4 text-sm font-bold text-gray-700">{{ item.stockActual }}</td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex justify-end gap-4">
+                <button (click)="prepararEdicion(item)" class="text-[#4A2C2A] hover:scale-110 transition" title="Editar">
+                  <lucide-icon [img]="Pencil" [size]="20"></lucide-icon>
+                </button>
+                <button (click)="eliminar(item.id)" class="text-red-500 hover:scale-110 transition" title="Eliminar">
+                  <lucide-icon [img]="Trash2" [size]="20"></lucide-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="mostrarModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+        <div class="bg-[#4A2C2A] p-4 flex justify-between items-center">
+            <h5 class="text-white font-semibold text-lg">{{ datosForm.id ? 'Editar Insumo' : 'Nuevo Insumo' }}</h5>
+            <button (click)="cerrarModal()" class="text-white hover:text-gray-300 text-xl">✕</button>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                    <input [(ngModel)]="datosForm.nombreInsumo" name="nombre" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none" />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Insumo</label>
+                    <div class="flex gap-2">
+                        <select [(ngModel)]="datosForm.tipoInsumoId" name="tipoInsumoId" class="flex-1 border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
+                            <option [value]="null" disabled selected>Seleccione tipo</option>
+                            <option *ngFor="let t of tiposOpciones" [value]="t.id">{{ t.nombre }}</option>
+                        </select>
+                        <button (click)="crearTipos('tipo')" type="button" class="px-3 bg-orange-100 hover:bg-orange-200 text-[#E67E22] rounded-lg border border-orange-200 transition">
+                            <lucide-icon [img]="Plus" [size]="20"></lucide-icon>
+                        </button>
+                        <button (click)="eliminarTipoDeLista()" type="button" class="px-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-100 transition">
+                            <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad Inicial</label>
+                        <input [(ngModel)]="datosForm.stockActual" name="cantidad" type="number" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Unidad de Medida</label>
+                        <div class="flex gap-2">
+                            <select [(ngModel)]="datosForm.unidadMedidaId" name="unidad" class="flex-1 border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
+                                <option [value]="null" disabled selected>Seleccione unidad</option>
+                                <option *ngFor="let u of unidadesOpciones" [value]="u.id">{{ u.nombre }} ({{ u.abreviatura }})</option>
+                            </select>
+                            <button (click)="crearUnidad()" type="button" class="px-3 bg-orange-100 hover:bg-orange-200 text-[#E67E22] rounded-lg border border-orange-200 transition">
+                                <lucide-icon [img]="Plus" [size]="20"></lucide-icon>
+                            </button>
+                            <button (click)="eliminarUnidadDeLista()" type="button" class="px-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-100 transition">
+                                <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                    <textarea [(ngModel)]="datosForm.observaciones" name="obs" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none h-24 resize-none"></textarea>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3 border-t pt-4">
+                <button (click)="cerrarModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
+                <button (click)="guardar()" class="px-6 py-2 rounded-lg font-semibold bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white shadow hover:shadow-lg transition">Guardar</button>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
