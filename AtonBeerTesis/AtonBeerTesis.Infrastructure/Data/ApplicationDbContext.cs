@@ -3,6 +3,7 @@ using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Entidades;
 using AtonBeerTesis.Domain;
 
+
 namespace AtonBeerTesis.Infrastructure.Data
 {
     public class ApplicationDbContext : DbContext
@@ -19,6 +20,7 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<HistorialAcceso> historialAccesos { get; set; }
         public DbSet<ProductoPrueba> ProductosPrueba { get; set; }
         public DbSet<MovimientoStock> MovimientosStock { get; set; }
+        public DbSet<Receta> Recetas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

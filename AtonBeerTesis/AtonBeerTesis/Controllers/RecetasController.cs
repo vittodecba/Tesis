@@ -17,9 +17,13 @@ namespace AtonBeerTesis.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] string? estilo = null, [FromQuery] string? estado = null)
+        public async Task<IActionResult> GetAll(
+     [FromQuery] string? nombre = null,
+     [FromQuery] string? estilo = null,
+     [FromQuery] string? estado = null,
+     [FromQuery] string? orden = "fecha_desc") // Por defecto, las más nuevas primero
         {
-            var result = await _recetaService.GetAllAsync(estilo, estado);
+            var result = await _recetaService.GetAllAsync(nombre, estilo, estado, orden);
             return Ok(result);
         }
 
@@ -32,7 +36,7 @@ namespace AtonBeerTesis.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CrearRecetaDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateRecetaDto dto)
         {
             var id = await _recetaService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id }, new { id });

@@ -23,10 +23,10 @@ namespace AtonBeerTesis
             // 2. Controladores y Swagger
             builder.Services.AddControllers()
             .AddJsonOptions(options =>
-             {
-                 // Esto hace que al API le de igual si mandás UnidadMedidaId o unidadmedidaid
-                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-             });
+            {
+                // Esto hace que al API le de igual si mandás UnidadMedidaId o unidadmedidaid
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+            });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -35,14 +35,14 @@ namespace AtonBeerTesis
             {
                 options.AddPolicy("Angular", policy =>
                 {
-                    policy.WithOrigins("http://localhost:4200")                   
+                    policy.WithOrigins("http://localhost:4200")
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
             });
 
             // 4. Inyección de Dependencias (Servicios y Repositorios)
-            
+
             // --- CLIENTES (De Main) ---
             builder.Services.AddScoped<IClienteService, ClienteService>();
             builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
@@ -53,7 +53,7 @@ namespace AtonBeerTesis
             builder.Services.AddScoped<IRolService, RolService>();
             builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
             builder.Services.AddScoped<IUsuarioService, UsuarioService>();
-            
+
             // --- AUTENTICACIÓN Y TOKEN ---
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
@@ -61,6 +61,10 @@ namespace AtonBeerTesis
 
             //--- MOVIMIENTO DE STOCK ---
             builder.Services.AddScoped<IStockService, StockService>();
+
+            // --- RECETAS (Lo que faltaba de Vitto) ---
+            builder.Services.AddScoped<IRecetaRepository, RecetaRepository>();
+            builder.Services.AddScoped<IRecetaService, RecetaService>();
 
             var app = builder.Build();
 
@@ -71,7 +75,7 @@ namespace AtonBeerTesis
                 app.UseSwaggerUI();
             }
 
-           // app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             // Usamos la política "Angular" que definimos arriba
             app.UseCors("Angular");

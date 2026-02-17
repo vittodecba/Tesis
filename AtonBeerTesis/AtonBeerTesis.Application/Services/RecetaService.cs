@@ -14,28 +14,15 @@ namespace AtonBeerTesis.Application.Services
             _recetaRepository = recetaRepository;
         }
 
-        public async Task<List<RecetaDto>> GetAllAsync(string? estilo = null, string? estado = null)
+        // NUESTRO GET ALL ACTUALIZADO CON FILTROS Y ORDEN
+        public async Task<List<RecetaDto>> GetAllAsync(string? nombre = null, string? estilo = null, string? estado = null, string? orden = null)
         {
-            var recetas = await _recetaRepository.GetAllAsync();
-
-            // Estado: por defecto solo Activas (igual que hiciste con Cliente Activo)
-            if (!string.IsNullOrWhiteSpace(estado) &&
-                Enum.TryParse<EstadoReceta>(estado, true, out var estadoEnum))
+            if (string.IsNullOrWhiteSpace(estado))
             {
-                recetas = recetas.Where(r => r.Estado == estadoEnum).ToList();
-            }
-            else
-            {
-                recetas = recetas.Where(r => r.Estado == EstadoReceta.Activa).ToList();
+                estado = "Activa";
             }
 
-            // Estilo (filtro por texto)
-            if (!string.IsNullOrWhiteSpace(estilo))
-            {
-                recetas = recetas
-                    .Where(r => r.Estilo != null && r.Estilo.Contains(estilo, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-            }
+            var recetas = await _recetaRepository.GetAllAsync(nombre, estilo, estado, orden);
 
             return recetas.Select(MapToDto).ToList();
         }
@@ -46,7 +33,7 @@ namespace AtonBeerTesis.Application.Services
             return receta is null ? null : MapToDto(receta);
         }
 
-        public async Task<int> CreateAsync(CrearRecetaDto dto)
+        public async Task<int> CreateAsync(CreateRecetaDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Nombre))
                 throw new Exception("El nombre de la receta es obligatorio");
@@ -56,7 +43,6 @@ namespace AtonBeerTesis.Application.Services
             if (await ExisteNombreAsync(nombre))
                 throw new Exception("Ya existe una receta con ese nombre");
 
-            // Estilo puede ser null
             var estilo = dto.Estilo?.Trim();
 
             if (dto.BatchSizeLitros <= 0)
@@ -68,7 +54,7 @@ namespace AtonBeerTesis.Application.Services
                 Estilo = estilo ?? "",
                 BatchSizeLitros = dto.BatchSizeLitros,
                 Notas = dto.Notas?.Trim(),
-                Estado = EstadoReceta.Activa, // o Borrador si preferís
+                Estado = EstadoReceta.Activa,
                 FechaCreacion = DateTime.UtcNow
             };
 
@@ -92,7 +78,6 @@ namespace AtonBeerTesis.Application.Services
             if (dto.BatchSizeLitros <= 0)
                 throw new Exception("El volumen (BatchSizeLitros) debe ser mayor a 0");
 
-            // Estado
             if (!Enum.TryParse<EstadoReceta>(dto.Estado, true, out var estadoEnum))
                 throw new Exception("Estado de receta inválido");
 
@@ -112,7 +97,6 @@ namespace AtonBeerTesis.Application.Services
             var receta = await _recetaRepository.GetByIdAsync(id);
             if (receta is null) return false;
 
-            // Nombre
             if (dto.Nombre is not null)
             {
                 var nombre = dto.Nombre.Trim();
@@ -126,11 +110,9 @@ namespace AtonBeerTesis.Application.Services
                 receta.Nombre = nombre;
             }
 
-            // Strings simples
             if (dto.Estilo is not null) receta.Estilo = dto.Estilo.Trim();
             if (dto.Notas is not null) receta.Notas = dto.Notas.Trim();
 
-            // Numeros
             if (dto.BatchSizeLitros.HasValue)
             {
                 if (dto.BatchSizeLitros.Value <= 0)
@@ -139,7 +121,6 @@ namespace AtonBeerTesis.Application.Services
                 receta.BatchSizeLitros = dto.BatchSizeLitros.Value;
             }
 
-            // Enum Estado
             if (dto.Estado is not null)
             {
                 if (!Enum.TryParse<EstadoReceta>(dto.Estado, true, out var estadoEnum))
@@ -166,4 +147,36 @@ namespace AtonBeerTesis.Application.Services
             return true;
         }
 
-        public List<string> GetEstadosReceta() => Enum.GetNames(typeof(EstadoRece
+        // LÍNEA ROTA DE VITTO ARREGLADA
+        public List<string> GetEstadosReceta() => Enum.GetNames(typeof(EstadoReceta)).ToList();
+
+        // --- MÉTODOS PRIVADOS FALTANTES QUE VITTO NO HIZO ---
+
+        private RecetaDto MapToDto(Receta receta)
+        {
+            return new RecetaDto
+            {
+                IdReceta = receta.IdReceta,
+                Nombre = receta.Nombre,
+                Estilo = receta.Estilo,
+                BatchSizeLitros = receta.BatchSizeLitros,
+                Notas = receta.Notas,
+                Estado = receta.Estado.ToString(),
+                FechaCreacion = receta.FechaCreacion,
+                FechaActualizacion = receta.FechaActualizacion
+            };
+        }
+
+        private async Task<bool> ExisteNombreAsync(string nombre, int? idExcluido = null)
+        {
+            // Traemos todas sin filtro para validar que no se repita el nombre
+            var todas = await _recetaRepository.GetAllAsync();
+            var coincidencia = todas.Where(r => r.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+
+            if (idExcluido.HasValue)
+                return coincidencia.Any(r => r.IdReceta != idExcluido.Value);
+
+            return coincidencia.Any();
+        }
+    }
+}
