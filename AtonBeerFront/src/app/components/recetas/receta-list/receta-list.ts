@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import {
   LucideAngularModule,
   Search, Plus, Pencil, FileText, X, Filter, Beer, ChevronDown, Trash2
@@ -10,7 +11,7 @@ import { RecetaService, Receta } from '../../../services/receta';
 @Component({
   selector: 'app-receta-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule, RouterModule],
   templateUrl: './receta-list.html',
   styleUrls: ['./receta-list.css']
 })
@@ -28,6 +29,9 @@ export class RecetaListComponent implements OnInit {
   filtroNombre: string = '';
   filtroEstilo: string = '';
   filtroEstado: string = ''; 
+
+  // --- NUEVA LISTA DINÁMICA DE ESTILOS ---
+  estilos: string[] = ['IPA', 'Stout', 'Golden', 'Honey'];
 
   constructor(private recetaService: RecetaService, private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -57,7 +61,7 @@ export class RecetaListComponent implements OnInit {
   }
 
   openCreate() {
-    this.form.reset({ batchSizeLitros: 20, estado: 'Activa', version: '1.0' });
+    this.form.reset({ batchSizeLitros: 20, estado: 'Activa', version: '1.0', estilo: '' });
     this.showModal = true;
   }
 
@@ -73,7 +77,7 @@ export class RecetaListComponent implements OnInit {
       next: () => {
         alert('¡Receta creada con éxito!');
         this.closeModal();
-        this.loadRecetas(); // Recarga la lista para mostrar la nueva
+        this.loadRecetas(); 
       },
       error: (err) => {
         this.cargando = false;
@@ -93,5 +97,40 @@ export class RecetaListComponent implements OnInit {
   }
 
   openEdit(r: any) { console.log('Editar', r); }
-  verDetalle(r: any) { console.log('Detalle', r); }
+  
+  toggleEstado(r: any) { console.log('Cambiar estado de', r.nombre); } 
+
+  // --- NUEVAS FUNCIONES PARA LOS ESTILOS ---
+  agregarEstilo() {
+    const nuevoEstilo = prompt('Ingrese el nombre del nuevo estilo de cerveza:');
+    if (nuevoEstilo && nuevoEstilo.trim() !== '') {
+      const estiloLimpio = nuevoEstilo.trim();
+      if (!this.estilos.includes(estiloLimpio)) {
+        this.estilos.push(estiloLimpio);
+        this.form.patchValue({ estilo: estiloLimpio }); // Lo selecciona automáticamente
+      } else {
+        alert('Ese estilo ya existe en la lista.');
+      }
+    }
+  }
+
+  eliminarEstilo() {
+    const estiloSeleccionado = this.form.get('estilo')?.value;
+    if (!estiloSeleccionado) {
+      alert('Primero seleccione un estilo de la lista para eliminarlo.');
+      return;
+    }
+    
+    const confirmacion = confirm(`¿Está seguro que desea eliminar el estilo "${estiloSeleccionado}"?`);
+    if (confirmacion) {
+      this.estilos = this.estilos.filter(e => e !== estiloSeleccionado);
+      this.form.patchValue({ estilo: '' }); // Limpia la selección
+      
+      // Si el estilo eliminado estaba en el filtro, limpiamos el filtro también
+      if (this.filtroEstilo === estiloSeleccionado) {
+        this.filtroEstilo = '';
+        this.aplicarFiltros();
+      }
+    }
+  }
 }

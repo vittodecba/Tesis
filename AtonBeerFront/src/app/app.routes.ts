@@ -10,8 +10,9 @@ import { RolesGestion } from './components/roles-gestion/roles-gestion';
 import { StockGestion } from './components/stock/stock-gestion';
 import { InsumoComponent } from './components/insumo/insumo';
 import { UnidadMedidaComponent } from './components/unidadesMedida/unidadMedidaComponent';
-// Importo el componente de recetas
+// Importo los componentes de recetas
 import { RecetaListComponent } from './components/recetas/receta-list/receta-list';
+import { RecetaDetalle } from './components/recetas/receta-detalle/receta-detalle';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -41,11 +42,16 @@ export const routes: Routes = [
         data: { title: 'Unidades', subtitle: 'Gestión de medidas' } 
       },
 
-      // --- NUEVA RUTA DE RECETAS ---
+      // --- RUTAS DE RECETAS ---
       { 
         path: 'recetas', 
         component: RecetaListComponent, 
         data: { title: 'Recetas', subtitle: 'Gestión de recetas de cerveza' } 
+      },
+      { 
+        path: 'recetas/detalle/:id', 
+        component: RecetaDetalle, 
+        data: { title: 'Detalle de Receta', subtitle: 'Información completa' } 
       },
     ],
   },

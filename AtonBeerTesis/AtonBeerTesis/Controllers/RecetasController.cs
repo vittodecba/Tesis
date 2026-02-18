@@ -35,6 +35,15 @@ namespace AtonBeerTesis.WebApi.Controllers
             return Ok(result);
         }
 
+        // --- ESTE ES EL ENDPOINT NUEVO PARA EL PBI 94 ---
+        [HttpGet("{id:int}/detalle")]
+        public async Task<IActionResult> GetDetalle(int id)
+        {
+            var result = await _recetaService.GetByIdAsync(id);
+            if (result is null) return NotFound();
+            return Ok(result);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateRecetaDto dto)
         {

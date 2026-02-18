@@ -32,10 +32,7 @@
 
     <select [(ngModel)]="filtroEstilo" (change)="aplicarFiltros()" class="px-4 py-2.5 bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#E67E22]">
       <option value="">Todos los estilos</option>
-      <option value="IPA">IPA</option>
-      <option value="Stout">Stout</option>
-      <option value="Golden">Golden</option>
-      <option value="Honey">Honey</option>
+      <option *ngFor="let e of estilos" [value]="e">{{ e }}</option>
     </select>
 
     <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()" class="px-4 py-2.5 bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#E67E22]">
@@ -80,15 +77,19 @@
             <td class="px-6 py-4 text-sm text-gray-700">
               {{ (r.fechaActualizacion || r.fechaCreacion | date:'dd/MM/yyyy') || '---' }}
             </td>
-            <td class="px-6 py-4 text-sm font-bold" [ngClass]="r.estado === 'Activa' ? 'text-green-600' : 'text-gray-400'">
-              {{ r.estado }}
+            <td class="px-6 py-4">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" [checked]="r.estado === 'Activa'" (change)="toggleEstado(r)" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#E67E22]"></div>
+                <span class="ml-3 text-sm font-medium text-gray-700">{{ r.estado }}</span>
+              </label>
             </td>
             <td class="px-6 py-4 text-right">
-              <div class="flex justify-end gap-4">
-                <button (click)="openEdit(r)" class="text-[#4A2C2A] hover:scale-110 transition" title="Editar">
+              <div class="flex justify-end gap-3">
+                <button (click)="openEdit(r)" class="text-[#4A2C2A] hover:text-[#E67E22] hover:scale-110 transition" title="Editar">
                   <lucide-icon [img]="Pencil" [size]="20"></lucide-icon>
                 </button>
-                <button (click)="verDetalle(r)" class="text-gray-500 hover:scale-110 transition" title="Ver Detalle">
+                <button [routerLink]="['/recetas/detalle', r.idReceta]" class="text-blue-800 hover:text-blue-900 hover:scale-110 transition" title="Ver Detalle">
                   <lucide-icon [img]="FileText" [size]="20"></lucide-icon>
                 </button>
               </div>
@@ -97,7 +98,6 @@
         </tbody>
       </table>
     </div>
-
     <div class="p-8 text-center text-gray-400" *ngIf="recetas.length === 0 && !cargando">
       No se encontraron recetas con esos filtros.
     </div>
@@ -119,15 +119,25 @@
         </div>
 
         <div class="grid grid-cols-2 gap-4">
+          
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Estilo *</label>
-            <select formControlName="estilo" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
-              <option value="IPA">IPA</option>
-              <option value="Stout">Stout</option>
-              <option value="Golden">Golden</option>
-              <option value="Honey">Honey</option>
-            </select>
+            <div class="flex gap-2">
+              <select formControlName="estilo" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
+                <option value="" disabled>Seleccione...</option>
+                <option *ngFor="let e of estilos" [value]="e">{{ e }}</option>
+              </select>
+              
+              <button type="button" (click)="agregarEstilo()" class="px-2 py-2 bg-orange-100 text-[#E67E22] rounded-lg hover:bg-orange-200 transition" title="Agregar Estilo">
+                <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
+              </button>
+              
+              <button type="button" (click)="eliminarEstilo()" class="px-2 py-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition" title="Eliminar Estilo">
+                <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+              </button>
+            </div>
           </div>
+
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Batch (Litros) *</label>
             <input type="number" formControlName="batchSizeLitros" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none" />

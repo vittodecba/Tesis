@@ -8,7 +8,7 @@ export interface Receta {
   nombre: string;
   estilo: string;
   version: string;
-  fechaCreacion: Date;       // <--- Agregá esta línea
+  fechaCreacion: Date;       
   fechaActualizacion: Date;
   estado: string;
   batchSizeLitros?: number;
@@ -33,8 +33,13 @@ export class RecetaService {
     return this.http.get<Receta[]>(this.apiUrl, { params });
   }
 
-  // --- MÉTODO NUEVO PARA CREAR ---
+  // --- MÉTODO PARA CREAR ---
   create(receta: any): Observable<any> {
     return this.http.post(this.apiUrl, receta);
+  }
+
+  // --- MÉTODO NUEVO PARA TRAER EL DETALLE ---
+  getRecetaDetalle(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/detalle`);
   }
 }

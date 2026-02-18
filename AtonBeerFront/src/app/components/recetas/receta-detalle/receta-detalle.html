@@ -1,0 +1,78 @@
+<div class="container mt-4" *ngIf="cargando">
+  <div class="text-center">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">Cargando detalles de la receta...</p>
+  </div>
+</div>
+
+<div class="container mt-4" *ngIf="!cargando && receta">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">{{ receta.nombre }} <span class="text-muted fs-5">(v{{ receta.version }})</span></h2>
+      <span class="badge bg-primary">{{ receta.estado }}</span>
+    </div>
+    
+    <div class="d-flex gap-3 align-items-center">
+      
+      <button class="btn btn-link p-0 text-[#4A2C2A] hover:text-[#E67E22] hover:scale-110 transition text-decoration-none" title="Editar Receta">
+        <lucide-icon [img]="Pencil" [size]="24"></lucide-icon>
+      </button>
+
+      <button class="btn btn-outline-secondary" routerLink="/recetas">
+        Volver al listado
+      </button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Información General</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Código:</strong> {{ receta.codigo || 'N/A' }}</p>
+          <p><strong>Estilo:</strong> {{ receta.estilo }}</p>
+          <p><strong>Batch Size:</strong> {{ receta.batchSizeLitros ? receta.batchSizeLitros + ' Litros' : 'No especificado' }}</p>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Notas</h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-0">{{ receta.notas || 'Sin notas adicionales.' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card mb-4 border-warning border-2 border-dashed">
+        <div class="card-header bg-warning bg-opacity-10">
+          <h5 class="mb-0 text-warning-emphasis">Insumos (Pendiente PBI 91)</h5>
+        </div>
+        <div class="card-body text-center text-muted p-5">
+          <p class="mb-0"><em>Espacio reservado para la lista de insumos.</em></p>
+        </div>
+      </div>
+
+      <div class="card mb-4 border-warning border-2 border-dashed">
+        <div class="card-header bg-warning bg-opacity-10">
+          <h5 class="mb-0 text-warning-emphasis">Parámetros / Pasos (Pendiente PBI 92)</h5>
+        </div>
+        <div class="card-body text-center text-muted p-5">
+          <p class="mb-0"><em>Espacio reservado para los pasos técnicos.</em></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container mt-4" *ngIf="!cargando && !receta">
+  <div class="alert alert-danger text-center">
+    No se pudo encontrar la receta solicitada.
+  </div>
+  <button class="btn btn-outline-secondary" routerLink="/recetas">Volver al listado</button>
+</div>
