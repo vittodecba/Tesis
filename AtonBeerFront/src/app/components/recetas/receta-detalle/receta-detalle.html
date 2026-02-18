@@ -15,7 +15,7 @@
     
     <div class="d-flex gap-3 align-items-center">
       
-      <button class="btn btn-link p-0 text-[#4A2C2A] hover:text-[#E67E22] hover:scale-110 transition text-decoration-none" title="Editar Receta">
+      <button (click)="openEdit()" class="btn btn-link p-0 text-[#4A2C2A] hover:text-[#E67E22] hover:scale-110 transition text-decoration-none" title="Editar Receta">
         <lucide-icon [img]="Pencil" [size]="24"></lucide-icon>
       </button>
 
@@ -32,9 +32,9 @@
           <h5 class="mb-0">Información General</h5>
         </div>
         <div class="card-body">
-          <p><strong>Código:</strong> {{ receta.codigo || 'N/A' }}</p>
+          <p><strong>Código:</strong> REC-{{ receta.idReceta }}</p>
           <p><strong>Estilo:</strong> {{ receta.estilo }}</p>
-          <p><strong>Batch Size:</strong> {{ receta.batchSizeLitros ? receta.batchSizeLitros + ' Litros' : 'No especificado' }}</p>
+          <p><strong>Volumen de Producción:</strong> {{ receta.batchSizeLitros ? receta.batchSizeLitros + ' Litros' : 'No especificado' }}</p>
         </div>
       </div>
 
@@ -75,4 +75,59 @@
     No se pudo encontrar la receta solicitada.
   </div>
   <button class="btn btn-outline-secondary" routerLink="/recetas">Volver al listado</button>
+</div>
+
+<div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+    <div class="bg-[#4A2C2A] p-4 flex justify-between items-center">
+      <h5 class="text-white font-semibold text-lg m-0">Editar Receta</h5>
+      <button (click)="closeModal()" class="text-white hover:text-gray-300 text-xl border-0 bg-transparent">✕</button>
+    </div>
+
+    <div class="p-6 text-start">
+      <form [formGroup]="form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Receta *</label>
+          <input formControlName="nombre" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Estilo *</label>
+            <div class="flex gap-2">
+              <select formControlName="estilo" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
+                <option value="" disabled>Seleccione...</option>
+                <option *ngFor="let e of estilos" [value]="e">{{ e }}</option>
+              </select>
+              
+              <button type="button" (click)="agregarEstilo()" class="px-2 py-2 bg-orange-100 text-[#E67E22] rounded-lg hover:bg-orange-200 transition border-0" title="Agregar Estilo">
+                <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
+              </button>
+              
+              <button type="button" (click)="eliminarEstilo()" class="px-2 py-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition border-0" title="Eliminar Estilo">
+                <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Volumen de Prod. (L) *</label>
+            <input type="number" formControlName="batchSizeLitros" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+          <textarea formControlName="notas" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none h-24 resize-none"></textarea>
+        </div>
+      </form>
+
+      <div class="mt-6 flex justify-end gap-3 border-t pt-4">
+        <button (click)="closeModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg border-0 bg-transparent">Cancelar</button>
+        <button (click)="guardarReceta()" [disabled]="form.invalid" class="px-6 py-2 rounded-lg font-semibold bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white shadow hover:shadow-lg transition disabled:opacity-50 border-0">
+          Actualizar Receta
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

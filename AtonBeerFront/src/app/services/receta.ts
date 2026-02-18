@@ -33,13 +33,16 @@ export class RecetaService {
     return this.http.get<Receta[]>(this.apiUrl, { params });
   }
 
-  // --- MÉTODO PARA CREAR ---
   create(receta: any): Observable<any> {
     return this.http.post(this.apiUrl, receta);
   }
 
-  // --- MÉTODO NUEVO PARA TRAER EL DETALLE ---
   getRecetaDetalle(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}/detalle`);
+  }
+
+  // --- MÉTODO NUEVO PARA EDITAR (PBI 93) ---
+  update(id: number, receta: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, receta);
   }
 }

@@ -30,8 +30,11 @@ export class RecetaListComponent implements OnInit {
   filtroEstilo: string = '';
   filtroEstado: string = ''; 
 
-  // --- NUEVA LISTA DINÁMICA DE ESTILOS ---
   estilos: string[] = ['IPA', 'Stout', 'Golden', 'Honey'];
+
+  // --- VARIABLES PARA MODO EDICIÓN ---
+  isEditing = false;
+  idEditando: number | null = null;
 
   constructor(private recetaService: RecetaService, private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -54,6 +57,12 @@ export class RecetaListComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.recetas = data ?? [];
+          
+          const estilosBD = this.recetas.map(r => r.estilo).filter(e => e);
+          estilosBD.forEach(e => {
+            if (!this.estilos.includes(e)) this.estilos.push(e);
+          });
+
           this.cargando = false;
         },
         error: () => this.cargando = false
@@ -61,30 +70,74 @@ export class RecetaListComponent implements OnInit {
   }
 
   openCreate() {
+    this.isEditing = false;
+    this.idEditando = null;
     this.form.reset({ batchSizeLitros: 20, estado: 'Activa', version: '1.0', estilo: '' });
     this.showModal = true;
   }
 
+  openEdit(r: any) {
+    this.isEditing = true;
+    this.idEditando = r.idReceta;
+
+    // Si el estilo de la receta no está en nuestra lista, lo agregamos para que el select no quede vacío
+    if (r.estilo && !this.estilos.includes(r.estilo)) {
+      this.estilos.push(r.estilo);
+    }
+
+    // Llenamos el formulario con los datos de la fila
+    this.form.patchValue({
+      nombre: r.nombre,
+      estilo: r.estilo,
+      batchSizeLitros: r.batchSizeLitros,
+      notas: r.notas,
+      estado: r.estado,
+      version: r.version
+    });
+    
+    this.showModal = true; 
+  }
+
   closeModal() {
     this.showModal = false;
+    this.isEditing = false;
+    this.idEditando = null;
   }
 
   guardarReceta() {
     if (this.form.invalid) return;
 
     this.cargando = true;
-    this.recetaService.create(this.form.value).subscribe({
-      next: () => {
-        alert('¡Receta creada con éxito!');
-        this.closeModal();
-        this.loadRecetas(); 
-      },
-      error: (err) => {
-        this.cargando = false;
-        alert('Error al crear la receta.');
-        console.error(err);
-      }
-    });
+
+    if (this.isEditing && this.idEditando) {
+      // --- LÓGICA DE ACTUALIZACIÓN ---
+      this.recetaService.update(this.idEditando, this.form.value).subscribe({
+        next: () => {
+          alert('¡Receta actualizada con éxito!');
+          this.closeModal();
+          this.loadRecetas(); 
+        },
+        error: (err: any) => {
+          this.cargando = false;
+          alert('Error al actualizar la receta.');
+          console.error(err);
+        }
+      });
+    } else {
+      // --- LÓGICA DE CREACIÓN ---
+      this.recetaService.create(this.form.value).subscribe({
+        next: () => {
+          alert('¡Receta creada con éxito!');
+          this.closeModal();
+          this.loadRecetas(); 
+        },
+        error: (err: any) => {
+          this.cargando = false;
+          alert('Error al crear la receta.');
+          console.error(err);
+        }
+      });
+    }
   }
 
   aplicarFiltros() { this.loadRecetas(); }
@@ -95,19 +148,16 @@ export class RecetaListComponent implements OnInit {
     this.filtroEstado = '';
     this.aplicarFiltros();
   }
-
-  openEdit(r: any) { console.log('Editar', r); }
   
   toggleEstado(r: any) { console.log('Cambiar estado de', r.nombre); } 
 
-  // --- NUEVAS FUNCIONES PARA LOS ESTILOS ---
   agregarEstilo() {
     const nuevoEstilo = prompt('Ingrese el nombre del nuevo estilo de cerveza:');
     if (nuevoEstilo && nuevoEstilo.trim() !== '') {
       const estiloLimpio = nuevoEstilo.trim();
       if (!this.estilos.includes(estiloLimpio)) {
         this.estilos.push(estiloLimpio);
-        this.form.patchValue({ estilo: estiloLimpio }); // Lo selecciona automáticamente
+        this.form.patchValue({ estilo: estiloLimpio }); 
       } else {
         alert('Ese estilo ya existe en la lista.');
       }
@@ -124,9 +174,7 @@ export class RecetaListComponent implements OnInit {
     const confirmacion = confirm(`¿Está seguro que desea eliminar el estilo "${estiloSeleccionado}"?`);
     if (confirmacion) {
       this.estilos = this.estilos.filter(e => e !== estiloSeleccionado);
-      this.form.patchValue({ estilo: '' }); // Limpia la selección
-      
-      // Si el estilo eliminado estaba en el filtro, limpiamos el filtro también
+      this.form.patchValue({ estilo: '' }); 
       if (this.filtroEstilo === estiloSeleccionado) {
         this.filtroEstilo = '';
         this.aplicarFiltros();
