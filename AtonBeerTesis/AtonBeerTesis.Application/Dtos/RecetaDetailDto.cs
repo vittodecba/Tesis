@@ -13,4 +13,6 @@ public sealed class RecetaDetailDto
     public EstadoReceta Estado { get; set; }
     public DateTime FechaCreacion { get; set; }
     public DateTime? FechaActualizacion { get; set; }
+    //Agrego la relacion con el RecetaInsumo
+    public List<RecetaInsumoDto> RecetaInsumos { get; set; } = new List<RecetaInsumoDto>();
 }

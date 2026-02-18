@@ -44,8 +44,10 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         }
 
         public async Task<Receta?> GetByIdAsync(int id)
-            => await _context.Recetas.FirstOrDefaultAsync(r => r.IdReceta == id);
+        {
+            return await _context.Recetas.Include(r => r.RecetaInsumos).ThenInclude(ri => ri.Insumo).ThenInclude(i=> i.unidadMedida).FirstOrDefaultAsync(r => r.IdReceta == id);
 
+        }
         public async Task AddAsync(Receta receta)
         {
             _context.Recetas.Add(receta);

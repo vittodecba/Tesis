@@ -10,5 +10,7 @@
         public string Estado { get; set; } = "";
         public DateTime FechaCreacion { get; set; }
         public DateTime? FechaActualizacion { get; set; }
+        //Relacion con el RecetaInsumo
+        public List<RecetaInsumoDto> RecetaInsumos { get; set; } = new List<RecetaInsumoDto>();
     }
 }

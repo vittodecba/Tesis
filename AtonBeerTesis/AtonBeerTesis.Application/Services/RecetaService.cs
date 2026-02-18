@@ -1,4 +1,5 @@
-﻿using AtonBeerTesis.Application.Dtos.Recetas;
+﻿using AtonBeerTesis.Application.Dtos;
+using AtonBeerTesis.Application.Dtos.Recetas;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Enums;
@@ -55,7 +56,12 @@ namespace AtonBeerTesis.Application.Services
                 BatchSizeLitros = dto.BatchSizeLitros,
                 Notas = dto.Notas?.Trim(),
                 Estado = EstadoReceta.Activa,
-                FechaCreacion = DateTime.UtcNow
+                FechaCreacion = DateTime.UtcNow,
+                RecetaInsumos = dto.RecetaInsumos.Select(i => new RecetaInsumo
+                {
+                    InsumoId = i.InsumoId,
+                    Cantidad = i.Cantidad
+                }).ToList()
             };
 
             await _recetaRepository.AddAsync(receta);
@@ -163,7 +169,14 @@ namespace AtonBeerTesis.Application.Services
                 Notas = receta.Notas,
                 Estado = receta.Estado.ToString(),
                 FechaCreacion = receta.FechaCreacion,
-                FechaActualizacion = receta.FechaActualizacion
+                FechaActualizacion = receta.FechaActualizacion,
+                RecetaInsumos = receta.RecetaInsumos?.Select(ri => new RecetaInsumoDto
+                {
+                    InsumoId = ri.InsumoId,
+                    Cantidad = ri.Cantidad,
+                    NombreInsumo = ri.Insumo?.NombreInsumo, // Esto requiere un .Include en el Repo
+                    UnidadMedida = ri.Insumo?.unidadMedida?.Abreviatura // Esto tmb
+                }).ToList() ?? new List<RecetaInsumoDto>()
             };
         }
 
