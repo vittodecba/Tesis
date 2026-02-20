@@ -1,4 +1,5 @@
-﻿using AtonBeerTesis.Application.Dtos.Recetas;
+﻿using AtonBeerTesis.Application.Dtos;
+using AtonBeerTesis.Application.Dtos.Recetas;
 using AtonBeerTesis.Domain.Entities;
 
 namespace AtonBeerTesis.Application.Interfaces
@@ -12,6 +13,8 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<bool> PatchAsync(int id, PatchRecetaDto dto);
         Task<bool> DeactivateAsync(int id);
         List<string> GetEstadosReceta();
+        Task<bool> AddInsumoToReceta(int id, RecetaInsumoDto dto);
+        Task<bool> RemoveInsumoDeReceta(int id, int insumoId);
     }
 
     public interface IRecetaRepository
@@ -20,5 +23,7 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<Receta?> GetByIdAsync(int id);
         Task AddAsync(Receta receta);
         Task UpdateAsync(Receta receta);
+        Task<bool> AddInsumoAsync(RecetaInsumo relacion);
+        Task<bool> RemoveInsumoAsync(int idReceta, int idInsumo);
     }
 }

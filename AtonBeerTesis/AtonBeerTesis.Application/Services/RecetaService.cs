@@ -3,6 +3,7 @@ using AtonBeerTesis.Application.Dtos.Recetas;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace AtonBeerTesis.Application.Services
 {
@@ -191,5 +192,24 @@ namespace AtonBeerTesis.Application.Services
 
             return coincidencia.Any();
         }
+        //Metodo para modificar una receta ya creada, agregandole un nuevo insumo sin necesidad de modificar toda la receta,
+        //solo agregando el nuevo insumo a la lista de insumos de la receta
+        public async Task<bool> AddInsumoToReceta(int id, RecetaInsumoDto dto)
+        {
+            var nuevaRelacion = new RecetaInsumo
+            {
+                RecetaId= id,
+                InsumoId = dto.InsumoId,
+                Cantidad = dto.Cantidad
+            };
+
+            return await _recetaRepository.AddInsumoAsync(nuevaRelacion);
+        }
+        public async Task<bool> RemoveInsumoDeReceta(int id, int insumoId)
+        {
+            // Llamamos al repository para que haga el trabajo sucio en la DB
+            return await _recetaRepository.RemoveInsumoAsync(id, insumoId);
+        }
     }
+
 }

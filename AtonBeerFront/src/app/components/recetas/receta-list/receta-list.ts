@@ -7,7 +7,7 @@ import {
   Search, Plus, Pencil, FileText, X, Filter, Beer, ChevronDown, Trash2
 } from 'lucide-angular';
 import { RecetaService, Receta } from '../../../services/receta';
-
+import { InsumoService } from '../../../services/insumo.service';
 @Component({
   selector: 'app-receta-list',
   standalone: true,
@@ -29,11 +29,14 @@ export class RecetaListComponent implements OnInit {
   filtroNombre: string = '';
   filtroEstilo: string = '';
   filtroEstado: string = ''; 
-
   // --- NUEVA LISTA DINÁMICA DE ESTILOS ---
   estilos: string[] = ['IPA', 'Stout', 'Golden', 'Honey'];
-
-  constructor(private recetaService: RecetaService, private fb: FormBuilder) {
+  listaInsumos: any[] = []; //Agregar insumo a la receta
+  insumosElegidos: any[] = [];//Array temporal de datos para antes de confirmar los insumos finales
+  insumoIdSeleccionado: number = 0;
+  cantidadIngresada: number = 0;
+  constructor(private recetaService: RecetaService, private fb: FormBuilder,
+     private insumoService: InsumoService) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required]],
       estilo: ['', [Validators.required]],
@@ -46,7 +49,42 @@ export class RecetaListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRecetas();
+    this.cargarInsumos();
   }
+  cargarInsumos(): void {
+  // Usamos el servicio que inyectaste en el constructor
+  this.insumoService.obtenerInsumos().subscribe({
+    next: (data) => {
+      this.listaInsumos = data;
+    },
+    error: (err) => console.error('Error al cargar insumos', err)
+  });
+}
+  agregarInsumoALista() {
+  // 1. Validamos que haya seleccionado algo y puesto una cantidad
+  if (this.insumoIdSeleccionado > 0 && this.cantidadIngresada > 0) {    
+    // 2. Buscamos el insumo completo en la lista para poder mostrar el NOMBRE y la UNIDAD 
+    const insumoBase = this.listaInsumos.find(i => i.id == this.insumoIdSeleccionado);    
+    if (insumoBase) {
+      this.insumosElegidos.push({
+        insumoId: Number(this.insumoIdSeleccionado),
+        nombreInsumo: insumoBase.nombreInsumo,
+        cantidad: this.cantidadIngresada,
+        unidadMedida: insumoBase.unidadMedida
+      });
+      // 3. Limpiamos los campos del mini-formulario para el próximo insumo
+      this.insumoIdSeleccionado = 0;
+      this.cantidadIngresada = 0;
+    }
+  } else {
+    alert('Por favor seleccione un insumo y una cantidad válida.');
+  }
+ }
+
+ quitarInsumo(index: number) {
+  // Borra el insumo del array temporal usando su posición
+  this.insumosElegidos.splice(index, 1);
+ }
 
   loadRecetas(): void {
     this.cargando = true;
@@ -62,6 +100,10 @@ export class RecetaListComponent implements OnInit {
 
   openCreate() {
     this.form.reset({ batchSizeLitros: 20, estado: 'Activa', version: '1.0', estilo: '' });
+    //Agrego que se borren los insumos seleccionados anteriormente cuando crees una nueva receta.
+    this.insumosElegidos = []; 
+    this.insumoIdSeleccionado = 0;
+    this.cantidadIngresada = 0;
     this.showModal = true;
   }
 
@@ -71,9 +113,16 @@ export class RecetaListComponent implements OnInit {
 
   guardarReceta() {
     if (this.form.invalid) return;
-
+    //combinando la receta con el insumo/s seleccionado/s
+     const recetaParaEnviar = {
+    ...this.form.value,
+    recetaInsumos: this.insumosElegidos.map(i => ({
+      insumoId: i.insumoId,
+      cantidad: i.cantidad
+    }))
+  };
     this.cargando = true;
-    this.recetaService.create(this.form.value).subscribe({
+    this.recetaService.create(recetaParaEnviar).subscribe({
       next: () => {
         alert('¡Receta creada con éxito!');
         this.closeModal();

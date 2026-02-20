@@ -2,6 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface RecetaInsumo {
+  insumoId: number;
+  nombreInsumo: string;
+  cantidad: number;
+  unidadMedida: string;
+}
 export interface Receta {
   idReceta: number;
   codigo?: string;
@@ -13,6 +19,7 @@ export interface Receta {
   estado: string;
   batchSizeLitros?: number;
   notas?: string;
+  recetaInsumos: RecetaInsumo[];
 }
 
 @Injectable({
@@ -33,13 +40,28 @@ export class RecetaService {
     return this.http.get<Receta[]>(this.apiUrl, { params });
   }
 
-  // --- MÉTODO PARA CREAR ---
+  // --- MANTENEMOS TU MÉTODO PARA CREAR (Para la lista principal) ---
   create(receta: any): Observable<any> {
     return this.http.post(this.apiUrl, receta);
   }
 
-  // --- MÉTODO NUEVO PARA TRAER EL DETALLE ---
+  // --- MÉTODO PARA TRAER EL DETALLE ---
   getRecetaDetalle(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}/detalle`);
+  }
+
+  // --- AGREGAMOS: MÉTODO PARA MODIFICAR INFO GENERAL (PUT) ---
+  update(id: number, receta: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, receta);
+  }
+
+  // --- MANTENEMOS TU MÉTODO PARA AGREGAR INSUMO ---
+  addInsumo(idReceta: number, datos: { insumoId: number, cantidad: number }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${idReceta}/insumos`, datos);
+  }
+
+  // --- AGREGAMOS: MÉTODO PARA ELIMINAR INSUMO (DELETE) ---
+  removeInsumo(idReceta: number, idInsumo: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${idReceta}/insumos/${idInsumo}`);
   }
 }
