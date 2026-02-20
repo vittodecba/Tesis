@@ -2,6 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface RecetaInsumo {
+  insumoId: number;
+  nombreInsumo: string;
+  cantidad: number;
+  unidadMedida: string;
+}
+
 export interface Receta {
   idReceta: number;
   codigo?: string;
@@ -13,6 +20,7 @@ export interface Receta {
   estado: string;
   batchSizeLitros?: number;
   notas?: string;
+  recetaInsumos: RecetaInsumo[];
 }
 
 @Injectable({
@@ -33,16 +41,27 @@ export class RecetaService {
     return this.http.get<Receta[]>(this.apiUrl, { params });
   }
 
+  // Método para crear una receta desde cero
   create(receta: any): Observable<any> {
     return this.http.post(this.apiUrl, receta);
   }
 
+  // Método para obtener los datos de una receta específica
   getRecetaDetalle(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}/detalle`);
   }
 
-  // --- MÉTODO NUEVO PARA EDITAR (PBI 93) ---
+  // Método para editar la información general (Nombre, Estilo, etc.)
   update(id: number, receta: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, receta);
+  }
+
+  // Tus métodos para gestionar ingredientes
+  addInsumo(idReceta: number, datos: { insumoId: number, cantidad: number }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${idReceta}/insumos`, datos);
+  }
+
+  removeInsumo(idReceta: number, idInsumo: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${idReceta}/insumos/${idInsumo}`);
   }
 }

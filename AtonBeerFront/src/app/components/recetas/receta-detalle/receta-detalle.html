@@ -1,69 +1,110 @@
 <div class="container mt-4" *ngIf="cargando">
-  <div class="text-center">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="mt-2">Cargando detalles de la receta...</p>
+  <div class="text-center py-5">
+    <div class="spinner-border text-warning" role="status"></div>
+    <p class="mt-2 text-muted">Buscando receta...</p>
   </div>
 </div>
 
 <div class="container mt-4" *ngIf="!cargando && receta">
-  
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h2 class="mb-1">{{ receta.nombre }} <span class="text-muted fs-5">(v{{ receta.version }})</span></h2>
-      <span class="badge bg-primary">{{ receta.estado }}</span>
+      <h2 class="mb-1 text-[#4A2C2A] fw-bold">{{ receta.nombre }} <span class="text-muted fs-5">(v{{ receta.version }})</span></h2>
+      <span class="badge bg-primary px-3 py-2">{{ receta.estado }}</span>
     </div>
     
     <div class="d-flex gap-3 align-items-center">
-      
-      <button (click)="openEdit()" class="btn btn-link p-0 text-[#4A2C2A] hover:text-[#E67E22] hover:scale-110 transition text-decoration-none" title="Editar Receta">
+      <button (click)="openEdit()" class="btn btn-link p-0 text-[#4A2C2A] hover:text-[#E67E22] transition text-decoration-none" title="Editar Información General">
         <lucide-icon [img]="Pencil" [size]="24"></lucide-icon>
       </button>
-
-      <button class="btn btn-outline-secondary" routerLink="/recetas">
-        Volver al listado
-      </button>
+      <button class="btn btn-outline-secondary shadow-sm" routerLink="/recetas">Volver</button>
     </div>
   </div>
 
   <div class="row">
-    <div class="col-md-6">
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">Información General</h5>
+    <div class="col-md-5">
+      <div class="card shadow-sm border-0 mb-4 bg-light">
+        <div class="card-header bg-white border-0 pt-3">
+          <h5 class="mb-0 fw-bold text-[#4A2C2A]">Información Técnica</h5>
         </div>
         <div class="card-body">
           <p><strong>Código:</strong> REC-{{ receta.idReceta }}</p>
           <p><strong>Estilo:</strong> {{ receta.estilo }}</p>
-          <p><strong>Volumen de Producción:</strong> {{ receta.batchSizeLitros ? receta.batchSizeLitros + ' Litros' : 'No especificado' }}</p>
+          <p><strong>Batch Size:</strong> {{ receta.batchSizeLitros || 0 }} Litros</p>
         </div>
       </div>
 
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">Notas</h5>
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white border-0 pt-3">
+          <h5 class="mb-0 fw-bold text-[#4A2C2A]">Notas</h5>
         </div>
         <div class="card-body">
-          <p class="mb-0">{{ receta.notas || 'Sin notas adicionales.' }}</p>
+          <p class="mb-0 text-muted fst-italic">{{ receta.notas || 'Sin notas adicionales.' }}</p>
         </div>
       </div>
     </div>
 
-    <div class="col-md-6">
-      <div class="card mb-4 border-warning border-2 border-dashed">
-        <div class="card-header bg-warning bg-opacity-10">
-          <h5 class="mb-0 text-warning-emphasis">Insumos (Pendiente PBI 91)</h5>
-        </div>
-        <div class="card-body text-center text-muted p-5">
-          <p class="mb-0"><em>Espacio reservado para la lista de insumos.</em></p>
+    <div class="col-md-7">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0 fw-bold text-[#4A2C2A]">Ingredientes</h5>
+        <button (click)="mostrarFormInsumo = !mostrarFormInsumo" 
+                class="btn btn-sm shadow-sm" 
+                [ngClass]="mostrarFormInsumo ? 'btn-outline-danger' : 'btn-warning text-white'">
+          <lucide-icon [img]="mostrarFormInsumo ? X : Plus" [size]="16" class="me-1"></lucide-icon>
+          {{ mostrarFormInsumo ? 'Cancelar' : 'Añadir Insumo' }}
+        </button>
+      </div>
+
+      <div *ngIf="mostrarFormInsumo" class="card mb-4 border-warning border-2 border-dashed shadow-sm">
+        <div class="card-body">
+          <div class="row g-2 align-items-end">
+            <div class="col-7">
+              <label class="form-label small fw-bold">Insumo</label>
+              <select [(ngModel)]="insumoIdSeleccionado" class="form-select form-select-sm shadow-none">
+                <option value="0" disabled>Seleccionar...</option>
+                <option *ngFor="let i of listaInsumos" [value]="i.id">{{ i.nombreInsumo }} ({{ i.unidadMedida }})</option>
+              </select>
+            </div>
+            <div class="col-3">
+              <label class="form-label small fw-bold">Cant.</label>
+              <input type="number" [(ngModel)]="cantidadIngresada" class="form-control form-control-sm shadow-none" placeholder="0">
+            </div>
+            <div class="col-2">
+              <button (click)="agregarInsumoDinamico()" class="btn btn-warning btn-sm w-100 text-white" [disabled]="insumoIdSeleccionado === 0 || cantidadIngresada <= 0">
+                <lucide-icon [img]="Save" [size]="18"></lucide-icon>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="card mb-4 border-warning border-2 border-dashed">
-        <div class="card-header bg-warning bg-opacity-10">
-          <h5 class="mb-0 text-warning-emphasis">Parámetros / Pasos (Pendiente PBI 92)</h5>
+      <div class="card shadow-sm border-0 overflow-hidden">
+        <div class="card-header bg-[#E67E22] text-white">
+          <h5 class="mb-0">Lista de Ingredientes</h5>
         </div>
-        <div class="card-body text-center text-muted p-5">
-          <p class="mb-0"><em>Espacio reservado para los pasos técnicos.</em></p>
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Nombre</th>
+                <th class="text-end">Cantidad</th>
+                <th class="text-center">Quitar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of receta.recetaInsumos">
+                <td>{{ item.nombreInsumo }}</td>
+                <td class="text-end fw-bold">{{ item.cantidad }} <small class="text-muted">{{ item.unidadMedida }}</small></td>
+                <td class="text-center">
+                  <button (click)="eliminarInsumo(item.insumoId)" class="btn btn-link p-0 text-danger hover:scale-125 transition">
+                    <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="receta.recetaInsumos?.length === 0">
+                <td colspan="3" class="text-center py-4 text-muted italic">No hay insumos.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -99,11 +140,9 @@
                 <option value="" disabled>Seleccione...</option>
                 <option *ngFor="let e of estilos" [value]="e">{{ e }}</option>
               </select>
-              
               <button type="button" (click)="agregarEstilo()" class="px-2 py-2 bg-orange-100 text-[#E67E22] rounded-lg hover:bg-orange-200 transition border-0" title="Agregar Estilo">
                 <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
               </button>
-              
               <button type="button" (click)="eliminarEstilo()" class="px-2 py-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition border-0" title="Eliminar Estilo">
                 <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
               </button>

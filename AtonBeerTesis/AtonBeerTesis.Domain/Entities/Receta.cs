@@ -24,5 +24,7 @@ namespace AtonBeerTesis.Domain.Entities
 
         public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
         public DateTime? FechaActualizacion { get; set; }
+        //Relación con RecetaInsumo
+        public virtual ICollection<RecetaInsumo> RecetaInsumos { get; set; } = new List<RecetaInsumo>();
     }
 }

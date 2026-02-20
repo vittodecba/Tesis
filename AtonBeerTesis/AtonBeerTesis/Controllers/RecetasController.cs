@@ -1,4 +1,5 @@
-﻿using AtonBeerTesis.Application.Dtos.Recetas;
+﻿using AtonBeerTesis.Application.Dtos;
+using AtonBeerTesis.Application.Dtos.Recetas;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Application.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -80,6 +81,24 @@ namespace AtonBeerTesis.WebApi.Controllers
         {
             var estados = _recetaService.GetEstadosReceta();
             return Ok(estados);
+        }
+        [Tags("RecetasDetalle")]
+        //Insumos a agregar en el detalle insumo por si se quiere agregar un insumo a una receta ya creada, sin necesidad de modificar toda la receta
+        [HttpPost("{id}/insumos")]
+        public async Task<IActionResult> AgregarInsumo(int id, [FromBody] RecetaInsumoDto dto)
+        {
+            // Lógica para insertar solo una fila en la tabla intermedia RecetaInsumos
+            var resultado = await _recetaService.AddInsumoToReceta(id, dto);
+            if (resultado) return Ok();
+            return BadRequest("No se pudo agregar el insumo.");
+        }
+        [Tags("RecetasDetalle")]
+        [HttpDelete("{id}/insumos/{insumoId}")]
+        public async Task<IActionResult> EliminarInsumo(int id, int insumoId)
+        {
+            var resultado = await _recetaService.RemoveInsumoDeReceta(id, insumoId);
+            if (resultado) return Ok();
+            return BadRequest("No se pudo eliminar el insumo.");
         }
     }
 }

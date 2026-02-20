@@ -21,6 +21,7 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<ProductoPrueba> ProductosPrueba { get; set; }
         public DbSet<MovimientoStock> MovimientosStock { get; set; }
         public DbSet<Receta> Recetas { get; set; }
+        public DbSet<RecetaInsumo> RecetaInsumos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

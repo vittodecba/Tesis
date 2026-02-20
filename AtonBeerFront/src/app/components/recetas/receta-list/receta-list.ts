@@ -4,9 +4,10 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { RouterModule } from '@angular/router';
 import {
   LucideAngularModule,
-  Search, Plus, Pencil, FileText, X, Filter, Beer, ChevronDown, Trash2
+  Search, Plus, Pencil, FileText, X, Filter, Beer, ChevronDown, Trash2, Save
 } from 'lucide-angular';
 import { RecetaService, Receta } from '../../../services/receta';
+import { InsumoService } from '../../../services/insumo.service';
 
 @Component({
   selector: 'app-receta-list',
@@ -19,7 +20,7 @@ export class RecetaListComponent implements OnInit {
   // Iconos
   Search = Search; Plus = Plus; Pencil = Pencil; 
   FileText = FileText; X = X; Filter = Filter; 
-  Beer = Beer; ChevronDown = ChevronDown; Trash2 = Trash2;
+  Beer = Beer; ChevronDown = ChevronDown; Trash2 = Trash2; Save = Save;
 
   recetas: Receta[] = [];
   cargando = false;
@@ -32,11 +33,19 @@ export class RecetaListComponent implements OnInit {
 
   estilos: string[] = ['IPA', 'Stout', 'Golden', 'Honey'];
 
-  // --- VARIABLES PARA MODO EDICIÓN ---
+  // --- VARIABLES FUSIONADAS (EDICIÓN + INSUMOS) ---
   isEditing = false;
   idEditando: number | null = null;
+  listaInsumos: any[] = []; 
+  insumosElegidos: any[] = []; 
+  insumoIdSeleccionado: number = 0;
+  cantidadIngresada: number = 0;
 
-  constructor(private recetaService: RecetaService, private fb: FormBuilder) {
+  constructor(
+    private recetaService: RecetaService, 
+    private fb: FormBuilder,
+    private insumoService: InsumoService
+  ) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required]],
       estilo: ['', [Validators.required]],
@@ -49,6 +58,38 @@ export class RecetaListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRecetas();
+    this.cargarInsumos();
+  }
+
+  cargarInsumos(): void {
+    this.insumoService.obtenerInsumos().subscribe({
+      next: (data) => {
+        this.listaInsumos = data;
+      },
+      error: (err) => console.error('Error al cargar insumos', err)
+    });
+  }
+
+  agregarInsumoALista() {
+    if (this.insumoIdSeleccionado > 0 && this.cantidadIngresada > 0) {    
+      const insumoBase = this.listaInsumos.find(i => i.id == this.insumoIdSeleccionado);    
+      if (insumoBase) {
+        this.insumosElegidos.push({
+          insumoId: Number(this.insumoIdSeleccionado),
+          nombreInsumo: insumoBase.nombreInsumo,
+          cantidad: this.cantidadIngresada,
+          unidadMedida: insumoBase.unidadMedida
+        });
+        this.insumoIdSeleccionado = 0;
+        this.cantidadIngresada = 0;
+      }
+    } else {
+      alert('Por favor seleccione un insumo y una cantidad válida.');
+    }
+  }
+
+  quitarInsumo(index: number) {
+    this.insumosElegidos.splice(index, 1);
   }
 
   loadRecetas(): void {
@@ -57,12 +98,10 @@ export class RecetaListComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.recetas = data ?? [];
-          
           const estilosBD = this.recetas.map(r => r.estilo).filter(e => e);
           estilosBD.forEach(e => {
             if (!this.estilos.includes(e)) this.estilos.push(e);
           });
-
           this.cargando = false;
         },
         error: () => this.cargando = false
@@ -73,19 +112,18 @@ export class RecetaListComponent implements OnInit {
     this.isEditing = false;
     this.idEditando = null;
     this.form.reset({ batchSizeLitros: 20, estado: 'Activa', version: '1.0', estilo: '' });
+    this.insumosElegidos = []; 
+    this.insumoIdSeleccionado = 0;
+    this.cantidadIngresada = 0;
     this.showModal = true;
   }
 
   openEdit(r: any) {
     this.isEditing = true;
     this.idEditando = r.idReceta;
-
-    // Si el estilo de la receta no está en nuestra lista, lo agregamos para que el select no quede vacío
     if (r.estilo && !this.estilos.includes(r.estilo)) {
       this.estilos.push(r.estilo);
     }
-
-    // Llenamos el formulario con los datos de la fila
     this.form.patchValue({
       nombre: r.nombre,
       estilo: r.estilo,
@@ -94,7 +132,7 @@ export class RecetaListComponent implements OnInit {
       estado: r.estado,
       version: r.version
     });
-    
+    this.insumosElegidos = r.recetaInsumos || [];
     this.showModal = true; 
   }
 
@@ -107,11 +145,20 @@ export class RecetaListComponent implements OnInit {
   guardarReceta() {
     if (this.form.invalid) return;
 
+    // Combinamos los datos del formulario con el array de insumos
+    const recetaParaEnviar = {
+      ...this.form.value,
+      recetaInsumos: this.insumosElegidos.map(i => ({
+        insumoId: i.insumoId,
+        cantidad: i.cantidad
+      }))
+    };
+
     this.cargando = true;
 
     if (this.isEditing && this.idEditando) {
-      // --- LÓGICA DE ACTUALIZACIÓN ---
-      this.recetaService.update(this.idEditando, this.form.value).subscribe({
+      // --- LÓGICA DE ACTUALIZACIÓN (HEAD) ---
+      this.recetaService.update(this.idEditando, recetaParaEnviar).subscribe({
         next: () => {
           alert('¡Receta actualizada con éxito!');
           this.closeModal();
@@ -124,8 +171,8 @@ export class RecetaListComponent implements OnInit {
         }
       });
     } else {
-      // --- LÓGICA DE CREACIÓN ---
-      this.recetaService.create(this.form.value).subscribe({
+      // --- LÓGICA DE CREACIÓN (TU PBI) ---
+      this.recetaService.create(recetaParaEnviar).subscribe({
         next: () => {
           alert('¡Receta creada con éxito!');
           this.closeModal();
@@ -170,7 +217,6 @@ export class RecetaListComponent implements OnInit {
       alert('Primero seleccione un estilo de la lista para eliminarlo.');
       return;
     }
-    
     const confirmacion = confirm(`¿Está seguro que desea eliminar el estilo "${estiloSeleccionado}"?`);
     if (confirmacion) {
       this.estilos = this.estilos.filter(e => e !== estiloSeleccionado);

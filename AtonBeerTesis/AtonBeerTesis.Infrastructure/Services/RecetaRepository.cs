@@ -44,8 +44,10 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         }
 
         public async Task<Receta?> GetByIdAsync(int id)
-            => await _context.Recetas.FirstOrDefaultAsync(r => r.IdReceta == id);
+        {
+            return await _context.Recetas.Include(r => r.RecetaInsumos).ThenInclude(ri => ri.Insumo).ThenInclude(i=> i.unidadMedida).FirstOrDefaultAsync(r => r.IdReceta == id);
 
+        }
         public async Task AddAsync(Receta receta)
         {
             _context.Recetas.Add(receta);
@@ -56,6 +58,22 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             _context.Recetas.Update(receta);
             await _context.SaveChangesAsync();
+        }
+        //Metodo para modificar una receta ya creada, agregandole un nuevo insumo sin necesidad de modificar toda la receta,
+        public async Task<bool> AddInsumoAsync(RecetaInsumo relacion)
+        {
+            _context.RecetaInsumos.Add(relacion);
+            return await _context.SaveChangesAsync() > 0;
+        }
+        public async Task<bool> RemoveInsumoAsync(int idReceta, int idInsumo)
+        {
+            var relacion = await _context.RecetaInsumos
+                .FirstOrDefaultAsync(ri => ri.RecetaId == idReceta && ri.InsumoId == idInsumo);
+
+            if (relacion == null) return false;
+
+            _context.RecetaInsumos.Remove(relacion);
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }
