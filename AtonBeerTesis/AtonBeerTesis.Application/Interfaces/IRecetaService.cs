@@ -15,6 +15,9 @@ namespace AtonBeerTesis.Application.Interfaces
         List<string> GetEstadosReceta();
         Task<bool> AddInsumoToReceta(int id, RecetaInsumoDto dto);
         Task<bool> RemoveInsumoDeReceta(int id, int insumoId);
+        Task<PasosElaboracion> CrearPasoAsync(int recetaId, PasosElaboracion paso);
+        Task<bool> EditarPasoAsync(int recetaId, int pasoId, PasosElaboracion paso);
+        Task<bool> EliminarPasoAsync(int recetaId, int pasoId);
     }
 
     public interface IRecetaRepository
@@ -25,5 +28,8 @@ namespace AtonBeerTesis.Application.Interfaces
         Task UpdateAsync(Receta receta);
         Task<bool> AddInsumoAsync(RecetaInsumo relacion);
         Task<bool> RemoveInsumoAsync(int idReceta, int idInsumo);
+        Task<PasosElaboracion> AddPasoAsync(PasosElaboracion paso);
+        Task<bool> UpdatePasoAsync(PasosElaboracion paso);
+        Task<bool> DeletePasoAsync(int pasoId);
     }
 }

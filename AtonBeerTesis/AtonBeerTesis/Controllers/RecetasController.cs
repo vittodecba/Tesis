@@ -2,6 +2,7 @@
 using AtonBeerTesis.Application.Dtos.Recetas;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Application.Services;
+using AtonBeerTesis.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AtonBeerTesis.WebApi.Controllers
@@ -99,6 +100,70 @@ namespace AtonBeerTesis.WebApi.Controllers
             var resultado = await _recetaService.RemoveInsumoDeReceta(id, insumoId);
             if (resultado) return Ok();
             return BadRequest("No se pudo eliminar el insumo.");
+        }
+
+        // Agregar endpoints para manejar los pasos de elaboración 
+        [Tags("PasosElaboracion")]
+        // POST: api/Recetas/{id}/pasos
+        [HttpPost("{id}/pasos")]
+        public async Task<IActionResult> AgregarPaso(int id, [FromBody] PasosElaboracionDto dto) // <-- Usar DTO
+        {
+            var paso = new PasosElaboracion
+            {
+                Nombre = dto.Nombre,
+                Descripcion = dto.Descripcion,
+                Temperatura = dto.Temperatura,
+                Tiempo = dto.Tiempo,
+                Orden = dto.Orden
+                // RecetaId se asigna en el Service
+            };
+
+            var nuevoPaso = await _recetaService.CrearPasoAsync(id, paso);
+            return Ok(nuevoPaso);
+        }
+        [Tags("PasosElaboracion")]
+        // PUT: api/Recetas/{id}/pasos/{pasoId}
+        [HttpPut("{id}/pasos/{pasoId}")]
+        public async Task<IActionResult> EditarPaso(int id, int pasoId, [FromBody] PasosElaboracionDto dto) // <-- Cambiado a DTO
+        {
+            try
+            {
+                // Convertimos el DTO a la entidad para el Service
+                var paso = new PasosElaboracion
+                {
+                    Nombre = dto.Nombre,
+                    Descripcion = dto.Descripcion,
+                    Temperatura = dto.Temperatura,
+                    Tiempo = dto.Tiempo,
+                    Orden = dto.Orden
+                };
+
+                var actualizado = await _recetaService.EditarPasoAsync(id, pasoId, paso);
+                if (!actualizado) return NotFound(new { message = "No se pudo encontrar la receta o el paso." });
+
+                return Ok(new { message = "Paso actualizado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+        [Tags("PasosElaboracion")]
+        // DELETE: api/Recetas/{id}/pasos/{pasoId}
+        [HttpDelete("{id}/pasos/{pasoId}")]
+        public async Task<IActionResult> EliminarPaso(int id, int pasoId)
+        {
+            try
+            {
+                var eliminado = await _recetaService.EliminarPasoAsync(id, pasoId);
+                if (!eliminado) return NotFound(new { message = "El paso no existe o no pudo ser eliminado." });
+
+                return Ok(new { message = "Paso eliminado con éxito" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

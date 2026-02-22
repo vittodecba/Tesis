@@ -21,6 +21,7 @@ export interface Receta {
   batchSizeLitros?: number;
   notas?: string;
   recetaInsumos: RecetaInsumo[];
+  pasosElaboracion: any[]; // Agregado para recibir la lista del Backend
 }
 
 @Injectable({
@@ -41,27 +42,36 @@ export class RecetaService {
     return this.http.get<Receta[]>(this.apiUrl, { params });
   }
 
-  // Método para crear una receta desde cero
   create(receta: any): Observable<any> {
     return this.http.post(this.apiUrl, receta);
   }
 
-  // Método para obtener los datos de una receta específica
   getRecetaDetalle(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}/detalle`);
   }
 
-  // Método para editar la información general (Nombre, Estilo, etc.)
   update(id: number, receta: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, receta);
   }
 
-  // Tus métodos para gestionar ingredientes
   addInsumo(idReceta: number, datos: { insumoId: number, cantidad: number }): Observable<any> {
     return this.http.post(`${this.apiUrl}/${idReceta}/insumos`, datos);
   }
 
   removeInsumo(idReceta: number, idInsumo: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${idReceta}/insumos/${idInsumo}`);
+  }
+
+  // --- MÉTODOS PBI 92 (Pasos de Elaboración) ---
+  addPaso(idReceta: number, paso: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${idReceta}/pasos`, paso);
+  }
+
+  updatePaso(idReceta: number, idPaso: number, paso: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${idReceta}/pasos/${idPaso}`, paso);
+  }
+
+  deletePaso(idReceta: number, idPaso: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${idReceta}/pasos/${idPaso}`);
   }
 }

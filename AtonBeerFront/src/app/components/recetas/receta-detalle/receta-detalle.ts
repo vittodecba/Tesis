@@ -1,11 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-// Fusionamos las importaciones de formularios y Lucide
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LucideAngularModule, Pencil, Plus, Trash2, X, Beer, Save } from 'lucide-angular'; 
 import { Receta, RecetaService } from '../../../services/receta'; 
 import { InsumoService } from '../../../services/insumo.service'; 
+
+// Interfaz para el proceso de elaboración (PBI 92)
+export interface RecetaPaso {
+  id?: number;
+  nombre: string;
+  temperatura: number;
+  descripcion : string;
+  tiempo: number;
+  orden: number;
+}
 
 @Component({
   selector: 'app-receta-detalle',
@@ -15,23 +24,29 @@ import { InsumoService } from '../../../services/insumo.service';
   styleUrl: './receta-detalle.css',
 })
 export class RecetaDetalle implements OnInit {
-  // Usamos la interfaz Receta para mayor seguridad
   receta: Receta | null = null;
   cargando: boolean = true;
   
-  // Íconos (todos los que usamos ambos)
+  // Iconos
   Pencil = Pencil; Plus = Plus; Trash2 = Trash2; X = X; Beer = Beer; Save = Save;
 
-  // Variables para el modal de edición (de tus amigos)
+  // --- VARIABLES EDICIÓN GENERAL ---
   showModal = false;
   form: FormGroup;
   estilos: string[] = ['IPA', 'Stout', 'Golden', 'Honey'];
 
-  // Variables para la gestión de insumos (tuyas)
+  // --- VARIABLES INSUMOS ---
   listaInsumos: any[] = [];
   insumoIdSeleccionado: number = 0;
   cantidadIngresada: number = 0;
   mostrarFormInsumo: boolean = false; 
+
+  // --- VARIABLES PASOS DE COCCIÓN (PBI 92) ---
+  pasos: RecetaPaso[] = []; 
+  showModalPaso = false;
+  editandoPaso = false;
+  indiceEdicionPaso = -1;
+  pasoActual: RecetaPaso = { nombre: '', descripcion: '', temperatura: 0, tiempo: 0, orden: 0 };
 
   constructor(
     private route: ActivatedRoute,
@@ -39,7 +54,6 @@ export class RecetaDetalle implements OnInit {
     private fb: FormBuilder,
     private insumoService: InsumoService 
   ) {
-    // Inicialización del formulario reactivo
     this.form = this.fb.group({
       nombre: ['', [Validators.required]],
       estilo: ['', [Validators.required]],
@@ -64,6 +78,8 @@ export class RecetaDetalle implements OnInit {
     this.recetaService.getRecetaDetalle(id).subscribe({
       next: (data: any) => {
         this.receta = data;
+        // Asignamos los pasos que vienen del Backend al array local
+        this.pasos = data.pasosElaboracion || [];
         this.cargando = false;
       },
       error: (err: any) => {
@@ -73,12 +89,64 @@ export class RecetaDetalle implements OnInit {
     });
   }
 
-  // --- MÉTODOS DE TUS AMIGOS (MODAL DE EDICIÓN) ---
-  openEdit() {
-    if (this.receta && this.receta.estilo && !this.estilos.includes(this.receta.estilo)) {
-      this.estilos.push(this.receta.estilo);
-    }
+  // LÓGICA PASOS (PBI 92 - Vinculada al Backend)
+  abrirModalPaso() {
+    this.editandoPaso = false;
+    this.pasoActual = { nombre: '', descripcion: '', temperatura: 65, tiempo: 60, orden: this.pasos.length + 1 };
+    this.showModalPaso = true;
+  }
 
+  cerrarModalPaso() {
+    this.showModalPaso = false;
+    this.indiceEdicionPaso = -1;
+  }
+
+  guardarPaso() {
+    if (!this.receta) return;
+
+    if (this.editandoPaso) {
+      // PERSISTENCIA REAL: EDITAR (PUT)
+      const idPaso = this.pasos[this.indiceEdicionPaso].id;
+      if (idPaso) {
+        this.recetaService.updatePaso(this.receta.idReceta, idPaso, this.pasoActual).subscribe({
+          next: () => {
+            this.cargarReceta(this.receta!.idReceta);
+            this.cerrarModalPaso();
+          }
+        });
+      }
+    } else {
+      // PERSISTENCIA REAL: CREAR (POST)
+      this.recetaService.addPaso(this.receta.idReceta, this.pasoActual).subscribe({
+        next: () => {
+          this.cargarReceta(this.receta!.idReceta);
+          this.cerrarModalPaso();
+        }
+      });
+    }
+  }
+
+  prepararEdicion(paso: RecetaPaso, index: number) {
+    this.editandoPaso = true;
+    this.indiceEdicionPaso = index;
+    this.pasoActual = { ...paso };
+    this.showModalPaso = true;
+  }
+
+  eliminarPaso(index: number) {
+    const paso = this.pasos[index];
+    if (paso.id && confirm('¿Desea eliminar este paso permanentemente?')) {
+      // PERSISTENCIA REAL: ELIMINAR (DELETE)
+      this.recetaService.deletePaso(this.receta!.idReceta, paso.id).subscribe({
+        next: () => {
+          this.cargarReceta(this.receta!.idReceta);
+        }
+      });
+    }
+  }
+
+  // LÓGICA EDICIÓN GENERAL Y ESTILOS
+  openEdit() {
     if (this.receta) {
       this.form.patchValue({
         nombre: this.receta.nombre,
@@ -92,87 +160,57 @@ export class RecetaDetalle implements OnInit {
     }
   }
 
-  closeModal() {
-    this.showModal = false;
-  }
+  closeModal() { this.showModal = false; }
 
   guardarReceta() {
     if (this.form.invalid || !this.receta) return;
-
     this.recetaService.update(this.receta.idReceta, this.form.value).subscribe({
       next: () => {
-        alert('¡Receta actualizada con éxito!');
+        alert('Receta actualizada');
         this.closeModal();
         this.cargarReceta(this.receta!.idReceta);
-      },
-      error: (err: any) => {
-        alert('Error al actualizar la receta.');
-        console.error(err);
       }
     });
   }
 
   agregarEstilo() {
-    const nuevoEstilo = prompt('Ingrese el nombre del nuevo estilo de cerveza:');
-    if (nuevoEstilo && nuevoEstilo.trim() !== '') {
-      const estiloLimpio = nuevoEstilo.trim();
-      if (!this.estilos.includes(estiloLimpio)) {
-        this.estilos.push(estiloLimpio);
-        this.form.patchValue({ estilo: estiloLimpio }); 
-      } else {
-        alert('Ese estilo ya existe en la lista.');
-      }
+    const nuevo = prompt('Nuevo estilo:');
+    if (nuevo && !this.estilos.includes(nuevo)) {
+      this.estilos.push(nuevo.trim());
+      this.form.patchValue({ estilo: nuevo.trim() });
     }
   }
 
   eliminarEstilo() {
-    const estiloSeleccionado = this.form.get('estilo')?.value;
-    if (!estiloSeleccionado) {
-      alert('Primero seleccione un estilo de la lista para eliminarlo.');
-      return;
-    }
-    const confirmacion = confirm(`¿Está seguro que desea eliminar el estilo "${estiloSeleccionado}"?`);
-    if (confirmacion) {
-      this.estilos = this.estilos.filter(e => e !== estiloSeleccionado);
+    const sel = this.form.get('estilo')?.value;
+    if (sel && confirm(`¿Eliminar estilo ${sel}?`)) {
+      this.estilos = this.estilos.filter(e => e !== sel);
       this.form.patchValue({ estilo: '' }); 
     }
   }
 
-  // --- TUS MÉTODOS (GESTIÓN DE INSUMOS) ---
+  // LÓGICA INSUMOS
   cargarInsumosDisponibles(): void {
     this.insumoService.obtenerInsumos().subscribe({
-      next: (data) => this.listaInsumos = data,
-      error: (err) => console.error('Error al cargar insumos', err)
+      next: (data) => this.listaInsumos = data
     });
   }
 
   agregarInsumoDinamico(): void {
-    if (!this.receta || this.insumoIdSeleccionado === 0 || this.cantidadIngresada <= 0) {
-      alert('Datos inválidos');
-      return;
-    }
-
-    const dto = {
-      insumoId: Number(this.insumoIdSeleccionado),
-      cantidad: this.cantidadIngresada
-    };
-
+    if (!this.receta || this.insumoIdSeleccionado === 0) return;
+    const dto = { insumoId: Number(this.insumoIdSeleccionado), cantidad: this.cantidadIngresada };
     this.recetaService.addInsumo(this.receta.idReceta, dto).subscribe({
       next: () => {
         this.cargarReceta(this.receta!.idReceta);
         this.resetFormInsumo();
-      },
-      error: (err) => alert('Error al agregar el insumo')
+      }
     });
   }
 
   eliminarInsumo(insumoId: number): void {
-    if (confirm('¿Estás seguro de quitar este ingrediente?')) {
+    if (confirm('¿Quitar ingrediente?')) {
       this.recetaService.removeInsumo(this.receta!.idReceta, insumoId).subscribe({
-        next: () => {
-          this.cargarReceta(this.receta!.idReceta);
-        },
-        error: (err) => alert('No se pudo eliminar el insumo')
+        next: () => this.cargarReceta(this.receta!.idReceta)
       });
     }
   }

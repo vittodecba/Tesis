@@ -1,4 +1,6 @@
-﻿namespace AtonBeerTesis.Application.Dtos.Recetas
+﻿using AtonBeerTesis.Domain.Entities;
+
+namespace AtonBeerTesis.Application.Dtos.Recetas
 {
     public class RecetaDto
     {
@@ -12,5 +14,6 @@
         public DateTime? FechaActualizacion { get; set; }
         //Relacion con el RecetaInsumo
         public List<RecetaInsumoDto> RecetaInsumos { get; set; } = new List<RecetaInsumoDto>();
+        public List<PasosElaboracionDto> PasosElaboracion { get; set; } = new List<PasosElaboracionDto>();
     }
 }

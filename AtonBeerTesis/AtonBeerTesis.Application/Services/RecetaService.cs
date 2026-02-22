@@ -177,7 +177,16 @@ namespace AtonBeerTesis.Application.Services
                     Cantidad = ri.Cantidad,
                     NombreInsumo = ri.Insumo?.NombreInsumo, // Esto requiere un .Include en el Repo
                     UnidadMedida = ri.Insumo?.unidadMedida?.Abreviatura // Esto tmb
-                }).ToList() ?? new List<RecetaInsumoDto>()
+                }).ToList() ?? new List<RecetaInsumoDto>(),
+                PasosElaboracion = receta.PasosElaboracion.Select(p => new PasosElaboracionDto
+                {  
+                    Id = p.Id,
+                    Nombre = p.Nombre,
+                    Descripcion = p.Descripcion,
+                    Temperatura = p.Temperatura,
+                    Tiempo = p.Tiempo,
+                    Orden = p.Orden
+                }).ToList()
             };
         }
 
@@ -207,8 +216,45 @@ namespace AtonBeerTesis.Application.Services
         }
         public async Task<bool> RemoveInsumoDeReceta(int id, int insumoId)
         {
-            // Llamamos al repository para que haga el trabajo sucio en la DB
+            // Llamamos al repo 
             return await _recetaRepository.RemoveInsumoAsync(id, insumoId);
+        }
+        public async Task<PasosElaboracion> CrearPasoAsync(int recetaId, PasosElaboracion paso)
+        {
+            // Validamos si la receta existe antes de intentar agregar el paso
+            var recetaExistente = await _recetaRepository.GetByIdAsync(recetaId);
+
+            if (recetaExistente == null)
+            {
+                // Lanzamos una excepción
+                throw new Exception("La receta no existe y no se pueden añadir pasos.");
+            }
+
+            paso.RecetaId = recetaId;
+            return await _recetaRepository.AddPasoAsync(paso);
+        }
+        public async Task<bool> EditarPasoAsync(int recetaId, int pasoId, PasosElaboracion pasoEditado)
+        {
+            // 1. Validar que la receta exista
+            var receta = await _recetaRepository.GetByIdAsync(recetaId);
+            if (receta == null) return false;
+
+            // 2. Buscar el paso dentro de esa receta            
+            var pasoExistente = receta.PasosElaboracion.FirstOrDefault(p => p.Id == pasoId);
+            if (pasoExistente == null) return false;
+            // 3. Mapear cambios
+            pasoExistente.Nombre = pasoEditado.Nombre;
+            pasoExistente.Descripcion = pasoEditado.Descripcion;
+            pasoExistente.Temperatura = pasoEditado.Temperatura;
+            pasoExistente.Tiempo = pasoEditado.Tiempo;
+            pasoExistente.Orden = pasoEditado.Orden;
+
+            return await _recetaRepository.UpdatePasoAsync(pasoExistente);
+        }
+
+        public async Task<bool> EliminarPasoAsync(int recetaId, int pasoId)
+        {            
+            return await _recetaRepository.DeletePasoAsync(pasoId);
         }
     }
 

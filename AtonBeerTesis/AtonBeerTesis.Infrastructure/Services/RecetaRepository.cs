@@ -42,11 +42,14 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
             return await query.ToListAsync();
         }
-
         public async Task<Receta?> GetByIdAsync(int id)
         {
-            return await _context.Recetas.Include(r => r.RecetaInsumos).ThenInclude(ri => ri.Insumo).ThenInclude(i=> i.unidadMedida).FirstOrDefaultAsync(r => r.IdReceta == id);
-
+            return await _context.Recetas
+                .Include(r => r.RecetaInsumos)
+                    .ThenInclude(ri => ri.Insumo)
+                    .ThenInclude(i => i.unidadMedida)
+                .Include(r => r.PasosElaboracion) 
+                .FirstOrDefaultAsync(r => r.IdReceta == id);
         }
         public async Task AddAsync(Receta receta)
         {
@@ -73,6 +76,30 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             if (relacion == null) return false;
 
             _context.RecetaInsumos.Remove(relacion);
+            return await _context.SaveChangesAsync() > 0;
+        }
+        //1.Agregar Paso
+        public async Task<PasosElaboracion> AddPasoAsync(PasosElaboracion paso)
+        {
+            _context.PasosElaboracion.Add(paso);
+            await _context.SaveChangesAsync();
+            return paso;
+        }
+        // 2. Editar Paso
+        public async Task<bool> UpdatePasoAsync(PasosElaboracion paso)
+        {
+            _context.PasosElaboracion.Update(paso);
+            // SaveChangesAsync devuelve la cantidad de filas afectadas
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        // 3. Eliminar Paso
+        public async Task<bool> DeletePasoAsync(int pasoId)
+        {
+            var paso = await _context.PasosElaboracion.FindAsync(pasoId);
+            if (paso == null) return false;
+
+            _context.PasosElaboracion.Remove(paso);
             return await _context.SaveChangesAsync() > 0;
         }
     }
