@@ -6,7 +6,7 @@
 </div>
 
 <div class="container mt-4" *ngIf="!cargando && receta">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 text-start">
     <div>
       <h2 class="mb-1 text-[#4A2C2A] fw-bold">{{ receta.nombre }} <span class="text-muted fs-5">(v{{ receta.version }})</span></h2>
       <span class="badge bg-primary px-3 py-2">{{ receta.estado }}</span>
@@ -19,19 +19,19 @@
     </div>
   </div>
 
-  <div class="row">
+  <div class="row text-start">
     <div class="col-md-5">
       <div class="card shadow-sm border-0 mb-4 bg-light">
-        <div class="card-header bg-white border-0 pt-3 text-start">
+        <div class="card-header bg-white border-0 pt-3">
           <h5 class="mb-0 fw-bold text-[#4A2C2A]">Información Técnica</h5>
         </div>
-        <div class="card-body text-start">
+        <div class="card-body">
           <p><strong>Código:</strong> REC-{{ receta.idReceta }}</p>
           <p><strong>Estilo:</strong> {{ receta.estilo }}</p>
           <p><strong>Batch Size:</strong> {{ receta.batchSizeLitros || 0 }} Litros</p>
         </div>
       </div>
-      <div class="card shadow-sm border-0 mb-4 text-start">
+      <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-white border-0 pt-3">
           <h5 class="mb-0 fw-bold text-[#4A2C2A]">Notas</h5>
         </div>
@@ -42,7 +42,7 @@
     </div>
 
     <div class="col-md-7">
-      <div class="d-flex justify-content-between align-items-center mb-3 text-start">
+      <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0 fw-bold text-[#4A2C2A]">Ingredientes</h5>
         <button (click)="mostrarFormInsumo = !mostrarFormInsumo" class="btn btn-sm shadow-sm" [ngClass]="mostrarFormInsumo ? 'btn-outline-danger' : 'btn-warning text-white'">
           <lucide-icon [img]="mostrarFormInsumo ? X : Plus" [size]="16" class="me-1"></lucide-icon>
@@ -50,19 +50,26 @@
         </button>
       </div>
 
-      <div *ngIf="mostrarFormInsumo" class="card mb-4 border-warning border-2 border-dashed shadow-sm text-start">
+      <div *ngIf="mostrarFormInsumo" class="card mb-4 border-warning border-2 border-dashed shadow-sm">
         <div class="card-body">
           <div class="row g-2 align-items-end">
             <div class="col-7">
               <label class="form-label small fw-bold">Insumo</label>
               <select [(ngModel)]="insumoIdSeleccionado" class="form-select form-select-sm shadow-none">
                 <option value="0" disabled>Seleccionar...</option>
-                <option *ngFor="let i of listaInsumos" [value]="i.id">{{ i.nombreInsumo }} ({{ i.unidadMedida }})</option>
+                <option *ngFor="let i of listaInsumos" [value]="i.id || i.idInsumo">{{ i.nombreInsumo }}</option>
               </select>
             </div>
             <div class="col-3">
-              <label class="form-label small fw-bold">Cant.</label>
-              <input type="number" [(ngModel)]="cantidadIngresada" class="form-control form-control-sm shadow-none">
+              <label class="form-label small fw-bold">Unidad</label>
+              <div class="input-group input-group-sm">
+                <input type="number" [(ngModel)]="cantidadIngresada" class="form-control shadow-none" placeholder="0">
+                <span class="input-group-text bg-light text-muted border-start-0" 
+                      *ngIf="insumoIdSeleccionado != 0" 
+                      style="min-width: 50px; font-weight: bold;">
+                  ({{ getUnidadSeleccionada() }})
+                </span>
+              </div>
             </div>
             <div class="col-2">
               <button (click)="agregarInsumoDinamico()" class="btn btn-warning btn-sm w-100 text-white" [disabled]="insumoIdSeleccionado === 0 || cantidadIngresada <= 0">
@@ -73,7 +80,7 @@
         </div>
       </div>
 
-      <div class="card shadow-sm border-0 overflow-hidden text-start mb-5">
+      <div class="card shadow-sm border-0 overflow-hidden mb-5">
         <div class="card-header bg-[#E67E22] text-white">
           <h5 class="mb-0">Lista de Ingredientes</h5>
         </div>
@@ -101,14 +108,14 @@
         </div>
       </div>
 
-      <div class="d-flex justify-content-between align-items-center mb-3 text-start">
+      <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0 fw-bold text-[#4A2C2A]">Proceso de Elaboración</h5>
         <button (click)="abrirModalPaso()" class="btn btn-sm btn-info text-white shadow-sm">
           <lucide-icon [img]="Plus" [size]="16" class="me-1"></lucide-icon>Agregar Paso
         </button>
       </div>
 
-      <div class="card shadow-sm border-0 overflow-hidden text-start mb-5">
+      <div class="card shadow-sm border-0 overflow-hidden mb-5">
         <div class="card-body p-0">
           <table class="table table-hover mb-0 align-middle">
             <thead class="table-light">
@@ -125,9 +132,7 @@
                 <td class="text-center fw-bold">{{ p.orden }}</td>
                 <td>
                   <div class="fw-bold">{{ p.nombre }}</div>
-                  <div *ngIf="p.descripcion" class="text-muted small fst-italic" style="line-height: 1.2;">
-                    {{ p.descripcion }}
-                  </div>
+                  <div *ngIf="p.descripcion" class="text-muted small fst-italic">{{ p.descripcion }}</div>
                 </td>
                 <td class="text-center"><span class="badge bg-info">{{ p.temperatura }}°C</span></td>
                 <td class="text-center">{{ p.tiempo }} min</td>
@@ -138,9 +143,6 @@
                   </div>
                 </td>
               </tr>
-              <tr *ngIf="pasos.length === 0">
-                <td colspan="5" class="text-center py-4 text-muted">No hay pasos definidos.</td>
-              </tr>
             </tbody>
           </table>
         </div>
@@ -149,20 +151,20 @@
   </div>
 </div>
 
-<div *ngIf="showModalPaso" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+<div *ngIf="showModalPaso" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 text-start">
   <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden text-start">
     <div class="bg-info p-4 flex justify-between items-center text-white">
       <h5 class="m-0">{{ editandoPaso ? 'Editar Paso' : 'Nuevo Paso' }}</h5>
       <button (click)="cerrarModalPaso()" class="text-white border-0 bg-transparent">✕</button>
     </div>
-    <div class="p-4 space-y-4">
+    <div class="p-4 space-y-3">
       <div>
-        <label class="fw-bold small">Nombre</label>
-        <input type="text" [(ngModel)]="pasoActual.nombre" class="form-control" placeholder="Ej: Macerado">
+        <label class="fw-bold small">Nombre del Paso</label>
+        <input type="text" [(ngModel)]="pasoActual.nombre" class="form-control">
       </div>
       <div>
-        <label class="fw-bold small">Instrucciones / Notas del Paso</label>
-        <textarea [(ngModel)]="pasoActual.descripcion" class="form-control" rows="2" placeholder="Ej: Mantener recirculado constante..."></textarea>
+        <label class="fw-bold small">Instrucciones</label>
+        <textarea [(ngModel)]="pasoActual.descripcion" class="form-control" rows="2"></textarea>
       </div>
       <div class="row">
         <div class="col-6">
@@ -175,14 +177,14 @@
         </div>
       </div>
       <div class="text-end pt-3">
-        <button (click)="cerrarModalPaso()" class="btn btn-link text-secondary text-decoration-none me-2">Cancelar</button>
-        <button (click)="guardarPaso()" [disabled]="!pasoActual.nombre" class="btn btn-info text-white">Guardar</button>
+        <button (click)="cerrarModalPaso()" class="btn btn-link text-secondary text-decoration-none">Cancelar</button>
+        <button (click)="guardarPaso()" [disabled]="!pasoActual.nombre" class="btn btn-info text-white">Guardar Paso</button>
       </div>
     </div>
   </div>
 </div>
 
-<div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+<div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 text-start">
   <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden text-start">
     <div class="bg-[#4A2C2A] p-4 flex justify-between items-center text-white">
       <h5 class="m-0">Editar Receta</h5>
@@ -197,13 +199,9 @@
         <div class="row">
           <div class="col-7">
             <label class="fw-bold small">Estilo</label>
-            <div class="d-flex gap-1">
-              <select formControlName="estilo" class="form-select">
-                <option *ngFor="let e of estilos" [value]="e">{{ e }}</option>
-              </select>
-              <button type="button" (click)="agregarEstilo()" class="btn btn-sm btn-outline-warning border-0"><lucide-icon [img]="Plus" [size]="16"></lucide-icon></button>
-              <button type="button" (click)="eliminarEstilo()" class="btn btn-sm btn-outline-danger border-0"><lucide-icon [img]="Trash2" [size]="16"></lucide-icon></button>
-            </div>
+            <select formControlName="estilo" class="form-select">
+              <option *ngFor="let e of estilos" [value]="e">{{ e }}</option>
+            </select>
           </div>
           <div class="col-5">
             <label class="fw-bold small">Batch (L)</label>
@@ -216,7 +214,7 @@
         </div>
       </form>
       <div class="text-end pt-4">
-        <button (click)="closeModal()" class="btn btn-link text-secondary text-decoration-none me-2">Cancelar</button>
+        <button (click)="closeModal()" class="btn btn-link text-secondary text-decoration-none">Cancelar</button>
         <button (click)="guardarReceta()" [disabled]="form.invalid" class="btn text-white" style="background:#4A2C2A">Actualizar</button>
       </div>
     </div>

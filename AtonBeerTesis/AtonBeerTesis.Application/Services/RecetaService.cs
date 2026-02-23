@@ -16,7 +16,6 @@ namespace AtonBeerTesis.Application.Services
             _recetaRepository = recetaRepository;
         }
 
-        // NUESTRO GET ALL ACTUALIZADO CON FILTROS Y ORDEN
         public async Task<List<RecetaDto>> GetAllAsync(string? nombre = null, string? estilo = null, string? estado = null, string? orden = null)
         {
             if (string.IsNullOrWhiteSpace(estado))
@@ -25,7 +24,6 @@ namespace AtonBeerTesis.Application.Services
             }
 
             var recetas = await _recetaRepository.GetAllAsync(nombre, estilo, estado, orden);
-
             return recetas.Select(MapToDto).ToList();
         }
 
@@ -45,15 +43,13 @@ namespace AtonBeerTesis.Application.Services
             if (await ExisteNombreAsync(nombre))
                 throw new Exception("Ya existe una receta con ese nombre");
 
-            var estilo = dto.Estilo?.Trim();
-
             if (dto.BatchSizeLitros <= 0)
                 throw new Exception("El volumen (BatchSizeLitros) debe ser mayor a 0");
 
             var receta = new Receta
             {
                 Nombre = nombre,
-                Estilo = estilo ?? "",
+                Estilo = dto.Estilo?.Trim() ?? "",
                 BatchSizeLitros = dto.BatchSizeLitros,
                 Notas = dto.Notas?.Trim(),
                 Estado = EstadoReceta.Activa,
@@ -87,13 +83,28 @@ namespace AtonBeerTesis.Application.Services
 
             if (!Enum.TryParse<EstadoReceta>(dto.Estado, true, out var estadoEnum))
                 throw new Exception("Estado de receta inválido");
-
+            //Datos que se actualizan
             receta.Nombre = nombre;
             receta.Estilo = dto.Estilo?.Trim() ?? "";
             receta.BatchSizeLitros = dto.BatchSizeLitros;
             receta.Notas = dto.Notas?.Trim();
             receta.Estado = estadoEnum;
             receta.FechaActualizacion = DateTime.UtcNow;
+            //ACTUALIZACIÓN DE INSUMOS
+            // Borramos los que tiene actualmente la receta en memoria
+            receta.RecetaInsumos.Clear();
+            // Agrego los que vienen del DTO
+            if (dto.RecetaInsumos != null)
+            {
+                foreach (var i in dto.RecetaInsumos)
+                {
+                    receta.RecetaInsumos.Add(new RecetaInsumo
+                    {
+                        InsumoId = i.InsumoId,
+                        Cantidad = i.Cantidad
+                    });
+                }
+            }
 
             await _recetaRepository.UpdateAsync(receta);
             return true;
@@ -107,37 +118,26 @@ namespace AtonBeerTesis.Application.Services
             if (dto.Nombre is not null)
             {
                 var nombre = dto.Nombre.Trim();
-
-                if (string.IsNullOrWhiteSpace(nombre))
-                    throw new Exception("El nombre no puede quedar vacío");
-
-                if (await ExisteNombreAsync(nombre, id))
-                    throw new Exception("Ya existe otra receta con ese nombre");
-
+                if (string.IsNullOrWhiteSpace(nombre)) throw new Exception("El nombre no puede quedar vacío");
+                if (await ExisteNombreAsync(nombre, id)) throw new Exception("Ya existe otra receta con ese nombre");
                 receta.Nombre = nombre;
             }
 
             if (dto.Estilo is not null) receta.Estilo = dto.Estilo.Trim();
             if (dto.Notas is not null) receta.Notas = dto.Notas.Trim();
-
             if (dto.BatchSizeLitros.HasValue)
             {
-                if (dto.BatchSizeLitros.Value <= 0)
-                    throw new Exception("El volumen (BatchSizeLitros) debe ser mayor a 0");
-
+                if (dto.BatchSizeLitros.Value <= 0) throw new Exception("El volumen debe ser mayor a 0");
                 receta.BatchSizeLitros = dto.BatchSizeLitros.Value;
             }
 
             if (dto.Estado is not null)
             {
-                if (!Enum.TryParse<EstadoReceta>(dto.Estado, true, out var estadoEnum))
-                    throw new Exception("Estado de receta inválido");
-
+                if (!Enum.TryParse<EstadoReceta>(dto.Estado, true, out var estadoEnum)) throw new Exception("Estado inválido");
                 receta.Estado = estadoEnum;
             }
 
             receta.FechaActualizacion = DateTime.UtcNow;
-
             await _recetaRepository.UpdateAsync(receta);
             return true;
         }
@@ -149,16 +149,13 @@ namespace AtonBeerTesis.Application.Services
 
             receta.Estado = EstadoReceta.Inactiva;
             receta.FechaActualizacion = DateTime.UtcNow;
-
             await _recetaRepository.UpdateAsync(receta);
             return true;
         }
 
-        // LÍNEA ROTA DE VITTO ARREGLADA
         public List<string> GetEstadosReceta() => Enum.GetNames(typeof(EstadoReceta)).ToList();
 
-        // --- MÉTODOS PRIVADOS FALTANTES QUE VITTO NO HIZO ---
-
+        // --- MAPEO CON PROTECCIÓN CONTRA NULOS ---
         private RecetaDto MapToDto(Receta receta)
         {
             return new RecetaDto
@@ -171,28 +168,29 @@ namespace AtonBeerTesis.Application.Services
                 Estado = receta.Estado.ToString(),
                 FechaCreacion = receta.FechaCreacion,
                 FechaActualizacion = receta.FechaActualizacion,
+                
                 RecetaInsumos = receta.RecetaInsumos?.Select(ri => new RecetaInsumoDto
                 {
                     InsumoId = ri.InsumoId,
                     Cantidad = ri.Cantidad,
-                    NombreInsumo = ri.Insumo?.NombreInsumo, // Esto requiere un .Include en el Repo
-                    UnidadMedida = ri.Insumo?.unidadMedida?.Abreviatura // Esto tmb
+                    NombreInsumo = ri.Insumo?.NombreInsumo,
+                    UnidadMedida = ri.Insumo?.unidadMedida?.Abreviatura ?? ""
                 }).ToList() ?? new List<RecetaInsumoDto>(),
-                PasosElaboracion = receta.PasosElaboracion.Select(p => new PasosElaboracionDto
-                {  
+
+                PasosElaboracion = receta.PasosElaboracion?.Select(p => new PasosElaboracionDto
+                {
                     Id = p.Id,
                     Nombre = p.Nombre,
                     Descripcion = p.Descripcion,
                     Temperatura = p.Temperatura,
                     Tiempo = p.Tiempo,
                     Orden = p.Orden
-                }).ToList()
+                }).ToList() ?? new List<PasosElaboracionDto>()
             };
         }
 
         private async Task<bool> ExisteNombreAsync(string nombre, int? idExcluido = null)
         {
-            // Traemos todas sin filtro para validar que no se repita el nombre
             var todas = await _recetaRepository.GetAllAsync();
             var coincidencia = todas.Where(r => r.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
 
@@ -201,48 +199,40 @@ namespace AtonBeerTesis.Application.Services
 
             return coincidencia.Any();
         }
-        //Metodo para modificar una receta ya creada, agregandole un nuevo insumo sin necesidad de modificar toda la receta,
-        //solo agregando el nuevo insumo a la lista de insumos de la receta
+
         public async Task<bool> AddInsumoToReceta(int id, RecetaInsumoDto dto)
         {
             var nuevaRelacion = new RecetaInsumo
             {
-                RecetaId= id,
+                RecetaId = id,
                 InsumoId = dto.InsumoId,
                 Cantidad = dto.Cantidad
             };
-
             return await _recetaRepository.AddInsumoAsync(nuevaRelacion);
         }
+
         public async Task<bool> RemoveInsumoDeReceta(int id, int insumoId)
         {
-            // Llamamos al repo 
             return await _recetaRepository.RemoveInsumoAsync(id, insumoId);
         }
+
         public async Task<PasosElaboracion> CrearPasoAsync(int recetaId, PasosElaboracion paso)
         {
-            // Validamos si la receta existe antes de intentar agregar el paso
             var recetaExistente = await _recetaRepository.GetByIdAsync(recetaId);
-
-            if (recetaExistente == null)
-            {
-                // Lanzamos una excepción
-                throw new Exception("La receta no existe y no se pueden añadir pasos.");
-            }
+            if (recetaExistente == null) throw new Exception("La receta no existe.");
 
             paso.RecetaId = recetaId;
             return await _recetaRepository.AddPasoAsync(paso);
         }
+
         public async Task<bool> EditarPasoAsync(int recetaId, int pasoId, PasosElaboracion pasoEditado)
         {
-            // 1. Validar que la receta exista
             var receta = await _recetaRepository.GetByIdAsync(recetaId);
-            if (receta == null) return false;
+            if (receta == null || receta.PasosElaboracion == null) return false;
 
-            // 2. Buscar el paso dentro de esa receta            
             var pasoExistente = receta.PasosElaboracion.FirstOrDefault(p => p.Id == pasoId);
             if (pasoExistente == null) return false;
-            // 3. Mapear cambios
+
             pasoExistente.Nombre = pasoEditado.Nombre;
             pasoExistente.Descripcion = pasoEditado.Descripcion;
             pasoExistente.Temperatura = pasoEditado.Temperatura;
@@ -253,9 +243,8 @@ namespace AtonBeerTesis.Application.Services
         }
 
         public async Task<bool> EliminarPasoAsync(int recetaId, int pasoId)
-        {            
+        {
             return await _recetaRepository.DeletePasoAsync(pasoId);
         }
     }
-
 }

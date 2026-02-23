@@ -9,5 +9,6 @@
 
         // string para que sea igual al ClienteService (Enum.TryParse)
         public string Estado { get; set; } = "Activa";
+        public List<RecetaInsumoDto> RecetaInsumos { get; set; } = new List<RecetaInsumoDto>();
     }
 }

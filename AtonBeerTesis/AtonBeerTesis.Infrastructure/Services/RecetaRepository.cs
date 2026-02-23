@@ -47,8 +47,8 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             return await _context.Recetas
                 .Include(r => r.RecetaInsumos)
                     .ThenInclude(ri => ri.Insumo)
-                    .ThenInclude(i => i.unidadMedida)
-                .Include(r => r.PasosElaboracion) 
+                        .ThenInclude(i => i.unidadMedida) // Trae la relación de unidades (Kg, L, etc.)
+                .Include(r => r.PasosElaboracion)
                 .FirstOrDefaultAsync(r => r.IdReceta == id);
         }
         public async Task AddAsync(Receta receta)

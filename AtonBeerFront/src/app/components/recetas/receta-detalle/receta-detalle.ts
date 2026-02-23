@@ -6,7 +6,6 @@ import { LucideAngularModule, Pencil, Plus, Trash2, X, Beer, Save } from 'lucide
 import { Receta, RecetaService } from '../../../services/receta'; 
 import { InsumoService } from '../../../services/insumo.service'; 
 
-// Interfaz para el proceso de elaboración (PBI 92)
 export interface RecetaPaso {
   id?: number;
   nombre: string;
@@ -24,24 +23,20 @@ export interface RecetaPaso {
   styleUrl: './receta-detalle.css',
 })
 export class RecetaDetalle implements OnInit {
-  receta: Receta | null = null;
+  receta: any | null = null;
   cargando: boolean = true;
   
-  // Iconos
   Pencil = Pencil; Plus = Plus; Trash2 = Trash2; X = X; Beer = Beer; Save = Save;
 
-  // --- VARIABLES EDICIÓN GENERAL ---
   showModal = false;
   form: FormGroup;
   estilos: string[] = ['IPA', 'Stout', 'Golden', 'Honey'];
 
-  // --- VARIABLES INSUMOS ---
   listaInsumos: any[] = [];
   insumoIdSeleccionado: number = 0;
   cantidadIngresada: number = 0;
   mostrarFormInsumo: boolean = false; 
 
-  // --- VARIABLES PASOS DE COCCIÓN (PBI 92) ---
   pasos: RecetaPaso[] = []; 
   showModalPaso = false;
   editandoPaso = false;
@@ -78,7 +73,6 @@ export class RecetaDetalle implements OnInit {
     this.recetaService.getRecetaDetalle(id).subscribe({
       next: (data: any) => {
         this.receta = data;
-        // Asignamos los pasos que vienen del Backend al array local
         this.pasos = data.pasosElaboracion || [];
         this.cargando = false;
       },
@@ -89,7 +83,21 @@ export class RecetaDetalle implements OnInit {
     });
   }
 
-  // LÓGICA PASOS (PBI 92 - Vinculada al Backend)
+  // FUNCIÓN SINCRONIZADA CON TU CONTROLLER C#
+  getUnidadSeleccionada(): string {
+    if (this.insumoIdSeleccionado == 0) return '';
+    
+    // Buscamos el insumo seleccionado en la lista cargada
+    const insumo = this.listaInsumos.find(i => 
+      (i.id == this.insumoIdSeleccionado) || (i.idInsumo == this.insumoIdSeleccionado)
+    );
+    
+    if (!insumo) return '';
+
+    // Tu Controller manda la abreviatura en la propiedad .unidad o .Unidad
+    return insumo.unidad || insumo.Unidad || insumo.unidadMedida?.abreviatura || '';
+  }
+
   abrirModalPaso() {
     this.editandoPaso = false;
     this.pasoActual = { nombre: '', descripcion: '', temperatura: 65, tiempo: 60, orden: this.pasos.length + 1 };
@@ -103,9 +111,7 @@ export class RecetaDetalle implements OnInit {
 
   guardarPaso() {
     if (!this.receta) return;
-
     if (this.editandoPaso) {
-      // PERSISTENCIA REAL: EDITAR (PUT)
       const idPaso = this.pasos[this.indiceEdicionPaso].id;
       if (idPaso) {
         this.recetaService.updatePaso(this.receta.idReceta, idPaso, this.pasoActual).subscribe({
@@ -116,7 +122,6 @@ export class RecetaDetalle implements OnInit {
         });
       }
     } else {
-      // PERSISTENCIA REAL: CREAR (POST)
       this.recetaService.addPaso(this.receta.idReceta, this.pasoActual).subscribe({
         next: () => {
           this.cargarReceta(this.receta!.idReceta);
@@ -136,7 +141,6 @@ export class RecetaDetalle implements OnInit {
   eliminarPaso(index: number) {
     const paso = this.pasos[index];
     if (paso.id && confirm('¿Desea eliminar este paso permanentemente?')) {
-      // PERSISTENCIA REAL: ELIMINAR (DELETE)
       this.recetaService.deletePaso(this.receta!.idReceta, paso.id).subscribe({
         next: () => {
           this.cargarReceta(this.receta!.idReceta);
@@ -145,7 +149,6 @@ export class RecetaDetalle implements OnInit {
     }
   }
 
-  // LÓGICA EDICIÓN GENERAL Y ESTILOS
   openEdit() {
     if (this.receta) {
       this.form.patchValue({
@@ -173,23 +176,6 @@ export class RecetaDetalle implements OnInit {
     });
   }
 
-  agregarEstilo() {
-    const nuevo = prompt('Nuevo estilo:');
-    if (nuevo && !this.estilos.includes(nuevo)) {
-      this.estilos.push(nuevo.trim());
-      this.form.patchValue({ estilo: nuevo.trim() });
-    }
-  }
-
-  eliminarEstilo() {
-    const sel = this.form.get('estilo')?.value;
-    if (sel && confirm(`¿Eliminar estilo ${sel}?`)) {
-      this.estilos = this.estilos.filter(e => e !== sel);
-      this.form.patchValue({ estilo: '' }); 
-    }
-  }
-
-  // LÓGICA INSUMOS
   cargarInsumosDisponibles(): void {
     this.insumoService.obtenerInsumos().subscribe({
       next: (data) => this.listaInsumos = data

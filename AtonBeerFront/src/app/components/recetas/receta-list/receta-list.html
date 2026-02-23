@@ -1,6 +1,6 @@
-<div class="p-6 min-h-screen bg-orange-50/30">
+<div class="p-6 min-h-screen bg-orange-50/30 text-start">
   
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 text-start">
     <div>
       <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Recetas</h2>
       <p class="text-gray-600">Administración de recetas de producción y versiones.</p>
@@ -58,7 +58,6 @@
             <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre</th>
             <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Código</th>
             <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Estilo</th>
-            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Versión</th>
             <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Última Modif.</th>
             <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
             <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
@@ -73,147 +72,98 @@
                 {{ r.estilo }}
               </span>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-700">v{{ r.version || '1.0' }}</td>
             <td class="px-6 py-4 text-sm text-gray-700">
               {{ (r.fechaActualizacion || r.fechaCreacion | date:'dd/MM/yyyy') || '---' }}
             </td>
             <td class="px-6 py-4">
               <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" [checked]="r.estado === 'Activa'" (change)="toggleEstado(r)" class="sr-only peer">
-                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#E67E22]"></div>
+                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[#E67E22] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
                 <span class="ml-3 text-sm font-medium text-gray-700">{{ r.estado }}</span>
               </label>
             </td>
             <td class="px-6 py-4 text-right">
               <div class="flex justify-end gap-3">
-                <button (click)="openEdit(r)" class="text-[#4A2C2A] hover:text-[#E67E22] hover:scale-110 transition" title="Editar">
-                  <lucide-icon [img]="Pencil" [size]="20"></lucide-icon>
-                </button>
-                <button [routerLink]="['/recetas/detalle', r.idReceta]" class="text-blue-800 hover:text-blue-900 hover:scale-110 transition" title="Ver Detalle">
-                  <lucide-icon [img]="FileText" [size]="20"></lucide-icon>
-                </button>
+                <button (click)="openEdit(r)" class="text-[#4A2C2A] hover:text-[#E67E22] transition"><lucide-icon [img]="Pencil" [size]="20"></lucide-icon></button>
+                <button [routerLink]="['/recetas/detalle', r.idReceta]" class="text-blue-800 hover:text-blue-900 transition"><lucide-icon [img]="FileText" [size]="20"></lucide-icon></button>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div class="p-8 text-center text-gray-400" *ngIf="recetas.length === 0 && !cargando">
-      No se encontraron recetas con esos filtros.
-    </div>
   </div>
 </div>
 
 <div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-  <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden max-h-[90vh] flex flex-col">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden max-h-[90vh] flex flex-col text-start">
     
     <div class="bg-[#4A2C2A] p-4 flex justify-between items-center shrink-0">
       <h5 class="text-white font-semibold text-lg">{{ isEditing ? 'Editar Receta' : 'Nueva Receta' }}</h5>
-      <button (click)="closeModal()" class="text-white hover:text-gray-300 text-xl border-0 bg-transparent">✕</button>
+      <button (click)="closeModal()" class="text-white border-0 bg-transparent">✕</button>
     </div>
 
     <div class="p-6 overflow-y-auto">
       <form [formGroup]="form" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Receta *</label>
-          <input formControlName="nombre" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none" />
+          <input formControlName="nombre" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#E67E22]" />
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-4 text-start">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Estilo *</label>
-            <div class="flex gap-2">
-              <select formControlName="estilo" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
+            <div class="flex gap-1">
+              <select formControlName="estilo" class="w-full border rounded-lg p-2 text-sm">
                 <option value="" disabled>Seleccione...</option>
                 <option *ngFor="let e of estilos" [value]="e">{{ e }}</option>
               </select>
-              
-              <button type="button" (click)="agregarEstilo()" class="px-2 py-2 bg-orange-100 text-[#E67E22] rounded-lg hover:bg-orange-200 transition" title="Agregar Estilo">
-                <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
-              </button>
-              
-              <button type="button" (click)="eliminarEstilo()" class="px-2 py-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition" title="Eliminar Estilo">
-                <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
-              </button>
+              <button type="button" (click)="agregarEstilo()" class="p-1 bg-orange-100 text-[#E67E22] rounded"><lucide-icon [img]="Plus" [size]="16"></lucide-icon></button>
             </div>
           </div>
-
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Volumen de Prod. (L) *</label>
-            <input type="number" formControlName="batchSizeLitros" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">Volumen (L) *</label>
+            <input type="number" formControlName="batchSizeLitros" class="w-full border rounded-lg p-2.5" />
           </div>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
-          <textarea formControlName="notas" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none h-24 resize-none"></textarea>
+          <textarea formControlName="notas" class="w-full border rounded-lg p-2 h-20 resize-none"></textarea>
         </div>
 
-        <div class="mt-4 pt-4 border-t border-gray-100">
+        <div class="mt-4 pt-4 border-t border-gray-100" *ngIf="!isEditing">
           <h6 class="text-[#4A2C2A] font-bold mb-3 flex items-center gap-2">
             <lucide-icon [img]="Beer" [size]="18"></lucide-icon>
-            Ingredientes de la Receta
+            Ingredientes Iniciales
           </h6>
           
           <div class="flex gap-2 items-end">
             <div class="flex-[2]">
-              <label class="block text-xs font-medium text-gray-500 mb-1 text-[10px] uppercase">Seleccionar Insumo</label>
-              <select 
-                [(ngModel)]="insumoIdSeleccionado" 
-                [ngModelOptions]="{standalone: true}"
-                class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#E67E22] outline-none"
-              >
-                <option value="0" disabled>Elegir...</option>
-                <option *ngFor="let i of listaInsumos" [value]="i.id">
-                  {{ i.nombreInsumo }} ({{ i.unidadMedida }})
-                </option>
+              <select [(ngModel)]="insumoIdSeleccionado" [ngModelOptions]="{standalone: true}" class="w-full border rounded-lg p-2 text-sm">
+                <option value="0" disabled>Insumo...</option>
+                <option *ngFor="let i of listaInsumos" [value]="i.id">{{ i.nombreInsumo }}</option>
               </select>
             </div>
-
             <div class="flex-1">
-              <label class="block text-xs font-medium text-gray-500 mb-1 text-[10px] uppercase">Cant.</label>
-              <input 
-                type="number" 
-                [(ngModel)]="cantidadIngresada" 
-                [ngModelOptions]="{standalone: true}"
-                placeholder="0"
-                class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#E67E22] outline-none"
-              />
+              <input type="number" [(ngModel)]="cantidadIngresada" [ngModelOptions]="{standalone: true}" placeholder="Cant." class="w-full border rounded-lg p-2 text-sm" />
             </div>
-
-            <button 
-              type="button" 
-              (click)="agregarInsumoALista()"
-              class="p-2.5 bg-orange-100 text-[#E67E22] rounded-lg hover:bg-orange-200 transition shadow-sm"
-            >
-              <lucide-icon [img]="Plus" [size]="20"></lucide-icon>
-            </button>
+            <button type="button" (click)="agregarInsumoALista()" class="p-2 bg-orange-100 text-[#E67E22] rounded-lg"><lucide-icon [img]="Plus" [size]="20"></lucide-icon></button>
           </div>
 
-          <div class="mt-4 bg-gray-50 rounded-xl border border-gray-100 overflow-hidden" *ngIf="insumosElegidos.length > 0">
-            <table class="w-full text-sm">
-              <tbody class="divide-y divide-gray-200">
-                <tr *ngFor="let item of insumosElegidos; let idx = index" class="hover:bg-white transition-colors">
-                  <td class="px-3 py-2 text-gray-700">{{ item.nombreInsumo }}</td>
-                  <td class="px-3 py-2 text-right font-bold text-[#4A2C2A]">
-                    {{ item.cantidad }} <span class="text-xs font-normal text-gray-500">{{ item.unidadMedida }}</span>
-                  </td>
-                  <td class="px-3 py-2 text-right">
-                    <button type="button" (click)="quitarInsumo(idx)" class="text-red-400 hover:text-red-600">
-                      <lucide-icon [img]="X" [size]="16"></lucide-icon>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="mt-3 bg-gray-50 rounded-lg p-2" *ngIf="insumosElegidos.length > 0">
+            <div *ngFor="let item of insumosElegidos; let idx = index" class="flex justify-between text-sm py-1 border-b last:border-0">
+              <span>{{ item.nombreInsumo }}</span>
+              <span class="font-bold">{{ item.cantidad }} <button (click)="quitarInsumo(idx)" class="text-red-500 ml-2">✕</button></span>
+            </div>
           </div>
         </div>
       </form>
 
-      <div class="mt-6 flex justify-end gap-3 border-t pt-4 shrink-0">
-        <button (click)="closeModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
-        <button (click)="guardarReceta()" [disabled]="form.invalid" class="px-6 py-2 rounded-lg font-semibold bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white shadow hover:shadow-lg transition disabled:opacity-50">
-          {{ isEditing ? 'Actualizar Receta' : 'Guardar Receta' }}
+      <div class="mt-6 flex justify-end gap-3 pt-4">
+        <button (click)="closeModal()" class="px-4 py-2 text-gray-500">Cancelar</button>
+        <button (click)="guardarReceta()" [disabled]="form.invalid" class="px-6 py-2 rounded-lg bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white font-bold">
+          {{ isEditing ? 'Actualizar' : 'Guardar' }}
         </button>
       </div>
     </div>
