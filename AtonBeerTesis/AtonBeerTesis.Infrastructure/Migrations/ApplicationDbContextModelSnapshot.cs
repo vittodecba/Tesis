@@ -148,6 +148,41 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.ToTable("MovimientosStock");
                 });
 
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.PasosElaboracion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Orden")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RecetaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Temperatura")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Tiempo")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecetaId");
+
+                    b.ToTable("PasosElaboracion");
+                });
+
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.ProductoPrueba", b =>
                 {
                     b.Property<int>("id")
@@ -218,6 +253,32 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.HasKey("IdReceta");
 
                     b.ToTable("Recetas");
+                });
+
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.RecetaInsumo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Cantidad")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("InsumoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RecetaId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InsumoId");
+
+                    b.HasIndex("RecetaId");
+
+                    b.ToTable("RecetaInsumos");
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Rol", b =>
@@ -384,6 +445,36 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.PasosElaboracion", b =>
+                {
+                    b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
+                        .WithMany("PasosElaboracion")
+                        .HasForeignKey("RecetaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Receta");
+                });
+
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.RecetaInsumo", b =>
+                {
+                    b.HasOne("AtonBeerTesis.Domain.Insumo", "Insumo")
+                        .WithMany()
+                        .HasForeignKey("InsumoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
+                        .WithMany("RecetaInsumos")
+                        .HasForeignKey("RecetaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Insumo");
+
+                    b.Navigation("Receta");
+                });
+
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Usuario", b =>
                 {
                     b.HasOne("AtonBeerTesis.Domain.Entities.Rol", "Rol")
@@ -412,6 +503,13 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Navigation("TipoInsumo");
 
                     b.Navigation("unidadMedida");
+                });
+
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Receta", b =>
+                {
+                    b.Navigation("PasosElaboracion");
+
+                    b.Navigation("RecetaInsumos");
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Rol", b =>

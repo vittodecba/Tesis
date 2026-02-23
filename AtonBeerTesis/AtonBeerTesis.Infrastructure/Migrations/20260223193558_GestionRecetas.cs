@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicial : Migration
+    public partial class GestionRecetas : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -73,6 +73,25 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Recetas",
+                columns: table => new
+                {
+                    IdReceta = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: false),
+                    Estilo = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
+                    BatchSizeLitros = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Notas = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FechaActualizacion = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Recetas", x => x.IdReceta);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "roles",
                 columns: table => new
                 {
@@ -113,6 +132,30 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_unidadMedida", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PasosElaboracion",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Temperatura = table.Column<int>(type: "int", nullable: false),
+                    Tiempo = table.Column<int>(type: "int", nullable: false),
+                    Orden = table.Column<int>(type: "int", nullable: false),
+                    RecetaId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PasosElaboracion", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PasosElaboracion_Recetas_RecetaId",
+                        column: x => x.RecetaId,
+                        principalTable: "Recetas",
+                        principalColumn: "IdReceta",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -195,6 +238,33 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "RecetaInsumos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RecetaId = table.Column<int>(type: "int", nullable: false),
+                    InsumoId = table.Column<int>(type: "int", nullable: false),
+                    Cantidad = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RecetaInsumos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RecetaInsumos_Insumos_InsumoId",
+                        column: x => x.InsumoId,
+                        principalTable: "Insumos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RecetaInsumos_Recetas_RecetaId",
+                        column: x => x.RecetaId,
+                        principalTable: "Recetas",
+                        principalColumn: "IdReceta",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_historialAccesos_UsuarioId",
                 table: "historialAccesos",
@@ -209,6 +279,21 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 name: "IX_Insumos_unidadMedidaId",
                 table: "Insumos",
                 column: "unidadMedidaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PasosElaboracion_RecetaId",
+                table: "PasosElaboracion",
+                column: "RecetaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecetaInsumos_InsumoId",
+                table: "RecetaInsumos",
+                column: "InsumoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecetaInsumos_RecetaId",
+                table: "RecetaInsumos",
+                column: "RecetaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Usuarios_RolId",
@@ -226,25 +311,34 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 name: "historialAccesos");
 
             migrationBuilder.DropTable(
-                name: "Insumos");
+                name: "MovimientosStock");
 
             migrationBuilder.DropTable(
-                name: "MovimientosStock");
+                name: "PasosElaboracion");
 
             migrationBuilder.DropTable(
                 name: "ProductosPrueba");
 
             migrationBuilder.DropTable(
+                name: "RecetaInsumos");
+
+            migrationBuilder.DropTable(
                 name: "Usuarios");
+
+            migrationBuilder.DropTable(
+                name: "Insumos");
+
+            migrationBuilder.DropTable(
+                name: "Recetas");
+
+            migrationBuilder.DropTable(
+                name: "roles");
 
             migrationBuilder.DropTable(
                 name: "TiposInsumo");
 
             migrationBuilder.DropTable(
                 name: "unidadMedida");
-
-            migrationBuilder.DropTable(
-                name: "roles");
         }
     }
 }
