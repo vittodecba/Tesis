@@ -24,14 +24,17 @@ export class RecetaListComponent implements OnInit {
   recetas: Receta[] = [];
   cargando = false;
   showModal = false; 
-  isEditing = false; // AGREGADO
-  recetaIdSeleccionada: number | null = null; // AGREGADO
+  isEditing = false; 
+  recetaIdSeleccionada: number | null = null; 
   form: FormGroup;
 
   filtroNombre: string = '';
   filtroEstilo: string = '';
-  filtroEstado: string = ''; 
-  estilos: string[] = ['IPA', 'Stout', 'Golden', 'Honey'];
+  filtroEstado: string = 'Activa'; 
+  
+  estilos: string[] = [];
+  estilosDefault: string[] = ['IPA', 'Stout', 'Golden', 'Honey'];
+  
   listaInsumos: any[] = [];
   insumosElegidos: any[] = [];
   insumoIdSeleccionado: number = 0;
@@ -43,14 +46,49 @@ export class RecetaListComponent implements OnInit {
       estilo: ['', [Validators.required]],
       batchSizeLitros: [20, [Validators.required, Validators.min(1)]],
       notas: [''],
-      estado: ['Activa'],
-      version: ['1.0']
+      estado: ['Activa']
     });
   }
 
   ngOnInit(): void {
+    this.cargarEstilosLocales(); 
     this.loadRecetas();
     this.cargarInsumos();
+  }
+
+  cargarEstilosLocales() {
+    const guardados = localStorage.getItem('estilos_cerveza');
+    if (guardados) {
+      this.estilos = JSON.parse(guardados);
+    } else {
+      this.estilos = [...this.estilosDefault];
+      this.guardarEstilosLocales();
+    }
+  }
+
+  guardarEstilosLocales() {
+    localStorage.setItem('estilos_cerveza', JSON.stringify(this.estilos));
+  }
+
+  agregarEstilo() {
+    const nuevoEstilo = prompt('Ingrese el nombre del nuevo estilo de cerveza:');
+    if (nuevoEstilo && nuevoEstilo.trim() !== '') {
+      const estiloLimpio = nuevoEstilo.trim();
+      if (!this.estilos.includes(estiloLimpio)) {
+        this.estilos.push(estiloLimpio);
+        this.guardarEstilosLocales();
+        this.form.patchValue({ estilo: estiloLimpio });
+      }
+    }
+  }
+
+  eliminarEstilo() {
+    const estiloSeleccionado = this.form.get('estilo')?.value;
+    if (estiloSeleccionado && confirm(`¿Desea eliminar el estilo "${estiloSeleccionado}"?`)) {
+      this.estilos = this.estilos.filter(e => e !== estiloSeleccionado);
+      this.guardarEstilosLocales();
+      this.form.patchValue({ estilo: '' });
+    }
   }
 
   cargarInsumos(): void {
@@ -95,8 +133,8 @@ export class RecetaListComponent implements OnInit {
   }
 
   openCreate() {
-    this.isEditing = false; // AGREGADO
-    this.form.reset({ batchSizeLitros: 20, estado: 'Activa', version: '1.0', estilo: '' });
+    this.isEditing = false; 
+    this.form.reset({ batchSizeLitros: 20, estado: 'Activa', estilo: '' });
     this.insumosElegidos = []; 
     this.insumoIdSeleccionado = 0;
     this.cantidadIngresada = 0;
@@ -112,7 +150,6 @@ export class RecetaListComponent implements OnInit {
     this.cargando = true;
 
     if (this.isEditing && this.recetaIdSeleccionada) {
-      // ACTUALIZAR (solo campos macro)
       this.recetaService.update(this.recetaIdSeleccionada, this.form.value).subscribe({
         next: () => {
           this.closeModal();
@@ -121,7 +158,6 @@ export class RecetaListComponent implements OnInit {
         error: () => this.cargando = false
       });
     } else {
-      // CREAR (con insumos)
       const recetaParaEnviar = {
         ...this.form.value,
         recetaInsumos: this.insumosElegidos.map(i => ({
@@ -148,20 +184,19 @@ export class RecetaListComponent implements OnInit {
   limpiarFiltros() {
     this.filtroNombre = ''; 
     this.filtroEstilo = ''; 
-    this.filtroEstado = '';
+    this.filtroEstado = 'Activa'; 
     this.aplicarFiltros();
   }
 
   openEdit(r: any) { 
-    this.isEditing = true; // AGREGADO
-    this.recetaIdSeleccionada = r.idReceta; // AGREGADO
+    this.isEditing = true; 
+    this.recetaIdSeleccionada = r.idReceta; 
     this.form.patchValue({
       nombre: r.nombre,
       estilo: r.estilo,
       batchSizeLitros: r.batchSizeLitros,
       notas: r.notas,
-      estado: r.estado,
-      version: r.version
+      estado: r.estado
     });
     this.showModal = true;
   }
@@ -173,23 +208,4 @@ export class RecetaListComponent implements OnInit {
       next: () => this.loadRecetas()
     });
   } 
-
-  agregarEstilo() {
-    const nuevoEstilo = prompt('Ingrese el nombre del nuevo estilo de cerveza:');
-    if (nuevoEstilo && nuevoEstilo.trim() !== '') {
-      const estiloLimpio = nuevoEstilo.trim();
-      if (!this.estilos.includes(estiloLimpio)) {
-        this.estilos.push(estiloLimpio);
-        this.form.patchValue({ estilo: estiloLimpio });
-      }
-    }
-  }
-
-  eliminarEstilo() {
-    const estiloSeleccionado = this.form.get('estilo')?.value;
-    if (estiloSeleccionado && confirm(`¿Desea eliminar el estilo "${estiloSeleccionado}"?`)) {
-      this.estilos = this.estilos.filter(e => e !== estiloSeleccionado);
-      this.form.patchValue({ estilo: '' });
-    }
-  }
 }
