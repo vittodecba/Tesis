@@ -36,14 +36,14 @@
     </select>
 
     <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()" class="px-4 py-2.5 bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#E67E22]">
-      <option value="">Todos los estados</option>
+      <option value="Todos">Todos los estados</option>
       <option value="Activa">Activa</option>
       <option value="Inactiva">Inactiva</option>
     </select>
 
     <button
       class="text-red-500 text-sm font-medium hover:underline"
-      *ngIf="filtroNombre || filtroEstilo || filtroEstado"
+      *ngIf="filtroNombre !== '' || filtroEstilo !== '' || filtroEstado !== 'Activa'"
       (click)="limpiarFiltros()"
     >
       Limpiar filtros

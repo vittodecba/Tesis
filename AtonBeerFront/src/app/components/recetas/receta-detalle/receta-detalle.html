@@ -1,4 +1,4 @@
-<div class="container mt-4" *ngIf="cargando">
+-<div class="container mt-4" *ngIf="cargando">
   <div class="text-center py-5">
     <div class="spinner-border text-warning" role="status"></div>
     <p class="mt-2 text-muted">Buscando receta...</p>
@@ -8,10 +8,7 @@
 <div class="container mt-4" *ngIf="!cargando && receta">
   <div class="d-flex justify-content-between align-items-center mb-4 text-start">
     <div>
-      <h2 class="mb-1 text-[#4A2C2A] fw-bold">
-        {{ receta.nombre }}
-        <span class="text-muted fs-5">(v{{ receta.version }})</span>
-      </h2>
+      <h2 class="mb-1 text-[#4A2C2A] fw-bold">{{ receta.nombre }}</h2>
       <span class="badge bg-primary px-3 py-2">{{ receta.estado }}</span>
     </div>
     <div class="d-flex gap-3 align-items-center">
@@ -31,7 +28,7 @@
         <div class="card-body">
           <p><strong>Código:</strong> REC-{{ receta.idReceta }}</p>
           <p><strong>Estilo:</strong> {{ receta.estilo }}</p>
-          <p><strong>Batch Size:</strong> {{ receta.batchSizeLitros || 0 }} Litros</p>
+          <p><strong>Volumen de Producción:</strong> {{ receta.batchSizeLitros || 0 }} Litros</p>
         </div>
       </div>
 
@@ -301,10 +298,8 @@
             </select>
           </div>
           <div class="col-5">
-            <label class="fw-bold small">Batch (L)</label>
-            <input type="number"
-                   formControlName="batchSizeLitros"
-                   class="form-control" />
+            <label class="fw-bold small">Volumen (L)</label>
+            <input type="number" formControlName="batchSizeLitros" class="form-control" />
           </div>
         </div>
 
