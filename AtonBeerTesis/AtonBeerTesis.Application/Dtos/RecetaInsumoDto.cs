@@ -14,5 +14,6 @@ namespace AtonBeerTesis.Application.Dtos
         public string? NombreInsumo { get; set; }
         public decimal Cantidad { get; set; }
         public string? UnidadMedida { get; set; }
+        public int UnidadMedidaId { get; set; }
     }
 }

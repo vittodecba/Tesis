@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { LucideAngularModule, Pencil, Plus, Trash2, X, Beer, Save } from 'lucide-angular'; 
 import { Receta, RecetaService } from '../../../services/receta'; 
 import { InsumoService } from '../../../services/insumo.service'; 
+import { UnidadMedidaService } from '../../../services/unidadMedida';
 
 export interface RecetaPaso {
   id?: number;
@@ -33,7 +34,9 @@ export class RecetaDetalle implements OnInit {
   estilos: string[] = ['IPA', 'Stout', 'Golden', 'Honey'];
 
   listaInsumos: any[] = [];
+  listaUnidades: any[] = [];
   insumoIdSeleccionado: number = 0;
+  unidadIdSeleccionada: number = 0;
   cantidadIngresada: number = 0;
   mostrarFormInsumo: boolean = false; 
 
@@ -47,7 +50,8 @@ export class RecetaDetalle implements OnInit {
     private route: ActivatedRoute,
     private recetaService: RecetaService,
     private fb: FormBuilder,
-    private insumoService: InsumoService 
+    private insumoService: InsumoService,
+    private unidadService: UnidadMedidaService
   ) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required]],
@@ -65,6 +69,7 @@ export class RecetaDetalle implements OnInit {
       const id = Number(idParam);
       this.cargarReceta(id);
       this.cargarInsumosDisponibles();
+      this.cargarUnidades();
     }
   }
 
@@ -83,18 +88,27 @@ export class RecetaDetalle implements OnInit {
     });
   }
 
-  // FUNCIÓN SINCRONIZADA CON TU CONTROLLER C#
-  getUnidadSeleccionada(): string {
-    if (this.insumoIdSeleccionado == 0) return '';
-    
-    // Buscamos el insumo seleccionado en la lista cargada
+  cargarUnidades(): void {
+    this.unidadService.getUnidades().subscribe({
+      next: (data) => this.listaUnidades = data
+    });
+  }
+
+  onInsumoChange() {
     const insumo = this.listaInsumos.find(i => 
       (i.id == this.insumoIdSeleccionado) || (i.idInsumo == this.insumoIdSeleccionado)
     );
-    
-    if (!insumo) return '';
+    if (insumo) {
+      this.unidadIdSeleccionada = insumo.unidadMedidaId || insumo.idUnidadMedida || 0;
+    }
+  }
 
-    // Tu Controller manda la abreviatura en la propiedad .unidad o .Unidad
+  getUnidadSeleccionada(): string {
+    if (this.insumoIdSeleccionado == 0) return '';
+    const insumo = this.listaInsumos.find(i => 
+      (i.id == this.insumoIdSeleccionado) || (i.idInsumo == this.insumoIdSeleccionado)
+    );
+    if (!insumo) return '';
     return insumo.unidad || insumo.Unidad || insumo.unidadMedida?.abreviatura || '';
   }
 
@@ -111,6 +125,7 @@ export class RecetaDetalle implements OnInit {
 
   guardarPaso() {
     if (!this.receta) return;
+
     if (this.editandoPaso) {
       const idPaso = this.pasos[this.indiceEdicionPaso].id;
       if (idPaso) {
@@ -142,9 +157,7 @@ export class RecetaDetalle implements OnInit {
     const paso = this.pasos[index];
     if (paso.id && confirm('¿Desea eliminar este paso permanentemente?')) {
       this.recetaService.deletePaso(this.receta!.idReceta, paso.id).subscribe({
-        next: () => {
-          this.cargarReceta(this.receta!.idReceta);
-        }
+        next: () => this.cargarReceta(this.receta!.idReceta)
       });
     }
   }
@@ -183,8 +196,14 @@ export class RecetaDetalle implements OnInit {
   }
 
   agregarInsumoDinamico(): void {
-    if (!this.receta || this.insumoIdSeleccionado === 0) return;
-    const dto = { insumoId: Number(this.insumoIdSeleccionado), cantidad: this.cantidadIngresada };
+    if (!this.receta || this.insumoIdSeleccionado === 0 || this.unidadIdSeleccionada === 0) return;
+
+    const dto = {
+      insumoId: Number(this.insumoIdSeleccionado),
+      cantidad: this.cantidadIngresada,
+      unidadMedidaId: Number(this.unidadIdSeleccionada)
+    };
+
     this.recetaService.addInsumo(this.receta.idReceta, dto).subscribe({
       next: () => {
         this.cargarReceta(this.receta!.idReceta);
@@ -201,9 +220,48 @@ export class RecetaDetalle implements OnInit {
     }
   }
 
+  // 🔥 NUEVO - CREAR UNIDAD
+  crearUnidad() {
+    const nombre = prompt("Nombre de la unidad (ej: Kilogramos):");
+    if (!nombre) return;
+
+    const abreviatura = prompt("Abreviatura (ej: Kg):");
+    if (!abreviatura) return;
+
+    const nuevaUnidad = {
+      nombre: nombre.trim(),
+      abreviatura: abreviatura.trim()
+    };
+
+    this.unidadService.crear(nuevaUnidad).subscribe({
+      next: () => {
+        alert('Unidad creada con éxito');
+        this.cargarUnidades();
+      }
+    });
+  }
+
+  // 🔥 NUEVO - ELIMINAR UNIDAD
+  eliminarUnidadDeLista() {
+    if (!this.unidadIdSeleccionada) return;
+
+    const unidad = this.listaUnidades.find(u => u.id == this.unidadIdSeleccionada);
+
+    if (confirm(`¿Eliminar "${unidad?.nombre}"?`)) {
+      this.unidadService.eliminar(this.unidadIdSeleccionada).subscribe({
+        next: () => {
+          alert('Unidad eliminada');
+          this.unidadIdSeleccionada = 0;
+          this.cargarUnidades();
+        }
+      });
+    }
+  }
+
   private resetFormInsumo() {
     this.insumoIdSeleccionado = 0;
     this.cantidadIngresada = 0;
+    this.unidadIdSeleccionada = 0;
     this.mostrarFormInsumo = false;
   }
 }

@@ -138,31 +138,57 @@
             Ingredientes Iniciales
           </h6>
           
-          <div class="flex gap-2 items-end">
-            <div class="flex-[2]">
-              <select [(ngModel)]="insumoIdSeleccionado" [ngModelOptions]="{standalone: true}" class="w-full border rounded-lg p-2 text-sm">
-                <option value="0" disabled>Insumo...</option>
+          <div class="row g-2 text-start">
+            <div class="col-12 mb-2">
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Insumo</label>
+              <select [(ngModel)]="insumoIdSeleccionado" [ngModelOptions]="{standalone: true}" class="w-full border rounded-lg p-2 text-sm bg-gray-50">
+                <option value="0" disabled>Seleccionar insumo...</option>
                 <option *ngFor="let i of listaInsumos" [value]="i.id">{{ i.nombreInsumo }}</option>
               </select>
             </div>
-            <div class="flex-1">
-              <input type="number" [(ngModel)]="cantidadIngresada" [ngModelOptions]="{standalone: true}" placeholder="Cant." class="w-full border rounded-lg p-2 text-sm" />
+
+            <div class="col-4">
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cant.</label>
+              <input type="number" [(ngModel)]="cantidadIngresada" [ngModelOptions]="{standalone: true}" placeholder="0" class="w-full border rounded-lg p-2 text-sm" />
             </div>
-            <button type="button" (click)="agregarInsumoALista()" class="p-2 bg-orange-100 text-[#E67E22] rounded-lg"><lucide-icon [img]="Plus" [size]="20"></lucide-icon></button>
+
+            <div class="col-8">
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Unidad</label>
+              <div class="input-group input-group-sm">
+                <select [(ngModel)]="unidadIdSeleccionada" [ngModelOptions]="{standalone: true}" class="form-select border rounded-l-lg p-2 text-sm">
+                  <option value="0" disabled>...</option>
+                  <option *ngFor="let u of listaUnidades" [value]="u.id">{{ u.abreviatura }}</option>
+                </select>
+                <button type="button" (click)="crearUnidad()" class="btn btn-outline-success" title="Nueva Unidad">+</button>
+                <button type="button" (click)="eliminarUnidadDeLista()" class="btn btn-outline-danger" title="Eliminar Unidad">🗑</button>
+              </div>
+            </div>
+
+            <div class="col-12 mt-2">
+              <button type="button" (click)="agregarInsumoALista()" 
+                class="w-full py-2 bg-orange-100 text-[#E67E22] rounded-lg font-bold border border-orange-200 hover:bg-orange-200 transition"
+                [disabled]="insumoIdSeleccionado === 0 || cantidadIngresada <= 0 || unidadIdSeleccionada === 0">
+                <lucide-icon [img]="Plus" [size]="16" class="me-1"></lucide-icon> Añadir a la receta
+              </button>
+            </div>
           </div>
 
-          <div class="mt-3 bg-gray-50 rounded-lg p-2" *ngIf="insumosElegidos.length > 0">
-            <div *ngFor="let item of insumosElegidos; let idx = index" class="flex justify-between text-sm py-1 border-b last:border-0">
-              <span>{{ item.nombreInsumo }}</span>
-              <span class="font-bold">{{ item.cantidad }} <button (click)="quitarInsumo(idx)" class="text-red-500 ml-2">✕</button></span>
+          <div class="mt-3 bg-gray-50 rounded-lg p-2 max-h-32 overflow-y-auto" *ngIf="insumosElegidos.length > 0">
+            <div *ngFor="let item of insumosElegidos; let idx = index" class="flex justify-between items-center text-sm py-1 border-b last:border-0">
+              <span class="text-[#4A2C2A]">{{ item.nombreInsumo }}</span>
+              <span class="font-bold text-orange-600">
+                {{ item.cantidad }} {{ item.unidadMedida }} 
+                <button (click)="quitarInsumo(idx)" class="text-red-500 ml-2 hover:scale-110 transition">✕</button>
+              </span>
             </div>
           </div>
         </div>
       </form>
 
-      <div class="mt-6 flex justify-end gap-3 pt-4">
-        <button (click)="closeModal()" class="px-4 py-2 text-gray-500">Cancelar</button>
-        <button (click)="guardarReceta()" [disabled]="form.invalid" class="px-6 py-2 rounded-lg bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white font-bold">
+      <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
+        <button (click)="closeModal()" class="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg transition">Cancelar</button>
+        <button (click)="guardarReceta()" [disabled]="form.invalid" 
+          class="px-6 py-2 rounded-lg bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white font-bold shadow-md hover:shadow-lg transform hover:scale-105 transition">
           {{ isEditing ? 'Actualizar' : 'Guardar' }}
         </button>
       </div>

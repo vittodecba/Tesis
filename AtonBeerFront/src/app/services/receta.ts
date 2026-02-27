@@ -7,6 +7,7 @@ export interface RecetaInsumo {
   nombreInsumo: string;
   cantidad: number;
   unidadMedida: string;
+  unidadMedidaId: number; // 👈 AGREGADO
 }
 
 export interface Receta {
@@ -21,13 +22,14 @@ export interface Receta {
   batchSizeLitros?: number;
   notas?: string;
   recetaInsumos: RecetaInsumo[];
-  pasosElaboracion: any[]; // Agregado para recibir la lista del Backend
+  pasosElaboracion: any[];
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecetaService {
+
   private apiUrl = 'http://localhost:5190/api/Recetas';
 
   constructor(private http: HttpClient) { }
@@ -54,14 +56,19 @@ export class RecetaService {
     return this.http.put(`${this.apiUrl}/${id}`, receta);
   }
 
-  addInsumo(idReceta: number, datos: { insumoId: number, cantidad: number }): Observable<any> {
+  // 🔥 MODIFICADO (solo agregado unidadMedidaId)
+  addInsumo(idReceta: number, datos: { 
+    insumoId: number, 
+    cantidad: number,
+    unidadMedidaId: number
+  }): Observable<any> {
     return this.http.post(`${this.apiUrl}/${idReceta}/insumos`, datos);
   }
 
   removeInsumo(idReceta: number, idInsumo: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${idReceta}/insumos/${idInsumo}`);
   }
-
+  
   // --- MÉTODOS PBI 92 (Pasos de Elaboración) ---
   addPaso(idReceta: number, paso: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/${idReceta}/pasos`, paso);

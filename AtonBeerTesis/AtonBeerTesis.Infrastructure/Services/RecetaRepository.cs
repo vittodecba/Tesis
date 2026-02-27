@@ -45,10 +45,17 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         public async Task<Receta?> GetByIdAsync(int id)
         {
             return await _context.Recetas
+                // PRIMERA RAMA: Traemos los insumos de la receta y el detalle del Insumo (Nombre, etc.)
                 .Include(r => r.RecetaInsumos)
                     .ThenInclude(ri => ri.Insumo)
-                        .ThenInclude(i => i.unidadMedida) // Trae la relación de unidades (Kg, L, etc.)
+
+                // SEGUNDA RAMA: Volvemos a entrar a RecetaInsumos para traer el objeto unidadMedida
+                .Include(r => r.RecetaInsumos)
+                    .ThenInclude(ri => ri.unidadMedida)
+
+                // TERCERA RAMA: Traemos los pasos de elaboración
                 .Include(r => r.PasosElaboracion)
+
                 .FirstOrDefaultAsync(r => r.IdReceta == id);
         }
         public async Task AddAsync(Receta receta)

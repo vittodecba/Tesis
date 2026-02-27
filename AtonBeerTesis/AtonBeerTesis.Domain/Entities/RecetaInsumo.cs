@@ -15,5 +15,7 @@ namespace AtonBeerTesis.Domain.Entities
         public decimal Cantidad { get; set; }
         public virtual Receta Receta { get; set; }
         public virtual Insumo Insumo { get; set; }
+        public virtual unidadMedida unidadMedida { get; set; }
+        public int unidadMedidaId { get; set; }
     }
 }

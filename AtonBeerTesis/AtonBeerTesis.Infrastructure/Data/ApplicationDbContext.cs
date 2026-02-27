@@ -28,18 +28,29 @@ namespace AtonBeerTesis.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // MAPEOS DE TABLAS (Para que coincidan con SQL)
+            // 1. MAPEOS DE TABLAS
             modelBuilder.Entity<Insumo>().ToTable("Insumos");
             modelBuilder.Entity<Usuario>().ToTable("Usuarios");
             modelBuilder.Entity<Cliente>().ToTable("Clientes");
-            modelBuilder.Entity<unidadMedida>().ToTable("unidadMedida"); // ESTA FALTABA
-            modelBuilder.Entity<TipoInsumo>().ToTable("TiposInsumo");
-
+            modelBuilder.Entity<unidadMedida>().ToTable("unidadMedida");
+            modelBuilder.Entity<TipoInsumo>().ToTable("TiposInsumo");            
+            modelBuilder.Entity<RecetaInsumo>().ToTable("RecetaInsumos");
             modelBuilder.Entity<Cliente>().HasKey(x => x.IdCliente);
+            // 2. CONFIGURACIÓN DE RELACIONES
+            // --- AGREGAR ESTO: Conecta la receta con la unidad de medida ---
+            modelBuilder.Entity<RecetaInsumo>()
+                .HasOne(ri => ri.unidadMedida)
+                .WithMany()
+                .HasForeignKey(ri => ri.unidadMedidaId)
+                .OnDelete(DeleteBehavior.NoAction);
 
-            // Precisiones decimales
+            // 3. PRECISIONES DECIMALES
             modelBuilder.Entity<Insumo>(e => e.Property(i => i.StockActual).HasPrecision(18, 2));
-            modelBuilder.Entity<ProductoPrueba>(e => e.Property(p => p.StockActual).HasPrecision(18, 2));
+            modelBuilder.Entity<ProductoPrueba>(e => e.Property(p => p.StockActual).HasPrecision(18, 2));          
+            modelBuilder.Entity<RecetaInsumo>(e => {
+                e.Property(ri => ri.Cantidad).HasPrecision(18, 3);
+            });
+
             modelBuilder.Entity<MovimientoStock>(e => {
                 e.Property(m => m.Cantidad).HasPrecision(18, 2);
                 e.Property(m => m.StockPrevio).HasPrecision(18, 2);

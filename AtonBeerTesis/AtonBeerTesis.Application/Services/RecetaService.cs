@@ -57,7 +57,8 @@ namespace AtonBeerTesis.Application.Services
                 RecetaInsumos = dto.RecetaInsumos.Select(i => new RecetaInsumo
                 {
                     InsumoId = i.InsumoId,
-                    Cantidad = i.Cantidad
+                    Cantidad = i.Cantidad,
+                    unidadMedidaId = i.UnidadMedidaId
                 }).ToList()
             };
 
@@ -101,7 +102,8 @@ namespace AtonBeerTesis.Application.Services
                     receta.RecetaInsumos.Add(new RecetaInsumo
                     {
                         InsumoId = i.InsumoId,
-                        Cantidad = i.Cantidad
+                        Cantidad = i.Cantidad,
+                        unidadMedidaId = i.UnidadMedidaId,
                     });
                 }
             }
@@ -153,9 +155,7 @@ namespace AtonBeerTesis.Application.Services
             return true;
         }
 
-        public List<string> GetEstadosReceta() => Enum.GetNames(typeof(EstadoReceta)).ToList();
-
-        // --- MAPEO CON PROTECCIÓN CONTRA NULOS ---
+        public List<string> GetEstadosReceta() => Enum.GetNames(typeof(EstadoReceta)).ToList();              
         private RecetaDto MapToDto(Receta receta)
         {
             return new RecetaDto
@@ -174,7 +174,8 @@ namespace AtonBeerTesis.Application.Services
                     InsumoId = ri.InsumoId,
                     Cantidad = ri.Cantidad,
                     NombreInsumo = ri.Insumo?.NombreInsumo,
-                    UnidadMedida = ri.Insumo?.unidadMedida?.Abreviatura ?? ""
+                    UnidadMedidaId = ri.unidadMedidaId,
+                    UnidadMedida = ri.unidadMedida?.Abreviatura ?? ""
                 }).ToList() ?? new List<RecetaInsumoDto>(),
 
                 PasosElaboracion = receta.PasosElaboracion?.Select(p => new PasosElaboracionDto
@@ -202,13 +203,32 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task<bool> AddInsumoToReceta(int id, RecetaInsumoDto dto)
         {
-            var nuevaRelacion = new RecetaInsumo
+            var receta = await _recetaRepository.GetByIdAsync(id);
+            if (receta == null) return false;
+
+            var existente = receta.RecetaInsumos
+                .FirstOrDefault(x => x.InsumoId == dto.InsumoId);
+
+            if (existente != null)
             {
-                RecetaId = id,
-                InsumoId = dto.InsumoId,
-                Cantidad = dto.Cantidad
-            };
-            return await _recetaRepository.AddInsumoAsync(nuevaRelacion);
+                existente.Cantidad = dto.Cantidad;
+                existente.unidadMedidaId = dto.UnidadMedidaId;
+
+                await _recetaRepository.UpdateAsync(receta);
+                return true;
+            }
+            else
+            {
+                var nuevaRelacion = new RecetaInsumo
+                {
+                    RecetaId = id,
+                    InsumoId = dto.InsumoId,
+                    Cantidad = dto.Cantidad,
+                    unidadMedidaId = dto.UnidadMedidaId
+                };
+
+                return await _recetaRepository.AddInsumoAsync(nuevaRelacion);
+            }
         }
 
         public async Task<bool> RemoveInsumoDeReceta(int id, int insumoId)

@@ -21,14 +21,32 @@ namespace AtonBeerTesis.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(unidadMedidaDto dto)
         {
-            //Criterio de aceptacion 1: No duplicar nombres
-            var existente = await _context.unidadMedida.AnyAsync(u => u.Nombre.ToLower() == dto.Nombre.ToLower());
-            if (existente) return BadRequest("Ya existe una unidad de medida con ese nombre");
+            // Buscamos si ya existe (sin importar si está activa o no)
+            var existente = await _context.unidadMedida
+                .FirstOrDefaultAsync(u => u.Nombre.ToLower() == dto.Nombre.ToLower());
+
+            if (existente != null)
+            {
+                // Si existe y está activa -> Error de duplicado real
+                if (existente.Activo)
+                    return BadRequest("Ya existe una unidad de medida con ese nombre");
+
+                // Si existe pero está INACTIVA -> La reactivamos y actualizamos la abreviatura
+                existente.Activo = true;
+                existente.Abreviatura = dto.Abreviatura;
+
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+
+            // Si no existe para nada, la creamos de cero
             var nuevaUnidad = new unidadMedida
             {
                 Nombre = dto.Nombre,
-                Abreviatura = dto.Abreviatura
+                Abreviatura = dto.Abreviatura,
+                Activo = true // Aseguramos que nazca activa
             };
+
             _context.unidadMedida.Add(nuevaUnidad);
             await _context.SaveChangesAsync();
             return Ok();
