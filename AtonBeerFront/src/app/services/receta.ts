@@ -15,7 +15,6 @@ export interface Receta {
   codigo?: string;
   nombre: string;
   estilo: string;
-  version: string;
   fechaCreacion: Date;       
   fechaActualizacion: Date;
   estado: string;

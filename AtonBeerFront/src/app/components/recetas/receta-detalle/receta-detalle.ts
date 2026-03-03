@@ -59,7 +59,6 @@ export class RecetaDetalle implements OnInit {
       batchSizeLitros: [20, [Validators.required, Validators.min(1)]],
       notas: [''],
       estado: ['Activa'],
-      version: ['1.0']
     });
   }
 
@@ -170,7 +169,6 @@ export class RecetaDetalle implements OnInit {
         batchSizeLitros: this.receta.batchSizeLitros,
         notas: this.receta.notas,
         estado: this.receta.estado,
-        version: this.receta.version
       });
       this.showModal = true;
     }

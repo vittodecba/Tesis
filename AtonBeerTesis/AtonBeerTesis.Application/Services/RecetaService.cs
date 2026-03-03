@@ -84,19 +84,25 @@ namespace AtonBeerTesis.Application.Services
 
             if (!Enum.TryParse<EstadoReceta>(dto.Estado, true, out var estadoEnum))
                 throw new Exception("Estado de receta inválido");
-            //Datos que se actualizan
+            
+            // Datos que se actualizan
             receta.Nombre = nombre;
             receta.Estilo = dto.Estilo?.Trim() ?? "";
             receta.BatchSizeLitros = dto.BatchSizeLitros;
             receta.Notas = dto.Notas?.Trim();
             receta.Estado = estadoEnum;
             receta.FechaActualizacion = DateTime.UtcNow;
-            //ACTUALIZACIÓN DE INSUMOS
-            // Borramos los que tiene actualmente la receta en memoria
-            receta.RecetaInsumos.Clear();
-            // Agrego los que vienen del DTO
-            if (dto.RecetaInsumos != null)
+
+
+            // --- CORRECCIÓN FINAL ---
+            // Si viene null O viene vacío (Count == 0), NO tocamos los ingredientes.
+            // Así protegemos la receta cuando se desactiva desde el listado.
+            if (dto.RecetaInsumos != null && dto.RecetaInsumos.Count > 0)
             {
+                // Borramos los que tiene actualmente la receta en memoria
+                receta.RecetaInsumos.Clear();
+
+                // Agrego los que vienen del DTO
                 foreach (var i in dto.RecetaInsumos)
                 {
                     receta.RecetaInsumos.Add(new RecetaInsumo
@@ -156,6 +162,7 @@ namespace AtonBeerTesis.Application.Services
         }
 
         public List<string> GetEstadosReceta() => Enum.GetNames(typeof(EstadoReceta)).ToList();              
+        
         private RecetaDto MapToDto(Receta receta)
         {
             return new RecetaDto

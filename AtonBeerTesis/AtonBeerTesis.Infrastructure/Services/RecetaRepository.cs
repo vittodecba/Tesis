@@ -66,7 +66,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task UpdateAsync(Receta receta)
         {
-            _context.Recetas.Update(receta);
+           // _context.Recetas.Update(receta);
             await _context.SaveChangesAsync();
         }
         //Metodo para modificar una receta ya creada
