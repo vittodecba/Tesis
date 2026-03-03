@@ -84,7 +84,7 @@ namespace AtonBeerTesis.WebApi.Controllers
             return Ok(estados);
         }
         [Tags("RecetasDetalle")]
-        //Insumos a agregar en el detalle insumo por si se quiere agregar un insumo a una receta ya creada, sin necesidad de modificar toda la receta
+        //Insumos a agregar en el detalle insumo por si se quiere agregar un insumo a una receta ya creada
         [HttpPost("{id}/insumos")]
         public async Task<IActionResult> AgregarInsumo(int id, [FromBody] RecetaInsumoDto dto)
         {
