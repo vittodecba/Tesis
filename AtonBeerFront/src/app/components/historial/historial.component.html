@@ -4,15 +4,18 @@
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
     <div>
       <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
-      <input type="text" [(ngModel)]="filtros.email" (input)="aplicarFiltros()" placeholder="Buscar email..." class="w-full p-2 border rounded-md text-sm outline-none focus:ring-2 focus:ring-orange-500">
+      <input type="text" [(ngModel)]="filtros.email" (input)="aplicarFiltros()" placeholder="Buscar email..." 
+             class="w-full p-2 border rounded-md text-sm outline-none focus:ring-2 focus:ring-orange-500">
     </div>
     <div>
       <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Fecha</label>
-      <input type="date" [(ngModel)]="filtros.fecha" (change)="aplicarFiltros()" class="w-full p-2 border rounded-md text-sm outline-none">
+      <input type="date" [(ngModel)]="filtros.fecha" (change)="aplicarFiltros()" 
+             class="w-full p-2 border rounded-md text-sm outline-none">
     </div>
     <div>
       <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Estado</label>
-      <select [(ngModel)]="exitoSelect" (change)="aplicarFiltros()" class="w-full p-2 border rounded-md text-sm outline-none">
+      <select [(ngModel)]="exitoSelect" (change)="aplicarFiltros()" 
+              class="w-full p-2 border rounded-md text-sm outline-none">
         <option value="">Todos</option>
         <option value="true">Exitosos</option>
         <option value="false">Fallidos</option>
@@ -29,18 +32,20 @@
         <tr>
           <th class="p-4">Fecha</th>
           <th class="p-4">Usuario</th>
-          <th class="p-4">Email</th>
+          <th class="p-4">Email Intentado</th>
           <th class="p-4 text-center">Estado</th>
           <th class="p-4">Detalles</th> 
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
-        @for (item of historial; track $index) {
+        @for (item of historial; track item.id) {
           <tr class="hover:bg-gray-50 transition">
-            <td class="p-4 text-sm">{{ item.fechaIntento | date:'short' }}</td> <td class="p-4 text-sm font-medium">{{ item.usuarioId || 'Anónimo' }}</td>
-            <td class="p-4 text-sm">{{ item.emailIntentado }}</td>
+            <td class="p-4 text-sm">{{ item.fecha }}</td>
+            <td class="p-4 text-sm font-medium">{{ item.usuario }}</td>
+            <td class="p-4 text-sm text-gray-600">{{ item.email }}</td>
             <td class="p-4 text-center">
-              <span [ngClass]="item.exitoso ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" class="px-2 py-1 rounded text-xs font-bold">
+              <span [ngClass]="item.exitoso ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" 
+                    class="px-2 py-1 rounded text-xs font-bold">
                 {{ item.exitoso ? 'EXITOSO' : 'FALLIDO' }}
               </span>
             </td>
@@ -50,7 +55,7 @@
           </tr>
         } @empty {
             <tr>
-                <td colspan="5" class="p-4 text-center text-gray-500">No hay registros</td>
+                <td colspan="5" class="p-4 text-center text-gray-500">No hay registros de auditoría</td>
             </tr>
         }
       </tbody>

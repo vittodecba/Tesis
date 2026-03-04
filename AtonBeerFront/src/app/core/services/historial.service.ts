@@ -8,7 +8,7 @@ import { HistorialItem, HistorialFiltros } from '../models/historial.models';
 export class HistorialService {
   private http = inject(HttpClient); 
   
-  private readonly API_URL = 'https://localhost:7118/api/Usuario/HistorialAcceso';
+  private readonly API_URL = 'http://localhost:5190/api/Usuario/HistorialAcceso';
 
   getHistorial(filtros?: HistorialFiltros): Observable<any> {
     let params = new HttpParams();

@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Interfaces;
-using AtonBeerTesis.Application.Dto; // <--- Unificado en singular
+using AtonBeerTesis.Application.Dto;
+using AtonBeerTesis.Domain.Entidades; // <--- Unificado en singular
 
 namespace AtonBeerTesis.Controllers
 {
@@ -12,12 +13,14 @@ namespace AtonBeerTesis.Controllers
         private readonly IAuthService _authService;
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly ITokenService _tokenService;
+        private readonly IHistorialAccesoRepository _historialAccesoRepository;
 
-        public AuthController(IAuthService authService, IUsuarioRepository usuarioRepository, ITokenService tokenService)
+        public AuthController(IAuthService authService, IUsuarioRepository usuarioRepository, ITokenService tokenService, IHistorialAccesoRepository historialAccesoRepository)
         {
             _authService = authService;
             _usuarioRepository = usuarioRepository;
             _tokenService = tokenService;
+            _historialAccesoRepository = historialAccesoRepository;
         }
 
         [HttpPost("login")]
@@ -28,10 +31,34 @@ namespace AtonBeerTesis.Controllers
             var usuario = await _usuarioRepository.GetByEmailAsync(Dto.Email);
 
             if (usuario == null || usuario.Contrasena != Dto.Contrasena)
-                return Unauthorized(new { message = "Credenciales inválidas" });
+            {
+                // --- REGISTRO DE INTENTO FALLIDO ---
+                var historialFallido = new HistorialAcceso
+                {
+                    UsuarioId = usuario?.Id, // Si el usuario no existe, será null
+                    EmailIntentado = Dto.Email,
+                    FechaIntento = DateTime.Now,
+                    Exitoso = false,
+                    Detalles = usuario == null ? "Email no encontrado" : "Contraseña incorrecta"
+                };
+                await _historialAccesoRepository.AddAsync(historialFallido);                
 
+                return Unauthorized(new { message = "Credenciales inválidas" });
+            }
+
+            // 2. SI LLEGÓ AQUÍ, EL LOGIN ES EXITOSO
             var token = _tokenService.GenerarTokenJWT(usuario);
 
+            // --- REGISTRO DE INTENTO EXITOSO ---
+            var historialExitoso = new HistorialAcceso
+            {
+                UsuarioId = usuario.Id,
+                EmailIntentado = usuario.Email,
+                FechaIntento = DateTime.Now,
+                Exitoso = true,
+                Detalles = "Inicio de sesión exitoso desde el sistema"
+            };
+            await _historialAccesoRepository.AddAsync(historialExitoso);
             return Ok(new
             {
                 success = true,

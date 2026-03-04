@@ -1,10 +1,10 @@
 export interface HistorialItem {
   id: number;
-  fechaIntento: Date; 
-  emailIntentado: string;
+  fecha: Date; 
+  email: string;
   exitoso: boolean;
   detalles: string;
-  usuarioId?: string;
+  usuario: string;
 }
 
 export interface HistorialFiltros {

@@ -17,6 +17,7 @@ import {
   LogOut,
   UserCog,
   ShieldCheck,
+  History as LucideHistory,
   Lock,
   LayoutDashboard,
   Settings,
@@ -52,6 +53,7 @@ export class LayoutComponent implements OnInit {
   LogOut = LogOut;
   UserCog = UserCog;
   ShieldCheck = ShieldCheck;
+  IconoHistorial = LucideHistory;
   Lock = Lock;
   LayoutDashboard = LayoutDashboard;
   Settings = Settings;
@@ -83,9 +85,8 @@ export class LayoutComponent implements OnInit {
       });
   }
 
-  // Dejamos esto en TRUE para que NO se te borre nada del menú lateral
   esAdmin(): boolean {
-    return true;
+    return this.currentUser?.rolId === 1;
   }
 
   private updateHeader() {

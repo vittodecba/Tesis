@@ -90,9 +90,9 @@ namespace AtonBeerTesis.Controllers
             var resultado = historial.Select(h => new
             {
                 h.Id,
-                Usuario = h.Usuario != null ? h.Usuario.Nombre : "Desconocido",
+                Usuario = h.Usuario != null ? h.Usuario.Nombre : (h.EmailIntentado ?? "Anónimo" ),
                 Email = h.EmailIntentado,
-                Fecha = h.FechaIntento.ToString("d"),
+                Fecha = h.FechaIntento.ToString("dd/MM/yyyy HH:mm"),
                 Exitoso = h.Exitoso,
                 Detalles = h.Detalles
             });

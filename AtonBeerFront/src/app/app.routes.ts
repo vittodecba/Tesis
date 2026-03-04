@@ -7,6 +7,7 @@ import { ClientesComponent } from './components/clientes/clientes.component';
 import { InicioComponent } from './components/Inicio/inicio.component';
 import { UsuariosComponent } from './components/usuarios/usuarios';
 import { RolesGestion } from './components/roles-gestion/roles-gestion';
+import { HistorialComponent } from './components/historial/historial.component';
 import { StockGestion } from './components/stock/stock-gestion';
 import { InsumoComponent } from './components/insumo/insumo';
 import { UnidadMedidaComponent } from './components/unidadesMedida/unidadMedidaComponent';
@@ -28,6 +29,7 @@ export const routes: Routes = [
       { path: 'clientes', component: ClientesComponent, data: { title: 'Clientes', subtitle: 'Gestión de franquicias' } },
       { path: 'usuarios', component: UsuariosComponent, data: { title: 'Usuarios', subtitle: 'Administración de accesos' } },
       { path: 'roles', component: RolesGestion, data: { title: 'Roles', subtitle: 'Permisos del sistema' } },
+      { path: 'historial', component: HistorialComponent, data: { title: 'Auditoría', subtitle: 'Historial de accesos' } },
       { path: 'stock', component: StockGestion, data: { title: 'Stock', subtitle: 'Control de productos' } },
       
       { 

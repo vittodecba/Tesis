@@ -1,8 +1,7 @@
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-// CORRECCIÓN: Subimos 2 niveles para buscar el servicio en app/services
-import { AuthService } from '../../services/auth.service'; 
 import Swal from 'sweetalert2';
+import { AuthService } from '../services/auth.service';
 
 export const authGuard = () => {
   const authService = inject(AuthService);
@@ -24,7 +23,6 @@ export const adminGuard = () => {
   if (authService.isAuthenticated() && usuario?.rolId === 1) {
     return true;
   }
-
   Swal.fire({
     title: 'Acceso Denegado',
     text: 'No tenés permisos de administrador.',
