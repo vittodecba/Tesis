@@ -4,6 +4,7 @@ using AtonBeerTesis.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using AtonBeerTesis.Domain.Interfaces;
 using AtonBeerTesis.Application.Dto;
+using AtonBeerTesis.Infrastructure.Repositories;
 
 namespace AtonBeerTesis.Controllers
 {
@@ -12,10 +13,11 @@ namespace AtonBeerTesis.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;
-
-        public UsuarioController(IUsuarioService usuarioService)
+        private readonly IHistorialAccesoRepository _historialAccesoRepository;
+        public UsuarioController(IUsuarioService usuarioService, IHistorialAccesoRepository historialAccesoRepository)
         {
             _usuarioService = usuarioService;
+            _historialAccesoRepository = historialAccesoRepository;
         }
 
         [HttpGet]
@@ -81,5 +83,21 @@ namespace AtonBeerTesis.Controllers
             await _usuarioService.DeleteAsync(id);
             return Ok(new { message = "Estado de usuario actualizado" });
         }
+        [HttpGet("HistorialAcceso")]//Endpoint para obtener el historial de accesos con filtros opcionales
+        public async Task<IActionResult> ObtenerHistorialAsync([FromQuery] string? email, [FromQuery] DateTime? fecha, [FromQuery] bool? exito)
+        {
+            var historial = await _historialAccesoRepository.ObtenerHistorialAsync(email, fecha, exito);
+            var resultado = historial.Select(h => new
+            {
+                h.Id,
+                Usuario = h.Usuario != null ? h.Usuario.Nombre : "Desconocido",
+                Email = h.EmailIntentado,
+                Fecha = h.FechaIntento.ToString("d"),
+                Exitoso = h.Exitoso,
+                Detalles = h.Detalles
+            });
+            return Ok(new { Success = true, data = resultado });
+        }
+
     }
 }

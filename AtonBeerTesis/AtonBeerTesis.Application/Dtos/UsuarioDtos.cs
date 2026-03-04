@@ -47,13 +47,4 @@ namespace AtonBeerTesis.Application.Dto
         public int RolId { get; set; }
         public bool Activo { get; set; }
     }
-    // 4. DTO PARA LOGIN
-    public class LoginDto
-    {
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = string.Empty;
-        [Required]
-        public string Contrasena { get; set; } = string.Empty;
-    }
 }
