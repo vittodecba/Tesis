@@ -28,7 +28,7 @@ import {
   ClipboardList,
   BookOpen,
   CalendarDays,
-  FlaskConical,
+  FlaskConical, // <--- IMPORTADO
   Boxes,
   Receipt,
   Ruler, 
@@ -63,7 +63,7 @@ export class LayoutComponent implements OnInit {
   ClipboardList = ClipboardList;
   BookOpen = BookOpen;
   CalendarDays = CalendarDays;
-  FlaskConical = FlaskConical;
+  FlaskConical = FlaskConical; // <--- REGISTRADO PARA EL HTML
   Boxes = Boxes;
   Receipt = Receipt;
   Ruler = Ruler;
@@ -83,7 +83,6 @@ export class LayoutComponent implements OnInit {
       });
   }
 
-  // Dejamos esto en TRUE para que NO se te borre nada del menú lateral
   esAdmin(): boolean {
     return true;
   }

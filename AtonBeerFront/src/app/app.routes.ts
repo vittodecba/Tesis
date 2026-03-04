@@ -10,9 +10,11 @@ import { RolesGestion } from './components/roles-gestion/roles-gestion';
 import { StockGestion } from './components/stock/stock-gestion';
 import { InsumoComponent } from './components/insumo/insumo';
 import { UnidadMedidaComponent } from './components/unidadesMedida/unidadMedidaComponent';
-// Importo los componentes de recetas
 import { RecetaListComponent } from './components/recetas/receta-list/receta-list';
 import { RecetaDetalle } from './components/recetas/receta-detalle/receta-detalle';
+
+// NUEVO: Importamos el componente de Fermentadores
+import { FermentadorComponent } from './components/fermentador/fermentador';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -40,6 +42,13 @@ export const routes: Routes = [
         path: 'unidades-medida', 
         component: UnidadMedidaComponent, 
         data: { title: 'Unidades', subtitle: 'Gestión de medidas' } 
+      },
+
+      // --- NUEVA RUTA DE FERMENTADORES ---
+      { 
+        path: 'fermentadores', 
+        component: FermentadorComponent, 
+        data: { title: 'Fermentadores', subtitle: 'Gestión de tanques de fermentación' } 
       },
 
       // --- RUTAS DE RECETAS ---
