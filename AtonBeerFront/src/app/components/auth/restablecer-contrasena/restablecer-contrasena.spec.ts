@@ -1,18 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RestablecerContrasena } from './restablecer-contrasena';
+import { RestablecerContrasenaComponent } from './restablecer-contrasena';
 
-describe('RestablecerContrasena', () => {
-  let component: RestablecerContrasena;
-  let fixture: ComponentFixture<RestablecerContrasena>;
-
+describe('RestablecerContrasenaComponent', () => {
+  let component: RestablecerContrasenaComponent;
+  let fixture: ComponentFixture<RestablecerContrasenaComponent>;
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RestablecerContrasena]
-    })
-    .compileComponents();
+      imports: [RestablecerContrasenaComponent],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(RestablecerContrasena);
+    fixture = TestBed.createComponent(RestablecerContrasenaComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

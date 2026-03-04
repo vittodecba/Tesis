@@ -1,7 +1,12 @@
+node_modules/
 # --- Extensiones de Usuario ---
 *.user
 *.suo
 *.useros
+
+# --- Archivos temporales y Cache ---
+*.cache
+*.dtbcache.v2
 
 # --- Carpetas de Compilación (Súper importante) ---
 bin/

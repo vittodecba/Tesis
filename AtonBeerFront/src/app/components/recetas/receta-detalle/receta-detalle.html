@@ -1,0 +1,272 @@
+<div class="p-6 min-h-screen bg-orange-50/30 text-start">
+  
+  <div class="container mt-4" *ngIf="cargando">
+    <div class="text-center py-5">
+      <div class="spinner-border text-[#E67E22]" role="status"></div>
+      <p class="mt-2 text-gray-600">Buscando receta...</p>
+    </div>
+  </div>
+
+  <div class="container mt-4" *ngIf="!cargando && receta">
+    
+    <div class="d-flex justify-content-between align-items-center mb-6">
+      <div>
+        <h2 class="text-3xl font-bold text-[#4A2C2A] mb-2">{{ receta.nombre }}</h2>
+        <span class="px-3 py-1 rounded-full text-sm font-semibold"
+              [ngClass]="receta.estado === 'Activa' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'">
+          {{ receta.estado }}
+        </span>
+      </div>
+      <div class="d-flex gap-3 align-items-center">
+        <button (click)="openEdit()" 
+                class="flex items-center gap-2 text-[#4A2C2A] hover:text-[#E67E22] transition font-medium">
+          <lucide-icon [img]="Pencil" [size]="20"></lucide-icon>
+          Editar Datos
+        </button>
+        <button routerLink="/recetas" 
+                class="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition shadow-sm font-medium">
+          Volver
+        </button>
+      </div>
+    </div>
+
+    <div class="row text-start">
+      <div class="col-md-5">
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-4">
+          <div class="p-4 border-b border-gray-100">
+            <h5 class="mb-0 font-bold text-[#4A2C2A] flex items-center gap-2">
+              <lucide-icon [img]="Beer" [size]="20"></lucide-icon> Información Técnica
+            </h5>
+          </div>
+          <div class="p-4 space-y-3">
+            <p class="text-gray-700"><strong class="text-[#4A2C2A]">Código:</strong> <span class="font-mono bg-gray-50 px-2 py-1 rounded text-sm">REC-{{ receta.idReceta }}</span></p>
+            <p class="text-gray-700"><strong class="text-[#4A2C2A]">Estilo:</strong> {{ receta.estilo }}</p>
+            <p class="text-gray-700"><strong class="text-[#4A2C2A]">Volumen:</strong> {{ receta.batchSizeLitros || 0 }} Litros</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-4">
+          <div class="p-4 border-b border-gray-100">
+            <h5 class="mb-0 font-bold text-[#4A2C2A]">Notas</h5>
+          </div>
+          <div class="p-4">
+            <p class="mb-0 text-gray-500 italic">
+              {{ receta.notas || 'Sin notas adicionales.' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-7">
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0 font-bold text-[#4A2C2A] text-xl">Ingredientes</h5>
+          <button (click)="mostrarFormInsumo = !mostrarFormInsumo"
+                  class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold border transition shadow-sm"
+                  [ngClass]="mostrarFormInsumo ? 'bg-red-50 text-red-500 border-red-200' : 'bg-orange-50 text-[#E67E22] border-orange-200 hover:bg-orange-100'">
+            <lucide-icon [img]="mostrarFormInsumo ? X : Plus" [size]="16"></lucide-icon>
+            {{ mostrarFormInsumo ? 'Cancelar' : 'Añadir Insumo' }}
+          </button>
+        </div>
+
+        <div *ngIf="mostrarFormInsumo" class="bg-orange-50/50 rounded-xl p-4 mb-4 border border-orange-100 shadow-inner">
+          <div class="row g-2 align-items-end">
+            <div class="col-5">
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Insumo</label>
+              <select [(ngModel)]="insumoIdSeleccionado" (change)="onInsumoChange()" class="w-full border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#E67E22] outline-none">
+                <option value="0" disabled>Seleccionar...</option>
+                <option *ngFor="let i of listaInsumos" [value]="i.id || i.idInsumo">{{ i.nombreInsumo }}</option>
+              </select>
+            </div>
+            <div class="col-2">
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cant.</label>
+              <input type="number" [(ngModel)]="cantidadIngresada" class="w-full border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#E67E22] outline-none" placeholder="0">
+            </div>
+            <div class="col-3">
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Unidad</label>
+              <div class="d-flex gap-1">
+                <select [(ngModel)]="unidadIdSeleccionada" class="w-full border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#E67E22] outline-none">
+                  <option value="0" disabled>...</option>
+                  <option *ngFor="let u of listaUnidades" [value]="u.id">{{ u.abreviatura }}</option>
+                </select>
+                <button type="button" (click)="crearUnidad()" class="px-2 bg-orange-200 text-[#E67E22] rounded hover:bg-orange-300 font-bold">+</button>
+                <button type="button" (click)="eliminarUnidadDeLista()" class="px-2 bg-red-100 text-red-500 rounded hover:bg-red-200" [disabled]="unidadIdSeleccionada === 0">🗑</button>
+              </div>
+            </div>
+            <div class="col-2">
+              <button (click)="agregarInsumoDinamico()" 
+                      class="w-full py-2 bg-[#E67E22] text-white rounded-lg hover:bg-[#d35400] transition shadow-md flex justify-center"
+                      [disabled]="insumoIdSeleccionado === 0 || cantidadIngresada <= 0 || unidadIdSeleccionada === 0">
+                <lucide-icon [img]="Save" [size]="18"></lucide-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-5">
+          <div class="bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] px-4 py-2 text-white">
+            <h5 class="mb-0 text-sm font-bold uppercase tracking-wider">Lista de Ingredientes</h5>
+          </div>
+          <div class="p-0">
+            <table class="table table-hover mb-0 align-middle">
+              <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
+                <tr>
+                  <th class="px-4 py-3">Nombre</th>
+                  <th class="px-4 py-3 text-end">Cantidad</th>
+                  <th class="px-4 py-3 text-center">Quitar</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-50">
+                <tr *ngFor="let item of receta.recetaInsumos">
+                  <td class="px-4 py-3 text-[#4A2C2A] font-medium">{{ item.nombreInsumo }}</td>
+                  <td class="px-4 py-3 text-end font-bold text-[#E67E22]">
+                    {{ item.cantidad }} {{ item.unidadMedida }}
+                  </td>
+                  <td class="px-4 py-3 text-center">
+                    <button (click)="eliminarInsumo(item.insumoId)" class="text-gray-400 hover:text-red-500 transition">
+                      <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0 font-bold text-[#4A2C2A] text-xl">Proceso de Elaboración</h5>
+          <button (click)="abrirModalPaso()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold border bg-orange-50 text-[#E67E22] border-orange-200 hover:bg-orange-100 transition shadow-sm">
+            <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
+            Agregar Paso
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-5">
+          <div class="p-0">
+            <table class="table table-hover mb-0 align-middle">
+              <thead class="bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white text-xs uppercase">
+                <tr>
+                  <th class="px-4 py-3 text-center" style="width: 10%">#</th>
+                  <th class="px-4 py-3" style="width: 45%">Descripción</th>
+                  <th class="px-4 py-3 text-center">Temp.</th>
+                  <th class="px-4 py-3 text-center">Tiempo</th>
+                  <th class="px-4 py-3 text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-50">
+                <tr *ngFor="let p of pasos; let i = index">
+                  <td class="px-4 py-3 text-center font-bold text-[#4A2C2A]">{{ p.orden }}</td>
+                  <td class="px-4 py-3">
+                    <div class="font-bold text-[#4A2C2A]">{{ p.nombre }}</div>
+                    <div *ngIf="p.descripcion" class="text-gray-500 text-sm italic">{{ p.descripcion }}</div>
+                  </td>
+                  <td class="px-4 py-3 text-center">
+                    <span class="px-2 py-1 bg-orange-100 text-[#E67E22] rounded-lg text-xs font-bold">{{ p.temperatura }}°C</span>
+                  </td>
+                  <td class="px-4 py-3 text-center text-gray-600">
+                    {{ p.tiempo }} min
+                  </td>
+                  <td class="px-4 py-3 text-center">
+                    <div class="d-flex justify-content-center gap-3">
+                      <button (click)="prepararEdicion(p, i)" class="text-[#E67E22] hover:scale-110 transition">
+                        <lucide-icon [img]="Pencil" [size]="18"></lucide-icon>
+                      </button>
+                      <button (click)="eliminarPaso(i)" class="text-gray-400 hover:text-red-500 transition hover:scale-110">
+                        <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showModalPaso" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 text-start">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden text-start transform transition-all">
+      <div class="bg-[#4A2C2A] p-4 flex justify-between items-center text-white">
+        <h5 class="m-0 font-bold">{{ editandoPaso ? 'Editar Paso' : 'Nuevo Paso' }}</h5>
+        <button (click)="cerrarModalPaso()" class="text-white opacity-70 hover:opacity-100">✕</button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Nombre del Paso</label>
+          <input type="text" [(ngModel)]="pasoActual.nombre" class="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Instrucciones</label>
+          <textarea [(ngModel)]="pasoActual.descripcion" class="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none h-24 resize-none"></textarea>
+        </div>
+
+        <div class="row">
+          <div class="col-6">
+            <label class="block text-sm font-bold text-gray-700 mb-1">Temp. (°C)</label>
+            <input type="number" [(ngModel)]="pasoActual.temperatura" class="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
+          </div>
+          <div class="col-6">
+            <label class="block text-sm font-bold text-gray-700 mb-1">Tiempo (min)</label>
+            <input type="number" [(ngModel)]="pasoActual.tiempo" class="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-4">
+          <button (click)="cerrarModalPaso()" class="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg transition">Cancelar</button>
+          <button (click)="guardarPaso()" [disabled]="!pasoActual.nombre" class="px-6 py-2 bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white font-bold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition">
+            Guardar Paso
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 text-start">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden text-start">
+      <div class="bg-[#4A2C2A] p-4 flex justify-between items-center text-white">
+        <h5 class="m-0 font-bold">Editar Receta</h5>
+        <button (click)="closeModal()" class="text-white opacity-70 hover:opacity-100">✕</button>
+      </div>
+
+      <div class="p-6">
+        <form [formGroup]="form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Nombre *</label>
+            <input formControlName="nombre" class="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none" />
+          </div>
+
+          <div class="row">
+            <div class="col-7">
+              <label class="block text-sm font-bold text-gray-700 mb-1">Estilo</label>
+              <select formControlName="estilo" class="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none bg-white">
+                <option *ngFor="let e of estilos" [value]="e">{{ e }}</option>
+              </select>
+            </div>
+            <div class="col-5">
+              <label class="block text-sm font-bold text-gray-700 mb-1">Volumen (L)</label>
+              <input type="number" formControlName="batchSizeLitros" class="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Notas</label>
+            <textarea formControlName="notas" class="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none h-24 resize-none"></textarea>
+          </div>
+        </form>
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-4">
+          <button (click)="closeModal()" class="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg transition">Cancelar</button>
+          <button (click)="guardarReceta()" [disabled]="form.invalid" class="px-6 py-2 bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white font-bold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition">
+            Actualizar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

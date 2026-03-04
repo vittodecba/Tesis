@@ -1,0 +1,37 @@
+<div class="welcome-section">
+  <div class="welcome-text">
+    <h1>¡Hola de nuevo, {{ currentUser?.nombre }}! 👋</h1>
+    <p>
+      Hoy es {{ fechaActual | date: "EEEE, d 'de' MMMM" }}. Aquí tienes un resumen de Aton Beer.
+    </p>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card" *ngFor="let item of stats">
+    <div class="stat-icon" [ngClass]="item.color">
+      <lucide-icon [img]="item.icon" [size]="24"></lucide-icon>
+    </div>
+    <div class="stat-info">
+      <span class="stat-label">{{ item.label }}</span>
+      <span class="stat-value">{{ item.value }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="dashboard-content">
+  <div class="main-card">
+    <h3>Próximas Actividades</h3>
+    <div class="empty-state">
+      <p>No tienes tareas pendientes para hoy. ¡Buen trabajo!</p>
+    </div>
+  </div>
+
+  <div class="side-card">
+    <h3>Accesos Rápidos</h3>
+    <div class="quick-actions">
+      <button class="action-btn">Nuevo Pedido</button>
+      <button class="action-btn">Registrar Cocción</button>
+    </div>
+  </div>
+</div>

@@ -1,7 +1,11 @@
-﻿namespace AtonBeerTesis.Application.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AtonBeerTesis.Application.Dto
 {
     public class SolicitudRecuperacionDto
     {
-        public string Email { get; set; }
+        [Required(ErrorMessage = "El email es obligatorio")]
+        [EmailAddress(ErrorMessage = "Formato de email inválido")]
+        public string Email { get; set; } = string.Empty;
     }
 }

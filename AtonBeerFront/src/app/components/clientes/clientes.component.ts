@@ -11,6 +11,8 @@ import {
   LucideAngularModule,
   Search,
   Plus,
+  User,
+  Phone,
   X,
   Pencil,
   FileText,
@@ -31,28 +33,19 @@ import { ClientesApiService } from '../../services/clientes-api';
   styleUrls: ['./clientes.component.scss'],
 })
 export class ClientesComponent implements OnInit {
-  Search = Search;
-  Plus = Plus;
-  X = X;
-  Pencil = Pencil;
-  FileText = FileText;
-  Calendar = Calendar;
-  Package = Package;
-  Hash = Hash;
-  Mail = Mail;
-  MapPin = MapPin;
-  Filter = Filter;
+  // Iconos para la interfaz
+  Search = Search; Plus = Plus; X = X; User = User; Phone = Phone;
+  Pencil = Pencil; FileText = FileText; Calendar = Calendar;
+  Package = Package; Hash = Hash; Mail = Mail; MapPin = MapPin; Filter = Filter;
 
   clientes: any[] = [];
   clientesFiltrados: any[] = [];
   cargando = false;
 
-  // Filtros
   filtroBusqueda: string = '';
   filtroTipo: string = '';
   filtroEstado: string = '';
 
-  // Modales
   showCreate = false;
   showSummary = false;
   isEditing = false;
@@ -62,16 +55,13 @@ export class ClientesComponent implements OnInit {
   createError: string | null = null;
   form: FormGroup;
 
-  constructor(
-    private api: ClientesApiService,
-    private fb: FormBuilder,
-  ) {
+  constructor(private api: ClientesApiService, private fb: FormBuilder) {
     this.form = this.fb.group({
       razonSocial: ['', [Validators.required]],
       cuit: ['', [Validators.required]],
       tipoCliente: ['Externo', [Validators.required]],
-      email: ['', [Validators.email]],
       ubicacion: ['', [Validators.required]],
+      estadoCliente: ['Activo'], // Para que el Update no falle
       contactoNombre: [''],
       contactoTelefono: [''],
       contactoEmail: ['', [Validators.email]],
@@ -96,7 +86,6 @@ export class ClientesComponent implements OnInit {
     });
   }
 
-  // --- LÓGICA DE FILTRADO ---
   aplicarFiltros(): void {
     this.clientesFiltrados = this.clientes.filter((c) => {
       const cumpleBusqueda =
@@ -104,7 +93,6 @@ export class ClientesComponent implements OnInit {
         c.cuit.includes(this.filtroBusqueda);
       const cumpleTipo = this.filtroTipo === '' || c.tipoCliente === this.filtroTipo;
       const cumpleEstado = this.filtroEstado === '' || c.estadoCliente === this.filtroEstado;
-
       return cumpleBusqueda && cumpleTipo && cumpleEstado;
     });
   }
@@ -114,7 +102,7 @@ export class ClientesComponent implements OnInit {
     this.api.patch(cliente.idCliente, { estadoCliente: nuevoEstado }).subscribe({
       next: () => {
         cliente.estadoCliente = nuevoEstado;
-        this.aplicarFiltros(); // Re-filtramos por si el filtro de estado está activo
+        this.aplicarFiltros();
       },
       error: () => {
         this.loadClientes();
@@ -125,9 +113,10 @@ export class ClientesComponent implements OnInit {
   openCreate(): void {
     this.isEditing = false;
     this.selectedId = null;
-    this.form.reset({ tipoCliente: 'Externo' });
+    this.form.reset({ tipoCliente: 'Externo', estadoCliente: 'Activo' });
     this.form.get('cuit')?.enable();
     this.showCreate = true;
+    this.createError = null;
   }
 
   openEdit(cliente: any): void {
@@ -136,6 +125,7 @@ export class ClientesComponent implements OnInit {
     this.form.patchValue(cliente);
     this.form.get('cuit')?.disable();
     this.showCreate = true;
+    this.createError = null;
   }
 
   verResumen(cliente: any): void {
@@ -152,25 +142,55 @@ export class ClientesComponent implements OnInit {
   }
 
   submitForm(): void {
-    if (this.form.invalid) return;
-    this.saving = true;
-    const rawValue = this.form.getRawValue();
-    const dto = { ...rawValue, cuit: rawValue.cuit.toString().replace(/[^0-9]/g, '') };
+    if (this.form.invalid) {
+      // Si el formulario es inválido, avisamos qué falta
+      const controles = this.form.controls;
+      for (const nombre in controles) {
+        if (controles[nombre].invalid) {
+          alert(`El campo "${nombre}" es obligatorio o tiene un formato incorrecto.`);
+        }
+      }
+      return;
+    }
 
-    const request =
-      this.isEditing && this.selectedId
+    this.saving = true;
+    this.createError = null;
+    
+    const rawValue = this.form.getRawValue();
+    const cuitLimpio = rawValue.cuit.toString().replace(/[^0-9]/g, '');
+    const dto = { ...rawValue, cuit: cuitLimpio };
+
+    const request = this.isEditing && this.selectedId
         ? this.api.update(this.selectedId, dto)
         : this.api.create(dto);
 
     request.subscribe({
       next: () => {
         this.saving = false;
+        
+        // Cartel de éxito dinámico según la acción
+        const mensaje = this.isEditing 
+          ? 'Cliente actualizado con éxito' 
+          : 'Cliente creado correctamente';
+        alert(mensaje);
+
         this.closeModals();
         this.loadClientes();
       },
       error: (err: any) => {
         this.saving = false;
-        this.createError = err.error?.message || 'Error en el servidor';
+        let mensaje = 'Error al procesar la solicitud';
+        
+        if (err.error) {
+          if (err.error.message) {
+            mensaje = err.error.message;
+          } else if (err.error.errors) {
+            mensaje = Object.values(err.error.errors).flat().join(' ');
+          } else if (typeof err.error === 'string') {
+            mensaje = err.error;
+          }
+        }
+        this.createError = mensaje;
       },
     });
   }

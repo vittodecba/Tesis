@@ -1,10 +1,9 @@
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Application.Dtos;
-using AtonBeerTesis.Domain.Entities; 
+using AtonBeerTesis.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using AtonBeerTesis.Domain.Interfaces;
-using AtonBeerTesis.Domain.Entidades;
-
+using AtonBeerTesis.Application.Dto;
 
 namespace AtonBeerTesis.Controllers
 {
@@ -12,18 +11,13 @@ namespace AtonBeerTesis.Controllers
     [ApiController]
     public class UsuarioController : ControllerBase
     {
-        private readonly IUsuarioRepository _usuarioRepository;
         private readonly IUsuarioService _usuarioService;
-        private readonly ITokenService _tokenService;
-        private readonly IHistorialAccesoRepository _historialAccesoRepository;
-        public UsuarioController(IUsuarioRepository usuarioRepository, ITokenService tokenService, IHistorialAccesoRepository historialAccesoRepository, IUsuarioService usuarioService)
+
+        public UsuarioController(IUsuarioService usuarioService)
         {
             _usuarioService = usuarioService;
-            _usuarioRepository = usuarioRepository;
-            _tokenService = tokenService;
-            _historialAccesoRepository = historialAccesoRepository;
         }
-        // --- Metodos Santi (Gestión) ---
+
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] bool mostrarInactivos = false)
         {
@@ -53,120 +47,39 @@ namespace AtonBeerTesis.Controllers
             }
         }
 
-        // --- Metodos Valen (Auth) ---
-
-        [HttpPost("registro")]
-        public async Task<IActionResult> PostAsync([FromBody] UsuarioCreateDto Dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UsuarioUpdateDto dto)
         {
-            var nuevUsuario = new Usuario
+            try
             {
-                Nombre = Dto.Nombre,
-                Apellido = Dto.Apellido,
-                Email = Dto.Email,
-                Contrasena = Dto.ConfirmarPassword, // Corregido a Contrasena (sin Ñ)
-                RolId = Dto.RolId,
-                Activo = true
-            };
-
-            // Guardo en la base de datos
-            await _usuarioRepository.AddAsync(nuevUsuario);
-            
-            // CORREGIDO: Usamos GetByEmailAsync (Nombre nuevo del repositorio)
-            var UsuarioGuardado = await _usuarioRepository.GetByEmailAsync(Dto.Email);
-
-            return Ok(new
+                await _usuarioService.UpdateAsync(id, dto);
+                return Ok(new { message = "Usuario actualizado con éxito" });
+            }
+            catch (Exception ex)
             {
-                Success = true,
-                message = "Usuario registrado exitosamente",
-                data = new
-                {
-                    id = UsuarioGuardado.Id, // Corregido: Id con mayúscula
-                    Nombre = UsuarioGuardado.Nombre,
-                    email = UsuarioGuardado.Email,
-                    rol = UsuarioGuardado.Rol != null ? UsuarioGuardado.Rol.Nombre : "No asignado" // Corregido: Rol.Nombre (verificar si es NombreRol o Nombre en la entidad Rol)
-                },
-                StatusCode = 200
-            });
+                return BadRequest(ex.Message);
+            }
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> LoginAsync([FromBody] LoginDto Dto)
+        [HttpPatch("{id}/toggle-activo")]
+        public async Task<IActionResult> ToggleActivo(int id)
         {
-            // CORREGIDO: Usamos GetByEmailAsync
-            var usuario = await _usuarioRepository.GetByEmailAsync(Dto.Email);
-
-            // 1. CASO: El usuario no existe
-            if (usuario == null)
+            try
             {
-                await _historialAccesoRepository.AddAsync(new HistorialAcceso // Corregido: AddAsync (Mayúscula)
-                {
-                    EmailIntentado = Dto.Email,
-                    Exitoso = false,
-                    Detalles = "Email no registrado",
-                    FechaIntento = DateTime.Now
-                });
-                return Unauthorized("Email no registrado, reintente nuevamente");
+                await _usuarioService.DeleteAsync(id);
+                return Ok();
             }
-
-            // 2. CASO: Contraseña incorrecta
-            // Corregido: Contrasena (sin Ñ, porque daba quilombo en el front)
-            if (usuario.Contrasena != Dto.Contrasena) 
+            catch (Exception ex)
             {
-                await _historialAccesoRepository.AddAsync(new HistorialAcceso
-                {
-                    UsuarioId = usuario.Id, // Corregido: Id mayúscula
-                    EmailIntentado = Dto.Email,
-                    Exitoso = false,
-                    Detalles = "Contraseña incorrecta",
-                    FechaIntento = DateTime.Now
-                });
-                return Unauthorized("Contraseña incorrecta, reintente nuevamente");
+                return BadRequest(ex.Message);
             }
-
-            // 3. CASO: Login Exitoso
-            var token = _tokenService.GenerarTokenJWT(usuario);
-
-            await _historialAccesoRepository.AddAsync(new HistorialAcceso
-            {
-                UsuarioId = usuario.Id,
-                EmailIntentado = Dto.Email,
-                Exitoso = true,
-                Detalles = "Login exitoso",
-                FechaIntento = DateTime.Now
-            });
-
-            return Ok(new
-            {
-                success = true,
-                message = "Inicio de sesión exitoso",
-                data = new
-                {
-                    token = token,
-                    usuario = new
-                    {
-                        id = usuario.Id,
-                        nombre = usuario.Nombre,
-                        email = usuario.Email,
-                        rolId = usuario.RolId
-                    }
-                }
-            });
         }
 
-        [HttpGet("HistorialAcceso")]
-        public async Task<IActionResult> ObtenerHistorialAsync([FromQuery] string? email, [FromQuery] DateTime? fecha, [FromQuery] bool? exito)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePhysical(int id)
         {
-            var historial = await _historialAccesoRepository.ObtenerHistorialAsync(email, fecha, exito);
-            var resultado = historial.Select(h => new
-            {
-                h.Id,
-                Usuario = h.Usuario != null ? h.Usuario.Nombre : "Desconocido",
-                Email = h.EmailIntentado,
-                Fecha = h.FechaIntento.ToString("d"),
-                Exitoso = h.Exitoso,
-                Detalles = h.Detalles
-            });
-            return Ok(new { Success = true, data = resultado });
+            await _usuarioService.DeleteAsync(id);
+            return Ok(new { message = "Estado de usuario actualizado" });
         }
     }
 }

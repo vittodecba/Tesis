@@ -1,0 +1,197 @@
+<div class="p-6 min-h-screen bg-orange-50/30 text-start">
+  
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 text-start">
+    <div>
+      <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Recetas</h2>
+      <p class="text-gray-600">Administración de recetas de producción.</p>
+    </div>
+
+    <button
+      class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-md bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white hover:shadow-lg"
+      (click)="openCreate()"
+      type="button"
+    >
+      <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
+      Nueva Receta
+    </button>
+  </div>
+
+  <div class="flex flex-wrap gap-4 mb-6 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+    <div class="relative flex-1 min-w-[250px]">
+      <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+        <lucide-icon [img]="Search" [size]="18"></lucide-icon>
+      </span>
+      <input 
+        [(ngModel)]="filtroNombre" 
+        (input)="aplicarFiltros()"
+        type="text" 
+        placeholder="Buscar por nombre..." 
+        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#E67E22] outline-none transition"
+      />
+    </div>
+
+    <select [(ngModel)]="filtroEstilo" (change)="aplicarFiltros()" class="px-4 py-2.5 bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#E67E22]">
+      <option value="">Todos los estilos</option>
+      <option *ngFor="let e of estilos" [value]="e">{{ e }}</option>
+    </select>
+
+    <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()" class="px-4 py-2.5 bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#E67E22]">
+      <option value="Todos">Todos los estados</option>
+      <option value="Activa">Activa</option>
+      <option value="Inactiva">Inactiva</option>
+    </select>
+
+    <button
+      class="text-red-500 text-sm font-medium hover:underline"
+      *ngIf="filtroNombre !== '' || filtroEstilo !== '' || filtroEstado !== 'Activa'"
+      (click)="limpiarFiltros()"
+    >
+      Limpiar filtros
+    </button>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-gray-50 border-b border-gray-100">
+          <tr>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Código</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Estilo</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Última Modif.</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
+            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let r of recetas" class="hover:bg-orange-50/50 transition-colors group">
+            <td class="px-6 py-4 text-sm font-medium text-[#4A2C2A]">{{ r.nombre }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700 font-mono">REC-{{ r.idReceta }}</td>
+            <td class="px-6 py-4">
+              <span class="px-3 py-1 bg-orange-100 text-[#E67E22] rounded-full text-sm font-semibold">
+                {{ r.estilo }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              {{ (r.fechaActualizacion || r.fechaCreacion | date:'dd/MM/yyyy') || '---' }}
+            </td>
+            <td class="px-6 py-4">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" [checked]="r.estado === 'Activa'" (change)="toggleEstado(r)" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[#E67E22] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                <span class="ml-3 text-sm font-medium text-gray-700">{{ r.estado }}</span>
+              </label>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex justify-end gap-3">
+                <button (click)="openEdit(r)" class="text-[#4A2C2A] hover:text-[#E67E22] transition"><lucide-icon [img]="Pencil" [size]="20"></lucide-icon></button>
+                <button [routerLink]="['/recetas/detalle', r.idReceta]" class="text-blue-800 hover:text-blue-900 transition"><lucide-icon [img]="FileText" [size]="20"></lucide-icon></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden max-h-[90vh] flex flex-col text-start">
+    
+    <div class="bg-[#4A2C2A] p-4 flex justify-between items-center shrink-0">
+      <h5 class="text-white font-semibold text-lg">{{ isEditing ? 'Editar Receta' : 'Nueva Receta' }}</h5>
+      <button (click)="closeModal()" class="text-white border-0 bg-transparent">✕</button>
+    </div>
+
+    <div class="p-6 overflow-y-auto">
+      <form [formGroup]="form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Receta *</label>
+          <input formControlName="nombre" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#E67E22]" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 text-start">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Estilo *</label>
+            <div class="flex gap-1">
+              <select formControlName="estilo" class="w-full border rounded-lg p-2 text-sm">
+                <option value="" disabled>Seleccione...</option>
+                <option *ngFor="let e of estilos" [value]="e">{{ e }}</option>
+              </select>
+              <button type="button" (click)="agregarEstilo()" class="p-1 bg-orange-100 text-[#E67E22] rounded"><lucide-icon [img]="Plus" [size]="16"></lucide-icon></button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Volumen (L) *</label>
+            <input type="number" formControlName="batchSizeLitros" class="w-full border rounded-lg p-2.5" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+          <textarea formControlName="notas" class="w-full border rounded-lg p-2 h-20 resize-none"></textarea>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-gray-100" *ngIf="!isEditing">
+          <h6 class="text-[#4A2C2A] font-bold mb-3 flex items-center gap-2">
+            <lucide-icon [img]="Beer" [size]="18"></lucide-icon>
+            Ingredientes Iniciales
+          </h6>
+          
+          <div class="row g-2 text-start">
+            <div class="col-12 mb-2">
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Insumo</label>
+              <select [(ngModel)]="insumoIdSeleccionado" [ngModelOptions]="{standalone: true}" class="w-full border rounded-lg p-2 text-sm bg-gray-50">
+                <option value="0" disabled>Seleccionar insumo...</option>
+                <option *ngFor="let i of listaInsumos" [value]="i.id">{{ i.nombreInsumo }}</option>
+              </select>
+            </div>
+
+            <div class="col-4">
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cant.</label>
+              <input type="number" [(ngModel)]="cantidadIngresada" [ngModelOptions]="{standalone: true}" placeholder="0" class="w-full border rounded-lg p-2 text-sm" />
+            </div>
+
+            <div class="col-8">
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Unidad</label>
+              <div class="input-group input-group-sm">
+                <select [(ngModel)]="unidadIdSeleccionada" [ngModelOptions]="{standalone: true}" class="form-select border rounded-l-lg p-2 text-sm">
+                  <option value="0" disabled>...</option>
+                  <option *ngFor="let u of listaUnidades" [value]="u.id">{{ u.abreviatura }}</option>
+                </select>
+                <button type="button" (click)="crearUnidad()" class="btn btn-outline-success" title="Nueva Unidad">+</button>
+                <button type="button" (click)="eliminarUnidadDeLista()" class="btn btn-outline-danger" title="Eliminar Unidad">🗑</button>
+              </div>
+            </div>
+
+            <div class="col-12 mt-2">
+              <button type="button" (click)="agregarInsumoALista()" 
+                class="w-full py-2 bg-orange-100 text-[#E67E22] rounded-lg font-bold border border-orange-200 hover:bg-orange-200 transition"
+                [disabled]="insumoIdSeleccionado === 0 || cantidadIngresada <= 0 || unidadIdSeleccionada === 0">
+                <lucide-icon [img]="Plus" [size]="16" class="me-1"></lucide-icon> Añadir a la receta
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-3 bg-gray-50 rounded-lg p-2 max-h-32 overflow-y-auto" *ngIf="insumosElegidos.length > 0">
+            <div *ngFor="let item of insumosElegidos; let idx = index" class="flex justify-between items-center text-sm py-1 border-b last:border-0">
+              <span class="text-[#4A2C2A]">{{ item.nombreInsumo }}</span>
+              <span class="font-bold text-orange-600">
+                {{ item.cantidad }} {{ item.unidadMedida }} 
+                <button (click)="quitarInsumo(idx)" class="text-red-500 ml-2 hover:scale-110 transition">✕</button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
+        <button (click)="closeModal()" class="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg transition">Cancelar</button>
+        <button (click)="guardarReceta()" [disabled]="form.invalid" 
+          class="px-6 py-2 rounded-lg bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white font-bold shadow-md hover:shadow-lg transform hover:scale-105 transition">
+          {{ isEditing ? 'Actualizar' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

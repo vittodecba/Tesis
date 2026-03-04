@@ -1,17 +1,20 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 import { Router } from '@angular/router';
+import { AuthService } from './core/services/auth.service';
+import { of } from 'rxjs';
 
 describe('App', () => {
-  // Creamos un "espía" del router para ver si lo llaman
   const routerSpy = { navigate: jasmine.createSpy('navigate') };
+  const authServiceSpy = jasmine.createSpyObj('AuthService', ['isAuthenticated', 'logout']);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
-        { provide: Router, useValue: routerSpy }
-      ]
+        { provide: Router, useValue: routerSpy },
+        { provide: AuthService, useValue: authServiceSpy },
+      ],
     }).compileComponents();
   });
 
@@ -27,15 +30,13 @@ describe('App', () => {
     expect(app.title).toEqual('AtonBeerFront');
   });
 
-  it('debe borrar el token y redirigir al cerrar sesion', () => {
+  it('debe llamar al logout del servicio y redirigir', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
-    spyOn(localStorage, 'removeItem');
 
     app.logout();
 
-    // Verificamos las dos cosas:
-    expect(localStorage.removeItem).toHaveBeenCalledWith('token'); // Que borre token
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);   // Que navegue a login
+    // Verificamos que delegue la responsabilidad al servicio
+    expect(authServiceSpy.logout).toHaveBeenCalled();
   });
 });

@@ -1,0 +1,20 @@
+.stockShell {
+  background: #fdfdfd;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.expandWrap {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+  &.expanded {
+    max-height: 800px;
+    opacity: 1;
+  }
+}
+
+button:active {
+  transform: scale(0.95);
+}

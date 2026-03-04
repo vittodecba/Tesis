@@ -1,0 +1,61 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h2 class="text-3xl font-bold text-[#4A2C2A]">Unidades de Medida</h2>
+      <p class="text-gray-500 font-medium">Configuración de métricas para insumos</p>
+    </div>
+    <button (click)="abrirModal()" class="bg-[#E67E22] text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all active:scale-95">
+      + Nueva Unidad
+    </button>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <table class="w-full text-left">
+      <thead class="bg-gray-50 text-gray-400 text-xs uppercase font-bold">
+        <tr>
+          <th class="px-6 py-4 italic">Nombre completo</th>
+          <th class="px-6 py-4 italic">Abreviatura</th>
+          <th class="px-6 py-4 text-right italic">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <tr *ngFor="let u of unidades" class="hover:bg-orange-50/50 transition-colors">
+          <td class="px-6 py-4 font-semibold text-[#4A2C2A]">{{ u.nombre }}</td>
+          <td class="px-6 py-4 text-gray-600 font-mono">{{ u.abreviatura }}</td>
+          <td class="px-6 py-4 text-right space-x-4">
+            <button (click)="abrirModal(u)" class="text-blue-500 hover:underline">Editar</button>
+            <button (click)="eliminar(u.id)" class="text-red-400 hover:text-red-600">Borrar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="mostrarModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl overflow-hidden">
+      <h3 class="text-xl font-bold text-[#4A2C2A] mb-6 border-b pb-2">
+        {{ datosForm.id ? 'Modificar' : 'Crear' }} Unidad
+      </h3>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Nombre</label>
+          <input [(ngModel)]="datosForm.nombre" type="text" placeholder="Ej: Mililitros" 
+                 class="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-orange-400 outline-none transition-colors">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Abreviatura</label>
+          <input [(ngModel)]="datosForm.abreviatura" type="text" placeholder="Ej: ml" 
+                 class="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-orange-400 outline-none transition-colors">
+        </div>
+      </div>
+
+      <div class="mt-8 flex justify-end gap-3">
+        <button (click)="mostrarModal = false" class="px-4 py-2 text-gray-400 font-medium">Cerrar</button>
+        <button (click)="guardar()" class="bg-[#4A2C2A] text-white px-8 py-2 rounded-xl hover:bg-black shadow-md transition-all">
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

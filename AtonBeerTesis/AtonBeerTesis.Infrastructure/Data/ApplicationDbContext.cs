@@ -1,10 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using AtonBeerTesis.Domain.Entities;
-// Agregamos los usings de ambas ramas
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AtonBeerTesis.Domain.Entidades;
+using AtonBeerTesis.Domain;
+
 
 namespace AtonBeerTesis.Infrastructure.Data
 {
@@ -13,50 +11,55 @@ namespace AtonBeerTesis.Infrastructure.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
 
-        // Aquí juntamos todas las tablas (DbSets)
-        public DbSet<Cliente> Clientes => Set<Cliente>();
+        public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Usuario> usuarios { get; set; }
         public DbSet<Rol> roles { get; set; }
+        public DbSet<unidadMedida> unidadMedida { get; set; }
+        public DbSet<TipoInsumo> TiposInsumo { get; set; }
+        public DbSet<Insumo> Insumos { get; set; }
         public DbSet<HistorialAcceso> historialAccesos { get; set; }
-        //Constructor vacio
-        protected ApplicationDbContext()
-        {
-        }
-        //Este metodo se utiliza para configurar las opciones del DbContext
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            base.OnConfiguring(optionsBuilder);
-        }
+        public DbSet<ProductoPrueba> ProductosPrueba { get; set; }
+        public DbSet<MovimientoStock> MovimientosStock { get; set; }
+        public DbSet<Receta> Recetas { get; set; }
+        public DbSet<RecetaInsumo> RecetaInsumos { get; set; }
+        public DbSet<PasosElaboracion> PasosElaboracion { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // --- Configuración de Clientes (Viene de HEAD) ---
-            modelBuilder.Entity<Cliente>(entity =>
-            {
-                entity.HasKey(x => x.IdCliente);
-                entity.Property(x => x.RazonSocial).IsRequired().HasMaxLength(150);
-                modelBuilder.Entity<Cliente>().HasIndex(c => c.Cuit).IsUnique();
-                entity.Property(x => x.Ubicacion).IsRequired().HasMaxLength(120);
-                entity.Property(x => x.Email).HasMaxLength(120);
-                entity.Property(x => x.ContactoNombre).HasMaxLength(120);
-                entity.Property(x => x.ContactoTelefono).HasMaxLength(40);
-                entity.Property(x => x.ContactoEmail).HasMaxLength(120);
-                entity.Property(x => x.Tipocliente).HasConversion<int>();
-                entity.Property(x => x.EstadoCliente).HasConversion<int>();
+            // 1. MAPEOS DE TABLAS
+            modelBuilder.Entity<Insumo>().ToTable("Insumos");
+            modelBuilder.Entity<Usuario>().ToTable("Usuarios");
+            modelBuilder.Entity<Cliente>().ToTable("Clientes");
+            modelBuilder.Entity<unidadMedida>().ToTable("unidadMedida");
+            modelBuilder.Entity<TipoInsumo>().ToTable("TiposInsumo");            
+            modelBuilder.Entity<RecetaInsumo>().ToTable("RecetaInsumos");
+            modelBuilder.Entity<Cliente>().HasKey(x => x.IdCliente);
+            // 2. CONFIGURACI�N DE RELACIONES
+            // --- AGREGAR ESTO: Conecta la receta con la unidad de medida ---
+            modelBuilder.Entity<RecetaInsumo>()
+                .HasOne(ri => ri.unidadMedida)
+                .WithMany()
+                .HasForeignKey(ri => ri.unidadMedidaId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // 3. PRECISIONES DECIMALES
+            modelBuilder.Entity<Insumo>(e => e.Property(i => i.StockActual).HasPrecision(18, 2));
+            modelBuilder.Entity<ProductoPrueba>(e => e.Property(p => p.StockActual).HasPrecision(18, 2));          
+            modelBuilder.Entity<RecetaInsumo>(e => {
+                e.Property(ri => ri.Cantidad).HasPrecision(18, 3);
             });
 
-            // --- Configuración de Usuarios y Roles (Viene de tu rama) ---
-            modelBuilder.Entity<Usuario>().ToTable("Usuarios");
+            modelBuilder.Entity<MovimientoStock>(e => {
+                e.Property(m => m.Cantidad).HasPrecision(18, 2);
+                e.Property(m => m.StockPrevio).HasPrecision(18, 2);
+                e.Property(m => m.StockResultante).HasPrecision(18, 2);
+            });
 
-            modelBuilder.Entity<Rol>().HasData(
-                new Rol { Id = 1, Nombre = "Cocinero", Descripcion = "Registra y consulta procesos productivos, recetas, fermentaciones y estado de barriles." },
-                new Rol { Id = 2, Nombre = "ResponsablePlanta", Descripcion = "Supervisa la producción y controla el stock de insumos, barriles y latas." },
-                new Rol { Id = 3, Nombre = "ResponsablePedidos", Descripcion = "Registra pedidos, controla entregas y actualiza el estado de los pedidos." },
-                new Rol { Id = 4, Nombre = "Gerente", Descripcion = "Gestiona clientes y realiza seguimiento de pedidos." },
-                new Rol { Id = 5, Nombre = "GerenteMayor", Descripcion = "Consulta ventas y reportes de ventas para análisis y toma de decisiones." }
-            );
+            modelBuilder.Entity<Rol>(entity => {
+                entity.Property(r => r.Descripcion).HasMaxLength(200);
+            });
         }
     }
 }

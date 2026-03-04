@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AtonBeerTesis.Application.Interfaces;
-using AtonBeerTesis.Application.DTOs; // <--- ESTO FALTABA
-using System.Threading.Tasks;
-using AtonBeerTesis.Application.Dtos;
+using AtonBeerTesis.Domain.Interfaces;
+using AtonBeerTesis.Application.Dto; // <--- Unificado en singular
 
 namespace AtonBeerTesis.Controllers
 {
@@ -11,13 +10,46 @@ namespace AtonBeerTesis.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly ITokenService _tokenService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IUsuarioRepository usuarioRepository, ITokenService tokenService)
         {
             _authService = authService;
+            _usuarioRepository = usuarioRepository;
+            _tokenService = tokenService;
         }
 
-        // Este es el botón que va a tocar el Frontend: POST api/auth/logout
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto Dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var usuario = await _usuarioRepository.GetByEmailAsync(Dto.Email);
+
+            if (usuario == null || usuario.Contrasena != Dto.Contrasena)
+                return Unauthorized(new { message = "Credenciales inválidas" });
+
+            var token = _tokenService.GenerarTokenJWT(usuario);
+
+            return Ok(new
+            {
+                success = true,
+                data = new
+                {
+                    token,
+                    usuario = new
+                    {
+                        id = usuario.Id,
+                        nombre = usuario.Nombre,
+                        email = usuario.Email,
+                        rolId = usuario.RolId,
+                        rolNombre = usuario.Rol?.Nombre ?? "Sin Rol"
+                    }
+                }
+            });
+        }
+
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
@@ -25,28 +57,35 @@ namespace AtonBeerTesis.Controllers
             return Ok(new { message = "Sesión cerrada correctamente" });
         }
 
-        // --- NUEVO METODO AGREGADO ---
         [HttpPost("recuperar-contrasena")]
         public async Task<IActionResult> RecuperarContrasena([FromBody] SolicitudRecuperacionDto solicitud)
         {
-            // 1. Validar que el email no venga vacío
-            if (string.IsNullOrEmpty(solicitud.Email))
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
             {
-                return BadRequest("El email es obligatorio.");
+                await _authService.RecuperarContrasena(solicitud.Email);
+                return Ok(new { message = "Si el email existe, se enviaron las instrucciones." });
             }
-
-            await _authService.RecuperarContrasena(solicitud.Email);
-
-            return Ok(new { message = "Si el email existe, se enviaron las instrucciones." });
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost("restablecer-contrasena")]
         public async Task<IActionResult> RestablecerContrasena([FromBody] RestablecerContrasenaDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                var errores = string.Join(" ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return BadRequest(new { message = errores });
+            }
+
             try
             {
                 await _authService.RestablecerContrasena(dto);
-                return Ok(new { message = "Contraseña actualizada con éxito. Ya podés iniciar sesión." });
+                return Ok(new { message = "Contraseña actualizada con éxito." });
             }
             catch (Exception ex)
             {

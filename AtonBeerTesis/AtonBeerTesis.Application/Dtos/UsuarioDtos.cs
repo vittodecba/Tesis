@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AtonBeerTesis.Application.Dtos
+namespace AtonBeerTesis.Application.Dto
 {
     // 1. DTO PARA LEER (GET) - Lo que devolvés al frontend
     public class UsuarioDto
