@@ -10,9 +10,11 @@ import { RolesGestion } from './components/roles-gestion/roles-gestion';
 import { StockGestion } from './components/stock/stock-gestion';
 import { InsumoComponent } from './components/insumo/insumo';
 import { UnidadMedidaComponent } from './components/unidadesMedida/unidadMedidaComponent';
-// Importo los componentes de recetas
 import { RecetaListComponent } from './components/recetas/receta-list/receta-list';
 import { RecetaDetalle } from './components/recetas/receta-detalle/receta-detalle';
+
+// Importación corregida (tu archivo se llama lote-listado.ts)
+import { LoteListadoComponent } from './components/lote-listado/lote-listado';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -52,6 +54,13 @@ export const routes: Routes = [
         path: 'recetas/detalle/:id', 
         component: RecetaDetalle, 
         data: { title: 'Detalle de Receta', subtitle: 'Información completa' } 
+      },
+
+      // --- NUEVA RUTA DE PLANIFICACIÓN (LOTES) ---
+      { 
+        path: 'planificacion', 
+        component: LoteListadoComponent, 
+        data: { title: 'Planificación', subtitle: 'Gestión y seguimiento de lotes' } 
       },
     ],
   },
