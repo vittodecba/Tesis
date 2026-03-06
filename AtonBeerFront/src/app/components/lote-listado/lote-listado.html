@@ -106,7 +106,9 @@
               </span>
             </td>
             <td class="px-6 py-4 text-right">
-              <button class="text-blue-800 hover:text-blue-900"><lucide-icon [img]="FileText" [size]="20"></lucide-icon></button>
+              <button (click)="verDetalle(lote.id)" class="text-blue-800 hover:text-blue-900">
+                <lucide-icon [img]="FileText" [size]="20"></lucide-icon>
+              </button>
             </td>
           </tr>
         </tbody>

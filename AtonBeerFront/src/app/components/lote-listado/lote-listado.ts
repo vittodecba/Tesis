@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router'; 
 import { Lote } from '../../Interfaces/lote';
 import { Plus, Search, FileText, LucideAngularModule } from 'lucide-angular';
 
@@ -48,7 +49,8 @@ export class LoteListadoComponent implements OnInit {
     }
   ];
 
-  constructor() { }
+  // <-- Constructor actualizado con el router
+  constructor(private router: Router) { }
 
   ngOnInit(): void { }
 
@@ -78,5 +80,9 @@ export class LoteListadoComponent implements OnInit {
     this.filtroFermentador = '';
     this.filtroFechaDesde = '';
     this.filtroFechaHasta = '';
+  }
+
+  verDetalle(id: number) {
+    this.router.navigate(['/planificacion/detalle', id]);
   }
 }

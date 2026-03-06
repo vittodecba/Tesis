@@ -8,4 +8,6 @@ export interface Lote {
   estado: string;
   fermentadorId?: number;
   fermentadorNombre?: string;
+  temperaturaObjetivo?: number;
+  observaciones?: string;
 }

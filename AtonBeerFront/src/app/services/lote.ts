@@ -7,11 +7,14 @@ import { Lote } from '../Interfaces/lote';
   providedIn: 'root'
 })
 export class LoteService {
-  private apiUrl = 'https://localhost:5190/api/Lotes'; 
-
+  private apiUrl = 'https://localhost:5190/api/Lotes';
   constructor(private http: HttpClient) { }
 
   getLotes(): Observable<Lote[]> {
     return this.http.get<Lote[]>(this.apiUrl);
+  }
+
+  getLoteById(id: number): Observable<Lote> {
+    return this.http.get<Lote>(`${this.apiUrl}/${id}`);
   }
 }

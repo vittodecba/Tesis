@@ -12,8 +12,8 @@ import { InsumoComponent } from './components/insumo/insumo';
 import { UnidadMedidaComponent } from './components/unidadesMedida/unidadMedidaComponent';
 import { RecetaListComponent } from './components/recetas/receta-list/receta-list';
 import { RecetaDetalle } from './components/recetas/receta-detalle/receta-detalle';
+import { LoteDetalleComponent } from './components/lote-detalle/lote-detalle';
 
-// Importación corregida (tu archivo se llama lote-listado.ts)
 import { LoteListadoComponent } from './components/lote-listado/lote-listado';
 
 export const routes: Routes = [
@@ -62,6 +62,13 @@ export const routes: Routes = [
         component: LoteListadoComponent, 
         data: { title: 'Planificación', subtitle: 'Gestión y seguimiento de lotes' } 
       },
+
+      { 
+        path: 'planificacion/detalle/:id', 
+        component: LoteDetalleComponent, 
+        data: { title: 'Detalle de Lote', subtitle: 'Información completa del lote' } 
+      },
+      
     ],
   },
   { path: '**', redirectTo: 'login' },
