@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Lote } from '../../Interfaces/lote';
 import { LoteService } from '../../services/lote'; 
-import { ArrowLeft, LucideAngularModule } from 'lucide-angular';
+import { ArrowLeft, Edit2, Check, X, LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-lote-detalle',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './lote-detalle.html'
 })
 export class LoteDetalleComponent implements OnInit {
@@ -16,7 +17,16 @@ export class LoteDetalleComponent implements OnInit {
   cargando: boolean = true;
   error: string | null = null;
   
+  // --- Variables para el fermentador ---
+  fermentadoresDisponibles: any[] = [];
+  editandoFermentador: boolean = false;
+  nuevoFermentadorId: number | string = '';
+  guardandoFermentador: boolean = false;
+  
   ArrowLeft = ArrowLeft;
+  Edit2 = Edit2;
+  Check = Check;
+  X = X;
 
   constructor(
     private route: ActivatedRoute,
@@ -46,6 +56,43 @@ export class LoteDetalleComponent implements OnInit {
       }
     });
   }
+
+  // --- MÉTODOS PARA EL FERMENTADOR ---
+  cargarFermentadores() {
+    this.loteService.getFermentadoresDisponibles().subscribe({
+      next: (data) => this.fermentadoresDisponibles = data,
+      error: (err) => console.error('Error al cargar fermentadores libres', err)
+    });
+  }
+
+  iniciarEdicionFermentador() {
+    this.editandoFermentador = true;
+    this.nuevoFermentadorId = ''; 
+    this.cargarFermentadores();
+  }
+
+  cancelarEdicionFermentador() {
+    this.editandoFermentador = false;
+  }
+
+  guardarFermentador() {
+    if (!this.nuevoFermentadorId || !this.lote) return;
+    
+    this.guardandoFermentador = true;
+    this.loteService.asignarFermentador(this.lote.id, Number(this.nuevoFermentadorId)).subscribe({
+      next: () => {
+        this.cargarLote(this.lote!.id); // Recargamos para ver el cambio impactado
+        this.editandoFermentador = false;
+        this.guardandoFermentador = false;
+      },
+      error: (err) => {
+        alert('Error: El backend todavía no está listo para guardar el fermentador.');
+        this.editandoFermentador = false;
+        this.guardandoFermentador = false;
+      }
+    });
+  }
+  // ------------------------------------------
 
   volver() {
     this.router.navigate(['/planificacion']);

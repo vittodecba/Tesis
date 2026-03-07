@@ -17,4 +17,15 @@ export class LoteService {
   getLoteById(id: number): Observable<Lote> {
     return this.http.get<Lote>(`${this.apiUrl}/${id}`);
   }
+
+// Trae solo los fermentadores que están libres
+  getFermentadoresDisponibles(): Observable<any[]> {
+    return this.http.get<any[]>(`https://localhost:5190/api/Fermentadores?estado=disponible`);
+  }
+
+  // Asigna un fermentador específico a un lote
+  asignarFermentador(loteId: number, fermentadorId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${loteId}/fermentador`, { fermentadorId });
+  }
+
 }

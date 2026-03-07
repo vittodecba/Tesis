@@ -52,12 +52,33 @@
               <p class="text-xs font-bold text-gray-500 uppercase">Temp. Objetivo</p>
               <p class="text-md font-bold text-blue-600">{{ lote.temperaturaObjetivo ? lote.temperaturaObjetivo + ' °C' : 'N/A' }}</p>
             </div>
-            <div>
+            
+            <div class="col-span-2 md:col-span-1">
               <p class="text-xs font-bold text-gray-500 uppercase">Fermentador</p>
-              <p class="text-md font-medium text-gray-800">{{ lote.fermentadorNombre || 'Sin asignar' }}</p>
+              
+              <div *ngIf="!editandoFermentador" class="flex items-center gap-2 mt-1">
+                <p class="text-md font-medium text-gray-800">{{ lote.fermentadorNombre || 'Sin asignar' }}</p>
+                <button (click)="iniciarEdicionFermentador()" class="p-1 text-gray-400 hover:text-[#E67E22] hover:bg-orange-50 rounded transition-colors" title="Vincular fermentador">
+                  <lucide-icon [img]="Edit2" [size]="16"></lucide-icon>
+                </button>
+              </div>
+
+              <div *ngIf="editandoFermentador" class="flex items-center gap-2 mt-1">
+                <select [(ngModel)]="nuevoFermentadorId" class="px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#E67E22] w-full max-w-[150px]">
+                  <option value="">Seleccione...</option>
+                  <option *ngFor="let f of fermentadoresDisponibles" [value]="f.id">{{ f.nombre }}</option>
+                </select>
+                
+                <button (click)="guardarFermentador()" [disabled]="guardandoFermentador || !nuevoFermentadorId" class="p-1 text-green-600 hover:bg-green-50 rounded disabled:opacity-50" title="Guardar">
+                  <lucide-icon [img]="Check" [size]="18"></lucide-icon>
+                </button>
+                
+                <button (click)="cancelarEdicionFermentador()" [disabled]="guardandoFermentador" class="p-1 text-red-500 hover:bg-red-50 rounded disabled:opacity-50" title="Cancelar">
+                  <lucide-icon [img]="X" [size]="18"></lucide-icon>
+                </button>
+              </div>
             </div>
-            <div></div>
-            <div>
+            <div></div> <div>
               <p class="text-xs font-bold text-gray-500 uppercase">Fecha Inicio</p>
               <p class="text-md font-medium text-gray-800">{{ lote.fechaInicioPlanificada | date:'dd/MM/yyyy' }}</p>
             </div>
