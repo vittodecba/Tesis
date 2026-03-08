@@ -15,7 +15,6 @@ namespace AtonBeerTesis.WebApi.Controllers
             _service = service;
         }
 
-        // GET: api/fermentador
         [HttpGet]
         public async Task<ActionResult<List<FermentadorDto>>> GetAll()
         {
@@ -23,7 +22,17 @@ namespace AtonBeerTesis.WebApi.Controllers
             return Ok(lista);
         }
 
-        // POST: api/fermentador
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateFermentadorDto dto)
+        {
+            var resultado = await _service.UpdateAsync(id, dto);
+
+            if (!resultado)
+                return NotFound($"No se encontró el fermentador con ID {id}");
+
+            return NoContent();
+        }
+
         [HttpPost]
         public async Task<ActionResult<FermentadorDto>> Create(CreateFermentadorDto dto)
         {
