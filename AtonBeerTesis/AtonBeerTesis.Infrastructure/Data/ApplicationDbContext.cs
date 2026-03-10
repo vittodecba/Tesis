@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Entidades;
 using AtonBeerTesis.Domain;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 
 namespace AtonBeerTesis.Infrastructure.Data
@@ -23,6 +24,8 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<Receta> Recetas { get; set; }
         public DbSet<RecetaInsumo> RecetaInsumos { get; set; }
         public DbSet<PasosElaboracion> PasosElaboracion { get; set; }
+        public DbSet<FermentadorPrueba> FermentadoresPruebas { get; set; }
+        public DbSet<PlanificacionProduccion> PlanificacionProduccion { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,7 +36,7 @@ namespace AtonBeerTesis.Infrastructure.Data
             modelBuilder.Entity<Usuario>().ToTable("Usuarios");
             modelBuilder.Entity<Cliente>().ToTable("Clientes");
             modelBuilder.Entity<unidadMedida>().ToTable("unidadMedida");
-            modelBuilder.Entity<TipoInsumo>().ToTable("TiposInsumo");            
+            modelBuilder.Entity<TipoInsumo>().ToTable("TiposInsumo");
             modelBuilder.Entity<RecetaInsumo>().ToTable("RecetaInsumos");
             modelBuilder.Entity<Cliente>().HasKey(x => x.IdCliente);
             // 2. CONFIGURACIÓN DE RELACIONES
@@ -43,7 +46,24 @@ namespace AtonBeerTesis.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(ri => ri.unidadMedidaId)
                 .OnDelete(DeleteBehavior.NoAction);
-
+            modelBuilder.Entity<PlanificacionProduccion>(entity =>{
+                entity.ToTable("PlanificacionProduccion");
+                entity.HasKey(e => e.Id);
+                //Relacion Con Receta
+                entity.HasOne(d => d.Receta)
+                      .WithMany()
+                      .HasForeignKey(pp => pp.RecetaId)
+                      .OnDelete(DeleteBehavior.Restrict);// Evita que al eliminar una receta se eliminen las planificaciones asociadas
+            //Relacion con Fermentadores
+                entity.HasOne(d => d.FermentadorPrueba)
+                      .WithMany()
+                      .HasForeignKey(d => d.FermentadorId)
+                      .OnDelete(DeleteBehavior.Restrict);// Evita que al eliminar un fermentador se eliminen las planificaciones asociadas
+                //Relacion con la fecha
+                entity.HasIndex(e=> new { e.FermentadorId, e.FechaProduccion })
+                .IsUnique() // Esto asegura que no haya dos planificaciones para el mismo fermentador en la misma fecha
+                .HasDatabaseName("IX_Fermentador_Fecha"); // Nombre del índice
+            });
             // 3. PRECISIONES DECIMALES
             modelBuilder.Entity<Insumo>(e => e.Property(i => i.StockActual).HasPrecision(18, 2));
             modelBuilder.Entity<ProductoPrueba>(e => e.Property(p => p.StockActual).HasPrecision(18, 2));          
