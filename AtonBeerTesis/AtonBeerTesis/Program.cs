@@ -65,7 +65,9 @@ namespace AtonBeerTesis
             // --- RECETAS (Lo que faltaba de Vitto) ---
             builder.Services.AddScoped<IRecetaRepository, RecetaRepository>();
             builder.Services.AddScoped<IRecetaService, RecetaService>();
-
+            //--- Planificación de Producción ---
+            builder.Services.AddScoped<IPlanificacionRepository, PlanificacionRepository>();
+            builder.Services.AddScoped<IPlanificacionService, PlanificacionService>();
             var app = builder.Build();
 
             // 5. Pipeline de la aplicación
