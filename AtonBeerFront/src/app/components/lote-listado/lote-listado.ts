@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router'; 
 import { Lote } from '../../Interfaces/lote';
+import { LoteService } from '../../services/lote'; // <-- Importamos el servicio
 import { Plus, Search, FileText, LucideAngularModule } from 'lucide-angular';
 
 @Component({
@@ -27,32 +28,27 @@ export class LoteListadoComponent implements OnInit {
   Search = Search;
   FileText = FileText;
 
-  lotesRaw: Lote[] = [
-    { 
-      id: 1, 
-      numeroLote: 'L-001', 
-      estilo: 'Red Ale "Fuego Rojo"', 
-      volumenPlanificado: 15, 
-      fechaInicioPlanificada: new Date('2025-10-10'), 
-      fechaFinEstimada: new Date('2025-10-25'), 
-      estado: 'En curso',
-      fermentadorNombre: 'F-01'
-    },
-    { 
-      id: 2, 
-      numeroLote: 'L-002', 
-      estilo: 'Pilsen Tradicional', 
-      volumenPlanificado: 20, 
-      fechaInicioPlanificada: new Date('2025-10-15'), 
-      fechaFinEstimada: new Date('2025-11-05'), 
-      estado: 'Pendiente'
-    }
-  ];
+  lotesRaw: Lote[] = []; // <-- Empezamos vacío
 
-  // <-- Constructor actualizado con el router
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private loteService: LoteService // <-- Inyectamos el servicio
+  ) { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.cargarLotes(); // <-- Pedimos los datos al arrancar
+  }
+
+  cargarLotes() {
+    this.loteService.getLotes().subscribe({
+      next: (data) => {
+        this.lotesRaw = data;
+      },
+      error: (err) => {
+        console.error('Error al cargar lotes del servidor', err);
+      }
+    });
+  }
 
   get lotes() {
     return this.lotesRaw.filter(lote => {
