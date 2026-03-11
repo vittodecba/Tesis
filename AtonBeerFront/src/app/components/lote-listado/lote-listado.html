@@ -23,12 +23,12 @@
         <span class="absolute bottom-3 left-3 flex items-center text-gray-400">
           <lucide-icon [img]="Search" [size]="18"></lucide-icon>
         </span>
-        <input [(ngModel)]="filtroLote" type="text" placeholder="Ej: L-001..." class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#E67E22] outline-none transition"/>
+        <input [(ngModel)]="filtroLote" (input)="cargarLotes()" type="text" placeholder="Ej: L-001..." class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#E67E22] outline-none transition"/>
       </div>
 
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Receta</label>
-        <select [(ngModel)]="filtroReceta" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
+        <select [(ngModel)]="filtroReceta" (change)="cargarLotes()" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
           <option value="">Todas</option>
           <option *ngFor="let r of listaRecetas" [value]="r">{{ r }}</option>
         </select>
@@ -36,7 +36,7 @@
 
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Fermentador</label>
-        <select [(ngModel)]="filtroFermentador" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
+        <select [(ngModel)]="filtroFermentador" (change)="cargarLotes()" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
           <option value="">Todos</option>
           <option *ngFor="let f of listaFermentadores" [value]="f">{{ f }}</option>
         </select>
@@ -44,7 +44,7 @@
 
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Estado</label>
-        <select [(ngModel)]="filtroEstado" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
+        <select [(ngModel)]="filtroEstado" (change)="cargarLotes()" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
           <option value="">Todos</option>
           <option value="Pendiente">Pendiente</option>
           <option value="En curso">En curso</option>
@@ -61,11 +61,11 @@
       <div class="lg:col-span-2 flex gap-2">
         <div class="w-1/2">
           <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Desde</label>
-          <input type="date" [(ngModel)]="filtroFechaDesde" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
+          <input type="date" [(ngModel)]="filtroFechaDesde" (change)="cargarLotes()" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
         </div>
         <div class="w-1/2">
           <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Hasta</label>
-          <input type="date" [(ngModel)]="filtroFechaHasta" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
+          <input type="date" [(ngModel)]="filtroFechaHasta" (change)="cargarLotes()" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
         </div>
       </div>
 
@@ -89,12 +89,12 @@
         </thead>
         <tbody class="divide-y divide-gray-50">
           <tr *ngFor="let lote of lotes" class="hover:bg-orange-50/50 transition-colors">
-            <td class="px-6 py-4 text-sm font-mono font-bold">{{ lote.numeroLote }}</td>
-            <td class="px-6 py-4 text-sm font-medium text-[#4A2C2A]">{{ lote.estilo }}</td>
-            <td class="px-6 py-4 text-sm text-gray-600">{{ lote.fermentadorNombre || 'Sin asignar' }}</td>
-            <td class="px-6 py-4 text-sm text-center font-bold text-[#E67E22]">{{ lote.volumenPlanificado }} L</td>
-            <td class="px-6 py-4 text-sm text-gray-700">{{ lote.fechaInicioPlanificada | date:'dd/MM/yyyy' }}</td>
-            <td class="px-6 py-4 text-sm text-gray-700">{{ lote.fechaFinEstimada | date:'dd/MM/yyyy' }}</td>
+            <td class="px-6 py-4 text-sm font-mono font-bold">{{ lote.id }}</td>
+            <td class="px-6 py-4 text-sm font-medium text-[#4A2C2A]">{{ lote.recetaId }}</td>
+            <td class="px-6 py-4 text-sm text-gray-600">{{ lote.fermentadorId || 'Sin asignar' }}</td>
+            <td class="px-6 py-4 text-sm text-center font-bold text-[#E67E22]">-</td>
+            <td class="px-6 py-4 text-sm text-gray-700">{{ lote.fechaProduccion | date:'dd/MM/yyyy' }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700">-</td>
             <td class="px-6 py-4">
               <span class="px-3 py-1 rounded-full text-xs font-bold border"
                 [ngClass]="{
@@ -102,7 +102,7 @@
                   'bg-yellow-100 text-yellow-800 border-yellow-200': lote.estado === 'En curso',
                   'bg-green-100 text-green-800 border-green-200': lote.estado === 'Finalizado'
                 }">
-                {{ lote.estado }}
+                {{ lote.estado || 'Pendiente' }}
               </span>
             </td>
             <td class="px-6 py-4 text-right">

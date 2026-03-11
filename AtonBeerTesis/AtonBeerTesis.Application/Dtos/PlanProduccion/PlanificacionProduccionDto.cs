@@ -13,5 +13,6 @@ namespace AtonBeerTesis.Application.Dtos
         public DateTime FechaProduccion { get; set; }
         public string? Observaciones { get; set; }
         public int UsuarioId { get; set; }
+        public string? Estado { get; set; } // Agregada esta linea
     }
 }

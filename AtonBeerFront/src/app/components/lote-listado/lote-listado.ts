@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router'; 
 import { Lote } from '../../Interfaces/lote';
-import { LoteService } from '../../services/lote'; // <-- Importamos el servicio
+import { LoteService } from '../../services/lote';
 import { Plus, Search, FileText, LucideAngularModule } from 'lucide-angular';
 
 @Component({
@@ -28,44 +28,33 @@ export class LoteListadoComponent implements OnInit {
   Search = Search;
   FileText = FileText;
 
-  lotesRaw: Lote[] = []; // <-- Empezamos vacío
+  lotes: Lote[] = [];
 
   constructor(
     private router: Router,
-    private loteService: LoteService // <-- Inyectamos el servicio
+    private loteService: LoteService
   ) { }
 
   ngOnInit(): void {
-    this.cargarLotes(); // <-- Pedimos los datos al arrancar
+    this.cargarLotes();
   }
 
   cargarLotes() {
-    this.loteService.getLotes().subscribe({
+    const filtros = {
+      fechaDesde: this.filtroFechaDesde,
+      fechaHasta: this.filtroFechaHasta,
+      estado: this.filtroEstado,
+      recetaId: this.filtroReceta,
+      fermentadorId: this.filtroFermentador
+    };
+
+    this.loteService.getLotes(filtros).subscribe({
       next: (data) => {
-        this.lotesRaw = data;
+        this.lotes = data;
       },
       error: (err) => {
-        console.error('Error al cargar lotes del servidor', err);
+        console.error(err);
       }
-    });
-  }
-
-  get lotes() {
-    return this.lotesRaw.filter(lote => {
-      const matchLote = this.filtroLote === '' || lote.numeroLote.toLowerCase().includes(this.filtroLote.toLowerCase());
-      const matchEstado = this.filtroEstado === '' || lote.estado === this.filtroEstado;
-      const matchReceta = this.filtroReceta === '' || lote.estilo === this.filtroReceta;
-      const matchFermentador = this.filtroFermentador === '' || lote.fermentadorNombre === this.filtroFermentador;
-      
-      let matchFecha = true;
-      if (this.filtroFechaDesde && this.filtroFechaHasta) {
-        const desde = new Date(this.filtroFechaDesde).getTime();
-        const hasta = new Date(this.filtroFechaHasta).getTime();
-        const fechaLote = new Date(lote.fechaInicioPlanificada).getTime();
-        matchFecha = fechaLote >= desde && fechaLote <= hasta;
-      }
-
-      return matchLote && matchEstado && matchReceta && matchFermentador && matchFecha;
     });
   }
 
@@ -76,6 +65,7 @@ export class LoteListadoComponent implements OnInit {
     this.filtroFermentador = '';
     this.filtroFechaDesde = '';
     this.filtroFechaHasta = '';
+    this.cargarLotes();
   }
 
   verDetalle(id: number) {
