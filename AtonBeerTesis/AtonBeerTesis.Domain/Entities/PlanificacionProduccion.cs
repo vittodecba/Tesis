@@ -19,7 +19,7 @@ namespace AtonBeerTesis.Domain.Entities
         [Required]
         public int FermentadorId { get; set; }
         [ForeignKey("FermentadorId")]
-        public FermentadorPrueba? FermentadorPrueba { get; set; }
+        public Fermentador fermentador { get; set; }
         public DateTime FechaProduccion { get; set; }
         // Estados sugeridos: 1-Pendiente, 2-En Proceso, 3-Finalizado, 4-Cancelado
         public string Estado { get; set; }
