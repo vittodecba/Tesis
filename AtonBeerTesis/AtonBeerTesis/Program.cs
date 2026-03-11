@@ -71,6 +71,9 @@ namespace AtonBeerTesis
             builder.Services.AddScoped<IFermentadorRepository, FermentadorRepository>();
             builder.Services.AddScoped<IFermentadorService, FermentadorService>();
 
+            //--- Planificación de Producción ---
+            builder.Services.AddScoped<IPlanificacionRepository, PlanificacionRepository>();
+            builder.Services.AddScoped<IPlanificacionService, PlanificacionService>();
             var app = builder.Build();
 
             // 5. Pipeline de la aplicación
