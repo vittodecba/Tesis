@@ -78,7 +78,8 @@
                 </button>
               </div>
             </div>
-            <div></div> <div>
+            <div></div> 
+            <div>
               <p class="text-xs font-bold text-gray-500 uppercase">Fecha Inicio</p>
               <p class="text-md font-medium text-gray-800">{{ lote.fechaInicioPlanificada | date:'dd/MM/yyyy' }}</p>
             </div>
@@ -119,9 +120,32 @@
       
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 md:col-span-2">
         <h3 class="text-lg font-bold text-[#4A2C2A] mb-4 border-b pb-2">Insumos Requeridos</h3>
-        <div class="text-center py-10 text-gray-500 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-          <p class="font-medium text-gray-600">Acá se listarán los insumos calculados según la receta.</p>
-          <p class="text-sm mt-2">(Esperando conexión con el endpoint del backend)</p>
+        
+        <div *ngIf="cargandoInsumos" class="text-center py-6">
+          <p class="text-gray-500 animate-pulse">Calculando insumos...</p>
+        </div>
+
+        <div *ngIf="!cargandoInsumos && insumos.length > 0" class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead>
+              <tr class="text-xs font-bold text-gray-500 uppercase border-b border-gray-50">
+                <th class="px-4 py-2">Material</th>
+                <th class="px-4 py-2 text-right">Cantidad Requerida</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <tr *ngFor="let item of insumos" class="hover:bg-gray-50 transition-colors">
+                <td class="px-4 py-3 font-medium text-gray-800">{{ item.material }}</td>
+                <td class="px-4 py-3 text-right font-bold text-[#E67E22]">
+                  {{ item.cantidadTotal }} <span class="text-xs text-gray-500 font-normal">{{ item.unidad }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="!cargandoInsumos && insumos.length === 0" class="text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+          <p class="text-gray-500">No hay insumos cargados para la receta de este lote.</p>
         </div>
       </div>
 

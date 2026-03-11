@@ -22,8 +22,8 @@ namespace AtonBeerTesis.Controllers
         public async Task<IActionResult> GetAll(
             [FromQuery] DateTime? fechaDesde,
             [FromQuery] DateTime? fechaHasta,
-            [FromQuery] int? recetaId,      // Cambiado a int
-            [FromQuery] int? fermentadorId, // Cambiado a int
+            [FromQuery] int? recetaId,
+            [FromQuery] int? fermentadorId,
             [FromQuery] string? estado)
         {
             var lista = await _planificacionService.GetAllAsync();
@@ -47,11 +47,19 @@ namespace AtonBeerTesis.Controllers
             return Ok(query.ToList());
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var lista = await _planificacionService.GetAllAsync();
+            var lote = lista.FirstOrDefault(x => x.RecetaId == id);
+            if (lote == null) return NotFound(new { message = $"No se encontró el lote con ID {id}" });
+            return Ok(lote);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] PlanificacionProduccionDto dto)
         {
-            if (dto == null) return BadRequest("Datos de planificación no proporcionados.");
-
+            if (dto == null) return BadRequest("Datos no proporcionados.");
             try
             {
                 var resultado = await _planificacionService.PLanificarProduccion(dto);
@@ -61,6 +69,19 @@ namespace AtonBeerTesis.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        [HttpGet("{id}/insumos-combinados")]
+        public async Task<IActionResult> GetInsumosCombinados(int id)
+        {
+            var lista = await _planificacionService.GetAllAsync();
+            var lote = lista.FirstOrDefault(x => x.RecetaId == id);
+
+            if (lote == null) return NotFound("Lote no encontrado.");
+
+            // Lógica real de Valentín conectada
+            var insumos = await _planificacionService.GetInsumosCalculadosAsync(lote.RecetaId);
+            return Ok(insumos);
         }
     }
 }

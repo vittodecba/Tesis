@@ -29,6 +29,14 @@ export class LoteService {
     return this.http.get<Lote>(`${this.apiUrl}/${id}`);
   }
 
+  getInsumosCombinados(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/insumos-combinados`);
+  }
+
+  planificarProduccion(lote: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, lote);
+  }
+
   getFermentadoresDisponibles(): Observable<any[]> {
     return this.http.get<any[]>(`https://localhost:5190/api/Fermentadores?estado=disponible`);
   }
