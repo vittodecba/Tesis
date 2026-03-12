@@ -2,6 +2,8 @@ export interface Fermentador {
   id?: number;
   nombre: string;
   capacidad: number;
-  estado: any;
+  estado: string; // Mantenlo como string
   observaciones: string;
+  loteId?: number;
+  estiloNombre?: string;
 }

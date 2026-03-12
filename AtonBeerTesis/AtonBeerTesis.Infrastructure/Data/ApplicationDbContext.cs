@@ -56,7 +56,7 @@ namespace AtonBeerTesis.Infrastructure.Data
                       .HasForeignKey(pp => pp.RecetaId)
                       .OnDelete(DeleteBehavior.Restrict);// Evita que al eliminar una receta se eliminen las planificaciones asociadas
             //Relacion con Fermentadores
-                entity.HasOne(d => d.FermentadorPrueba)
+                entity.HasOne(d => d.fermentador)
                       .WithMany()
                       .HasForeignKey(d => d.FermentadorId)
                       .OnDelete(DeleteBehavior.Restrict);// Evita que al eliminar un fermentador se eliminen las planificaciones asociadas

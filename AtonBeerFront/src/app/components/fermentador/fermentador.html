@@ -34,10 +34,10 @@
         class="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-orange-200 outline-none text-sm cursor-pointer"
       >
         <option value="Todos">Todos los estados</option>
-        <option value="Disponible">Disponible</option>
-        <option value="Ocupado">Ocupado</option>
-        <option value="Sucio">Sucio</option>
-        <option value="Mantenimiento">Mantenimiento</option>
+        <option value="1">Disponible</option>
+        <option value="2">Ocupado</option>
+        <option value="3">Sucio</option>
+        <option value="4">Mantenimiento</option>
       </select>
     </div>
   </div>
@@ -46,8 +46,8 @@
     <table class="w-full text-left">
       <thead class="bg-gray-50 border-b border-gray-100 text-gray-400 text-xs uppercase font-bold">
         <tr>
-          <th class="px-6 py-4">Tanque</th>
-          <th class="px-6 py-4">Capacidad</th>
+          <th class="px-6 py-4">Tanque / Lote</th>
+          <th class="px-6 py-4">Capacidad / Estilo</th>
           <th class="px-6 py-4 text-center">Estado</th>
           <th class="px-6 py-4 text-right">Acciones</th>
         </tr>
@@ -55,26 +55,46 @@
       <tbody class="divide-y divide-gray-50">
         <tr
           *ngFor="let item of fermentadoresFiltrados"
-          class="hover:bg-orange-50/30 transition-colors"
+          class="hover:bg-orange-50/30 transition-colors group"
         >
-          <td class="px-6 py-4 font-bold text-[#4A2C2A]">{{ item.nombre }}</td>
-          <td class="px-6 py-4 text-sm text-gray-600">{{ item.capacidad }} Lts</td>
+          <td class="px-6 py-4">
+            <div class="flex flex-col">
+              <span class="font-bold text-[#4A2C2A]">{{ item.nombre }}</span>
+              <span
+                *ngIf="item.loteId"
+                class="text-[9px] bg-[#412725] text-white px-1.5 py-0.5 rounded-md w-fit mt-1 font-bold"
+              >
+                LOTE #{{ item.loteId }}
+              </span>
+            </div>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex flex-col">
+              <span class="text-sm text-gray-600 font-medium">{{ item.capacidad }} Lts</span>
+              <span
+                *ngIf="item.estiloNombre"
+                class="text-[11px] text-[#e67e22] font-black uppercase mt-0.5 italic"
+              >
+                {{ item.estiloNombre }}
+              </span>
+            </div>
+          </td>
           <td class="px-6 py-4 text-center">
             <span
               class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
               [ngClass]="{
-                'bg-green-100 text-green-700': item.estado == 1 || item.estado === 'Disponible',
-                'bg-blue-100 text-blue-700': item.estado == 2 || item.estado === 'Ocupado',
-                'bg-yellow-100 text-yellow-700': item.estado == 3 || item.estado === 'Sucio',
-                'bg-red-100 text-red-700': item.estado == 4 || item.estado === 'Mantenimiento',
+                'bg-green-100 text-green-700': item.estado === '1' || item.estado === 'Disponible',
+                'bg-blue-100 text-blue-700': item.estado === '2' || item.estado === 'Ocupado',
+                'bg-yellow-100 text-yellow-700': item.estado === '3' || item.estado === 'Sucio',
+                'bg-red-100 text-red-700': item.estado === '4' || item.estado === 'Mantenimiento',
               }"
             >
               {{
-                item.estado == 1 || item.estado === 'Disponible'
+                item.estado === '1' || item.estado === 'Disponible'
                   ? 'Disponible'
-                  : item.estado == 2 || item.estado === 'Ocupado'
+                  : item.estado === '2' || item.estado === 'Ocupado'
                     ? 'Ocupado'
-                    : item.estado == 3 || item.estado === 'Sucio'
+                    : item.estado === '3' || item.estado === 'Sucio'
                       ? 'Sucio'
                       : 'Mantenimiento'
               }}
@@ -82,6 +102,13 @@
           </td>
           <td class="px-6 py-4 text-right">
             <div class="flex justify-end gap-2">
+              <button
+                *ngIf="item.loteId"
+                (click)="verGraficos(item)"
+                class="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition shadow-sm"
+              >
+                <lucide-icon [img]="LineChart" [size]="18"></lucide-icon>
+              </button>
               <button
                 (click)="abrirModal(item)"
                 class="p-2 text-[#4A2C2A] hover:bg-orange-100 rounded-lg transition shadow-sm border border-transparent hover:border-gray-200"
@@ -109,7 +136,6 @@
         <span>{{ esEdicion ? 'Editar Fermentador' : 'Nuevo Tanque' }}</span>
         <button (click)="cerrarModal()" class="text-xl hover:text-orange-300">✕</button>
       </div>
-
       <div class="p-6 space-y-5">
         <div>
           <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1"
@@ -118,12 +144,10 @@
           <input
             [(ngModel)]="nuevoFermentador.nombre"
             [readonly]="esEdicion"
-            placeholder="Nombre"
             class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 transition-all font-medium"
             [ngClass]="{ 'bg-gray-100 text-gray-400': esEdicion }"
           />
         </div>
-
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1"
@@ -132,7 +156,6 @@
             <input
               [(ngModel)]="nuevoFermentador.capacidad"
               type="number"
-              placeholder="0"
               class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium"
             />
           </div>
@@ -142,23 +165,20 @@
               [(ngModel)]="nuevoFermentador.estado"
               class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium bg-white"
             >
-              <option [value]="1">Disponible</option>
-              <option [value]="2">Ocupado</option>
-              <option [value]="3">Sucio</option>
-              <option [value]="4">Mantenimiento</option>
+              <option value="1">Disponible</option>
+              <option value="2">Ocupado</option>
+              <option value="3">Sucio</option>
+              <option value="4">Mantenimiento</option>
             </select>
           </div>
         </div>
-
         <div>
           <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Notas</label>
           <textarea
             [(ngModel)]="nuevoFermentador.observaciones"
-            placeholder="Detalles adicionales..."
             class="w-full border border-gray-200 rounded-xl p-3 h-24 resize-none outline-none focus:ring-2 focus:ring-orange-300 font-medium text-sm"
           ></textarea>
         </div>
-
         <div class="flex justify-end items-center gap-4 pt-4 border-t border-gray-100">
           <button
             (click)="cerrarModal()"

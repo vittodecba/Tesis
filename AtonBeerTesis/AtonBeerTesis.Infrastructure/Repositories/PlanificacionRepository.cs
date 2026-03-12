@@ -33,7 +33,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         public async Task<IEnumerable<PlanificacionProduccion>> GetAllAsync()
         {
             return await _context.PlanificacionProduccion
-                .Include(p => p.FermentadorPrueba) // Incluye el fermentador relacionado
+                .Include(p => p.fermentador) // Incluye el fermentador relacionado
                 .Include(p => p.Receta) // Incluye la receta relacionada
                 .OrderByDescending(p => p.FechaProduccion) // Ordena por fecha de producción, la más reciente primero
                 .ToListAsync();

@@ -22,621 +22,642 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            // --- ENTIDAD: HISTORIAL ACCESO ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entidades.HistorialAcceso", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Detalles")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Detalles")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EmailIntentado")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("EmailIntentado")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Exitoso")
-                        .HasColumnType("bit");
+                b.Property<bool>("Exitoso")
+                    .HasColumnType("bit");
 
-                    b.Property<DateTime>("FechaIntento")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("FechaIntento")
+                    .HasColumnType("datetime2");
 
-                    b.Property<int?>("UsuarioId")
-                        .HasColumnType("int");
+                b.Property<int?>("UsuarioId")
+                    .HasColumnType("int");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("UsuarioId");
+                b.HasIndex("UsuarioId");
 
-                    b.ToTable("historialAccesos");
-                });
+                b.ToTable("historialAccesos");
+            });
 
+            // --- ENTIDAD: CLIENTE ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Cliente", b =>
-                {
-                    b.Property<int>("IdCliente")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("IdCliente")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCliente"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCliente"));
 
-                    b.Property<string>("ContactoEmail")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ContactoEmail")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ContactoNombre")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ContactoNombre")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ContactoTelefono")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("ContactoTelefono")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Cuit")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Cuit")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Email")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("EstadoCliente")
-                        .HasColumnType("int");
+                b.Property<int>("EstadoCliente")
+                    .HasColumnType("int");
 
-                    b.Property<string>("RazonSocial")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("RazonSocial")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Tipocliente")
-                        .HasColumnType("int");
+                b.Property<int>("Tipocliente")
+                    .HasColumnType("int");
 
-                    b.Property<int>("TotalPedidos")
-                        .HasColumnType("int");
+                b.Property<int>("TotalPedidos")
+                    .HasColumnType("int");
 
-                    b.Property<string>("Ubicacion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Ubicacion")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("UltimaCompra")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime?>("UltimaCompra")
+                    .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("UltimoPedido")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime?>("UltimoPedido")
+                    .HasColumnType("datetime2");
 
-                    b.HasKey("IdCliente");
+                b.HasKey("IdCliente");
 
-                    b.ToTable("Clientes", (string)null);
-                });
+                b.ToTable("Clientes", (string)null);
+            });
 
+            // --- ENTIDAD: FERMENTADOR (PRODUCCIÓN) ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Fermentador", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                b.Property<int>("Capacidad")
+                    .HasColumnType("int");
+
+                b.Property<int>("Estado")
+                    .HasMaxLength(50)
+                    .HasColumnType("int");
+
+                b.Property<string>("Nombre")
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
+
+                b.Property<string>("Observaciones")
+                    .HasMaxLength(500)
+                    .HasColumnType("nvarchar(500)");
+
+                b.HasKey("Id");
+
+                b.ToTable("Fermentadores");
+            });
+
+            // --- ENTIDAD: FERMENTADOR PRUEBA ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.FermentadorPrueba", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Capacidad")
-                        .HasColumnType("int");
+                b.Property<decimal>("Capacidad")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Estado")
-                        .HasMaxLength(50)
-                        .HasColumnType("int");
+                b.Property<bool>("Disponibilidad")
+                    .HasColumnType("bit");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                b.Property<string>("Nombre")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Observaciones")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                b.HasKey("Id");
 
-                    b.HasKey("Id");
+                b.ToTable("FermentadoresPruebas");
+            });
 
-                    b.ToTable("Fermentadores");
-                    b.Property<decimal>("Capacidad")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("Disponibilidad")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FermentadoresPruebas");
-                });
-
+            // --- ENTIDAD: MOVIMIENTO STOCK ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.MovimientoStock", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("Cantidad")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("Cantidad")
+                    .HasPrecision(18, 2)
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("Fecha")
+                    .HasColumnType("datetime2");
 
-                    b.Property<int>("Lote")
-                        .HasColumnType("int");
+                b.Property<int>("Lote")
+                    .HasColumnType("int");
 
-                    b.Property<string>("MotivoMovimiento")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("MotivoMovimiento")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("int");
+                b.Property<int>("ProductoId")
+                    .HasColumnType("int");
 
-                    b.Property<decimal>("StockPrevio")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("StockPrevio")
+                    .HasPrecision(18, 2)
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("StockResultante")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("StockResultante")
+                    .HasPrecision(18, 2)
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("TipoMovimiento")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("TipoMovimiento")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("MovimientosStock");
-                });
+                b.ToTable("MovimientosStock");
+            });
 
+            // --- ENTIDAD: PASOS ELABORACION ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.PasosElaboracion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Descripcion")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Nombre")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Orden")
-                        .HasColumnType("int");
+                b.Property<int>("Orden")
+                    .HasColumnType("int");
 
-                    b.Property<int>("RecetaId")
-                        .HasColumnType("int");
+                b.Property<int>("RecetaId")
+                    .HasColumnType("int");
 
-                    b.Property<int>("Temperatura")
-                        .HasColumnType("int");
+                b.Property<int>("Temperatura")
+                    .HasColumnType("int");
 
-                    b.Property<int>("Tiempo")
-                        .HasColumnType("int");
+                b.Property<int>("Tiempo")
+                    .HasColumnType("int");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("RecetaId");
+                b.HasIndex("RecetaId");
 
-                    b.ToTable("PasosElaboracion");
-                });
+                b.ToTable("PasosElaboracion");
+            });
 
+            // --- ENTIDAD: PLANIFICACION PRODUCCION ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.PlanificacionProduccion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Estado")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("FechaCreacion")
+                    .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("FechaProduccion")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("FechaProduccion")
+                    .HasColumnType("datetime2");
 
-                    b.Property<int>("FermentadorId")
-                        .HasColumnType("int");
+                b.Property<int>("FermentadorId")
+                    .HasColumnType("int");
 
-                    b.Property<bool>("InsumosConfirmados")
-                        .HasColumnType("bit");
+                b.Property<bool>("InsumosConfirmados")
+                    .HasColumnType("bit");
 
-                    b.Property<string>("Observaciones")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Observaciones")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RecetaId")
-                        .HasColumnType("int");
+                b.Property<int>("RecetaId")
+                    .HasColumnType("int");
 
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
+                b.Property<int>("UsuarioId")
+                    .HasColumnType("int");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("RecetaId");
+                b.HasIndex("RecetaId");
 
-                    b.HasIndex("FermentadorId", "FechaProduccion")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Fermentador_Fecha");
+                b.HasIndex("FermentadorId", "FechaProduccion")
+                    .IsUnique()
+                    .HasDatabaseName("IX_Fermentador_Fecha");
 
-                    b.ToTable("PlanificacionProduccion", (string)null);
-                });
+                b.ToTable("PlanificacionProduccion", (string)null);
+            });
 
+            // --- ENTIDAD: PRODUCTO PRUEBA ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.ProductoPrueba", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
-                    b.Property<string>("Estilo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Estilo")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Formato")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Formato")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Nombre")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("StockActual")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("StockActual")
+                    .HasPrecision(18, 2)
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("UnidadMedida")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("UnidadMedida")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("id");
+                b.HasKey("id");
 
-                    b.ToTable("ProductosPrueba");
-                });
+                b.ToTable("ProductosPrueba");
+            });
 
+            // --- ENTIDAD: RECETA ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Receta", b =>
-                {
-                    b.Property<int>("IdReceta")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("IdReceta")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdReceta"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdReceta"));
 
-                    b.Property<decimal>("BatchSizeLitros")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("BatchSizeLitros")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
+                b.Property<int>("Estado")
+                    .HasColumnType("int");
 
-                    b.Property<string>("Estilo")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
+                b.Property<string>("Estilo")
+                    .IsRequired()
+                    .HasMaxLength(80)
+                    .HasColumnType("nvarchar(80)");
 
-                    b.Property<DateTime?>("FechaActualizacion")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime?>("FechaActualizacion")
+                    .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("FechaCreacion")
+                    .HasColumnType("datetime2");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                b.Property<string>("Nombre")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("nvarchar(120)");
 
-                    b.Property<string>("Notas")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                b.Property<string>("Notas")
+                    .HasMaxLength(1000)
+                    .HasColumnType("nvarchar(1000)");
 
-                    b.HasKey("IdReceta");
+                b.HasKey("IdReceta");
 
-                    b.ToTable("Recetas");
-                });
+                b.ToTable("Recetas");
+            });
 
+            // --- ENTIDAD: RECETA INSUMO ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.RecetaInsumo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("Cantidad")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
+                b.Property<decimal>("Cantidad")
+                    .HasPrecision(18, 3)
+                    .HasColumnType("decimal(18,3)");
 
-                    b.Property<int>("InsumoId")
-                        .HasColumnType("int");
+                b.Property<int>("InsumoId")
+                    .HasColumnType("int");
 
-                    b.Property<int>("RecetaId")
-                        .HasColumnType("int");
+                b.Property<int>("RecetaId")
+                    .HasColumnType("int");
 
-                    b.Property<int>("unidadMedidaId")
-                        .HasColumnType("int");
+                b.Property<int>("unidadMedidaId")
+                    .HasColumnType("int");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("InsumoId");
+                b.HasIndex("InsumoId");
 
-                    b.HasIndex("RecetaId");
+                b.HasIndex("RecetaId");
 
-                    b.HasIndex("unidadMedidaId");
+                b.HasIndex("unidadMedidaId");
 
-                    b.ToTable("RecetaInsumos", (string)null);
-                });
+                b.ToTable("RecetaInsumos", (string)null);
+            });
 
+            // --- ENTIDAD: ROL ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Rol", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                b.Property<string>("Descripcion")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                b.Property<string>("Nombre")
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("roles");
-                });
+                b.ToTable("roles");
+            });
 
+            // --- ENTIDAD: TIPO INSUMO ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.TipoInsumo", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
-                    b.Property<bool>("Activo")
-                        .HasColumnType("bit");
+                b.Property<bool>("Activo")
+                    .HasColumnType("bit");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Nombre")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("id");
+                b.HasKey("id");
 
-                    b.ToTable("TiposInsumo", (string)null);
-                });
+                b.ToTable("TiposInsumo", (string)null);
+            });
 
+            // --- ENTIDAD: USUARIO ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Usuario", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Activo")
-                        .HasColumnType("bit");
+                b.Property<bool>("Activo")
+                    .HasColumnType("bit");
 
-                    b.Property<string>("Apellido")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Apellido")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Contrasena")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Contrasena")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Email")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Nombre")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RolId")
-                        .HasColumnType("int");
+                b.Property<int>("RolId")
+                    .HasColumnType("int");
 
-                    b.Property<DateTime?>("TokenExpiracion")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime?>("TokenExpiracion")
+                    .HasColumnType("datetime2");
 
-                    b.Property<string>("TokenRecuperacion")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("TokenRecuperacion")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("RolId");
+                b.HasIndex("RolId");
 
-                    b.ToTable("Usuarios", (string)null);
-                });
+                b.ToTable("Usuarios", (string)null);
+            });
 
+            // --- ENTIDAD: UNIDAD MEDIDA ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.unidadMedida", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
-                    b.Property<string>("Abreviatura")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Abreviatura")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Activo")
-                        .HasColumnType("bit");
+                b.Property<bool>("Activo")
+                    .HasColumnType("bit");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Nombre")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("id");
+                b.HasKey("id");
 
-                    b.ToTable("unidadMedida", (string)null);
-                });
+                b.ToTable("unidadMedida", (string)null);
+            });
 
+            // --- ENTIDAD: INSUMO ---
             modelBuilder.Entity("AtonBeerTesis.Domain.Insumo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Activo")
-                        .HasColumnType("bit");
+                b.Property<bool>("Activo")
+                    .HasColumnType("bit");
 
-                    b.Property<string>("Codigo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Codigo")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("NombreInsumo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("NombreInsumo")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Observaciones")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Observaciones")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("StockActual")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("StockActual")
+                    .HasPrecision(18, 2)
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("TipoInsumoId")
-                        .HasColumnType("int");
+                b.Property<int>("TipoInsumoId")
+                    .HasColumnType("int");
 
-                    b.Property<DateTime?>("UltimaActualizacion")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime?>("UltimaActualizacion")
+                    .HasColumnType("datetime2");
 
-                    b.Property<int>("unidadMedidaId")
-                        .HasColumnType("int");
+                b.Property<int>("unidadMedidaId")
+                    .HasColumnType("int");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("TipoInsumoId");
+                b.HasIndex("TipoInsumoId");
 
-                    b.HasIndex("unidadMedidaId");
+                b.HasIndex("unidadMedidaId");
 
-                    b.ToTable("Insumos", (string)null);
-                });
+                b.ToTable("Insumos", (string)null);
+            });
+
+            // --- RELACIONES (CONFIGURACIÓN) ---
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entidades.HistorialAcceso", b =>
-                {
-                    b.HasOne("AtonBeerTesis.Domain.Entities.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId");
+            {
+                b.HasOne("AtonBeerTesis.Domain.Entities.Usuario", "Usuario")
+                    .WithMany()
+                    .HasForeignKey("UsuarioId");
 
-                    b.Navigation("Usuario");
-                });
+                b.Navigation("Usuario");
+            });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.PasosElaboracion", b =>
-                {
-                    b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
-                        .WithMany("PasosElaboracion")
-                        .HasForeignKey("RecetaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
+                    .WithMany("PasosElaboracion")
+                    .HasForeignKey("RecetaId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Receta");
-                });
+                b.Navigation("Receta");
+            });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.PlanificacionProduccion", b =>
-                {
-                    b.HasOne("AtonBeerTesis.Domain.Entities.FermentadorPrueba", "FermentadorPrueba")
-                        .WithMany()
-                        .HasForeignKey("FermentadorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+            {
+                b.HasOne("AtonBeerTesis.Domain.Entities.FermentadorPrueba", "FermentadorPrueba")
+                    .WithMany()
+                    .HasForeignKey("FermentadorId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
-                        .WithMany()
-                        .HasForeignKey("RecetaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
+                    .WithMany()
+                    .HasForeignKey("RecetaId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.Navigation("FermentadorPrueba");
-
-                    b.Navigation("Receta");
-                });
+                b.Navigation("FermentadorPrueba");
+                b.Navigation("Receta");
+            });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.RecetaInsumo", b =>
-                {
-                    b.HasOne("AtonBeerTesis.Domain.Insumo", "Insumo")
-                        .WithMany()
-                        .HasForeignKey("InsumoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("AtonBeerTesis.Domain.Insumo", "Insumo")
+                    .WithMany()
+                    .HasForeignKey("InsumoId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
-                        .WithMany("RecetaInsumos")
-                        .HasForeignKey("RecetaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
+                    .WithMany("RecetaInsumos")
+                    .HasForeignKey("RecetaId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("AtonBeerTesis.Domain.Entities.unidadMedida", "unidadMedida")
-                        .WithMany()
-                        .HasForeignKey("unidadMedidaId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                b.HasOne("AtonBeerTesis.Domain.Entities.unidadMedida", "unidadMedida")
+                    .WithMany()
+                    .HasForeignKey("unidadMedidaId")
+                    .OnDelete(DeleteBehavior.NoAction)
+                    .IsRequired();
 
-                    b.Navigation("Insumo");
-
-                    b.Navigation("Receta");
-
-                    b.Navigation("unidadMedida");
-                });
+                b.Navigation("Insumo");
+                b.Navigation("Receta");
+                b.Navigation("unidadMedida");
+            });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Usuario", b =>
-                {
-                    b.HasOne("AtonBeerTesis.Domain.Entities.Rol", "Rol")
-                        .WithMany("Usuarios")
-                        .HasForeignKey("RolId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("AtonBeerTesis.Domain.Entities.Rol", "Rol")
+                    .WithMany("Usuarios")
+                    .HasForeignKey("RolId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Rol");
-                });
+                b.Navigation("Rol");
+            });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Insumo", b =>
-                {
-                    b.HasOne("AtonBeerTesis.Domain.Entities.TipoInsumo", "TipoInsumo")
-                        .WithMany()
-                        .HasForeignKey("TipoInsumoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("AtonBeerTesis.Domain.Entities.TipoInsumo", "TipoInsumo")
+                    .WithMany()
+                    .HasForeignKey("TipoInsumoId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("AtonBeerTesis.Domain.Entities.unidadMedida", "unidadMedida")
-                        .WithMany()
-                        .HasForeignKey("unidadMedidaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("AtonBeerTesis.Domain.Entities.unidadMedida", "unidadMedida")
+                    .WithMany()
+                    .HasForeignKey("unidadMedidaId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("TipoInsumo");
-
-                    b.Navigation("unidadMedida");
-                });
+                b.Navigation("TipoInsumo");
+                b.Navigation("unidadMedida");
+            });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Receta", b =>
-                {
-                    b.Navigation("PasosElaboracion");
-
-                    b.Navigation("RecetaInsumos");
-                });
+            {
+                b.Navigation("PasosElaboracion");
+                b.Navigation("RecetaInsumos");
+            });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Rol", b =>
-                {
-                    b.Navigation("Usuarios");
-                });
+            {
+                b.Navigation("Usuarios");
+            });
 #pragma warning restore 612, 618
         }
     }

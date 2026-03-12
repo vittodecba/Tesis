@@ -2,6 +2,7 @@
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace AtonBeerTesis.Application.Services
 {
@@ -19,6 +20,27 @@ namespace AtonBeerTesis.Application.Services
         public FermentadorService(IFermentadorRepository repository)
         {
             _repository = repository;
+        }
+        public async Task<IEnumerable<FermentadorDetalleDto>> GetAllConLoteAsync()
+        {
+            var fermentadores = await _repository.GetAllConPlanificacionAsync();
+
+            return fermentadores.Select(f => {
+                var planActiva = f.Planificaciones?
+                    .FirstOrDefault(p => p.Estado == "2"); // 2 = En Proceso
+
+                return new FermentadorDetalleDto
+                {
+                    Id = f.Id,
+                    Nombre = f.Nombre,
+                    Capacidad = f.Capacidad,
+                    // CORRECCIÓN: Devolvemos el número como string para que el Front no se rompa
+                    Estado = ((int)f.Estado).ToString(),
+                    Observaciones = f.Observaciones,
+                    LoteId = planActiva?.Id,
+                    EstiloNombre = planActiva?.Receta?.Nombre
+                };
+            }).ToList();
         }
 
         public async Task<List<FermentadorDto>> GetAllAsync()

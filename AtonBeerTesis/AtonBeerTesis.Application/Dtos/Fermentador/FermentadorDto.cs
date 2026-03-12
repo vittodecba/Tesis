@@ -7,5 +7,8 @@
         public int Capacidad { get; set; }
         public string Estado { get; set; } = string.Empty; // Lo mandamos como texto ("Disponible")
         public string? Observaciones { get; set; }
+
+        public int? LoteId { get; set; }
+        public string? EstiloNombre { get; set; }
     }
 }
