@@ -7,7 +7,8 @@ import { Lote } from '../Interfaces/lote';
   providedIn: 'root'
 })
 export class LoteService {
-  private apiUrl = 'https://localhost:5190/api/PlanProduccion'; 
+  // CAMBIÁ ESTA LÍNEA: sacale la 's' a https
+  private apiUrl = 'http://localhost:5190/api/PlanProduccion'; 
 
   constructor(private http: HttpClient) { }
 
@@ -38,10 +39,11 @@ export class LoteService {
   }
 
   getFermentadoresDisponibles(): Observable<any[]> {
-    return this.http.get<any[]>(`https://localhost:5190/api/Fermentadores?estado=disponible`);
+    // TAMBIÉN CAMBIÁ ESTA: sacale la 's'
+    return this.http.get<any[]>(`http://localhost:5190/api/Fermentadores?estado=disponible`);
   }
 
   asignarFermentador(loteId: number, fermentadorId: number): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${loteId}/fermentador`, { fermentadorId });
+    return this.http.put(`${this.apiUrl}/${loteId}/asignar-fermentador/${fermentadorId}`, {});
   }
 }

@@ -1,8 +1,6 @@
 ﻿using AtonBeerTesis.Application.Dtos;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace AtonBeerTesis.Application.Interfaces
@@ -13,5 +11,6 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<IEnumerable<PlanificacionProduccionDto>> GetAllAsync();
         Task<string> StockSuficiente(int recetaId);
         Task<IEnumerable<object>> GetInsumosCalculadosAsync(int recetaId);
+        Task AsignarFermentadorAsync(int loteId, int fermentadorId);
     }
 }

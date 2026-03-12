@@ -10,4 +10,6 @@ export interface Lote {
   fermentadorNombre?: string;
   temperaturaObjetivo?: number;
   observaciones?: string;
+  recetaId?: number;
+  fechaProduccion?: Date;
 }

@@ -15,6 +15,10 @@ export class FermentadorService {
     return this.http.get<Fermentador[]>(this.apiUrl);
   }
 
+  getFermentadoresDisponibles(): Observable<Fermentador[]> {
+    return this.http.get<Fermentador[]>(`${this.apiUrl}?estado=disponible`);
+  }
+
   crearFermentador(fermentador: Fermentador): Observable<Fermentador> {
     return this.http.post<Fermentador>(this.apiUrl, fermentador);
   }

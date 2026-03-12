@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Lote } from '../../Interfaces/lote';
 import { LoteService } from '../../services/lote'; 
+import { FermentadorService } from '../../services/fermentador'; 
 import { ArrowLeft, Edit2, Check, X, LucideAngularModule } from 'lucide-angular';
 
 @Component({
@@ -32,10 +33,11 @@ export class LoteDetalleComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private loteService: LoteService
+    private loteService: LoteService,
+    private fermentadorService: FermentadorService
   ) {}
 
-  ngOnInit(): void {
+ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       const idNumerico = Number(id);
@@ -75,7 +77,7 @@ export class LoteDetalleComponent implements OnInit {
   }
 
   cargarFermentadores() {
-    this.loteService.getFermentadoresDisponibles().subscribe({
+    this.fermentadorService.getFermentadoresDisponibles().subscribe({
       next: (data) => this.fermentadoresDisponibles = data,
       error: (err) => console.error('Error al cargar fermentadores libres', err)
     });

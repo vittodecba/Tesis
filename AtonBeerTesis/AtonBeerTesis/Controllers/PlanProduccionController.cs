@@ -51,7 +51,8 @@ namespace AtonBeerTesis.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var lista = await _planificacionService.GetAllAsync();
-            var lote = lista.FirstOrDefault(x => x.RecetaId == id);
+            var lote = lista.FirstOrDefault(x => x.Id == id);
+
             if (lote == null) return NotFound(new { message = $"No se encontró el lote con ID {id}" });
             return Ok(lote);
         }
@@ -67,7 +68,9 @@ namespace AtonBeerTesis.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                // ESTA LÍNEA ES LA CLAVE: nos va a decir qué columna o qué dato está fallando de verdad
+                var mensajeReal = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                return BadRequest(new { message = mensajeReal });
             }
         }
 
@@ -75,13 +78,25 @@ namespace AtonBeerTesis.Controllers
         public async Task<IActionResult> GetInsumosCombinados(int id)
         {
             var lista = await _planificacionService.GetAllAsync();
-            var lote = lista.FirstOrDefault(x => x.RecetaId == id);
-
+            var lote = lista.FirstOrDefault(x => x.Id == id);
             if (lote == null) return NotFound("Lote no encontrado.");
-
-            // Lógica real de Valentín conectada
             var insumos = await _planificacionService.GetInsumosCalculadosAsync(lote.RecetaId);
             return Ok(insumos);
+        }
+
+        [HttpPut("{id}/asignar-fermentador/{fermentadorId}")]
+        public async Task<IActionResult> AsignarFermentador(int id, int fermentadorId)
+        {
+            try
+            {
+                await _planificacionService.AsignarFermentadorAsync(id, fermentadorId);
+                return Ok(new { message = "Fermentador asignado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                var mensajeReal = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                return BadRequest(new { message = mensajeReal });
+            }
         }
     }
 }
