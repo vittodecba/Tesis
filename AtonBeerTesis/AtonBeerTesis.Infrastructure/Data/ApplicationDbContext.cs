@@ -24,6 +24,7 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<Receta> Recetas { get; set; }
         public DbSet<RecetaInsumo> RecetaInsumos { get; set; }
         public DbSet<PasosElaboracion> PasosElaboracion { get; set; }
+        public DbSet<Fermentador> Fermentadores { get; set; }
         public DbSet<FermentadorPrueba> FermentadoresPruebas { get; set; }
         public DbSet<PlanificacionProduccion> PlanificacionProduccion { get; set; }
 
@@ -39,7 +40,7 @@ namespace AtonBeerTesis.Infrastructure.Data
             modelBuilder.Entity<TipoInsumo>().ToTable("TiposInsumo");
             modelBuilder.Entity<RecetaInsumo>().ToTable("RecetaInsumos");
             modelBuilder.Entity<Cliente>().HasKey(x => x.IdCliente);
-            // 2. CONFIGURACIÓN DE RELACIONES
+            // 2. CONFIGURACIï¿½N DE RELACIONES
             // --- AGREGAR ESTO: Conecta la receta con la unidad de medida ---
             modelBuilder.Entity<RecetaInsumo>()
                 .HasOne(ri => ri.unidadMedida)
@@ -62,7 +63,7 @@ namespace AtonBeerTesis.Infrastructure.Data
                 //Relacion con la fecha
                 entity.HasIndex(e=> new { e.FermentadorId, e.FechaProduccion })
                 .IsUnique() // Esto asegura que no haya dos planificaciones para el mismo fermentador en la misma fecha
-                .HasDatabaseName("IX_Fermentador_Fecha"); // Nombre del índice
+                .HasDatabaseName("IX_Fermentador_Fecha"); // Nombre del ï¿½ndice
             });
             // 3. PRECISIONES DECIMALES
             modelBuilder.Entity<Insumo>(e => e.Property(i => i.StockActual).HasPrecision(18, 2));

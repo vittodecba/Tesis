@@ -16,6 +16,9 @@ import { LoteDetalleComponent } from './components/lote-detalle/lote-detalle';
 
 import { LoteListadoComponent } from './components/lote-listado/lote-listado';
 
+// NUEVO: Importamos el componente de Fermentadores
+import { FermentadorComponent } from './components/fermentador/fermentador';
+
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
@@ -42,6 +45,13 @@ export const routes: Routes = [
         path: 'unidades-medida', 
         component: UnidadMedidaComponent, 
         data: { title: 'Unidades', subtitle: 'Gestión de medidas' } 
+      },
+
+      // --- NUEVA RUTA DE FERMENTADORES ---
+      { 
+        path: 'fermentadores', 
+        component: FermentadorComponent, 
+        data: { title: 'Fermentadores', subtitle: 'Gestión de tanques de fermentación' } 
       },
 
       // --- RUTAS DE RECETAS ---

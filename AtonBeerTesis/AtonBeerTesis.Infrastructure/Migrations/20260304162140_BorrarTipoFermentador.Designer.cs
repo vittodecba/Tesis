@@ -4,6 +4,7 @@ using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260304162140_BorrarTipoFermentador")]
+    partial class BorrarTipoFermentador
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,7 +110,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Fermentador", b =>
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.FermentadorPrueba", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -134,19 +136,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Fermentadores");
-                    b.Property<decimal>("Capacidad")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("Disponibilidad")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FermentadoresPruebas");
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.MovimientoStock", b =>
@@ -224,51 +213,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.HasIndex("RecetaId");
 
                     b.ToTable("PasosElaboracion");
-                });
-
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.PlanificacionProduccion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("FechaProduccion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("FermentadorId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("InsumosConfirmados")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Observaciones")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RecetaId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RecetaId");
-
-                    b.HasIndex("FermentadorId", "FechaProduccion")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Fermentador_Fecha");
-
-                    b.ToTable("PlanificacionProduccion", (string)null);
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.ProductoPrueba", b =>
@@ -546,25 +490,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         .HasForeignKey("RecetaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Receta");
-                });
-
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.PlanificacionProduccion", b =>
-                {
-                    b.HasOne("AtonBeerTesis.Domain.Entities.FermentadorPrueba", "FermentadorPrueba")
-                        .WithMany()
-                        .HasForeignKey("FermentadorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
-                        .WithMany()
-                        .HasForeignKey("RecetaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("FermentadorPrueba");
 
                     b.Navigation("Receta");
                 });
