@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public string Codigo { get; set; } = string.Empty;
-        public int RecetaId { get; set; }
+        public int? RecetaId { get; set; }
         public string? RecetaNombre { get; set; }
         public int FermentadorId { get; set; }
         public string? FermentadorNombre { get; set; }

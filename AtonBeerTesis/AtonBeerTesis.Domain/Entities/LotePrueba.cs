@@ -12,11 +12,10 @@ namespace AtonBeerTesis.Domain.Entities
         [MaxLength(50)]
         public string Codigo { get; set; } = string.Empty;
 
-        [Required]
-        public int RecetaId { get; set; }
+        public int? RecetaId { get; set; }
 
         [ForeignKey(nameof(RecetaId))]
-        public Receta Receta { get; set; } = null!;
+        public Receta? Receta { get; set; }
 
         [Required]
         public int FermentadorId { get; set; }
@@ -46,7 +45,7 @@ namespace AtonBeerTesis.Domain.Entities
 
         [Required]
         [MaxLength(30)]
-        public string Estado { get; set; } = "EnProceso"; // EnProceso, Finalizado, Cancelado
+        public string Estado { get; set; } = "EnProceso";
 
         [MaxLength(500)]
         public string? Observaciones { get; set; }

@@ -7,8 +7,8 @@ namespace AtonBeerTesis.Application.DTOs
         [Required]
         public string Codigo { get; set; } = string.Empty;
 
-        [Required]
-        public int RecetaId { get; set; }
+        
+        public int? RecetaId { get; set; }
 
         [Required]
         public int FermentadorId { get; set; }

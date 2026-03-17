@@ -116,7 +116,7 @@ namespace AtonBeerTesis.Application.Services
             var lote = new LotePrueba
             {
                 Codigo = dto.Codigo,
-                RecetaId = dto.RecetaId,
+                RecetaId = dto.RecetaId, // ahora puede ir null
                 FermentadorId = dto.FermentadorId,
                 FechaElaboracion = dto.FechaElaboracion,
                 Estilo = dto.Estilo,
@@ -138,14 +138,17 @@ namespace AtonBeerTesis.Application.Services
                 Id = lote.Id,
                 Codigo = lote.Codigo,
                 RecetaId = lote.RecetaId,
+                RecetaNombre = lote.Receta?.Nombre,
                 FermentadorId = lote.FermentadorId,
+                FermentadorNombre = fermentador.Nombre,
                 FechaElaboracion = lote.FechaElaboracion,
                 Estilo = lote.Estilo,
                 Inoculo = lote.Inoculo,
                 Responsable = lote.Responsable,
                 DiasEstimadosFermentacion = lote.DiasEstimadosFermentacion,
                 Estado = lote.Estado,
-                Observaciones = lote.Observaciones
+                Observaciones = lote.Observaciones,
+                FechaFinReal = lote.FechaFinReal
             };
         }
 
@@ -157,6 +160,7 @@ namespace AtonBeerTesis.Application.Services
             if (!string.IsNullOrWhiteSpace(dto.Codigo))
                 lote.Codigo = dto.Codigo;
 
+            // solo actualiza receta si vino valor
             if (dto.RecetaId.HasValue)
                 lote.RecetaId = dto.RecetaId.Value;
 

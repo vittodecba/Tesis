@@ -50,7 +50,8 @@ namespace AtonBeerTesis.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                var errorReal = ex.InnerException?.Message ?? ex.Message;
+                return BadRequest(errorReal);
             }
         }
 
