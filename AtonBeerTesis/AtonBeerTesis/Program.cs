@@ -67,6 +67,12 @@ namespace AtonBeerTesis
             builder.Services.AddScoped<IRecetaRepository, RecetaRepository>();
             builder.Services.AddScoped<IRecetaService, RecetaService>();
 
+            builder.Services.AddScoped<ILoteRepository, LoteRepository>();
+            builder.Services.AddScoped<IRegistroFermentacionRepository, RegistroFermentacionRepository>();
+
+            builder.Services.AddScoped<ILoteService, LoteService>();
+            builder.Services.AddScoped<IRegistroFermentacionService, RegistroFermentacionService>();
+
 
             builder.Services.AddScoped<IFermentadorRepository, FermentadorRepository>();
             builder.Services.AddScoped<IFermentadorService, FermentadorService>();
