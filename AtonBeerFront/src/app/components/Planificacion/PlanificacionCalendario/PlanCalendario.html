@@ -1,0 +1,24 @@
+<div class="calendar-wrapper shadow-sm border rounded bg-white p-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="text-secondary fw-bold mb-0">📅 Cronograma de Producción</h4>    
+  </div>
+  <hr>
+
+  <full-calendar [options]="calendarOptions"></full-calendar>
+
+  <!-- Leyenda de estados -->
+  <div class="d-flex gap-4 mt-3 px-2 flex-wrap">
+    <span class="leyenda-item">
+      <span class="dot" style="background:#0d6efd"></span> Planificado
+    </span>
+    <span class="leyenda-item">
+      <span class="dot" style="background:#ffc107"></span> En Proceso
+    </span>
+    <span class="leyenda-item">
+      <span class="dot" style="background:#198754"></span> Finalizado
+    </span>
+    <span class="leyenda-item">
+      <span class="dot" style="background:#dc3545"></span> Cancelado
+    </span>
+  </div>
+</div>

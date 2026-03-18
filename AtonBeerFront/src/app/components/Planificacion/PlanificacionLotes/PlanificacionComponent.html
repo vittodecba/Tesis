@@ -1,0 +1,88 @@
+<div class="container mt-4">
+  <div class="card p-4 shadow-sm border-0">
+    <h3 class="text-primary">Programar Nueva Producción</h3>
+    <hr>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Receta de Cerveza:</label>
+        <select [(ngModel)]="nuevaPlanif.recetaId" class="form-select"
+                (change)="actualizarPrevisualizacion()"> <!-- 👈 -->
+          <option [value]="0" disabled>Seleccione una receta...</option>
+          <option *ngFor="let r of recetas" [value]="r.idReceta">{{ r.nombre }}</option>
+        </select>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Volumen a Producir (Litros):</label>
+        <input type="number" [(ngModel)]="nuevaPlanif.volumenLitros" class="form-control"
+               placeholder="Ej: 100"
+               (input)="actualizarPrevisualizacion()"> <!-- 👈 -->
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12 mb-3">
+        <label class="form-label">Fermentador Destino:</label>
+        <select [(ngModel)]="nuevaPlanif.fermentadorId" class="form-select">
+          <option [value]="0" disabled>Seleccione un fermentador...</option>
+          <option *ngFor="let f of fermentadores" [value]="f.id">
+            {{ f.nombre }} (Capacidad: {{ f.capacidad }}L)
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Fecha de Inicio:</label>
+        <input type="date" [(ngModel)]="nuevaPlanif.fechaInicio" class="form-control">
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Fecha Fin Estimada:</label>
+        <input type="date" [(ngModel)]="nuevaPlanif.fechaFinEstimada" class="form-control">
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Observaciones del Lote:</label>
+      <textarea [(ngModel)]="nuevaPlanif.observaciones" class="form-control" rows="2"
+                placeholder="Ej: Controlar temperatura de macerado"></textarea>
+    </div>
+
+    <!-- Tabla de previsualización de insumos -->
+    <div *ngIf="previsualizacionInsumos.length > 0" class="mt-3 mb-3">
+      <h6 class="fw-semibold text-secondary mb-2">📦 Insumos necesarios para {{ nuevaPlanif.volumenLitros }}L</h6>
+      <table class="table table-sm table-bordered">
+        <thead class="table-light">
+          <tr>
+            <th>Insumo</th>
+            <th>Necesario</th>
+            <th>Stock actual</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let i of previsualizacionInsumos"
+              [class.table-danger]="!i.alcanza"
+              [class.table-success]="i.alcanza">
+            <td>{{ i.nombre }}</td>
+            <td>{{ i.necesario }} {{ i.unidad }}</td>
+            <td>{{ i.stock }} {{ i.unidad }}</td>
+            <td>
+              <span *ngIf="i.alcanza">✅ OK</span>
+              <span *ngIf="!i.alcanza">❌ Insuficiente</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button (click)="enviar()" class="btn btn-primary btn-lg w-100 mt-2 shadow">
+      Confirmar Planificación 🍻
+    </button>
+    <button routerLink="/planificacion" class="btn btn-outline-secondary btn-lg w-100 mt-2 shadow">
+      Cancelar
+    </button>
+  </div>
+</div>

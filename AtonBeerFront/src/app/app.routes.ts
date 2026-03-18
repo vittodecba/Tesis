@@ -13,13 +13,14 @@ import { UnidadMedidaComponent } from './components/unidadesMedida/unidadMedidaC
 // Importo los componentes de recetas
 import { RecetaListComponent } from './components/recetas/receta-list/receta-list';
 import { RecetaDetalle } from './components/recetas/receta-detalle/receta-detalle';
-
+import { PlanificacionListComponent } from './components/Planificacion/PlanificacionListado/PlanListado';
+import { PlanificacionFormComponent } from './components/Planificacion/PlanificacionLotes/PlanificacionComponent';
+import { Title } from '@angular/platform-browser';
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'registro', component: RegisterComponent },
   { path: 'recuperar-password', component: RestablecerContrasenaComponent },
-
   {
     path: '',
     component: LayoutComponent,
@@ -29,7 +30,8 @@ export const routes: Routes = [
       { path: 'usuarios', component: UsuariosComponent, data: { title: 'Usuarios', subtitle: 'Administración de accesos' } },
       { path: 'roles', component: RolesGestion, data: { title: 'Roles', subtitle: 'Permisos del sistema' } },
       { path: 'stock', component: StockGestion, data: { title: 'Stock', subtitle: 'Control de productos' } },
-      
+      {path: 'planificacion', component: PlanificacionListComponent, data:{title:'Planificacion', subtitle:'Planificaciones activas'}},
+      {path: 'planificacion/nueva', component: PlanificacionFormComponent, data:{title:'Nueva Planificacion', subtitle:'Programar Coccion'}},
       { 
         path: 'insumos', 
         component: InsumoComponent, 
