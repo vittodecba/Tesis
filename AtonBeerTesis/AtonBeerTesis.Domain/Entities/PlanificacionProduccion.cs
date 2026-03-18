@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AtonBeerTesis.Domain.Entities
 {
@@ -16,9 +13,13 @@ namespace AtonBeerTesis.Domain.Entities
         [Required]
         public int FermentadorId { get; set; }
         [ForeignKey("FermentadorId")]
-        public FermentadorPrueba? FermentadorPrueba { get; set; }
+        // Agregamos el ? para que EF no lo exija como objeto completo al guardar
+        public Fermentador? fermentador { get; set; }     
+        // [Required]
+        // public int FermentadorId { get; set; }
+        // [ForeignKey("FermentadorId")]
+        // public FermentadorPrueba? FermentadorPrueba { get; set; }
         [Required]
-
         public int LoteId { get; set; }
         [ForeignKey("LoteId")]
         public Lote Lote { get; set; }
@@ -29,7 +30,6 @@ namespace AtonBeerTesis.Domain.Entities
         public EstadoLote Estado { get; set; }
         public string Observaciones { get; set; }
         public int UsuarioId { get; set; }
-        public bool InsumosConfirmados { get; set; }
-
+        public bool InsumosConfirmados { get; set; }            
     }
 }

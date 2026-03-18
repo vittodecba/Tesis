@@ -2,8 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Entidades;
 using AtonBeerTesis.Domain;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-
 
 namespace AtonBeerTesis.Infrastructure.Data
 {
@@ -24,6 +22,7 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<Receta> Recetas { get; set; }
         public DbSet<RecetaInsumo> RecetaInsumos { get; set; }
         public DbSet<PasosElaboracion> PasosElaboracion { get; set; }
+        public DbSet<Fermentador> Fermentadores { get; set; }
         public DbSet<FermentadorPrueba> FermentadoresPruebas { get; set; }
         public DbSet<PlanificacionProduccion> PlanificacionProduccion { get; set; }
         public DbSet<Lote> Lotes { get; set; }
@@ -32,50 +31,57 @@ namespace AtonBeerTesis.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-† † † † † † // 1. MAPEOS DE TABLAS
-† † † † † † modelBuilder.Entity<Insumo>().ToTable("Insumos");
+            modelBuilder.Entity<Insumo>().ToTable("Insumos");
             modelBuilder.Entity<Usuario>().ToTable("Usuarios");
             modelBuilder.Entity<Cliente>().ToTable("Clientes");
             modelBuilder.Entity<unidadMedida>().ToTable("unidadMedida");
             modelBuilder.Entity<TipoInsumo>().ToTable("TiposInsumo");
             modelBuilder.Entity<RecetaInsumo>().ToTable("RecetaInsumos");
+//
             modelBuilder.Entity<Cliente>().HasKey(x => x.IdCliente);                     
 
-† † † † † † // 2. CONFIGURACI”N DE RELACIONES
-† † † † † † // --- AGREGAR ESTO: Conecta la receta con la unidad de medida ---
-† † † † † † modelBuilder.Entity<Lote>(entity => {
-                entity.ToTable("Lotes");
-                entity.HasKey(e=>e.Id);// Clave compuesta para la tabla intermedia})
-† † † † † † † † entity.Property(e => e.VolumenLitros).HasPrecision(18,2);
-            entity.HasOne(l => l.Receta)
+                 // 2. CONFIGURACION DE RELACIONES
+                 // --- AGREGAR ESTO: Conecta la receta con la unidad de medida ---
+                modelBuilder.Entity<Lote>(entity => {
+                  entity.ToTable("Lotes");
+                  entity.HasKey(e=>e.Id);// Clave compuesta para la tabla intermedia})
+                  entity.Property(e => e.VolumenLitros).HasPrecision(18,2);
+
+                  entity.HasOne(l => l.Receta)
                   .WithMany()
                   .HasForeignKey(l => l.RecetaId)
                   .OnDelete(DeleteBehavior.Restrict); //Si elimino el lote se elimina la relacion
-† † † † † † });
+                });
 
             modelBuilder.Entity<RecetaInsumo>()
             .HasOne(ri => ri.unidadMedida)
             .WithMany()
             .HasForeignKey(ri => ri.unidadMedidaId)
             .OnDelete(DeleteBehavior.NoAction);
-
             modelBuilder.Entity<PlanificacionProduccion>(entity => {
-                entity.ToTable("PlanificacionProduccion");         † † † † † †
-† † † † † † † † entity.HasOne(p => p.Lote)
+                entity.ToTable("PlanificacionProduccion");        
+                       entity.HasOne(p => p.Lote)
+                      .HasKey(e => e.Id)
                       .WithMany()
                       .HasForeignKey(p => p.LoteId)
                       .OnDelete(DeleteBehavior.Cascade);
-                entity.HasOne(p => p.FermentadorPrueba)
+                entity.HasOne(p => p.Fermentador)
+                    //.HasOne(p => p.FermentadorPrueba)
                       .WithMany()
                       .HasForeignKey(p => p.FermentadorId)
                       .OnDelete(DeleteBehavior.Restrict);
-† † † † † † † † entity.HasIndex(e => new { e.FermentadorId, e.FechaInicio })
+                       entity.HasIndex(e => new { e.FermentadorId, e.FechaInicio })
                       .IsUnique() // Esto asegura que no haya dos planificaciones para el mismo fermentador en la misma fecha
-† † † † † † † †       .HasDatabaseName("IX_Fermentador_Fecha"); // Nombre del Ìndice
-† † † † † † });
-
-† † † † † † // 3. PRECISIONES DECIMALES
-† † † † † † modelBuilder.Entity<Insumo>(e => e.Property(i => i.StockActual).HasPrecision(18, 2));
+                     .HasDatabaseName("IX_Fermentador_Fecha"); // Nombre del ÔøΩndice
+                 });                
+                  
+//
+            modelBuilder.Entity<Receta>().ToTable("Recetas");
+            // ESTA L√çNEA ES LA QUE CORRIGE TU ERROR:
+            modelBuilder.Entity<Fermentador>().ToTable("Fermentadores");          
+            // 3. PRECISIONES DECIMALES
+            modelBuilder.Entity<Insumo>(e => e.Property(i => i.StockActual).HasPrecision(18, 2));
+//
             modelBuilder.Entity<ProductoPrueba>(e => e.Property(p => p.StockActual).HasPrecision(18, 2));
             modelBuilder.Entity<RecetaInsumo>(e => {
                 e.Property(ri => ri.Cantidad).HasPrecision(18, 3);

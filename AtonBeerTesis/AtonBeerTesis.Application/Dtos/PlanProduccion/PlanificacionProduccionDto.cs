@@ -9,6 +9,7 @@ namespace AtonBeerTesis.Application.Dtos
 {
     public class PlanificacionProduccionDto
     {
+        public int Id { get; set; }
         public int RecetaId { get; set; }
         public int VolumenLitros { get; set; }
         public int LoteId { get; set; }
@@ -17,6 +18,7 @@ namespace AtonBeerTesis.Application.Dtos
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFinEstimada { get; set; }
         public string? Observaciones { get; set; }
-        public int UsuarioId { get; set; }
+        public int UsuarioId { get; set; }       
+        public string? FermentadorNombre { get; set; }
     }
 }

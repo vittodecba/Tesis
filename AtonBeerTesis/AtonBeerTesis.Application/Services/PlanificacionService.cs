@@ -2,12 +2,11 @@
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Enums;
-using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+
 namespace AtonBeerTesis.Application.Services
 {
     public class PlanificacionService : IPlanificacionService
@@ -19,6 +18,7 @@ namespace AtonBeerTesis.Application.Services
             _repository = repository;
             _loteRepository = loteRepository;
         }
+
         public async Task<PlanificacionProduccionDto> PLanificarProduccion(PlanificacionProduccionDto dto)
         {
             //Validaciones
@@ -64,14 +64,16 @@ namespace AtonBeerTesis.Application.Services
                 FechaCreacion = DateTime.Now
               
             };
+
             await _repository.CreateAsync(planificacion);
             dto.LoteId = loteGuardado.Id;//Actualiza el DTO con el ID del lote creado
             return dto;
         }
+
         public async Task<IEnumerable<PlanificacionProduccionDto>> GetAllAsync()
         {
-            var planificaicon = await _repository.GetAllAsync();
-            return planificaicon.Select(p => new PlanificacionProduccionDto
+            var planificacion = await _repository.GetAllAsync();
+            return planificacion.Select(p => new PlanificacionProduccionDto
             {
                 LoteId = p.LoteId,
                 FermentadorId = p.FermentadorId,
@@ -146,6 +148,41 @@ namespace AtonBeerTesis.Application.Services
 
             dto.LoteId = loteId;
             return dto;
+        public async Task AsignarFermentadorAsync(int loteId, int fermentadorId)
+        {
+            var lotes = await _repository.GetAllAsync();
+            var lote = lotes.FirstOrDefault(x => x.Id == loteId);
+            if (lote == null) throw new Exception("Lote no encontrado.");
+
+            if (lote.FermentadorId != 0 && lote.FermentadorId != fermentadorId)
+            {
+                var anterior = await _repository.GetFermentadorByIdAsync(lote.FermentadorId);
+                if (anterior != null)
+                {
+                    anterior.Estado = EstadoFermentador.Disponible;
+                    await _repository.UpdateFermentadorAsync(anterior);
+                }
+            }
+
+            lote.FermentadorId = fermentadorId;
+            var nuevo = await _repository.GetFermentadorByIdAsync(fermentadorId);
+            if (nuevo != null)
+            {
+                nuevo.Estado = EstadoFermentador.Ocupado;
+                await _repository.UpdateFermentadorAsync(nuevo);
+            }
+
+            await _repository.UpdateAsync(lote);
+        }
+
+        public async Task<IEnumerable<object>> GetInsumosCalculadosAsync(int recetaId)
+        {
+            var insumos = await _repository.GetInsumosByRecetaIdAsync(recetaId);
+            return insumos.Select(i => new {
+                Material = i.Insumo.NombreInsumo,
+                CantidadTotal = i.Cantidad,
+                Unidad = "unid"
+            });
         }
     }
 }

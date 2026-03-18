@@ -1,0 +1,179 @@
+<div class="p-6 min-h-screen bg-orange-50/30">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Fermentadores</h2>
+      <p class="text-gray-600">Administración de activos y estados de producción.</p>
+    </div>
+    <button
+      (click)="abrirModal()"
+      class="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-transform active:scale-95 bg-gradient-to-r from-[#412725] to-[#e67e22]"
+    >
+      <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
+      Nuevo Fermentador
+    </button>
+  </div>
+
+  <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 flex gap-4">
+    <div class="flex-1">
+      <label class="text-[10px] font-bold text-gray-400 uppercase ml-2"
+        >Capacidad Mínima (Lts)</label
+      >
+      <input
+        type="number"
+        [(ngModel)]="filtroCapacidad"
+        (input)="aplicarFiltros()"
+        placeholder="Filtrar por volumen..."
+        class="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-orange-200 outline-none text-sm"
+      />
+    </div>
+    <div class="w-64">
+      <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Filtrar Estado</label>
+      <select
+        [(ngModel)]="filtroEstado"
+        (change)="aplicarFiltros()"
+        class="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-orange-200 outline-none text-sm cursor-pointer"
+      >
+        <option value="Todos">Todos los estados</option>
+        <option value="Disponible">Disponible</option>
+        <option value="Ocupado">Ocupado</option>
+        <option value="Sucio">Sucio</option>
+        <option value="Mantenimiento">Mantenimiento</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <table class="w-full text-left">
+      <thead class="bg-gray-50 border-b border-gray-100 text-gray-400 text-xs uppercase font-bold">
+        <tr>
+          <th class="px-6 py-4">Tanque</th>
+          <th class="px-6 py-4">Capacidad</th>
+          <th class="px-6 py-4 text-center">Estado</th>
+          <th class="px-6 py-4 text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-50">
+        <tr
+          *ngFor="let item of fermentadoresFiltrados"
+          class="hover:bg-orange-50/30 transition-colors"
+        >
+          <td class="px-6 py-4 font-bold text-[#4A2C2A]">{{ item.nombre }}</td>
+          <td class="px-6 py-4 text-sm text-gray-600">{{ item.capacidad }} Lts</td>
+          <td class="px-6 py-4 text-center">
+            <span
+              class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
+              [ngClass]="{
+                'bg-green-100 text-green-700': item.estado == 1 || item.estado === 'Disponible',
+                'bg-blue-100 text-blue-700': item.estado == 2 || item.estado === 'Ocupado',
+                'bg-yellow-100 text-yellow-700': item.estado == 3 || item.estado === 'Sucio',
+                'bg-red-100 text-red-700': item.estado == 4 || item.estado === 'Mantenimiento',
+              }"
+            >
+              {{
+                item.estado == 1 || item.estado === 'Disponible'
+                  ? 'Disponible'
+                  : item.estado == 2 || item.estado === 'Ocupado'
+                    ? 'Ocupado'
+                    : item.estado == 3 || item.estado === 'Sucio'
+                      ? 'Sucio'
+                      : 'Mantenimiento'
+              }}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-right">
+            <div class="flex justify-end gap-2">
+              <button
+                (click)="abrirModal(item)"
+                class="p-2 text-[#4A2C2A] hover:bg-orange-100 rounded-lg transition shadow-sm border border-transparent hover:border-gray-200"
+              >
+                <lucide-icon [img]="Pencil" [size]="18"></lucide-icon>
+              </button>
+              <button class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition">
+                <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div
+    *ngIf="mostrarModal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+  >
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+      <div
+        class="bg-[#412725] p-5 text-white flex justify-between items-center font-bold uppercase tracking-tight"
+      >
+        <span>{{ esEdicion ? 'Editar Fermentador' : 'Nuevo Tanque' }}</span>
+        <button (click)="cerrarModal()" class="text-xl hover:text-orange-300">✕</button>
+      </div>
+
+      <div class="p-6 space-y-5">
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1"
+            >Nombre / Código</label
+          >
+          <input
+            [(ngModel)]="nuevoFermentador.nombre"
+            [readonly]="esEdicion"
+            placeholder="Nombre"
+            class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 transition-all font-medium"
+            [ngClass]="{ 'bg-gray-100 text-gray-400': esEdicion }"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1"
+              >Capacidad (Lts)</label
+            >
+            <input
+              [(ngModel)]="nuevoFermentador.capacidad"
+              type="number"
+              placeholder="0"
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium"
+            />
+          </div>
+          <div *ngIf="esEdicion">
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Estado</label>
+            <select
+              [(ngModel)]="nuevoFermentador.estado"
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium bg-white"
+            >
+              <option [value]="1">Disponible</option>
+              <option [value]="2">Ocupado</option>
+              <option [value]="3">Sucio</option>
+              <option [value]="4">Mantenimiento</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Notas</label>
+          <textarea
+            [(ngModel)]="nuevoFermentador.observaciones"
+            placeholder="Detalles adicionales..."
+            class="w-full border border-gray-200 rounded-xl p-3 h-24 resize-none outline-none focus:ring-2 focus:ring-orange-300 font-medium text-sm"
+          ></textarea>
+        </div>
+
+        <div class="flex justify-end items-center gap-4 pt-4 border-t border-gray-100">
+          <button
+            (click)="cerrarModal()"
+            class="text-gray-400 font-bold hover:text-gray-600 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="guardarFermentador()"
+            class="px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95 uppercase text-sm tracking-wide bg-gradient-to-r from-[#412725] to-[#e67e22]"
+          >
+            {{ esEdicion ? 'Actualizar Cambios' : 'Guardar Tanque' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

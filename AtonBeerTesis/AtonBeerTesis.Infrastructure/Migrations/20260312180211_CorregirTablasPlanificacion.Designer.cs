@@ -4,6 +4,7 @@ using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260312180211_CorregirTablasPlanificacion")]
+    partial class CorregirTablasPlanificacion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -158,38 +161,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.ToTable("FermentadoresPruebas");
                 });
 
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Lote", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CodigoLote")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("RecetaId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VolumenLitros")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RecetaId");
-
-                    b.ToTable("Lotes", (string)null);
-                });
-
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.MovimientoStock", b =>
                 {
                     b.Property<int>("Id")
@@ -275,16 +246,13 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
+                    b.Property<string>("Estado")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("FechaFinEstimada")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("FechaInicio")
+                    b.Property<DateTime>("FechaProduccion")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("FermentadorId")
@@ -293,20 +261,20 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Property<bool>("InsumosConfirmados")
                         .HasColumnType("bit");
 
-                    b.Property<int>("LoteId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Observaciones")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RecetaId")
+                        .HasColumnType("int");
 
                     b.Property<int>("UsuarioId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LoteId");
+                    b.HasIndex("RecetaId");
 
-                    b.HasIndex("FermentadorId", "FechaInicio")
+                    b.HasIndex("FermentadorId", "FechaProduccion")
                         .IsUnique()
                         .HasDatabaseName("IX_Fermentador_Fecha");
 
@@ -581,17 +549,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Lote", b =>
-                {
-                    b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
-                        .WithMany()
-                        .HasForeignKey("RecetaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Receta");
-                });
-
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.PasosElaboracion", b =>
                 {
                     b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
@@ -611,13 +568,14 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("AtonBeerTesis.Domain.Entities.Lote", "Lote")
+                    b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
                         .WithMany()
-                        .HasForeignKey("LoteId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("RecetaId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-                    // b.Navigation("FermentadorPrueba");
-                    b.Navigation("Lote");                
+
+                    b.Navigation("Receta");
+
                     b.Navigation("fermentador");
                 });
 

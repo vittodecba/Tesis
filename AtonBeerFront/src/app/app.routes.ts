@@ -10,12 +10,15 @@ import { RolesGestion } from './components/roles-gestion/roles-gestion';
 import { StockGestion } from './components/stock/stock-gestion';
 import { InsumoComponent } from './components/insumo/insumo';
 import { UnidadMedidaComponent } from './components/unidadesMedida/unidadMedidaComponent';
-// Importo los componentes de recetas
 import { RecetaListComponent } from './components/recetas/receta-list/receta-list';
 import { RecetaDetalle } from './components/recetas/receta-detalle/receta-detalle';
 import { PlanificacionListComponent } from './components/Planificacion/PlanificacionListado/PlanListado';
 import { PlanificacionFormComponent } from './components/Planificacion/PlanificacionLotes/PlanificacionComponent';
 import { Title } from '@angular/platform-browser';
+import { LoteDetalleComponent } from './components/lote-detalle/lote-detalle';
+import { LoteListadoComponent } from './components/lote-listado/lote-listado';
+// NUEVO: Importamos el componente de Fermentadores
+import { FermentadorComponent } from './components/fermentador/fermentador';
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
@@ -30,7 +33,7 @@ export const routes: Routes = [
       { path: 'usuarios', component: UsuariosComponent, data: { title: 'Usuarios', subtitle: 'Administración de accesos' } },
       { path: 'roles', component: RolesGestion, data: { title: 'Roles', subtitle: 'Permisos del sistema' } },
       { path: 'stock', component: StockGestion, data: { title: 'Stock', subtitle: 'Control de productos' } },
-      {path: 'planificacion', component: PlanificacionListComponent, data:{title:'Planificacion', subtitle:'Planificaciones activas'}},
+      {path: 'planificacion/Listado', component: PlanificacionListComponent, data:{title:'Planificacion', subtitle:'Planificaciones activas'}},
       {path: 'planificacion/nueva', component: PlanificacionFormComponent, data:{title:'Nueva Planificacion', subtitle:'Programar Coccion'}},
       { 
         path: 'insumos', 
@@ -44,6 +47,13 @@ export const routes: Routes = [
         data: { title: 'Unidades', subtitle: 'Gestión de medidas' } 
       },
 
+      // --- NUEVA RUTA DE FERMENTADORES ---
+      { 
+        path: 'fermentadores', 
+        component: FermentadorComponent, 
+        data: { title: 'Fermentadores', subtitle: 'Gestión de tanques de fermentación' } 
+      },
+
       // --- RUTAS DE RECETAS ---
       { 
         path: 'recetas', 
@@ -55,6 +65,20 @@ export const routes: Routes = [
         component: RecetaDetalle, 
         data: { title: 'Detalle de Receta', subtitle: 'Información completa' } 
       },
+
+      // --- NUEVA RUTA DE PLANIFICACIÓN (LOTES) ---
+      { 
+        path: 'planificacion', 
+        component: LoteListadoComponent, 
+        data: { title: 'Planificación', subtitle: 'Gestión y seguimiento de lotes' } 
+      },
+
+      { 
+        path: 'planificacion/detalle/:id', 
+        component: LoteDetalleComponent, 
+        data: { title: 'Detalle de Lote', subtitle: 'Información completa del lote' } 
+      },
+      
     ],
   },
   { path: '**', redirectTo: 'login' },

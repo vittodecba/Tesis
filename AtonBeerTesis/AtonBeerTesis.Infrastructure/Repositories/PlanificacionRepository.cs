@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
@@ -17,11 +16,12 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             _context = context;
         }
+
         public async Task<PlanificacionProduccion> CreateAsync(PlanificacionProduccion planificacion)
         {
-            await _context.PlanificacionProduccion.AddAsync(planificacion);//Agrega la nueva planificación al contexto de la BD
+            await _context.PlanificacionProduccion.AddAsync(planificacion);
             await _context.SaveChangesAsync();
-            return planificacion;//Devuelve la planificación creada, que ahora incluye su ID generado por la BD
+            return planificacion;
         }
 
         public async Task<bool> ExisteFermentadorOcupado(int fermentadorId, DateTime inicio, DateTime fin, int excluirLoteId = 0)
@@ -44,7 +44,8 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         public async Task<IEnumerable<PlanificacionProduccion>> GetAllAsync()
         {
             return await _context.PlanificacionProduccion
-                .Include(p => p.FermentadorPrueba)
+                // .Include(p => p.FermentadorPrueba)
+                .Include(p=> p.fermentador)
                 .Include(p => p.Lote)
                 .ThenInclude(l => l.Receta) // Incluye la receta asociada al lote
                 .OrderByDescending(p => p.FechaCreacion) // Ordena por fecha de creacion, la más reciente primero
@@ -64,17 +65,34 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return planificacion;
         }
-        public Task<bool> DeleteAsync(int id)
+
+        public async Task<bool> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var entity = await GetByIdAsync(id);
+            if (entity == null) return false;
+
+            _context.PlanificacionProduccion.Remove(entity);
+            await _context.SaveChangesAsync();
+            return true;
         }
-        //RecetaInsumo para sacar los insumos que traen las recetas y poder validar que no esten vacios
+
         public async Task<IEnumerable<RecetaInsumo>> GetInsumosByRecetaIdAsync(int recetaId)
         {
             return await _context.RecetaInsumos
                 .Include(ri => ri.Insumo)
                 .Where(ri => ri.RecetaId == recetaId)
                 .ToListAsync();
+        }
+
+        public async Task<Fermentador> GetFermentadorByIdAsync(int id)
+        {
+            return await _context.Fermentadores.FindAsync(id);
+        }
+
+        public async Task UpdateFermentadorAsync(Fermentador fermentador)
+        {
+            _context.Fermentadores.Update(fermentador);
+            await _context.SaveChangesAsync();
         }
     }
 }
