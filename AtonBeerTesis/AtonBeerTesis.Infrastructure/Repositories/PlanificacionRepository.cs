@@ -24,29 +24,45 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             return planificacion;//Devuelve la planificación creada, que ahora incluye su ID generado por la BD
         }
 
-        public async Task<bool> ExisteFermentadorOcupado(int fermentadorId, DateTime fechaProduccion)
+        public async Task<bool> ExisteFermentadorOcupado(int fermentadorId, DateTime inicio, DateTime fin, int excluirLoteId = 0)
         {
-            return await _context.PlanificacionProduccion.AnyAsync(p => p.FermentadorId == fermentadorId && p.FechaProduccion.Date == fechaProduccion.Date);
-            //Verifica lo de si ya hay una planificación para el mismo fermentador en la misma fecha.
+            return await _context.PlanificacionProduccion.AnyAsync(
+                //Validaciones de fechas para verificar si el fermentador ya está ocupado en el rango de fechas indicado.
+                p => p.FermentadorId == fermentadorId &&// Verifica que el fermentador sea el mismo
+                p.LoteId != excluirLoteId &&
+                p.Estado != 0 && // Verifica que la planificación no esté cancelada o finalizada.
+                (
+                //Verifico si la fecha de inicio o fin de la nueva planificación coincide con alguna planificación
+                //existente para el mismo fermentador.
+                (inicio >= p.FechaInicio && inicio <= p.FechaFinEstimada) ||
+                (fin > p.FechaInicio && fin <= p.FechaFinEstimada)||
+                (inicio <= p.FechaInicio && fin >= p.FechaFinEstimada)                
+                )                
+                );            
         }
 
         public async Task<IEnumerable<PlanificacionProduccion>> GetAllAsync()
         {
             return await _context.PlanificacionProduccion
-                .Include(p => p.FermentadorPrueba) // Incluye el fermentador relacionado
-                .Include(p => p.Receta) // Incluye la receta relacionada
-                .OrderByDescending(p => p.FechaProduccion) // Ordena por fecha de producción, la más reciente primero
+                .Include(p => p.FermentadorPrueba)
+                .Include(p => p.Lote)
+                .ThenInclude(l => l.Receta) // Incluye la receta asociada al lote
+                .OrderByDescending(p => p.FechaCreacion) // Ordena por fecha de creacion, la más reciente primero
                 .ToListAsync();
         }
 
-        public Task<PlanificacionProduccion> GetByIdAsync(int id)
+        public async Task<PlanificacionProduccion> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _context.PlanificacionProduccion
+                        .Include(p => p.Lote)
+                       .FirstOrDefaultAsync(p => p.LoteId == id);
         }
 
-        public Task<PlanificacionProduccion> UpdateAsync(PlanificacionProduccion planificacion)
+        public async Task<PlanificacionProduccion> UpdateAsync(PlanificacionProduccion planificacion)
         {
-            throw new NotImplementedException();
+            _context.PlanificacionProduccion.Update(planificacion);
+            await _context.SaveChangesAsync();
+            return planificacion;
         }
         public Task<bool> DeleteAsync(int id)
         {

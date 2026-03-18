@@ -7,16 +7,11 @@ using System.Threading.Tasks;
 
 namespace AtonBeerTesis.Application.Dtos
 {
-    public class PlanificacionProduccionDto
+    public class LoteDto
     {
+        public string CodigoLote { get; set; }
         public int RecetaId { get; set; }
         public int VolumenLitros { get; set; }
-        public int LoteId { get; set; }
-        public int FermentadorId { get; set; }
         public EstadoLote Estado { get; set; }
-        public DateTime FechaInicio { get; set; }
-        public DateTime FechaFinEstimada { get; set; }
-        public string? Observaciones { get; set; }
-        public int UsuarioId { get; set; }
     }
 }

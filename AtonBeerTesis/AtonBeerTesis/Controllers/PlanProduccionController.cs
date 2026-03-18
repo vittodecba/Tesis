@@ -31,11 +31,26 @@ namespace AtonBeerTesis.Controllers
             try
             {
                 var resultado = await _planificacionService.PLanificarProduccion(dto);
-                return Ok(new{message = "Planificacion creada con exito", data = resultado});
+                return Ok(new { message = "Planificacion creada con exito", data = resultado });
             }
             catch (Exception ex)
             {
-                return BadRequest(new{message= ex.Message});
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+        [HttpPut("{loteId}")]
+        public async Task<IActionResult> Update(int loteId, [FromBody] PlanificacionProduccionDto dto)
+        {
+            if (dto == null)
+                return BadRequest("Datos no proporcionados.");
+            try
+            {
+                var resultado = await _planificacionService.ActualizarPlanificacion(loteId, dto);
+                return Ok(new { message = "Planificación actualizada con éxito", data = resultado });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

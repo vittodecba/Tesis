@@ -68,6 +68,8 @@ namespace AtonBeerTesis
             //--- Planificación de Producción ---
             builder.Services.AddScoped<IPlanificacionRepository, PlanificacionRepository>();
             builder.Services.AddScoped<IPlanificacionService, PlanificacionService>();
+            //--- Lotes ---
+            builder.Services.AddScoped<ILoteRepository, LoteRepository>();
             var app = builder.Build();
 
             // 5. Pipeline de la aplicación

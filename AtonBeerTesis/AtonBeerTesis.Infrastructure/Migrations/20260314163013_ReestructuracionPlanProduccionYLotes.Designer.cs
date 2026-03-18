@@ -4,6 +4,7 @@ using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260314163013_ReestructuracionPlanProduccionYLotes")]
+    partial class ReestructuracionPlanProduccionYLotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -141,8 +144,8 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
+                    b.Property<string>("Estado")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
@@ -150,9 +153,9 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Property<int>("RecetaId")
                         .HasColumnType("int");
 
-                    b.Property<int>("VolumenLitros")
+                    b.Property<decimal>("VolumenLitros")
                         .HasPrecision(18, 2)
-                        .HasColumnType("int");
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -246,13 +249,14 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("FechaFinEstimada")
+                    b.Property<DateTime>("FechaFin")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("FechaInicio")

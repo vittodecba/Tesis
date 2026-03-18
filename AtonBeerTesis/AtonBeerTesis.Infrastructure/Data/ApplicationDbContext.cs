@@ -10,7 +10,7 @@ namespace AtonBeerTesis.Infrastructure.Data
     public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
+          : base(options) { }
 
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Usuario> usuarios { get; set; }
@@ -26,47 +26,57 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<PasosElaboracion> PasosElaboracion { get; set; }
         public DbSet<FermentadorPrueba> FermentadoresPruebas { get; set; }
         public DbSet<PlanificacionProduccion> PlanificacionProduccion { get; set; }
+        public DbSet<Lote> Lotes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // 1. MAPEOS DE TABLAS
-            modelBuilder.Entity<Insumo>().ToTable("Insumos");
+            // 1. MAPEOS DE TABLAS
+            modelBuilder.Entity<Insumo>().ToTable("Insumos");
             modelBuilder.Entity<Usuario>().ToTable("Usuarios");
             modelBuilder.Entity<Cliente>().ToTable("Clientes");
             modelBuilder.Entity<unidadMedida>().ToTable("unidadMedida");
             modelBuilder.Entity<TipoInsumo>().ToTable("TiposInsumo");
             modelBuilder.Entity<RecetaInsumo>().ToTable("RecetaInsumos");
-            modelBuilder.Entity<Cliente>().HasKey(x => x.IdCliente);
-            // 2. CONFIGURACIÓN DE RELACIONES
-            // --- AGREGAR ESTO: Conecta la receta con la unidad de medida ---
+            modelBuilder.Entity<Cliente>().HasKey(x => x.IdCliente);                     
+
+            // 2. CONFIGURACIÓN DE RELACIONES
+            // --- AGREGAR ESTO: Conecta la receta con la unidad de medida ---
+            modelBuilder.Entity<Lote>(entity => {
+                entity.ToTable("Lotes");
+                entity.HasKey(e=>e.Id);// Clave compuesta para la tabla intermedia})
+                entity.Property(e => e.VolumenLitros).HasPrecision(18,2);
+            entity.HasOne(l => l.Receta)
+                  .WithMany()
+                  .HasForeignKey(l => l.RecetaId)
+                  .OnDelete(DeleteBehavior.Restrict); //Si elimino el lote se elimina la relacion
+            });
+
             modelBuilder.Entity<RecetaInsumo>()
-                .HasOne(ri => ri.unidadMedida)
-                .WithMany()
-                .HasForeignKey(ri => ri.unidadMedidaId)
-                .OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<PlanificacionProduccion>(entity =>{
-                entity.ToTable("PlanificacionProduccion");
-                entity.HasKey(e => e.Id);
-                //Relacion Con Receta
-                entity.HasOne(d => d.Receta)
+            .HasOne(ri => ri.unidadMedida)
+            .WithMany()
+            .HasForeignKey(ri => ri.unidadMedidaId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<PlanificacionProduccion>(entity => {
+                entity.ToTable("PlanificacionProduccion");                    
+                entity.HasOne(p => p.Lote)
                       .WithMany()
-                      .HasForeignKey(pp => pp.RecetaId)
-                      .OnDelete(DeleteBehavior.Restrict);// Evita que al eliminar una receta se eliminen las planificaciones asociadas
-            //Relacion con Fermentadores
-                entity.HasOne(d => d.FermentadorPrueba)
+                      .HasForeignKey(p => p.LoteId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(p => p.FermentadorPrueba)
                       .WithMany()
-                      .HasForeignKey(d => d.FermentadorId)
-                      .OnDelete(DeleteBehavior.Restrict);// Evita que al eliminar un fermentador se eliminen las planificaciones asociadas
-                //Relacion con la fecha
-                entity.HasIndex(e=> new { e.FermentadorId, e.FechaProduccion })
-                .IsUnique() // Esto asegura que no haya dos planificaciones para el mismo fermentador en la misma fecha
-                .HasDatabaseName("IX_Fermentador_Fecha"); // Nombre del índice
-            });
-            // 3. PRECISIONES DECIMALES
-            modelBuilder.Entity<Insumo>(e => e.Property(i => i.StockActual).HasPrecision(18, 2));
-            modelBuilder.Entity<ProductoPrueba>(e => e.Property(p => p.StockActual).HasPrecision(18, 2));          
+                      .HasForeignKey(p => p.FermentadorId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(e => new { e.FermentadorId, e.FechaInicio })
+                      .IsUnique() // Esto asegura que no haya dos planificaciones para el mismo fermentador en la misma fecha
+                      .HasDatabaseName("IX_Fermentador_Fecha"); // Nombre del índice
+            });
+
+            // 3. PRECISIONES DECIMALES
+            modelBuilder.Entity<Insumo>(e => e.Property(i => i.StockActual).HasPrecision(18, 2));
+            modelBuilder.Entity<ProductoPrueba>(e => e.Property(p => p.StockActual).HasPrecision(18, 2));
             modelBuilder.Entity<RecetaInsumo>(e => {
                 e.Property(ri => ri.Cantidad).HasPrecision(18, 3);
             });

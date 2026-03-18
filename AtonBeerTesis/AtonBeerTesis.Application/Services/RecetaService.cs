@@ -182,7 +182,9 @@ namespace AtonBeerTesis.Application.Services
                     Cantidad = ri.Cantidad,
                     NombreInsumo = ri.Insumo?.NombreInsumo,
                     UnidadMedidaId = ri.unidadMedidaId,
-                    UnidadMedida = ri.unidadMedida?.Abreviatura ?? ""
+                    UnidadMedida = ri.unidadMedida?.Abreviatura ?? "",
+                    StockActual = ri.Insumo?.StockActual?? 0//Para poder mostrar el stock actual del insumo en la receta
+                    //Esto permite a los usuarios ver cuánto stock tienen disponible de cada insumo  para la receta
                 }).ToList() ?? new List<RecetaInsumoDto>(),
 
                 PasosElaboracion = receta.PasosElaboracion?.Select(p => new PasosElaboracionDto
