@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 import { Receta, RecetaService } from '../../../services/receta';
-import { FermentadorPrueba } from '../../../services/FermentadorPrueba';
+import {FermentadorService} from '../../../services/fermentador';
 import { PlanificacionService } from '../../../services/PlanificacionService';
 
 @Component({
@@ -33,7 +33,7 @@ export class PlanificacionFormComponent implements OnInit {
 
   constructor(
     private _planifService: PlanificacionService,
-    private _fermentadorService: FermentadorPrueba,
+    private _fermentadorService: FermentadorService,
     private _recetaService: RecetaService,
     private router: Router
   ) {}
@@ -93,7 +93,7 @@ export class PlanificacionFormComponent implements OnInit {
     this._planifService.crearPlanificacion(this.nuevaPlanif).subscribe({
       next: () => {
         Swal.fire('¡Éxito!', 'Producción planificada correctamente', 'success');
-        this.router.navigate(['/planificacion']);
+        this.router.navigate(['/planificacion/Listado']);
       },
       error: (err: any) => {
         const msg = err.error?.message || 'Error al guardar la planificación';

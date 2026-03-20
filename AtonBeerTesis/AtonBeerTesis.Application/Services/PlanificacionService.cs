@@ -75,9 +75,11 @@ namespace AtonBeerTesis.Application.Services
             var planificacion = await _repository.GetAllAsync();
             return planificacion.Select(p => new PlanificacionProduccionDto
             {
+                Id = p.Id,
                 LoteId = p.LoteId,
                 FermentadorId = p.FermentadorId,
                 FechaInicio = p.FechaInicio,
+                FermentadorNombre = p.fermentador?.Nombre ?? "Sin asignar",
                 FechaFinEstimada = p.FechaFinEstimada,
                 Observaciones = p.Observaciones,
                 UsuarioId = p.UsuarioId,
@@ -111,12 +113,12 @@ namespace AtonBeerTesis.Application.Services
             var planificacion = await _repository.GetByIdAsync(loteId);
             if (planificacion == null)
                 throw new Exception($"No se encontró la planificación con Lote ID {loteId}.");
-            
+
             if (dto.FechaInicio != planificacion.FechaInicio && dto.FechaInicio < DateTime.Now.Date)
-                throw new Exception("La fecha de inicio no puede ser menor a la fecha actual."); 
+                throw new Exception("La fecha de inicio no puede ser menor a la fecha actual.");
 
             if (dto.FechaFinEstimada <= dto.FechaInicio)
-                throw new Exception("La fecha fin no puede ser menor o igual a la de inicio.");           
+                throw new Exception("La fecha fin no puede ser menor o igual a la de inicio.");
 
             // Verificar fermentador ocupado solo si cambió el fermentador o las fechas
             bool cambioFermentadorOFechas = planificacion.FermentadorId != dto.FermentadorId ||
@@ -148,12 +150,20 @@ namespace AtonBeerTesis.Application.Services
 
             dto.LoteId = loteId;
             return dto;
+        }
         public async Task AsignarFermentadorAsync(int loteId, int fermentadorId)
         {
             var lotes = await _repository.GetAllAsync();
             var lote = lotes.FirstOrDefault(x => x.Id == loteId);
             if (lote == null) throw new Exception("Lote no encontrado.");
-
+            var ocupado = await _repository.ExisteFermentadorOcupado(
+             fermentadorId,
+             lote.FechaInicio,
+             lote.FechaFinEstimada,
+             loteId
+                );   
+            if (ocupado)
+                throw new Exception("El fermentador ya está ocupado en ese rango de fechas.");
             if (lote.FermentadorId != 0 && lote.FermentadorId != fermentadorId)
             {
                 var anterior = await _repository.GetFermentadorByIdAsync(lote.FermentadorId);

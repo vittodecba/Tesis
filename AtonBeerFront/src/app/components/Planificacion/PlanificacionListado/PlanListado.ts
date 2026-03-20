@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PlanificacionService } from '../../../services/PlanificacionService';
 import { RecetaService, Receta } from '../../../services/receta';
-import { FermentadorPrueba } from '../../../services/FermentadorPrueba';
-import { LucideAngularModule, Plus, Calendar, FlaskConical, ClipboardList, Pencil } from 'lucide-angular';
+import { FermentadorService } from '../../../services/fermentador';
+import { LucideAngularModule, Plus, Calendar, FlaskConical, ClipboardList, Pencil, List, LayoutGrid, Search } from 'lucide-angular';
 import { PlanificacionCalendarComponent } from '../PlanificacionCalendario/PlanCalendario';
 
 @Component({
@@ -17,18 +17,22 @@ import { PlanificacionCalendarComponent } from '../PlanificacionCalendario/PlanC
 })
 export class PlanificacionListComponent implements OnInit {
   planificaciones: any[] = [];
-  planificacionesFiltradas: any[] = []; // 👈 Lista filtrada
+  planificacionesFiltradas: any[] = [];
   recetas: Receta[] = [];
   fermentadores: any[] = [];
   loading: boolean = true;
-  mostrarCalendario: boolean = false;
+
+  // Vista: 'tabla' | 'tarjetas' | 'calendario'
+  vista: string = 'tabla';
 
   // Filtros
   filtroEstado: string = '';
   filtroFermentador: string = '';
   filtroOrden: string = 'reciente';
+  filtroFechaDesde: string = '';
+  filtroFechaHasta: string = '';
 
-  // Modal
+  // Modal edición
   mostrarModal: boolean = false;
   loteEditando: any = {};
   guardando: boolean = false;
@@ -38,6 +42,9 @@ export class PlanificacionListComponent implements OnInit {
   FlaskConical = FlaskConical;
   ClipboardList = ClipboardList;
   Pencil = Pencil;
+  List = List;
+  LayoutGrid = LayoutGrid;
+  Search = Search;
 
   estadosMapping: { [key: number]: { nombre: string, clase: string, color: string } } = {
     0: { nombre: 'Cancelado',   clase: 'bg-danger',            color: '#dc3545' },
@@ -49,7 +56,8 @@ export class PlanificacionListComponent implements OnInit {
   constructor(
     private _planifService: PlanificacionService,
     private _recetaService: RecetaService,
-    private _fermentadorService: FermentadorPrueba
+    private _fermentadorService: FermentadorService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -77,23 +85,24 @@ export class PlanificacionListComponent implements OnInit {
 
   getNombreFermentador(id: number): string {
     const f = this.fermentadores.find(f => f.id === id);
-    return f ? `#${f.nombre}` : `#${id}`;
+    return f ? f.nombre : `#${id}`;
   }
 
   aplicarFiltros() {
     let resultado = [...this.planificaciones];
 
-    // Filtro por estado
     if (this.filtroEstado !== '') {
       resultado = resultado.filter(p => p.estado === Number(this.filtroEstado));
     }
-
-    // Filtro por fermentador
     if (this.filtroFermentador !== '') {
       resultado = resultado.filter(p => p.fermentadorId === Number(this.filtroFermentador));
     }
-
-    // Orden por fecha
+    if (this.filtroFechaDesde) {
+      resultado = resultado.filter(p => new Date(p.fechaInicio) >= new Date(this.filtroFechaDesde));
+    }
+    if (this.filtroFechaHasta) {
+      resultado = resultado.filter(p => new Date(p.fechaInicio) <= new Date(this.filtroFechaHasta));
+    }
     if (this.filtroOrden === 'reciente') {
       resultado.sort((a, b) => new Date(b.fechaInicio).getTime() - new Date(a.fechaInicio).getTime());
     } else {
@@ -107,11 +116,13 @@ export class PlanificacionListComponent implements OnInit {
     this.filtroEstado = '';
     this.filtroFermentador = '';
     this.filtroOrden = 'reciente';
+    this.filtroFechaDesde = '';
+    this.filtroFechaHasta = '';
     this.aplicarFiltros();
   }
 
-  CambiarVista() {
-    this.mostrarCalendario = !this.mostrarCalendario;
+  verDetalle(id: number) {
+    this.router.navigate(['/planificacion/detalle', id]);
   }
 
   abrirModal(p: any) {
@@ -164,7 +175,7 @@ export class PlanificacionListComponent implements OnInit {
     this._planifService.getPlanificaciones().subscribe({
       next: (data) => {
         this.planificaciones = data;
-        this.aplicarFiltros(); // 👈 Aplica filtros al cargar
+        this.aplicarFiltros();
         this.loading = false;
       },
       error: (e) => {

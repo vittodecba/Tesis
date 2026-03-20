@@ -1,14 +1,24 @@
 <div class="container mt-4">
+
+  <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h2 class="text-primary mb-0">Control de Producción</h2>
       <p class="text-muted">Seguimiento de lotes y fermentadores</p>
     </div>
     <div class="d-flex gap-2">
-      <button (click)="CambiarVista()" class="btn btn-outline-primary d-flex align-items-center shadow-sm">
-        <lucide-icon [img]="Calendar" [size]="18" class="me-2"></lucide-icon>
-        {{ mostrarCalendario ? 'Ver Tarjetas' : 'Ver Calendario' }}
-      </button>
+      <!-- Toggle de vistas -->
+      <div class="btn-group shadow-sm">
+        <button (click)="vista = 'tabla'" [class.active]="vista === 'tabla'" class="btn btn-outline-secondary">
+          <lucide-icon [img]="List" [size]="16" class="me-1"></lucide-icon> Listado
+        </button>
+        <button (click)="vista = 'tarjetas'" [class.active]="vista === 'tarjetas'" class="btn btn-outline-secondary">
+          <lucide-icon [img]="LayoutGrid" [size]="16" class="me-1"></lucide-icon> Tarjetas
+        </button>
+        <button (click)="vista = 'calendario'" [class.active]="vista === 'calendario'" class="btn btn-outline-secondary">
+          <lucide-icon [img]="Calendar" [size]="16" class="me-1"></lucide-icon> Calendario
+        </button>
+      </div>
       <button routerLink="/planificacion/nueva" class="btn btn-primary d-flex align-items-center shadow">
         <lucide-icon [img]="Plus" [size]="18" class="me-2"></lucide-icon>
         Nueva Planificación
@@ -16,10 +26,10 @@
     </div>
   </div>
 
-  <!-- Filtros -->
-  <div *ngIf="!mostrarCalendario" class="card shadow-sm border-0 mb-4 p-3">
+  <!-- Filtros (no en calendario) -->
+  <div *ngIf="vista !== 'calendario'" class="card shadow-sm border-0 mb-4 p-3">
     <div class="row g-3 align-items-end">
-      <div class="col-md-3">
+      <div class="col-md-2">
         <label class="form-label small fw-semibold text-muted">Estado</label>
         <select class="form-select form-select-sm" [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
           <option value="">Todos</option>
@@ -29,21 +39,29 @@
           <option value="3">Finalizado</option>
         </select>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <label class="form-label small fw-semibold text-muted">Fermentador</label>
         <select class="form-select form-select-sm" [(ngModel)]="filtroFermentador" (change)="aplicarFiltros()">
           <option value="">Todos</option>
-          <option *ngFor="let f of fermentadores" [value]="f.id">Fermentador #{{ f.nombre }}</option>
+          <option *ngFor="let f of fermentadores" [value]="f.id">{{ f.nombre }}</option>
         </select>
       </div>
-      <div class="col-md-3">
-        <label class="form-label small fw-semibold text-muted">Ordenar por fecha</label>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold text-muted">Desde</label>
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="filtroFechaDesde" (change)="aplicarFiltros()">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold text-muted">Hasta</label>
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="filtroFechaHasta" (change)="aplicarFiltros()">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold text-muted">Ordenar</label>
         <select class="form-select form-select-sm" [(ngModel)]="filtroOrden" (change)="aplicarFiltros()">
-          <option value="reciente">Más reciente primero</option>
-          <option value="antigua">Más antigua primero</option>
+          <option value="reciente">Más reciente</option>
+          <option value="antigua">Más antigua</option>
         </select>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <button class="btn btn-outline-secondary btn-sm w-100" (click)="limpiarFiltros()">
           Limpiar filtros
         </button>
@@ -51,23 +69,75 @@
     </div>
   </div>
 
+  <!-- Loading -->
   <div *ngIf="loading" class="text-center my-5">
     <div class="spinner-border text-primary" role="status"></div>
     <p>Cargando lotes...</p>
   </div>
 
-  <div *ngIf="!loading && mostrarCalendario">
+  <!-- VISTA CALENDARIO -->
+  <div *ngIf="!loading && vista === 'calendario'">
     <app-planificacion-calendar></app-planificacion-calendar>
   </div>
 
-  <div class="row" *ngIf="!loading && !mostrarCalendario">
+  <!-- VISTA TABLA -->
+  <div *ngIf="!loading && vista === 'tabla'">
+    <div *ngIf="planificacionesFiltradas.length === 0" class="alert alert-info text-center shadow-sm">
+      <lucide-icon [img]="ClipboardList" [size]="40" class="mb-2 opacity-50"></lucide-icon>
+      <p class="mb-0">No hay producciones que coincidan con los filtros.</p>
+    </div>
+    <div *ngIf="planificacionesFiltradas.length > 0" class="card shadow-sm border-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th># Lote</th>
+              <th>Receta</th>
+              <th>Fermentador</th>
+              <th class="text-center">Vol. (L)</th>
+              <th>Fecha Inicio</th>
+              <th>Fecha Fin Est.</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of planificacionesFiltradas">
+              <td class="fw-bold">L-{{ p.loteId }}</td>
+              <td>{{ getNombreReceta(p.recetaId) }}</td>
+              <td>{{ getNombreFermentador(p.fermentadorId) }}</td>
+              <td class="text-center fw-bold text-primary">{{ p.volumenLitros }}</td>
+              <td>{{ p.fechaInicio | date:'dd/MM/yyyy' }}</td>
+              <td>{{ p.fechaFinEstimada | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <span class="badge" [ngClass]="estadosMapping[p.estado].clase">
+                  {{ estadosMapping[p.estado].nombre }}
+                </span>
+              </td>
+              <td class="text-end">
+                <div class="d-flex gap-2 justify-content-end">
+                  <button class="btn btn-sm btn-outline-info" (click)="verDetalle(p.id)" title="Ver detalle">
+                    <lucide-icon [img]="Search" [size]="14"></lucide-icon>
+                  </button>
+                  <button class="btn btn-sm btn-outline-secondary" (click)="abrirModal(p)" title="Editar">
+                    <lucide-icon [img]="Pencil" [size]="14"></lucide-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
+  <!-- VISTA TARJETAS -->
+  <div class="row" *ngIf="!loading && vista === 'tarjetas'">
     <div *ngIf="planificacionesFiltradas.length === 0" class="col-12 alert alert-info shadow-sm text-center">
       <lucide-icon [img]="ClipboardList" [size]="40" class="mb-2 opacity-50"></lucide-icon>
       <p class="mb-0">No hay producciones que coincidan con los filtros.</p>
     </div>
-
-    <div *ngFor="let p of planificacionesFiltradas" class="col-md-4 mb-4"> <!-- 👈 planificacionesFiltradas -->
+    <div *ngFor="let p of planificacionesFiltradas" class="col-md-4 mb-4">
       <div class="card h-100 shadow-sm border-0 border-top border-4"
            [style.border-top-color]="estadosMapping[p.estado].color">
         <div class="card-body">
@@ -105,9 +175,15 @@
             </div>
           </div>
         </div>
+        <div class="card-footer bg-white border-0 pb-3">
+          <button class="btn btn-outline-info btn-sm w-100" (click)="verDetalle(p.id)">
+            Ver Detalle
+          </button>
+        </div>
       </div>
     </div>
   </div>
+
 </div>
 
 <!-- Modal de edición -->
@@ -128,7 +204,7 @@
       <div class="mb-3">
         <label class="form-label fw-semibold">Fermentador</label>
         <select class="form-select" [(ngModel)]="loteEditando.fermentadorId">
-          <option *ngFor="let f of fermentadores" [value]="f.id">Fermentador #{{ f.nombre }}</option>
+          <option *ngFor="let f of fermentadores" [value]="f.id">{{ f.nombre }}</option>
         </select>
       </div>
       <div class="mb-3">

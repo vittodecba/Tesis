@@ -30,22 +30,19 @@ namespace AtonBeerTesis.Controllers
             var query = lista.AsEnumerable();
 
             if (fechaDesde.HasValue)
-                query = query.Where(x => x.FechaProduccion.Date >= fechaDesde.Value.Date);
+                query = query.Where(x => x.FechaInicio.Date >= fechaDesde.Value.Date);
 
             if (fechaHasta.HasValue)
-                query = query.Where(x => x.FechaProduccion.Date <= fechaHasta.Value.Date);
+                query = query.Where(x => x.FechaInicio.Date <= fechaHasta.Value.Date);
 
             if (recetaId.HasValue && recetaId > 0)
                 query = query.Where(x => x.RecetaId == recetaId.Value);
 
             if (fermentadorId.HasValue && fermentadorId > 0)
                 query = query.Where(x => x.FermentadorId == fermentadorId.Value);
-
-            if (!string.IsNullOrEmpty(estado))
-                query = query.Where(x => x.Estado != null && x.Estado.Contains(estado, StringComparison.OrdinalIgnoreCase));
                 //si anda mal el estado de arriba ^
-                // if (!string.IsNullOrEmpty(estado))
-                // query = query.Where(x => x.Estado.ToString().Contains(estado, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(estado))
+                query = query.Where(x => x.Estado.ToString().Contains(estado, StringComparison.OrdinalIgnoreCase));
 
             return Ok(query.ToList());
         }

@@ -59,13 +59,13 @@ namespace AtonBeerTesis.Infrastructure.Data
             .HasForeignKey(ri => ri.unidadMedidaId)
             .OnDelete(DeleteBehavior.NoAction);
             modelBuilder.Entity<PlanificacionProduccion>(entity => {
-                entity.ToTable("PlanificacionProduccion");        
-                       entity.HasOne(p => p.Lote)
-                      .HasKey(e => e.Id)
+                entity.ToTable("PlanificacionProduccion");
+                entity.HasKey(p => p.Id);
+                entity.HasOne(p => p.Lote)
                       .WithMany()
                       .HasForeignKey(p => p.LoteId)
                       .OnDelete(DeleteBehavior.Cascade);
-                entity.HasOne(p => p.Fermentador)
+                entity.HasOne(p => p.fermentador)
                     //.HasOne(p => p.FermentadorPrueba)
                       .WithMany()
                       .HasForeignKey(p => p.FermentadorId)

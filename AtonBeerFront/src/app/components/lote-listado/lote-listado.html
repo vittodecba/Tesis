@@ -5,11 +5,7 @@
       <h2 class="text-3xl font-bold text-[#4A2C2A]">Planificación de Producción</h2>
       <p class="text-gray-600">Gestión y seguimiento de lotes de cerveza.</p>
     </div>
-
-    <button
-      class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-md bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white hover:shadow-lg"
-      type="button"
-    >
+    <button class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-md bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white hover:shadow-lg" type="button">
       <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
       Nuevo Lote
     </button>
@@ -17,7 +13,6 @@
 
   <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
-      
       <div class="relative lg:col-span-2">
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Buscar Lote</label>
         <span class="absolute bottom-3 left-3 flex items-center text-gray-400">
@@ -25,7 +20,6 @@
         </span>
         <input [(ngModel)]="filtroLote" (input)="cargarLotes()" type="text" placeholder="Ej: L-001..." class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#E67E22] outline-none transition"/>
       </div>
-
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Receta</label>
         <select [(ngModel)]="filtroReceta" (change)="cargarLotes()" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
@@ -33,7 +27,6 @@
           <option *ngFor="let r of listaRecetas" [value]="r">{{ r }}</option>
         </select>
       </div>
-
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Fermentador</label>
         <select [(ngModel)]="filtroFermentador" (change)="cargarLotes()" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
@@ -41,23 +34,21 @@
           <option *ngFor="let f of listaFermentadores" [value]="f">{{ f }}</option>
         </select>
       </div>
-
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Estado</label>
         <select [(ngModel)]="filtroEstado" (change)="cargarLotes()" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
           <option value="">Todos</option>
-          <option value="Pendiente">Pendiente</option>
-          <option value="En curso">En curso</option>
-          <option value="Finalizado">Finalizado</option>
+          <option value="1">Planificado</option>
+          <option value="2">En Proceso</option>
+          <option value="3">Finalizado</option>
+          <option value="0">Cancelado</option>
         </select>
       </div>
-
       <div class="flex items-center justify-center">
         <button class="text-red-500 text-sm font-medium hover:underline w-full py-2" *ngIf="filtroLote || filtroEstado || filtroReceta || filtroFermentador || filtroFechaDesde || filtroFechaHasta" (click)="limpiarFiltros()">
           Limpiar filtros
         </button>
       </div>
-
       <div class="lg:col-span-2 flex gap-2">
         <div class="w-1/2">
           <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Desde</label>
@@ -68,7 +59,6 @@
           <input type="date" [(ngModel)]="filtroFechaHasta" (change)="cargarLotes()" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none">
         </div>
       </div>
-
     </div>
   </div>
 
@@ -89,20 +79,21 @@
         </thead>
         <tbody class="divide-y divide-gray-50">
           <tr *ngFor="let lote of lotes" class="hover:bg-orange-50/50 transition-colors">
-            <td class="px-6 py-4 text-sm font-mono font-bold">{{ lote.id }}</td>
+            <td class="px-6 py-4 text-sm font-mono font-bold">{{ lote.loteId }}</td>
             <td class="px-6 py-4 text-sm font-medium text-[#4A2C2A]">{{ lote.recetaId }}</td>
             <td class="px-6 py-4 text-sm text-gray-600">{{ lote.fermentadorId || 'Sin asignar' }}</td>
-            <td class="px-6 py-4 text-sm text-center font-bold text-[#E67E22]">-</td>
-            <td class="px-6 py-4 text-sm text-gray-700">{{ lote.fechaProduccion | date:'dd/MM/yyyy' }}</td>
-            <td class="px-6 py-4 text-sm text-gray-700">-</td>
+            <td class="px-6 py-4 text-sm text-center font-bold text-[#E67E22]">{{ lote.volumenLitros }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700">{{ lote.fechaInicio | date:'dd/MM/yyyy' }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700">{{ lote.fechaFinEstimada | date:'dd/MM/yyyy' }}</td>
             <td class="px-6 py-4">
               <span class="px-3 py-1 rounded-full text-xs font-bold border"
                 [ngClass]="{
-                  'bg-red-100 text-red-800 border-red-200': lote.estado === 'Pendiente',
-                  'bg-yellow-100 text-yellow-800 border-yellow-200': lote.estado === 'En curso',
-                  'bg-green-100 text-green-800 border-green-200': lote.estado === 'Finalizado'
+                  'bg-red-100 text-red-800 border-red-200': lote.estado === 0,
+                  'bg-blue-100 text-blue-800 border-blue-200': lote.estado === 1,
+                  'bg-yellow-100 text-yellow-800 border-yellow-200': lote.estado === 2,
+                  'bg-green-100 text-green-800 border-green-200': lote.estado === 3
                 }">
-                {{ lote.estado || 'Pendiente' }}
+                {{ lote.estado === 0 ? 'Cancelado' : lote.estado === 1 ? 'Planificado' : lote.estado === 2 ? 'En Proceso' : 'Finalizado' }}
               </span>
             </td>
             <td class="px-6 py-4 text-right">
