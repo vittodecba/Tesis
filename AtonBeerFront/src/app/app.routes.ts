@@ -6,15 +6,17 @@ import { RestablecerContrasenaComponent } from './components/auth/restablecer-co
 import { ClientesComponent } from './components/clientes/clientes.component';
 import { InicioComponent } from './components/Inicio/inicio.component';
 import { UsuariosComponent } from './components/usuarios/usuarios';
+import { FermentadorDetalleComponent } from './components/Fermentador-detalle/fermentador-detalle';
 import { RolesGestion } from './components/roles-gestion/roles-gestion';
 import { StockGestion } from './components/stock/stock-gestion';
 import { InsumoComponent } from './components/insumo/insumo';
 import { UnidadMedidaComponent } from './components/unidadesMedida/unidadMedidaComponent';
 import { RecetaListComponent } from './components/recetas/receta-list/receta-list';
 import { RecetaDetalle } from './components/recetas/receta-detalle/receta-detalle';
-
-// NUEVO: Importamos el componente de Fermentadores
 import { FermentadorComponent } from './components/fermentador/fermentador';
+
+// FUTURO:
+// import { FermentadorDetalleComponent } from './components/fermentador-detalle/fermentador-detalle';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -26,43 +28,71 @@ export const routes: Routes = [
     path: '',
     component: LayoutComponent,
     children: [
-      { path: 'inicio', component: InicioComponent, data: { title: 'Inicio', subtitle: 'Panel de control principal' } },
-      { path: 'clientes', component: ClientesComponent, data: { title: 'Clientes', subtitle: 'Gestión de franquicias' } },
-      { path: 'usuarios', component: UsuariosComponent, data: { title: 'Usuarios', subtitle: 'Administración de accesos' } },
-      { path: 'roles', component: RolesGestion, data: { title: 'Roles', subtitle: 'Permisos del sistema' } },
-      { path: 'stock', component: StockGestion, data: { title: 'Stock', subtitle: 'Control de productos' } },
-      
-      { 
-        path: 'insumos', 
-        component: InsumoComponent, 
-        data: { title: 'Insumos', subtitle: 'Gestión de materia prima' } 
+      {
+        path: 'inicio',
+        component: InicioComponent,
+        data: { title: 'Inicio', subtitle: 'Panel de control principal' },
+      },
+      {
+        path: 'clientes',
+        component: ClientesComponent,
+        data: { title: 'Clientes', subtitle: 'Gestión de franquicias' },
+      },
+      {
+        path: 'usuarios',
+        component: UsuariosComponent,
+        data: { title: 'Usuarios', subtitle: 'Administración de accesos' },
+      },
+      {
+        path: 'roles',
+        component: RolesGestion,
+        data: { title: 'Roles', subtitle: 'Permisos del sistema' },
+      },
+      {
+        path: 'stock',
+        component: StockGestion,
+        data: { title: 'Stock', subtitle: 'Control de productos' },
+      },
+      {
+        path: 'insumos',
+        component: InsumoComponent,
+        data: { title: 'Insumos', subtitle: 'Gestión de materia prima' },
+      },
+      {
+        path: 'unidades-medida',
+        component: UnidadMedidaComponent,
+        data: { title: 'Unidades', subtitle: 'Gestión de medidas' },
+      },
+      {
+        path: 'fermentadores',
+        component: FermentadorComponent,
+        data: { title: 'Fermentadores', subtitle: 'Gestión de tanques de fermentación' },
+      },
+      {
+        path: 'fermentadores/:id',
+        component: FermentadorDetalleComponent,
+        data: { title: 'Detalle de Fermentador', subtitle: 'Seguimiento del lote y fermentación' },
       },
 
-      { 
-        path: 'unidades-medida', 
-        component: UnidadMedidaComponent, 
-        data: { title: 'Unidades', subtitle: 'Gestión de medidas' } 
-      },
+      // FUTURO:
+      // {
+      //   path: 'fermentadores/:id',
+      //   component: FermentadorDetalleComponent,
+      //   data: { title: 'Detalle de Fermentador', subtitle: 'Seguimiento del lote y fermentación' },
+      // },
 
-      // --- NUEVA RUTA DE FERMENTADORES ---
-      { 
-        path: 'fermentadores', 
-        component: FermentadorComponent, 
-        data: { title: 'Fermentadores', subtitle: 'Gestión de tanques de fermentación' } 
+      {
+        path: 'recetas',
+        component: RecetaListComponent,
+        data: { title: 'Recetas', subtitle: 'Gestión de recetas de cerveza' },
       },
-
-      // --- RUTAS DE RECETAS ---
-      { 
-        path: 'recetas', 
-        component: RecetaListComponent, 
-        data: { title: 'Recetas', subtitle: 'Gestión de recetas de cerveza' } 
-      },
-      { 
-        path: 'recetas/detalle/:id', 
-        component: RecetaDetalle, 
-        data: { title: 'Detalle de Receta', subtitle: 'Información completa' } 
+      {
+        path: 'recetas/detalle/:id',
+        component: RecetaDetalle,
+        data: { title: 'Detalle de Receta', subtitle: 'Información completa' },
       },
     ],
   },
+
   { path: '**', redirectTo: 'login' },
 ];

@@ -4,6 +4,7 @@
       <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Fermentadores</h2>
       <p class="text-gray-600">Administración de activos y estados de producción.</p>
     </div>
+
     <button
       (click)="abrirModal()"
       class="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-transform active:scale-95 bg-gradient-to-r from-[#412725] to-[#e67e22]"
@@ -15,9 +16,9 @@
 
   <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 flex gap-4">
     <div class="flex-1">
-      <label class="text-[10px] font-bold text-gray-400 uppercase ml-2"
-        >Capacidad Mínima (Lts)</label
-      >
+      <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">
+        Capacidad Mínima (Lts)
+      </label>
       <input
         type="number"
         [(ngModel)]="filtroCapacidad"
@@ -26,6 +27,7 @@
         class="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-orange-200 outline-none text-sm"
       />
     </div>
+
     <div class="w-64">
       <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Filtrar Estado</label>
       <select
@@ -52,6 +54,7 @@
           <th class="px-6 py-4 text-right">Acciones</th>
         </tr>
       </thead>
+
       <tbody class="divide-y divide-gray-50">
         <tr
           *ngFor="let item of fermentadoresFiltrados"
@@ -60,6 +63,7 @@
           <td class="px-6 py-4">
             <div class="flex flex-col">
               <span class="font-bold text-[#4A2C2A]">{{ item.nombre }}</span>
+
               <span
                 *ngIf="item.loteId"
                 class="text-[9px] bg-[#412725] text-white px-1.5 py-0.5 rounded-md w-fit mt-1 font-bold"
@@ -68,9 +72,11 @@
               </span>
             </div>
           </td>
+
           <td class="px-6 py-4">
             <div class="flex flex-col">
               <span class="text-sm text-gray-600 font-medium">{{ item.capacidad }} Lts</span>
+
               <span
                 *ngIf="item.estiloNombre"
                 class="text-[11px] text-[#e67e22] font-black uppercase mt-0.5 italic"
@@ -79,43 +85,38 @@
               </span>
             </div>
           </td>
+
           <td class="px-6 py-4 text-center">
             <span
               class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
-              [ngClass]="{
-                'bg-green-100 text-green-700': item.estado === '1' || item.estado === 'Disponible',
-                'bg-blue-100 text-blue-700': item.estado === '2' || item.estado === 'Ocupado',
-                'bg-yellow-100 text-yellow-700': item.estado === '3' || item.estado === 'Sucio',
-                'bg-red-100 text-red-700': item.estado === '4' || item.estado === 'Mantenimiento',
-              }"
+              [ngClass]="obtenerClaseEstado(item.estado)"
             >
-              {{
-                item.estado === '1' || item.estado === 'Disponible'
-                  ? 'Disponible'
-                  : item.estado === '2' || item.estado === 'Ocupado'
-                    ? 'Ocupado'
-                    : item.estado === '3' || item.estado === 'Sucio'
-                      ? 'Sucio'
-                      : 'Mantenimiento'
-              }}
+              {{ obtenerTextoEstado(item.estado) }}
             </span>
           </td>
+
           <td class="px-6 py-4 text-right">
             <div class="flex justify-end gap-2">
               <button
-                *ngIf="item.loteId"
                 (click)="verGraficos(item)"
                 class="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition shadow-sm"
+                title="Ver seguimiento"
               >
                 <lucide-icon [img]="LineChart" [size]="18"></lucide-icon>
               </button>
+
               <button
                 (click)="abrirModal(item)"
                 class="p-2 text-[#4A2C2A] hover:bg-orange-100 rounded-lg transition shadow-sm border border-transparent hover:border-gray-200"
+                title="Editar fermentador"
               >
                 <lucide-icon [img]="Pencil" [size]="18"></lucide-icon>
               </button>
-              <button class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition">
+
+              <button
+                class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition"
+                title="Eliminar fermentador"
+              >
                 <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
               </button>
             </div>
@@ -136,11 +137,12 @@
         <span>{{ esEdicion ? 'Editar Fermentador' : 'Nuevo Tanque' }}</span>
         <button (click)="cerrarModal()" class="text-xl hover:text-orange-300">✕</button>
       </div>
+
       <div class="p-6 space-y-5">
         <div>
-          <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1"
-            >Nombre / Código</label
-          >
+          <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+            Nombre / Código
+          </label>
           <input
             [(ngModel)]="nuevoFermentador.nombre"
             [readonly]="esEdicion"
@@ -148,19 +150,24 @@
             [ngClass]="{ 'bg-gray-100 text-gray-400': esEdicion }"
           />
         </div>
+
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1"
-              >Capacidad (Lts)</label
-            >
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Capacidad (Lts)
+            </label>
             <input
               [(ngModel)]="nuevoFermentador.capacidad"
               type="number"
               class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium"
             />
           </div>
+
           <div *ngIf="esEdicion">
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Estado</label>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Estado
+            </label>
+
             <select
               [(ngModel)]="nuevoFermentador.estado"
               class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium bg-white"
@@ -170,8 +177,16 @@
               <option value="3">Sucio</option>
               <option value="4">Mantenimiento</option>
             </select>
+
+            <p
+              *ngIf="nuevoFermentador.loteId"
+              class="text-[11px] text-orange-600 font-semibold mt-1 ml-1"
+            >
+              Este fermentador tiene un lote activo. Evitá cambiar el estado manualmente.
+            </p>
           </div>
         </div>
+
         <div>
           <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Notas</label>
           <textarea
@@ -179,6 +194,7 @@
             class="w-full border border-gray-200 rounded-xl p-3 h-24 resize-none outline-none focus:ring-2 focus:ring-orange-300 font-medium text-sm"
           ></textarea>
         </div>
+
         <div class="flex justify-end items-center gap-4 pt-4 border-t border-gray-100">
           <button
             (click)="cerrarModal()"
@@ -186,6 +202,7 @@
           >
             Cancelar
           </button>
+
           <button
             (click)="guardarFermentador()"
             class="px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95 uppercase text-sm tracking-wide bg-gradient-to-r from-[#412725] to-[#e67e22]"

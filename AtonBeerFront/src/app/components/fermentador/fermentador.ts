@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Fermentador } from '../../Interfaces/fermentador';
 import { FermentadorService } from '../../services/fermentador';
 import { LucideAngularModule, Plus, Pencil, Trash2, LineChart } from 'lucide-angular';
@@ -20,30 +21,81 @@ export class FermentadorComponent implements OnInit {
   listaFermentadores: Fermentador[] = [];
   fermentadoresFiltrados: Fermentador[] = [];
 
-  mostrarModal: boolean = false;
-  esEdicion: boolean = false;
+  mostrarModal = false;
+  esEdicion = false;
   idFermentadorEditar?: number;
+
   filtroCapacidad: number | null = null;
   filtroEstado: string = 'Todos';
 
-  // CORRECCIÓN: Inicializado con string '1' para evitar TS2322
-  nuevoFermentador: Fermentador = {
-    nombre: '',
-    capacidad: 0,
-    estado: '1',
-    observaciones: '',
-  };
+  nuevoFermentador: Fermentador = this.crearFermentadorVacio();
 
-  constructor(private _fermentadorService: FermentadorService) {}
+  constructor(
+    private _fermentadorService: FermentadorService,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     this.obtenerFermentadores();
   }
 
+  crearFermentadorVacio(): Fermentador {
+    return {
+      nombre: '',
+      capacidad: 0,
+      estado: '1',
+      observaciones: '',
+    };
+  }
+
+  normalizarEstado(estado: string | null | undefined): string {
+    const mapa: Record<string, string> = {
+      '1': '1',
+      '2': '2',
+      '3': '3',
+      '4': '4',
+      Disponible: '1',
+      Ocupado: '2',
+      Sucio: '3',
+      Mantenimiento: '4',
+    };
+
+    return mapa[estado ?? ''] ?? '1';
+  }
+
+  obtenerTextoEstado(estado: string): string {
+    const estadoNormalizado = this.normalizarEstado(estado);
+
+    const mapa: Record<string, string> = {
+      '1': 'Disponible',
+      '2': 'Ocupado',
+      '3': 'Sucio',
+      '4': 'Mantenimiento',
+    };
+
+    return mapa[estadoNormalizado] ?? 'Desconocido';
+  }
+
+  obtenerClaseEstado(estado: string): string {
+    const estadoNormalizado = this.normalizarEstado(estado);
+
+    const mapa: Record<string, string> = {
+      '1': 'bg-green-100 text-green-700',
+      '2': 'bg-blue-100 text-blue-700',
+      '3': 'bg-yellow-100 text-yellow-700',
+      '4': 'bg-red-100 text-red-700',
+    };
+
+    return mapa[estadoNormalizado] ?? 'bg-gray-100 text-gray-700';
+  }
+
   obtenerFermentadores() {
     this._fermentadorService.getFermentadores().subscribe({
       next: (data) => {
-        this.listaFermentadores = data;
+        this.listaFermentadores = data.map((f) => ({
+          ...f,
+          estado: this.normalizarEstado(f.estado),
+        }));
         this.aplicarFiltros();
       },
       error: (err) => console.error('Error al cargar lista:', err),
@@ -52,12 +104,16 @@ export class FermentadorComponent implements OnInit {
 
   aplicarFiltros() {
     let res = [...this.listaFermentadores];
+
     if (this.filtroEstado !== 'Todos') {
       res = res.filter((f) => f.estado === this.filtroEstado);
     }
-    if (this.filtroCapacidad !== null) {
-      res = res.filter((f) => f.capacidad >= this.filtroCapacidad!);
+
+    const capacidadMinima = this.filtroCapacidad;
+    if (capacidadMinima !== null) {
+      res = res.filter((f) => f.capacidad >= capacidadMinima);
     }
+
     this.fermentadoresFiltrados = res;
   }
 
@@ -65,25 +121,16 @@ export class FermentadorComponent implements OnInit {
     if (item) {
       this.esEdicion = true;
       this.idFermentadorEditar = item.id;
-      this.nuevoFermentador = JSON.parse(JSON.stringify(item));
-
-      // CORRECCIÓN: Aseguramos que el estado sea un string ID ('1', '2', etc)
-      // Si el backend mandó el nombre del estado, lo mapeamos a su ID en string
-      const mapeoTextoAID: any = {
-        Disponible: '1',
-        Ocupado: '2',
-        Sucio: '3',
-        Mantenimiento: '4',
+      this.nuevoFermentador = {
+        ...item,
+        estado: this.normalizarEstado(item.estado),
       };
-
-      if (mapeoTextoAID[this.nuevoFermentador.estado]) {
-        this.nuevoFermentador.estado = mapeoTextoAID[this.nuevoFermentador.estado];
-      }
     } else {
       this.esEdicion = false;
       this.idFermentadorEditar = undefined;
-      this.nuevoFermentador = { nombre: '', capacidad: 0, estado: '1', observaciones: '' };
+      this.nuevoFermentador = this.crearFermentadorVacio();
     }
+
     this.mostrarModal = true;
   }
 
@@ -92,8 +139,12 @@ export class FermentadorComponent implements OnInit {
   }
 
   guardarFermentador() {
-    // CORRECCIÓN: Mantener estado como string para cumplir con la interfaz Fermentador
-    const dto = this.nuevoFermentador;
+    const dto = {
+      nombre: this.nuevoFermentador.nombre,
+      capacidad: this.nuevoFermentador.capacidad,
+      estado: this.nuevoFermentador.estado,
+      observaciones: this.nuevoFermentador.observaciones,
+    };
 
     if (this.esEdicion && this.idFermentadorEditar) {
       this._fermentadorService.actualizarFermentador(this.idFermentadorEditar, dto).subscribe({
@@ -115,6 +166,13 @@ export class FermentadorComponent implements OnInit {
   }
 
   verGraficos(item: Fermentador) {
-    console.log('Ver mediciones para lote:', item.loteId);
+    if (!item.id) return;
+
+    // A futuro esta ruta será la pantalla detalle del fermentador
+    this.router.navigate(['/fermentadores', item.id]);
+  }
+
+  puedeEditarEstado(item: Fermentador): boolean {
+    return !item.loteId;
   }
 }
