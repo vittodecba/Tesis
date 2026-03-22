@@ -52,11 +52,20 @@ namespace AtonBeerTesis.Application.Services
             if (dto.DiaFermentacion <= 0)
                 throw new Exception("El día de fermentación debe ser mayor a 0.");
 
-            if (dto.Ph < 0 || dto.Ph > 14)
-                throw new Exception("El pH ingresado no es válido.");
+            if (dto.Ph <= 0)
+                throw new Exception("El pH debe ser mayor a 0.");
 
-            if (dto.Temperatura < -10 || dto.Temperatura > 100)
-                throw new Exception("La temperatura ingresada no es válida.");
+            if (dto.Temperatura < 0)
+                throw new Exception("La temperatura no puede ser negativa.");
+
+            if (dto.Densidad < 0)
+                throw new Exception("La densidad no puede ser negativa.");
+
+            if (!dto.Presion.HasValue)
+                throw new Exception("La presión es obligatoria.");
+
+            if (dto.Presion.Value < 0)
+                throw new Exception("La presión no puede ser negativa.");
 
             var existeFecha = await _repository.ExistePorFechaAsync(dto.LoteId, dto.Fecha.Date);
             if (existeFecha)
@@ -109,19 +118,44 @@ namespace AtonBeerTesis.Application.Services
                 registro.Fecha = dto.Fecha.Value.Date;
 
             if (dto.DiaFermentacion.HasValue)
+            {
+                if (dto.DiaFermentacion.Value <= 0)
+                    throw new Exception("El día de fermentación debe ser mayor a 0.");
+
                 registro.DiaFermentacion = dto.DiaFermentacion.Value;
+            }
 
             if (dto.Ph.HasValue)
+            {
+                if (dto.Ph.Value <= 0)
+                    throw new Exception("El pH debe ser mayor a 0.");
+
                 registro.Ph = dto.Ph.Value;
+            }
 
             if (dto.Densidad.HasValue)
+            {
+                if (dto.Densidad.Value < 0)
+                    throw new Exception("La densidad no puede ser negativa.");
+
                 registro.Densidad = dto.Densidad.Value;
+            }
 
             if (dto.Temperatura.HasValue)
+            {
+                if (dto.Temperatura.Value < 0)
+                    throw new Exception("La temperatura no puede ser negativa.");
+
                 registro.Temperatura = dto.Temperatura.Value;
+            }
 
             if (dto.Presion.HasValue)
+            {
+                if (dto.Presion.Value < 0)
+                    throw new Exception("La presión no puede ser negativa.");
+
                 registro.Presion = dto.Presion.Value;
+            }
 
             if (dto.Purgas != null)
                 registro.Purgas = dto.Purgas;

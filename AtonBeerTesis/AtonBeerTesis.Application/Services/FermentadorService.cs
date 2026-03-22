@@ -13,97 +13,109 @@ namespace AtonBeerTesis.Application.Services
         Task<bool> UpdateAsync(int id, UpdateFermentadorDto dto);
     }
 
-    public class FermentadorService : IFermentadorService
+
+namespace AtonBeerTesis.Application.Services
     {
-        private readonly IFermentadorRepository _repository;
-
-        public FermentadorService(IFermentadorRepository repository)
+        public class FermentadorService : IFermentadorService
         {
-            _repository = repository;
-        }
-        public async Task<IEnumerable<FermentadorDetalleDto>> GetAllConLoteAsync()
-        {
-            var fermentadores = await _repository.GetAllConPlanificacionAsync();
+            private readonly IFermentadorRepository _repository;
 
-            return fermentadores.Select(f => {
-                var planActiva = f.Planificaciones?
-                    .FirstOrDefault(p => p.Estado == "2"); // 2 = En Proceso
+            public FermentadorService(IFermentadorRepository repository)
+            {
+                _repository = repository;
+            }
 
-                return new FermentadorDetalleDto
+            public async Task<IEnumerable<FermentadorDetalleDto>> GetAllConLoteAsync()
+            {
+                var fermentadores = await _repository.GetAllConPlanificacionAsync();
+
+                return fermentadores.Select(f => new FermentadorDetalleDto
                 {
                     Id = f.Id,
                     Nombre = f.Nombre,
                     Capacidad = f.Capacidad,
-                    // CORRECCIÓN: Devolvemos el número como string para que el Front no se rompa
                     Estado = ((int)f.Estado).ToString(),
                     Observaciones = f.Observaciones,
-                    LoteId = planActiva?.Id,
-                    EstiloNombre = planActiva?.Receta?.Nombre
-                };
-            }).ToList();
-        }
-
-        public async Task<List<FermentadorDto>> GetAllAsync()
-        {
-            var lista = await _repository.GetAllAsync();
-            return lista.Select(f => new FermentadorDto
-            {
-                Id = f.Id,
-                Nombre = f.Nombre,
-                Capacidad = f.Capacidad,
-                Estado = f.Estado.ToString(),
-                Observaciones = f.Observaciones
-            }).ToList();
-        }
-
-        public async Task<bool> UpdateAsync(int id, UpdateFermentadorDto dto)
-        {
-            // 1. Buscamos el fermentador que ya está guardado
-            var fermentadorExistente = await _repository.GetByIdAsync(id);
-            if (fermentadorExistente == null) return false;
-
-            // 2. Mapeo Inteligente (PATCH): Solo actualiza si hay un valor nuevo
-            if (!string.IsNullOrWhiteSpace(dto.Nombre))
-                fermentadorExistente.Nombre = dto.Nombre;
-
-            // Usamos .HasValue porque ahora Capacidad es int?
-            if (dto.Capacidad.HasValue)
-                fermentadorExistente.Capacidad = dto.Capacidad.Value;
-
-            // Dentro de tu método UpdateAsync:
-            if (dto.Estado.HasValue)
-            {
-                // Casteamos el número recibido al Enum de la entidad
-                fermentadorExistente.Estado = (EstadoFermentador)dto.Estado.Value;
+                    LoteId = null,
+                    EstiloNombre = null
+                }).ToList();
             }
 
-            if (dto.Observaciones != null)
-                fermentadorExistente.Observaciones = dto.Observaciones;
-
-            // 3. Guardamos solo los cambios
-            return await _repository.UpdateAsync(fermentadorExistente);
-        }
-
-        public async Task<FermentadorDto> CreateAsync(CreateFermentadorDto dto)
-        {
-            var nuevo = new Fermentador
+            public async Task<List<FermentadorDto>> GetAllAsync()
             {
-                Nombre = dto.Nombre,
-                Capacidad = dto.Capacidad,
-                Observaciones = dto.Observaciones,
-                Estado = EstadoFermentador.Disponible
-            };
+                var lista = await _repository.GetAllAsync();
 
-            await _repository.AddAsync(nuevo);
+                return lista.Select(f => new FermentadorDto
+                {
+                    Id = f.Id,
+                    Nombre = f.Nombre,
+                    Capacidad = f.Capacidad,
+                    Estado = ((int)f.Estado).ToString(),
+                    Observaciones = f.Observaciones,
+                    LoteId = null,
+                    EstiloNombre = null
+                }).ToList();
+            }
 
-            return new FermentadorDto
+            public async Task<bool> UpdateAsync(int id, UpdateFermentadorDto dto)
             {
-                Id = nuevo.Id,
-                Nombre = nuevo.Nombre,
-                Capacidad = nuevo.Capacidad,
-                Estado = nuevo.Estado.ToString(),
-                Observaciones = nuevo.Observaciones
-            };
+                var fermentadorExistente = await _repository.GetByIdAsync(id);
+                if (fermentadorExistente == null) return false;
+
+                if (!string.IsNullOrWhiteSpace(dto.Nombre))
+                    fermentadorExistente.Nombre = dto.Nombre;
+
+                if (dto.Capacidad.HasValue)
+                    fermentadorExistente.Capacidad = dto.Capacidad.Value;
+
+                if (dto.Estado.HasValue)
+                {
+                    var nuevoEstado = (EstadoFermentador)dto.Estado.Value;
+
+                    if (fermentadorExistente.Estado == EstadoFermentador.Ocupado &&
+                        nuevoEstado != EstadoFermentador.Ocupado)
+                    {
+                        throw new Exception("Un fermentador ocupado no puede cambiarse manualmente de estado. Debe finalizarse el lote primero.");
+                    }
+
+                    if (nuevoEstado == EstadoFermentador.Mantenimiento &&
+                        fermentadorExistente.Estado != EstadoFermentador.Disponible)
+                    {
+                        throw new Exception("Solo se puede pasar a mantenimiento desde el estado disponible.");
+                    }
+
+                    fermentadorExistente.Estado = nuevoEstado;
+                }
+
+                if (dto.Observaciones != null)
+                    fermentadorExistente.Observaciones = dto.Observaciones;
+
+                return await _repository.UpdateAsync(fermentadorExistente);
+            }
+
+            public async Task<FermentadorDto> CreateAsync(CreateFermentadorDto dto)
+            {
+                var nuevo = new Fermentador
+                {
+                    Nombre = dto.Nombre,
+                    Capacidad = dto.Capacidad,
+                    Observaciones = dto.Observaciones,
+                    Estado = EstadoFermentador.Disponible
+                };
+
+                await _repository.AddAsync(nuevo);
+
+                return new FermentadorDto
+                {
+                    Id = nuevo.Id,
+                    Nombre = nuevo.Nombre,
+                    Capacidad = nuevo.Capacidad,
+                    Estado = ((int)nuevo.Estado).ToString(),
+                    Observaciones = nuevo.Observaciones,
+                    LoteId = null,
+                    EstiloNombre = null
+                };
+            }
         }
     }
 }

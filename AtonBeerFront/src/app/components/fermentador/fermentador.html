@@ -159,6 +159,7 @@
             <input
               [(ngModel)]="nuevoFermentador.capacidad"
               type="number"
+              min="0"
               class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium"
             />
           </div>
@@ -170,7 +171,8 @@
 
             <select
               [(ngModel)]="nuevoFermentador.estado"
-              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium bg-white"
+              [disabled]="!puedeEditarEstado()"
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium bg-white disabled:bg-gray-100 disabled:text-gray-400"
             >
               <option value="1">Disponible</option>
               <option value="2">Ocupado</option>
@@ -179,10 +181,10 @@
             </select>
 
             <p
-              *ngIf="nuevoFermentador.loteId"
+              *ngIf="nuevoFermentador.loteId || normalizarEstado(nuevoFermentador.estado) === '2'"
               class="text-[11px] text-orange-600 font-semibold mt-1 ml-1"
             >
-              Este fermentador tiene un lote activo. Evitá cambiar el estado manualmente.
+              Un fermentador ocupado no debe cambiarse manualmente de estado.
             </p>
           </div>
         </div>

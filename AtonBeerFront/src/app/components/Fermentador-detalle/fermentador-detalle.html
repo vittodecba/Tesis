@@ -112,8 +112,7 @@
               [data]="temperaturaChartData"
               [options]="lineChartOptions"
               [type]="'line'"
-            >
-            </canvas>
+            ></canvas>
           </div>
         </div>
 
@@ -124,8 +123,12 @@
           </div>
 
           <div class="h-[320px]">
-            <canvas baseChart [data]="phChartData" [options]="lineChartOptions" [type]="'line'">
-            </canvas>
+            <canvas
+              baseChart
+              [data]="phChartData"
+              [options]="lineChartOptions"
+              [type]="'line'"
+            ></canvas>
           </div>
         </div>
       </div>
@@ -149,7 +152,8 @@
             <input
               type="datetime-local"
               [(ngModel)]="nuevoRegistro.fecha"
-              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
+              readonly
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none bg-gray-100 text-gray-500"
             />
           </div>
 
@@ -158,14 +162,16 @@
             <input
               type="number"
               [(ngModel)]="nuevoRegistro.diaFermentacion"
-              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
+              readonly
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none bg-gray-100 text-gray-500"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">pH</label>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">pH *</label>
             <input
               type="number"
+              min="0"
               step="0.01"
               [(ngModel)]="nuevoRegistro.ph"
               class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
@@ -173,11 +179,12 @@
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1"
-              >Densidad</label
-            >
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Densidad *
+            </label>
             <input
               type="number"
+              min="0"
               step="0.01"
               [(ngModel)]="nuevoRegistro.densidad"
               class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
@@ -185,11 +192,12 @@
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1"
-              >Temperatura</label
-            >
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Temperatura *
+            </label>
             <input
               type="number"
+              min="0"
               step="0.01"
               [(ngModel)]="nuevoRegistro.temperatura"
               class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
@@ -197,9 +205,12 @@
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Presión</label>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Presión *
+            </label>
             <input
               type="number"
+              min="0"
               step="0.01"
               [(ngModel)]="nuevoRegistro.presion"
               class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
@@ -216,9 +227,9 @@
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1"
-              >Extracciones</label
-            >
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Extracciones
+            </label>
             <input
               type="text"
               [(ngModel)]="nuevoRegistro.extracciones"
@@ -227,9 +238,9 @@
           </div>
 
           <div class="lg:col-span-2">
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1"
-              >Agregados</label
-            >
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Agregados
+            </label>
             <input
               type="text"
               [(ngModel)]="nuevoRegistro.agregados"
@@ -238,9 +249,9 @@
           </div>
 
           <div class="lg:col-span-2">
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1"
-              >Observaciones</label
-            >
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Observaciones
+            </label>
             <input
               type="text"
               [(ngModel)]="nuevoRegistro.observaciones"

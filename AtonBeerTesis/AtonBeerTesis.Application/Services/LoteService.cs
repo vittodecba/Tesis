@@ -116,7 +116,7 @@ namespace AtonBeerTesis.Application.Services
             var lote = new LotePrueba
             {
                 Codigo = dto.Codigo,
-                RecetaId = dto.RecetaId, // ahora puede ir null
+                RecetaId = dto.RecetaId,
                 FermentadorId = dto.FermentadorId,
                 FechaElaboracion = dto.FechaElaboracion,
                 Estilo = dto.Estilo,
@@ -160,7 +160,6 @@ namespace AtonBeerTesis.Application.Services
             if (!string.IsNullOrWhiteSpace(dto.Codigo))
                 lote.Codigo = dto.Codigo;
 
-            // solo actualiza receta si vino valor
             if (dto.RecetaId.HasValue)
                 lote.RecetaId = dto.RecetaId.Value;
 
@@ -202,7 +201,7 @@ namespace AtonBeerTesis.Application.Services
             var fermentador = await _fermentadorRepository.GetByIdAsync(lote.FermentadorId);
             if (fermentador != null)
             {
-                fermentador.Estado = EstadoFermentador.Disponible;
+                fermentador.Estado = EstadoFermentador.Sucio;
                 await _fermentadorRepository.UpdateAsync(fermentador);
             }
 

@@ -152,7 +152,10 @@ export class FermentadorComponent implements OnInit {
           this.obtenerFermentadores();
           this.cerrarModal();
         },
-        error: (err) => console.error('Error update:', err),
+        error: (err) => {
+          console.error('Error update:', err);
+          alert(err?.error || 'No se pudo actualizar el fermentador.');
+        },
       });
     } else {
       this._fermentadorService.crearFermentador(dto).subscribe({
@@ -160,19 +163,22 @@ export class FermentadorComponent implements OnInit {
           this.obtenerFermentadores();
           this.cerrarModal();
         },
-        error: (err) => console.error('Error create:', err),
+        error: (err) => {
+          console.error('Error create:', err);
+          alert(err?.error || 'No se pudo crear el fermentador.');
+        },
       });
     }
   }
 
   verGraficos(item: Fermentador) {
     if (!item.id) return;
-
-    // A futuro esta ruta será la pantalla detalle del fermentador
     this.router.navigate(['/fermentadores', item.id]);
   }
 
-  puedeEditarEstado(item: Fermentador): boolean {
-    return !item.loteId;
+  puedeEditarEstado(): boolean {
+    return (
+      !this.nuevoFermentador.loteId && this.normalizarEstado(this.nuevoFermentador.estado) !== '2'
+    );
   }
 }

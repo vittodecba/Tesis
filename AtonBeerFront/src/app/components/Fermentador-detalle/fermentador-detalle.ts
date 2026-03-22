@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartOptions, registerables, Chart } from 'chart.js';
+import { ChartConfiguration, ChartOptions, Chart, registerables } from 'chart.js';
 
 import { Fermentador } from '../../Interfaces/fermentador';
 import { Lote } from '../../Interfaces/lote';
@@ -49,7 +49,6 @@ export class FermentadorDetalleComponent implements OnInit {
 
   nuevoRegistro: RegistroFermentacion = this.crearRegistroVacio();
 
-  // Chart: Temperatura
   temperaturaChartData: ChartConfiguration<'line'>['data'] = {
     labels: [],
     datasets: [
@@ -62,7 +61,6 @@ export class FermentadorDetalleComponent implements OnInit {
     ],
   };
 
-  // Chart: pH
   phChartData: ChartConfiguration<'line'>['data'] = {
     labels: [],
     datasets: [
@@ -123,12 +121,12 @@ export class FermentadorDetalleComponent implements OnInit {
   crearRegistroVacio(): RegistroFermentacion {
     return {
       loteId: 0,
-      fecha: this.getFechaHoy(),
+      fecha: '',
       diaFermentacion: 1,
       ph: 0,
       densidad: 0,
       temperatura: 0,
-      presion: null,
+      presion: 0,
       purgas: '',
       extracciones: '',
       agregados: '',
@@ -136,8 +134,12 @@ export class FermentadorDetalleComponent implements OnInit {
     };
   }
 
-  getFechaHoy(): string {
-    return new Date().toISOString().slice(0, 16);
+  getFechaLocalISO(): string {
+    const ahora = new Date();
+    const year = ahora.getFullYear();
+    const month = String(ahora.getMonth() + 1).padStart(2, '0');
+    const day = String(ahora.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}T00:00:00`;
   }
 
   volver() {
@@ -173,7 +175,6 @@ export class FermentadorDetalleComponent implements OnInit {
     this.loteService.getLoteActivoByFermentadorId(this.fermentadorId).subscribe({
       next: (lote) => {
         this.loteActivo = lote;
-        this.prepararNuevoRegistro();
         this.cargarRegistros();
       },
       error: () => {
@@ -217,12 +218,12 @@ export class FermentadorDetalleComponent implements OnInit {
 
     this.nuevoRegistro = {
       loteId: this.loteActivo.id,
-      fecha: this.getFechaHoy(),
+      fecha: this.getFechaLocalISO(),
       diaFermentacion: siguienteDia,
       ph: 0,
       densidad: 0,
       temperatura: 0,
-      presion: null,
+      presion: 0,
       purgas: '',
       extracciones: '',
       agregados: '',
@@ -233,9 +234,45 @@ export class FermentadorDetalleComponent implements OnInit {
   guardarRegistro() {
     if (!this.loteActivo) return;
 
-    this.guardandoRegistro = true;
     this.errorRegistro = '';
     this.mensajeExito = '';
+
+    if (!this.nuevoRegistro.fecha) {
+      this.errorRegistro = 'La fecha es obligatoria.';
+      return;
+    }
+
+    if (!this.nuevoRegistro.diaFermentacion || this.nuevoRegistro.diaFermentacion <= 0) {
+      this.errorRegistro = 'El día de fermentación es obligatorio y debe ser mayor a 0.';
+      return;
+    }
+
+    if (this.nuevoRegistro.temperatura <= 0) {
+      this.errorRegistro = 'La temperatura es obligatoria y debe ser mayor a 0.';
+      return;
+    }
+
+    if (this.nuevoRegistro.densidad < 0) {
+      this.errorRegistro = 'La densidad no puede ser negativa.';
+      return;
+    }
+
+    if (this.nuevoRegistro.ph <= 0) {
+      this.errorRegistro = 'El pH es obligatorio y debe ser mayor a 0.';
+      return;
+    }
+
+    if (this.nuevoRegistro.presion === null || this.nuevoRegistro.presion === undefined) {
+      this.errorRegistro = 'La presión es obligatoria.';
+      return;
+    }
+
+    if (this.nuevoRegistro.presion < 0) {
+      this.errorRegistro = 'La presión no puede ser negativa.';
+      return;
+    }
+
+    this.guardandoRegistro = true;
 
     const payload: RegistroFermentacion = {
       ...this.nuevoRegistro,
