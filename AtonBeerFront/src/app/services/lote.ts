@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http'; 
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Lote } from '../Interfaces/lote';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LoteService {
   // CAMBIÁ ESTA LÍNEA: sacale la 's' a https
-  private apiUrl = 'http://localhost:5190/api/PlanProduccion'; 
+  private apiUrl = 'http://localhost:5190/api/PlanProduccion';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getLotes(filtros?: any): Observable<Lote[]> {
     let params = new HttpParams();
@@ -19,7 +19,8 @@ export class LoteService {
       if (filtros.fechaDesde) params = params.set('fechaDesde', filtros.fechaDesde);
       if (filtros.fechaHasta) params = params.set('fechaHasta', filtros.fechaHasta);
       if (filtros.recetaId) params = params.set('recetaId', filtros.recetaId.toString());
-      if (filtros.fermentadorId) params = params.set('fermentadorId', filtros.fermentadorId.toString());
+      if (filtros.fermentadorId)
+        params = params.set('fermentadorId', filtros.fermentadorId.toString());
       if (filtros.estado) params = params.set('estado', filtros.estado);
     }
 

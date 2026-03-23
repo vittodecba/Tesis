@@ -6,19 +6,17 @@ import { RestablecerContrasenaComponent } from './components/auth/restablecer-co
 import { ClientesComponent } from './components/clientes/clientes.component';
 import { InicioComponent } from './components/Inicio/inicio.component';
 import { UsuariosComponent } from './components/usuarios/usuarios';
+import { FermentadorDetalleComponent } from './components/Fermentador-detalle/fermentador-detalle';
 import { RolesGestion } from './components/roles-gestion/roles-gestion';
 import { StockGestion } from './components/stock/stock-gestion';
 import { InsumoComponent } from './components/insumo/insumo';
 import { UnidadMedidaComponent } from './components/unidadesMedida/unidadMedidaComponent';
 import { RecetaListComponent } from './components/recetas/receta-list/receta-list';
 import { RecetaDetalle } from './components/recetas/receta-detalle/receta-detalle';
-import { PlanificacionListComponent } from './components/Planificacion/PlanificacionListado/PlanListado';
-import { PlanificacionFormComponent } from './components/Planificacion/PlanificacionLotes/PlanificacionComponent';
-import { Title } from '@angular/platform-browser';
 import { LoteDetalleComponent } from './components/lote-detalle/lote-detalle';
 import { LoteListadoComponent } from './components/lote-listado/lote-listado';
-// NUEVO: Importamos el componente de Fermentadores
 import { FermentadorComponent } from './components/fermentador/fermentador';
+
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
@@ -28,58 +26,73 @@ export const routes: Routes = [
     path: '',
     component: LayoutComponent,
     children: [
-      { path: 'inicio', component: InicioComponent, data: { title: 'Inicio', subtitle: 'Panel de control principal' } },
-      { path: 'clientes', component: ClientesComponent, data: { title: 'Clientes', subtitle: 'Gestión de franquicias' } },
-      { path: 'usuarios', component: UsuariosComponent, data: { title: 'Usuarios', subtitle: 'Administración de accesos' } },
-      { path: 'roles', component: RolesGestion, data: { title: 'Roles', subtitle: 'Permisos del sistema' } },
-      { path: 'stock', component: StockGestion, data: { title: 'Stock', subtitle: 'Control de productos' } },
-      {path: 'planificacion/Listado', component: PlanificacionListComponent, data:{title:'Planificacion', subtitle:'Planificaciones activas'}},
-      {path: 'planificacion/nueva', component: PlanificacionFormComponent, data:{title:'Nueva Planificacion', subtitle:'Programar Coccion'}},
-      { 
-        path: 'insumos', 
-        component: InsumoComponent, 
-        data: { title: 'Insumos', subtitle: 'Gestión de materia prima' } 
+      {
+        path: 'inicio',
+        component: InicioComponent,
+        data: { title: 'Inicio', subtitle: 'Panel de control principal' },
       },
-
-      { 
-        path: 'unidades-medida', 
-        component: UnidadMedidaComponent, 
-        data: { title: 'Unidades', subtitle: 'Gestión de medidas' } 
+      {
+        path: 'clientes',
+        component: ClientesComponent,
+        data: { title: 'Clientes', subtitle: 'Gestión de franquicias' },
       },
-
-      // --- NUEVA RUTA DE FERMENTADORES ---
-      { 
-        path: 'fermentadores', 
-        component: FermentadorComponent, 
-        data: { title: 'Fermentadores', subtitle: 'Gestión de tanques de fermentación' } 
+      {
+        path: 'usuarios',
+        component: UsuariosComponent,
+        data: { title: 'Usuarios', subtitle: 'Administración de accesos' },
       },
-
-      // --- RUTAS DE RECETAS ---
-      { 
-        path: 'recetas', 
-        component: RecetaListComponent, 
-        data: { title: 'Recetas', subtitle: 'Gestión de recetas de cerveza' } 
+      {
+        path: 'roles',
+        component: RolesGestion,
+        data: { title: 'Roles', subtitle: 'Permisos del sistema' },
       },
-      { 
-        path: 'recetas/detalle/:id', 
-        component: RecetaDetalle, 
-        data: { title: 'Detalle de Receta', subtitle: 'Información completa' } 
+      {
+        path: 'stock',
+        component: StockGestion,
+        data: { title: 'Stock', subtitle: 'Control de productos' },
       },
-
-      // --- NUEVA RUTA DE PLANIFICACIÓN (LOTES) ---
-      { 
-        path: 'planificacion', 
-        component: LoteListadoComponent, 
-        data: { title: 'Planificación', subtitle: 'Gestión y seguimiento de lotes' } 
+      {
+        path: 'insumos',
+        component: InsumoComponent,
+        data: { title: 'Insumos', subtitle: 'Gestión de materia prima' },
       },
-
-      { 
-        path: 'planificacion/detalle/:id', 
-        component: LoteDetalleComponent, 
-        data: { title: 'Detalle de Lote', subtitle: 'Información completa del lote' } 
+      {
+        path: 'unidades-medida',
+        component: UnidadMedidaComponent,
+        data: { title: 'Unidades', subtitle: 'Gestión de medidas' },
       },
-      
+      {
+        path: 'fermentadores',
+        component: FermentadorComponent,
+        data: { title: 'Fermentadores', subtitle: 'Gestión de tanques de fermentación' },
+      },
+      {
+        path: 'fermentadores/:id',
+        component: FermentadorDetalleComponent,
+        data: { title: 'Detalle de Fermentador', subtitle: 'Seguimiento del lote y fermentación' },
+      },
+      {
+        path: 'recetas',
+        component: RecetaListComponent,
+        data: { title: 'Recetas', subtitle: 'Gestión de recetas de cerveza' },
+      },
+      {
+        path: 'recetas/detalle/:id',
+        component: RecetaDetalle,
+        data: { title: 'Detalle de Receta', subtitle: 'Información completa' },
+      },
+      {
+        path: 'planificacion',
+        component: LoteListadoComponent,
+        data: { title: 'Planificación', subtitle: 'Gestión y seguimiento de lotes' },
+      },
+      {
+        path: 'planificacion/detalle/:id',
+        component: LoteDetalleComponent,
+        data: { title: 'Detalle de Lote', subtitle: 'Información completa del lote' },
+      },
     ],
   },
+
   { path: '**', redirectTo: 'login' },
 ];

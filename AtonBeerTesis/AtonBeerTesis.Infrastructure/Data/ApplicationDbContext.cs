@@ -12,6 +12,9 @@ namespace AtonBeerTesis.Infrastructure.Data
 
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Usuario> usuarios { get; set; }
+
+        public DbSet<LotePrueba> LotesPrueba { get; set; }
+        public DbSet<RegistroFermentacion> RegistrosFermentacion { get; set; }
         public DbSet<Rol> roles { get; set; }
         public DbSet<unidadMedida> unidadMedida { get; set; }
         public DbSet<TipoInsumo> TiposInsumo { get; set; }
@@ -31,6 +34,52 @@ namespace AtonBeerTesis.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<LotePrueba>(entity =>
+            {
+                entity.ToTable("LotesPrueba");
+                entity.HasKey(e => e.Id);
+
+                entity.HasOne(e => e.Receta)
+                      .WithMany()
+                      .HasForeignKey(e => e.RecetaId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Fermentador)
+                      .WithMany()
+                      .HasForeignKey(e => e.FermentadorId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.PlanificacionProduccion)
+                      .WithMany()
+                      .HasForeignKey(e => e.PlanificacionProduccionId)
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<RegistroFermentacion>(entity =>
+            {
+                entity.ToTable("RegistrosFermentacion");
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Ph).HasPrecision(4, 2);
+                entity.Property(e => e.Densidad).HasPrecision(6, 3);
+                entity.Property(e => e.Temperatura).HasPrecision(5, 2);
+                entity.Property(e => e.Presion).HasPrecision(5, 2);
+
+                entity.HasOne(e => e.Lote)
+                      .WithMany(l => l.RegistrosFermentacion)
+                      .HasForeignKey(e => e.LoteId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => new { e.LoteId, e.Fecha })
+                      .IsUnique()
+                      .HasDatabaseName("IX_Lote_FechaRegistro");
+
+                entity.HasIndex(e => new { e.LoteId, e.DiaFermentacion })
+                      .IsUnique()
+                      .HasDatabaseName("IX_Lote_DiaFermentacion");
+            });
+
+            // 1. MAPEOS DE TABLAS
             modelBuilder.Entity<Insumo>().ToTable("Insumos");
             modelBuilder.Entity<Usuario>().ToTable("Usuarios");
             modelBuilder.Entity<Cliente>().ToTable("Clientes");

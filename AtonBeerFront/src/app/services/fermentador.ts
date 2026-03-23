@@ -15,16 +15,11 @@ export class FermentadorService {
     return this.http.get<Fermentador[]>(this.apiUrl);
   }
 
-  getFermentadoresDisponibles(): Observable<Fermentador[]> {
-    return this.http.get<Fermentador[]>(`${this.apiUrl}?estado=disponible`);
-  }
-
-  crearFermentador(fermentador: Fermentador): Observable<Fermentador> {
+  crearFermentador(fermentador: Partial<Fermentador>): Observable<Fermentador> {
     return this.http.post<Fermentador>(this.apiUrl, fermentador);
   }
 
-  // Usamos un objeto genérico para el PATCH para evitar problemas de tipos
-  actualizarFermentador(id: number, datos: any): Observable<void> {
+  actualizarFermentador(id: number, datos: Partial<Fermentador>): Observable<void> {
     return this.http.patch<void>(`${this.apiUrl}/${id}`, datos);
   }
 }

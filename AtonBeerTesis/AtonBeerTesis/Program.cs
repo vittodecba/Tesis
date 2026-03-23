@@ -6,6 +6,7 @@ using AtonBeerTesis.Infrastructure.Repositories;
 using AtonBeerTesis.Application.Services;
 using AtonBeerTesis.Domain.Interfaces;
 using AtonBeerTesis.Infrastructure.Services;
+using AtonBeerTesis.Application.Services.AtonBeerTesis.Application.Services;
 
 
 namespace AtonBeerTesis
@@ -66,6 +67,12 @@ namespace AtonBeerTesis
             // --- RECETAS (Lo que faltaba de Vitto) ---
             builder.Services.AddScoped<IRecetaRepository, RecetaRepository>();
             builder.Services.AddScoped<IRecetaService, RecetaService>();
+
+            builder.Services.AddScoped<ILoteRepository, LoteRepository>();
+            builder.Services.AddScoped<IRegistroFermentacionRepository, RegistroFermentacionRepository>();
+
+            builder.Services.AddScoped<ILoteService, LoteService>();
+            builder.Services.AddScoped<IRegistroFermentacionService, RegistroFermentacionService>();
 
 
             builder.Services.AddScoped<IFermentadorRepository, FermentadorRepository>();
