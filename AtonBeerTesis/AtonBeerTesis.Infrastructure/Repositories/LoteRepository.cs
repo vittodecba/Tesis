@@ -1,21 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AtonBeerTesis.Application.Interfaces;
+﻿using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+
 namespace AtonBeerTesis.Infrastructure.Repositories
 {
     public class LoteRepository : ILoteRepository
-    {        
+    {
         private readonly ApplicationDbContext _context;
+
         public LoteRepository(ApplicationDbContext context)
         {
             _context = context;
         }
+
+        // ── PlanificacionService ──────────────────────────────────────────
+
         public async Task<Lote> CreateAsync(Lote lote)
         {
             await _context.Lotes.AddAsync(lote);
@@ -25,19 +25,57 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task<Lote> GetByIdAsync(int id)
         {
-            //Incluye la receta asociada al lote para que se puedan obtener los insumos necesarios para la planificación de producción.
-            return await _context.Lotes.Include(l=>l.Receta).FirstOrDefaultAsync(l => l.Id == id);
+            return await _context.Lotes
+                .Include(l => l.Receta)
+                .Include(l => l.Fermentador)
+                .Include(l => l.RegistrosFermentacion)
+                .FirstOrDefaultAsync(l => l.Id == id);
         }
 
         public async Task<IEnumerable<RecetaInsumo>> GetRecetaInsumosByLoteIdAsync(int loteId)
         {
-            //Buscamos el lote, para obtener la receta asociada, y luego obtenemos los insumos de esa receta.
-            var lote = await _context.Lotes.Include(l => l.Receta).FirstOrDefaultAsync(l => l.Id == loteId);
-            if(lote == null) return Enumerable.Empty<RecetaInsumo>();
+            var lote = await _context.Lotes
+                .Include(l => l.Receta)
+                .FirstOrDefaultAsync(l => l.Id == loteId);
+
+            if (lote == null) return Enumerable.Empty<RecetaInsumo>();
+
             return await _context.RecetaInsumos
                 .Include(ri => ri.Insumo)
                 .Where(ri => ri.RecetaId == lote.RecetaId)
                 .ToListAsync();
+        }
+
+        // ── LoteService ───────────────────────────────────────────────────
+
+        public async Task<List<Lote>> GetAllAsync()
+        {
+            return await _context.Lotes
+                .Include(l => l.Receta)
+                .Include(l => l.Fermentador)
+                .Include(l => l.RegistrosFermentacion)
+                .ToListAsync();
+        }
+
+        public async Task<Lote?> GetActivoByFermentadorIdAsync(int fermentadorId)
+        {
+            return await _context.Lotes
+                .Include(l => l.Receta)
+                .Include(l => l.Fermentador)
+                .FirstOrDefaultAsync(l => l.FermentadorId == fermentadorId
+                    && l.Estado != Domain.Enums.EstadoLote.Finalizado);
+        }
+
+        public async Task<bool> ExisteCodigoAsync(string codigo)
+        {
+            return await _context.Lotes.AnyAsync(l => l.CodigoLote == codigo);
+        }
+
+        public async Task<bool> UpdateAsync(Lote lote)
+        {
+            _context.Lotes.Update(lote);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

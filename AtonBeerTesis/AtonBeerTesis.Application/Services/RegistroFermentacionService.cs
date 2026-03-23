@@ -1,6 +1,7 @@
 ﻿using AtonBeerTesis.Application.DTOs;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
+using AtonBeerTesis.Domain.Enums;
 
 namespace AtonBeerTesis.Application.Services
 {
@@ -46,7 +47,7 @@ namespace AtonBeerTesis.Application.Services
             if (lote == null)
                 throw new Exception("Lote no encontrado.");
 
-            if (lote.Estado != "EnProceso")
+            if (lote.Estado != EstadoLote.EnProceso)
                 throw new Exception("Solo se pueden cargar registros a lotes en proceso.");
 
             if (dto.DiaFermentacion <= 0)

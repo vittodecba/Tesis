@@ -16,10 +16,10 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task<List<Fermentador>> GetAllConPlanificacionAsync()
         {
-            // Ahora 'Planificaciones' será reconocido gracias al paso 1
             return await _context.Fermentadores
                 .Include(f => f.Planificaciones)
-                .ThenInclude(p => p.Receta)
+                    .ThenInclude(p => p.Lote)
+                        .ThenInclude(l => l.Receta)
                 .ToListAsync();
         }
 

@@ -33,7 +33,7 @@ namespace AtonBeerTesis.Application.Services
                 Inoculo = l.Inoculo,
                 Responsable = l.Responsable,
                 DiasEstimadosFermentacion = l.DiasEstimadosFermentacion,
-                Estado = l.Estado,
+                Estado = l.Estado.ToString(),
                 Observaciones = l.Observaciones,
                 FechaFinReal = l.FechaFinReal
             }).ToList();
@@ -61,7 +61,7 @@ namespace AtonBeerTesis.Application.Services
                 Inoculo = lote.Inoculo,
                 Responsable = lote.Responsable,
                 DiasEstimadosFermentacion = lote.DiasEstimadosFermentacion,
-                Estado = lote.Estado,
+                Estado = lote.Estado.ToString(),
                 Observaciones = lote.Observaciones,
                 FechaFinReal = lote.FechaFinReal,
                 CantidadRegistros = lote.RegistrosFermentacion.Count,
@@ -90,7 +90,7 @@ namespace AtonBeerTesis.Application.Services
                 Inoculo = lote.Inoculo,
                 Responsable = lote.Responsable,
                 DiasEstimadosFermentacion = lote.DiasEstimadosFermentacion,
-                Estado = lote.Estado,
+                Estado = lote.Estado.ToString(),
                 Observaciones = lote.Observaciones,
                 FechaFinReal = lote.FechaFinReal
             };
@@ -113,22 +113,22 @@ namespace AtonBeerTesis.Application.Services
             if (loteActivo != null)
                 throw new Exception("Ese fermentador ya tiene un lote en proceso.");
 
-            var lote = new LotePrueba
+            var lote = new Lote
             {
                 Codigo = dto.Codigo,
-                RecetaId = dto.RecetaId,
+                RecetaId = dto.RecetaId ?? 0,
                 FermentadorId = dto.FermentadorId,
                 FechaElaboracion = dto.FechaElaboracion,
+                FechaCreacion = DateTime.Now,
                 Estilo = dto.Estilo,
                 Inoculo = dto.Inoculo,
                 Responsable = dto.Responsable,
                 DiasEstimadosFermentacion = dto.DiasEstimadosFermentacion,
                 Observaciones = dto.Observaciones,
-                PlanificacionProduccionId = dto.PlanificacionProduccionId,
-                Estado = "EnProceso"
+                Estado = EstadoLote.EnProceso
             };
 
-            await _repository.AddAsync(lote);
+            await _repository.CreateAsync(lote);
 
             fermentador.Estado = EstadoFermentador.Ocupado;
             await _fermentadorRepository.UpdateAsync(fermentador);
@@ -146,7 +146,7 @@ namespace AtonBeerTesis.Application.Services
                 Inoculo = lote.Inoculo,
                 Responsable = lote.Responsable,
                 DiasEstimadosFermentacion = lote.DiasEstimadosFermentacion,
-                Estado = lote.Estado,
+                Estado = lote.Estado.ToString(),
                 Observaciones = lote.Observaciones,
                 FechaFinReal = lote.FechaFinReal
             };
@@ -181,8 +181,9 @@ namespace AtonBeerTesis.Application.Services
             if (dto.Observaciones != null)
                 lote.Observaciones = dto.Observaciones;
 
+            // Estado viene como string desde el DTO, lo parseamos al enum
             if (!string.IsNullOrWhiteSpace(dto.Estado))
-                lote.Estado = dto.Estado;
+                lote.Estado = Enum.Parse<EstadoLote>(dto.Estado);
 
             return await _repository.UpdateAsync(lote);
         }
@@ -192,7 +193,7 @@ namespace AtonBeerTesis.Application.Services
             var lote = await _repository.GetByIdAsync(id);
             if (lote == null) return false;
 
-            lote.Estado = "Finalizado";
+            lote.Estado = EstadoLote.Finalizado;
             lote.FechaFinReal = DateTime.Now;
 
             var updated = await _repository.UpdateAsync(lote);
