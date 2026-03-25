@@ -1,29 +1,19 @@
+// Contenedor principal
 .calendar-wrapper {
   background-color: white;
   min-height: 700px;
 }
 
-// Tarjeta de cada lote
-.lote-card {
-  padding: 3px 6px;
-  border-radius: 4px;
-  font-size: 11px;
-  line-height: 1.4;
-  cursor: grab;
-  overflow: hidden;
-
-  .lote-id    { font-weight: 700; font-size: 12px; }
-  .lote-vol   { color: #555; }
-  .lote-estado { font-size: 10px; font-weight: 500; }
-}
-
-// Leyenda
+// Estilo de la Leyenda (el que tenías tipo "pastilla")
 .leyenda-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   color: #555;
+  background: #f8f9fa;
+  padding: 4px 12px;
+  border-radius: 20px;
 
   .dot {
     width: 10px;
@@ -33,20 +23,42 @@
   }
 }
 
+// Configuración profunda de FullCalendar
 :host ::ng-deep {
-  .fc {
-    height: 700px !important;
+  .fc-daygrid-event-harness {
+    margin-bottom: 2px !important; // Espacio entre barras
+  }
 
-    .fc-event {
-      border: none !important;
-      background: transparent !important;
-      box-shadow: none !important;
-    }
+  /* 🔴 ESTILO PARA LA TARJETA DETALLADA (Día 1) */
+  .fc-event {
+    background-color: transparent !important; // Quitamos el fondo por defecto
+    border: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+    cursor: pointer;
 
-    .fc-button-primary {
-      background-color: #0d6efd;
-      border-color: #0d6efd;
-      &:hover { background-color: #0b5ed7; }
+    &:hover {
+      filter: brightness(0.95);
     }
+  }
+
+  /* Redondeamos solo el inicio (día 1) y el fin real del lote */
+  .fc-event-start {
+    border-top-left-radius: 6px !important;
+    border-bottom-left-radius: 6px !important;
+  }
+  .fc-event-end {
+    border-top-right-radius: 6px !important;
+    border-bottom-right-radius: 6px !important;
+  }
+
+  /* 🔴 ESTILO PARA LA BARRA CONTINUA VACÍA (Día 2 en adelante) */
+  .lote-card-empty {
+    width: 100%;
+    height: 100%; // Ocupa todo el alto de la harness
+    min-height: 25px; // Asegura visibilidad si no hay texto
+    border-radius: 0 !important;
   }
 }

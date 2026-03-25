@@ -26,7 +26,7 @@ export class PlanificacionListComponent implements OnInit {
   vista: string = 'tabla';
 
   // Filtros
-  filtroEstado: string = '';
+  filtroEstado: string = '2';
   filtroFermentador: string = '';
   filtroOrden: string = 'reciente';
   filtroFechaDesde: string = '';
