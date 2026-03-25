@@ -96,10 +96,15 @@ namespace AtonBeerTesis.Infrastructure.Data
                   entity.HasKey(e=>e.Id);// Clave compuesta para la tabla intermedia})
                   entity.Property(e => e.VolumenLitros).HasPrecision(18,2);
 
-                  entity.HasOne(l => l.Receta)
-                  .WithMany()
-                  .HasForeignKey(l => l.RecetaId)
-                  .OnDelete(DeleteBehavior.Restrict); //Si elimino el lote se elimina la relacion
+                    entity.HasOne(l => l.Receta)
+                    .WithMany()
+                    .HasForeignKey(l => l.RecetaId)
+                    .OnDelete(DeleteBehavior.Restrict); //Si elimino el lote se elimina la relacion
+                    //Prueba para ver si esto era lo del error
+                    entity.HasOne(l => l.Fermentador)
+                          .WithMany()
+                          .HasForeignKey(l => l.FermentadorId)
+                          .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity<RecetaInsumo>()
@@ -114,7 +119,7 @@ namespace AtonBeerTesis.Infrastructure.Data
                       .WithMany()
                       .HasForeignKey(p => p.LoteId)
                       .OnDelete(DeleteBehavior.Cascade);
-                entity.HasOne(p => p.fermentador)
+                entity.HasOne(p => p.Fermentador)
                     //.HasOne(p => p.FermentadorPrueba)
                       .WithMany()
                       .HasForeignKey(p => p.FermentadorId)

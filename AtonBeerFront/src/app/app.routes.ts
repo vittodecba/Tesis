@@ -16,6 +16,8 @@ import { RecetaDetalle } from './components/recetas/receta-detalle/receta-detall
 import { LoteDetalleComponent } from './components/lote-detalle/lote-detalle';
 import { LoteListadoComponent } from './components/lote-listado/lote-listado';
 import { FermentadorComponent } from './components/fermentador/fermentador';
+import { PlanificacionListComponent } from './components/Planificacion/PlanificacionListado/PlanListado';
+import { PlanificacionFormComponent } from './components/Planificacion/PlanificacionLotes/PlanificacionComponent';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -86,6 +88,16 @@ export const routes: Routes = [
         component: LoteListadoComponent,
         data: { title: 'Planificación', subtitle: 'Gestión y seguimiento de lotes' },
       },
+      {
+  path: 'planificacion/Listado',
+  component: PlanificacionListComponent,
+  data: { title: 'Planificacion', subtitle: 'Planificaciones activas' }
+},
+{
+  path: 'planificacion/nueva',
+  component: PlanificacionFormComponent,
+  data: { title: 'Nueva Planificacion', subtitle: 'Programar Coccion' }
+},
       {
         path: 'planificacion/detalle/:id',
         component: LoteDetalleComponent,

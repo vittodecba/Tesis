@@ -14,7 +14,7 @@ namespace AtonBeerTesis.Domain.Entities
         public int FermentadorId { get; set; }
         [ForeignKey("FermentadorId")]
         // Agregamos el ? para que EF no lo exija como objeto completo al guardar
-        public Fermentador? fermentador { get; set; }     
+        public Fermentador Fermentador { get; set; } = null!;   
         // [Required]
         // public int FermentadorId { get; set; }
         // [ForeignKey("FermentadorId")]

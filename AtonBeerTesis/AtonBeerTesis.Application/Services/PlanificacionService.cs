@@ -43,7 +43,8 @@ namespace AtonBeerTesis.Application.Services
                 VolumenLitros = dto.VolumenLitros,
                 CodigoLote = $"L-{DateTime.Now:yyyyMMdd}-{new Random().Next(100, 999)}",
                 Estado = EstadoLote.Planificado,
-              FechaCreacion = DateTime.Now
+              FechaCreacion = DateTime.Now,
+                FermentadorId = dto.FermentadorId
             };
             var loteGuardado = await _loteRepository.CreateAsync(nuevoLote);
             var mensajeError = await StockSuficientePorLote(loteGuardado.Id);
@@ -79,7 +80,7 @@ namespace AtonBeerTesis.Application.Services
                 LoteId = p.LoteId,
                 FermentadorId = p.FermentadorId,
                 FechaInicio = p.FechaInicio,
-                FermentadorNombre = p.fermentador?.Nombre ?? "Sin asignar",
+                FermentadorNombre = p.Fermentador?.Nombre ?? "Sin asignar",
                 FechaFinEstimada = p.FechaFinEstimada,
                 Observaciones = p.Observaciones,
                 UsuarioId = p.UsuarioId,

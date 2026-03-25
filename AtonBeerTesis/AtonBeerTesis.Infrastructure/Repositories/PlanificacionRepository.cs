@@ -45,7 +45,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             return await _context.PlanificacionProduccion
                 // .Include(p => p.FermentadorPrueba)
-                .Include(p=> p.fermentador)
+                .Include(p=> p.Fermentador)
                 .Include(p => p.Lote)
                 .ThenInclude(l => l.Receta) // Incluye la receta asociada al lote
                 .OrderByDescending(p => p.FechaCreacion) // Ordena por fecha de creacion, la más reciente primero
