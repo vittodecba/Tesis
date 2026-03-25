@@ -21,5 +21,7 @@ namespace AtonBeerTesis.Domain.Entities
 
         [MaxLength(500)]
         public string? Observaciones { get; set; }
+
+        public virtual ICollection<PlanificacionProduccion> Planificaciones { get; set; } = new List<PlanificacionProduccion>();
     }
 }

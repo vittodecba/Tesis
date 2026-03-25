@@ -14,6 +14,15 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<List<Fermentador>> GetAllConPlanificacionAsync()
+        {
+            return await _context.Fermentadores
+                .Include(f => f.Planificaciones)
+                    .ThenInclude(p => p.Lote)
+                        .ThenInclude(l => l.Receta)
+                .ToListAsync();
+        }
+
         // Método 1: Traer todos
         public async Task<List<Fermentador>> GetAllAsync()
         {

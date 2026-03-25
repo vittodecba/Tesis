@@ -1,0 +1,325 @@
+<div class="p-6 min-h-screen bg-orange-50/30">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <button
+        (click)="volver()"
+        class="p-2 rounded-xl bg-white border border-gray-200 hover:bg-orange-50 transition"
+      >
+        <lucide-icon [img]="ArrowLeft" [size]="18"></lucide-icon>
+      </button>
+
+      <div>
+        <h2 class="text-3xl font-bold text-[#4A2C2A]">Detalle de Fermentador</h2>
+        <p class="text-gray-600">Seguimiento de lote y registros diarios de fermentación.</p>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="cargando"
+    class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-gray-500"
+  >
+    Cargando información...
+  </div>
+
+  <div
+    *ngIf="!cargando && errorCarga"
+    class="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4 mb-6"
+  >
+    {{ errorCarga }}
+  </div>
+
+  <ng-container *ngIf="!cargando && fermentador">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h3 class="text-2xl font-bold text-[#4A2C2A]">{{ fermentador.nombre }}</h3>
+          <p class="text-gray-600 mt-1">Capacidad: {{ fermentador.capacidad }} Lts</p>
+        </div>
+
+        <span
+          class="px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider w-fit"
+          [ngClass]="getEstadoClase(fermentador.estado)"
+        >
+          {{ getEstadoTexto(fermentador.estado) }}
+        </span>
+      </div>
+    </div>
+
+    <div
+      *ngIf="mensajeExito"
+      class="bg-green-50 border border-green-200 text-green-700 rounded-2xl p-4 mb-6"
+    >
+      {{ mensajeExito }}
+    </div>
+
+    <div *ngIf="!loteActivo" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <div class="flex items-center gap-3 mb-2">
+        <lucide-icon [img]="Beaker" [size]="18"></lucide-icon>
+        <h3 class="text-xl font-bold text-[#4A2C2A]">Lote activo</h3>
+      </div>
+      <p class="text-gray-600">Este fermentador no tiene un lote activo en este momento.</p>
+    </div>
+
+    <ng-container *ngIf="loteActivo">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+          <div>
+            <h3 class="text-xl font-bold text-[#4A2C2A] mb-3">Lote activo</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              <div><span class="font-bold">Código:</span> {{ loteActivo.codigo }}</div>
+              <div><span class="font-bold">Estado:</span> {{ loteActivo.estado }}</div>
+              <div><span class="font-bold">Estilo:</span> {{ loteActivo.estilo || '-' }}</div>
+              <div><span class="font-bold">Inóculo:</span> {{ loteActivo.inoculo || '-' }}</div>
+              <div>
+                <span class="font-bold">Responsable:</span> {{ loteActivo.responsable || '-' }}
+              </div>
+              <div>
+                <span class="font-bold">Días estimados:</span>
+                {{ loteActivo.diasEstimadosFermentacion }}
+              </div>
+              <div>
+                <span class="font-bold">Fecha elaboración:</span>
+                {{ loteActivo.fechaElaboracion | date: 'dd/MM/yyyy' }}
+              </div>
+              <div>
+                <span class="font-bold">Observaciones:</span>
+                {{ loteActivo.observaciones || '-' }}
+              </div>
+            </div>
+          </div>
+
+          <button
+            (click)="finalizarLote()"
+            class="px-5 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 transition w-fit"
+          >
+            Finalizar lote
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <lucide-icon [img]="LineChart" [size]="18"></lucide-icon>
+            <h3 class="text-xl font-bold text-[#4A2C2A]">Temperatura</h3>
+          </div>
+
+          <div class="h-[320px]">
+            <canvas
+              baseChart
+              [data]="temperaturaChartData"
+              [options]="lineChartOptions"
+              [type]="'line'"
+            ></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <lucide-icon [img]="LineChart" [size]="18"></lucide-icon>
+            <h3 class="text-xl font-bold text-[#4A2C2A]">pH</h3>
+          </div>
+
+          <div class="h-[320px]">
+            <canvas
+              baseChart
+              [data]="phChartData"
+              [options]="lineChartOptions"
+              [type]="'line'"
+            ></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div class="flex items-center gap-3 mb-4">
+          <lucide-icon [img]="ClipboardList" [size]="18"></lucide-icon>
+          <h3 class="text-xl font-bold text-[#4A2C2A]">Nuevo registro diario</h3>
+        </div>
+
+        <div
+          *ngIf="errorRegistro"
+          class="bg-red-50 border border-red-200 text-red-700 rounded-xl p-3 mb-4"
+        >
+          {{ errorRegistro }}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Fecha</label>
+            <input
+              type="datetime-local"
+              [(ngModel)]="nuevoRegistro.fecha"
+              readonly
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none bg-gray-100 text-gray-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Día</label>
+            <input
+              type="number"
+              [(ngModel)]="nuevoRegistro.diaFermentacion"
+              readonly
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none bg-gray-100 text-gray-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">pH *</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              [(ngModel)]="nuevoRegistro.ph"
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Densidad *
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              [(ngModel)]="nuevoRegistro.densidad"
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Temperatura *
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              [(ngModel)]="nuevoRegistro.temperatura"
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Presión *
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              [(ngModel)]="nuevoRegistro.presion"
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Purgas</label>
+            <input
+              type="text"
+              [(ngModel)]="nuevoRegistro.purgas"
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Extracciones
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="nuevoRegistro.extracciones"
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
+            />
+          </div>
+
+          <div class="lg:col-span-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Agregados
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="nuevoRegistro.agregados"
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
+            />
+          </div>
+
+          <div class="lg:col-span-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+              Observaciones
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="nuevoRegistro.observaciones"
+              class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
+            />
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-5">
+          <button
+            (click)="guardarRegistro()"
+            [disabled]="guardandoRegistro"
+            class="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95 bg-gradient-to-r from-[#412725] to-[#e67e22] disabled:opacity-60"
+          >
+            <lucide-icon [img]="Save" [size]="18"></lucide-icon>
+            {{ guardandoRegistro ? 'Guardando...' : 'Guardar registro' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b border-gray-100">
+          <h3 class="text-xl font-bold text-[#4A2C2A]">Planilla de fermentación</h3>
+          <p class="text-gray-600 text-sm mt-1">Historial diario cargado para el lote activo.</p>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead
+              class="bg-gray-50 border-b border-gray-100 text-gray-400 text-xs uppercase font-bold"
+            >
+              <tr>
+                <th class="px-4 py-3">Fecha</th>
+                <th class="px-4 py-3">Día</th>
+                <th class="px-4 py-3">pH</th>
+                <th class="px-4 py-3">DE</th>
+                <th class="px-4 py-3">T°C</th>
+                <th class="px-4 py-3">Presión</th>
+                <th class="px-4 py-3">Purgas</th>
+                <th class="px-4 py-3">Extracciones</th>
+                <th class="px-4 py-3">Agregados</th>
+                <th class="px-4 py-3">Observaciones</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-50">
+              <tr *ngFor="let r of registros" class="hover:bg-orange-50/30 transition-colors">
+                <td class="px-4 py-3 text-sm">{{ r.fecha | date: 'dd/MM/yyyy' }}</td>
+                <td class="px-4 py-3 text-sm font-semibold">{{ r.diaFermentacion }}</td>
+                <td class="px-4 py-3 text-sm">{{ r.ph }}</td>
+                <td class="px-4 py-3 text-sm">{{ r.densidad }}</td>
+                <td class="px-4 py-3 text-sm">{{ r.temperatura }}</td>
+                <td class="px-4 py-3 text-sm">{{ r.presion ?? '-' }}</td>
+                <td class="px-4 py-3 text-sm">{{ r.purgas || '-' }}</td>
+                <td class="px-4 py-3 text-sm">{{ r.extracciones || '-' }}</td>
+                <td class="px-4 py-3 text-sm">{{ r.agregados || '-' }}</td>
+                <td class="px-4 py-3 text-sm">{{ r.observaciones || '-' }}</td>
+              </tr>
+
+              <tr *ngIf="registros.length === 0">
+                <td colspan="10" class="px-4 py-6 text-center text-gray-500">
+                  Todavía no hay registros cargados para este lote.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>
