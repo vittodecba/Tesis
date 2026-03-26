@@ -16,7 +16,7 @@ import { RecetaService, Receta } from '../../services/receta';
   templateUrl: './lote-detalle.html'
 })
 export class LoteDetalleComponent implements OnInit {
-  lote: Lote | null = null;
+  lote: any | null = null;
   insumos: any[] = [];
   cargando: boolean = true;
   cargandoInsumos: boolean = false;
@@ -127,8 +127,9 @@ export class LoteDetalleComponent implements OnInit {
   volver() {
     this.router.navigate(['/planificacion/Listado']);
   }
+  
   getNombreReceta(recetaId: number): string {
-  const receta = this.recetas.find(r => r.idReceta === recetaId);
-  return receta ? receta.nombre : `Receta #${recetaId}`;
-}
+    const receta = this.recetas.find(r => r.idReceta === recetaId);
+    return receta ? receta.nombre : `Receta #${recetaId}`;
+  }
 }

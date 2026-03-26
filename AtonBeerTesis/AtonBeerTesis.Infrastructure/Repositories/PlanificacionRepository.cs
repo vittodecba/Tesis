@@ -35,17 +35,17 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 //Verifico si la fecha de inicio o fin de la nueva planificación coincide con alguna planificación
                 //existente para el mismo fermentador.
                 (inicio >= p.FechaInicio && inicio <= p.FechaFinEstimada) ||
-                (fin > p.FechaInicio && fin <= p.FechaFinEstimada)||
-                (inicio <= p.FechaInicio && fin >= p.FechaFinEstimada)                
-                )                
-                );            
+                (fin > p.FechaInicio && fin <= p.FechaFinEstimada) ||
+                (inicio <= p.FechaInicio && fin >= p.FechaFinEstimada)
+                )
+                );
         }
 
         public async Task<IEnumerable<PlanificacionProduccion>> GetAllAsync()
         {
             return await _context.PlanificacionProduccion
                 // .Include(p => p.FermentadorPrueba)
-                .Include(p=> p.Fermentador)
+                .Include(p => p.Fermentador)
                 .Include(p => p.Lote)
                 .ThenInclude(l => l.Receta) // Incluye la receta asociada al lote
                 .OrderByDescending(p => p.FechaCreacion) // Ordena por fecha de creacion, la más reciente primero
@@ -80,6 +80,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             return await _context.RecetaInsumos
                 .Include(ri => ri.Insumo)
+                    .ThenInclude(i => i.unidadMedida) // <--- ACÁ ESTÁ LA MAGIA QUE FALTABA
                 .Where(ri => ri.RecetaId == recetaId)
                 .ToListAsync();
         }

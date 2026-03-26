@@ -23,7 +23,7 @@ namespace AtonBeerTesis.Application.Services
         {
             //Validaciones
             //Fecha actual
-            if(dto.FechaInicio < DateTime.Now.Date)
+            if (dto.FechaInicio < DateTime.Now.Date)
             {
                 throw new Exception("La fecha de producción no puede ser menor a la fecha actual.");
             }
@@ -43,12 +43,12 @@ namespace AtonBeerTesis.Application.Services
                 VolumenLitros = dto.VolumenLitros,
                 CodigoLote = $"L-{DateTime.Now:yyyyMMdd}-{new Random().Next(100, 999)}",
                 Estado = EstadoLote.Planificado,
-              FechaCreacion = DateTime.Now,
+                FechaCreacion = DateTime.Now,
                 FermentadorId = dto.FermentadorId
             };
             var loteGuardado = await _loteRepository.CreateAsync(nuevoLote);
             var mensajeError = await StockSuficientePorLote(loteGuardado.Id);
-            if (mensajeError != null) 
+            if (mensajeError != null)
             {
                 throw new Exception(mensajeError);
             }
@@ -63,7 +63,7 @@ namespace AtonBeerTesis.Application.Services
                 UsuarioId = dto.UsuarioId,
                 Estado = EstadoLote.Planificado,
                 FechaCreacion = DateTime.Now
-              
+
             };
 
             await _repository.CreateAsync(planificacion);
@@ -84,11 +84,13 @@ namespace AtonBeerTesis.Application.Services
                 FechaFinEstimada = p.FechaFinEstimada,
                 Observaciones = p.Observaciones,
                 UsuarioId = p.UsuarioId,
-                RecetaId = p.Lote !=null ? p.Lote.RecetaId : 0,// Si el lote es null, asigna 0 o un valor predeterminado
-                VolumenLitros = p.Lote != null ? p.Lote.VolumenLitros : 0, // Si el lote es null, asigna 0 o un valor predeterminado
-                Estado = p.Estado
+                RecetaId = p.Lote != null ? p.Lote.RecetaId : 0,
+                VolumenLitros = p.Lote != null ? p.Lote.VolumenLitros : 0,
+                Estado = p.Estado,
+                FechaCreacion = p.FechaCreacion
             }).ToList();
         }
+
         //Validacion del insumo que sea suficiente para poder asignarse en el plan de produccion
         public async Task<string> StockSuficientePorLote(int LoteId)
         {
@@ -103,7 +105,7 @@ namespace AtonBeerTesis.Application.Services
                 decimal cantidadNecesaria = (i.Cantidad / lote.Receta.BatchSizeLitros) * lote.VolumenLitros;
                 if (cantidadNecesaria > i.Insumo.StockActual)
                 {
-                    return $"Falta de stock de {i.Insumo.NombreInsumo}. Necesitas {cantidadNecesaria:F2}. Actualmente hay {i.Insumo.StockActual:F2}";//F:2 para mostrar 2 decimales
+                    return $"Falta de stock de {i.Insumo.NombreInsumo}. Necesitas {cantidadNecesaria:F2}. Actualmente hay {i.Insumo.StockActual:F2}";
                 }
             }
             return null;
@@ -152,6 +154,7 @@ namespace AtonBeerTesis.Application.Services
             dto.LoteId = loteId;
             return dto;
         }
+
         public async Task AsignarFermentadorAsync(int loteId, int fermentadorId)
         {
             var lotes = await _repository.GetAllAsync();
@@ -162,7 +165,7 @@ namespace AtonBeerTesis.Application.Services
              lote.FechaInicio,
              lote.FechaFinEstimada,
              loteId
-                );   
+                );
             if (ocupado)
                 throw new Exception("El fermentador ya está ocupado en ese rango de fechas.");
             if (lote.FermentadorId != 0 && lote.FermentadorId != fermentadorId)
@@ -190,9 +193,9 @@ namespace AtonBeerTesis.Application.Services
         {
             var insumos = await _repository.GetInsumosByRecetaIdAsync(recetaId);
             return insumos.Select(i => new {
-                Material = i.Insumo.NombreInsumo,
+                Material = i.Insumo?.NombreInsumo ?? "Sin nombre",
                 CantidadTotal = i.Cantidad,
-                Unidad = "unid"
+                Unidad = i.Insumo?.unidadMedida?.Nombre ?? "N/A" // <--- ACÁ ESTÁ EL CAMBIO FINAL
             });
         }
     }

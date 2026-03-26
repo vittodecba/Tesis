@@ -19,7 +19,7 @@
           <lucide-icon [img]="ArrowLeft" [size]="28"></lucide-icon>
         </button>
         <div>
-          <h2 class="text-3xl font-bold text-[#4A2C2A]">Lote #{{ lote.loteId }}</h2>
+          <h2 class="text-3xl font-bold text-[#4A2C2A]">Lote #{{ lote.loteId || lote.id }}</h2>
           <p class="text-gray-600">Detalles del lote</p>
         </div>
       </div>
@@ -84,21 +84,21 @@
 
       <div class="space-y-6">
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h3 class="text-lg font-bold text-[#4A2C2A] mb-4 border-b pb-2">Seguimiento</h3>
+          <h3 class="text-lg font-bold text-[#4A2C2A] mb-4 border-b pb-2">Información de Creación</h3>
           <div class="space-y-4">
            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-             <p class="text-xs font-bold text-gray-500 uppercase mb-1">Creación del Lote</p>
+             <p class="text-xs font-bold text-gray-500 uppercase mb-1">Registro del Lote</p>
              <p class="text-sm text-gray-700">
                Usuario: <span class="font-medium text-gray-900">
-                {{ usuarioActual ? usuarioActual.nombre + ' ' + usuarioActual.apellido : 'Admin' }}
-             </span>
+                 {{ usuarioActual ? usuarioActual.nombre + ' ' + usuarioActual.apellido : 'Admin' }}
+               </span>
                </p>
                 <p class="text-sm text-gray-700">
                      Rol: <span class="font-medium text-gray-900">
                      {{ usuarioActual ? usuarioActual.rolNombre : '-' }}
-              </span>
+               </span>
                 </p>
-                 <p class="text-sm text-gray-700">Fecha: {{ lote.fechaInicio | date:'dd/MM/yyyy HH:mm' }}</p>
+                 <p class="text-sm text-gray-700">Fecha: {{ (lote.fechaCreacion || lote.fechaInicio) | date:'dd/MM/yyyy HH:mm' }}</p>
              </div>                       
           </div>
         </div>
@@ -122,15 +122,15 @@
           <table class="w-full text-left">
             <thead>
               <tr class="text-xs font-bold text-gray-500 uppercase border-b border-gray-50">
-                <th class="px-4 py-2">Material</th>
+                <th class="px-4 py-2">Insumo</th>
                 <th class="px-4 py-2 text-right">Cantidad Requerida</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
               <tr *ngFor="let item of insumos" class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 font-medium text-gray-800">{{ item.material }}</td>
+                <td class="px-4 py-3 font-medium text-gray-800">{{ item.nombreInsumo || item.material || item.insumo }}</td>
                 <td class="px-4 py-3 text-right font-bold text-[#E67E22]">
-                  {{ item.cantidadTotal }} <span class="text-xs text-gray-500 font-normal">{{ item.unidad }}</span>
+                  {{ item.cantidad || item.cantidadTotal }} <span class="text-xs text-gray-500 font-normal">{{ item.unidadMedidaNombre || item.unidadMedida || item.unidad }}</span>
                 </td>
               </tr>
             </tbody>

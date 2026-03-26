@@ -20,5 +20,7 @@ namespace AtonBeerTesis.Application.Dtos
         public string? Observaciones { get; set; }
         public int UsuarioId { get; set; }       
         public string? FermentadorNombre { get; set; }
+
+        public DateTime FechaCreacion { get; set; }
     }
 }

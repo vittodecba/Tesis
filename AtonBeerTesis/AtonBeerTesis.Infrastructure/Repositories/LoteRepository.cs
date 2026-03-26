@@ -42,6 +42,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
             return await _context.RecetaInsumos
                 .Include(ri => ri.Insumo)
+                    .ThenInclude(i => i.unidadMedida) // <--- ACÁ TAMBIÉN FALTABA
                 .Where(ri => ri.RecetaId == lote.RecetaId)
                 .ToListAsync();
         }
