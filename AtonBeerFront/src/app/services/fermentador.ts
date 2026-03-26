@@ -22,4 +22,8 @@ export class FermentadorService {
   actualizarFermentador(id: number, datos: Partial<Fermentador>): Observable<void> {
     return this.http.patch<void>(`${this.apiUrl}/${id}`, datos);
   }
+
+  eliminarFermentador(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
 }

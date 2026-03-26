@@ -11,6 +11,7 @@ namespace AtonBeerTesis.Application.Services
         Task<List<FermentadorDto>> GetAllAsync();
         Task<FermentadorDto> CreateAsync(CreateFermentadorDto dto);
         Task<bool> UpdateAsync(int id, UpdateFermentadorDto dto);
+        Task<bool> DeleteAsync(int id);
     }
 
 
@@ -23,6 +24,17 @@ namespace AtonBeerTesis.Application.Services
             public FermentadorService(IFermentadorRepository repository)
             {
                 _repository = repository;
+            }
+
+            public async Task<bool> DeleteAsync(int id)
+            {
+                var fermentador = await _repository.GetByIdAsync(id);
+                if (fermentador == null) return false;
+
+                if (fermentador.Estado == EstadoFermentador.Ocupado)
+                    throw new Exception("No se puede eliminar un fermentador ocupado. Debe finalizarse el lote primero.");
+
+                return await _repository.DeleteAsync(id);
             }
 
             public async Task<IEnumerable<FermentadorDetalleDto>> GetAllConLoteAsync()

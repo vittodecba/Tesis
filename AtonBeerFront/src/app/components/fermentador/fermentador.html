@@ -63,7 +63,6 @@
           <td class="px-6 py-4">
             <div class="flex flex-col">
               <span class="font-bold text-[#4A2C2A]">{{ item.nombre }}</span>
-
               <span
                 *ngIf="item.loteId"
                 class="text-[9px] bg-[#412725] text-white px-1.5 py-0.5 rounded-md w-fit mt-1 font-bold"
@@ -76,7 +75,6 @@
           <td class="px-6 py-4">
             <div class="flex flex-col">
               <span class="text-sm text-gray-600 font-medium">{{ item.capacidad }} Lts</span>
-
               <span
                 *ngIf="item.estiloNombre"
                 class="text-[11px] text-[#e67e22] font-black uppercase mt-0.5 italic"
@@ -113,7 +111,9 @@
                 <lucide-icon [img]="Pencil" [size]="18"></lucide-icon>
               </button>
 
+              <!-- ← (click) conectado -->
               <button
+                (click)="eliminarFermentador(item)"
                 class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition"
                 title="Eliminar fermentador"
               >
@@ -159,7 +159,7 @@
             <input
               [(ngModel)]="nuevoFermentador.capacidad"
               type="number"
-              min="0"
+              min="1"
               class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium"
             />
           </div>
@@ -168,7 +168,6 @@
             <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
               Estado
             </label>
-
             <select
               [(ngModel)]="nuevoFermentador.estado"
               [disabled]="!puedeEditarEstado()"

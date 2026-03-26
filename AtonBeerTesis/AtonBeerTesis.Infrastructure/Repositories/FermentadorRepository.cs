@@ -23,6 +23,14 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var fermentador = await _context.Fermentadores.FindAsync(id);
+            if (fermentador == null) return false;
+            _context.Fermentadores.Remove(fermentador);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
         // Método 1: Traer todos
         public async Task<List<Fermentador>> GetAllAsync()
         {

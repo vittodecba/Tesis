@@ -46,5 +46,21 @@ namespace AtonBeerTesis.WebApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var resultado = await _service.DeleteAsync(id);
+                if (!resultado)
+                    return NotFound($"No se encontró el fermentador con ID {id}");
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

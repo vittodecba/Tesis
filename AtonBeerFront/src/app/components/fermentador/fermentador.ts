@@ -59,33 +59,28 @@ export class FermentadorComponent implements OnInit {
       Sucio: '3',
       Mantenimiento: '4',
     };
-
     return mapa[estado ?? ''] ?? '1';
   }
 
   obtenerTextoEstado(estado: string): string {
     const estadoNormalizado = this.normalizarEstado(estado);
-
     const mapa: Record<string, string> = {
       '1': 'Disponible',
       '2': 'Ocupado',
       '3': 'Sucio',
       '4': 'Mantenimiento',
     };
-
     return mapa[estadoNormalizado] ?? 'Desconocido';
   }
 
   obtenerClaseEstado(estado: string): string {
     const estadoNormalizado = this.normalizarEstado(estado);
-
     const mapa: Record<string, string> = {
       '1': 'bg-green-100 text-green-700',
       '2': 'bg-blue-100 text-blue-700',
       '3': 'bg-yellow-100 text-yellow-700',
       '4': 'bg-red-100 text-red-700',
     };
-
     return mapa[estadoNormalizado] ?? 'bg-gray-100 text-gray-700';
   }
 
@@ -130,7 +125,6 @@ export class FermentadorComponent implements OnInit {
       this.idFermentadorEditar = undefined;
       this.nuevoFermentador = this.crearFermentadorVacio();
     }
-
     this.mostrarModal = true;
   }
 
@@ -138,7 +132,27 @@ export class FermentadorComponent implements OnInit {
     this.mostrarModal = false;
   }
 
+  // Extrae el mensaje de error legible del objeto de error HTTP
+  private extraerMensajeError(err: any, fallback: string): string {
+    if (typeof err?.error === 'string') return err.error;
+    if (err?.error?.errors) {
+      return Object.values(err.error.errors).flat().join(', ');
+    }
+    if (err?.error?.title) return err.error.title;
+    return fallback;
+  }
+
   guardarFermentador() {
+    // Validación en el front antes de enviar
+    if (!this.nuevoFermentador.nombre?.trim()) {
+      alert('El nombre es obligatorio.');
+      return;
+    }
+    if (!this.nuevoFermentador.capacidad || this.nuevoFermentador.capacidad <= 0) {
+      alert('La capacidad debe ser mayor a 0.');
+      return;
+    }
+
     const dto = {
       nombre: this.nuevoFermentador.nombre,
       capacidad: this.nuevoFermentador.capacidad,
@@ -153,8 +167,7 @@ export class FermentadorComponent implements OnInit {
           this.cerrarModal();
         },
         error: (err) => {
-          console.error('Error update:', err);
-          alert(err?.error || 'No se pudo actualizar el fermentador.');
+          alert(this.extraerMensajeError(err, 'No se pudo actualizar el fermentador.'));
         },
       });
     } else {
@@ -164,11 +177,25 @@ export class FermentadorComponent implements OnInit {
           this.cerrarModal();
         },
         error: (err) => {
-          console.error('Error create:', err);
-          alert(err?.error || 'No se pudo crear el fermentador.');
+          alert(this.extraerMensajeError(err, 'No se pudo crear el fermentador.'));
         },
       });
     }
+  }
+
+  eliminarFermentador(item: Fermentador) {
+    if (!item.id) return;
+    const confirmar = window.confirm(`¿Seguro que querés eliminar "${item.nombre}"?`);
+    if (!confirmar) return;
+
+    this._fermentadorService.eliminarFermentador(item.id).subscribe({
+      next: () => {
+        this.obtenerFermentadores();
+      },
+      error: (err) => {
+        alert(this.extraerMensajeError(err, 'No se pudo eliminar el fermentador.'));
+      },
+    });
   }
 
   verGraficos(item: Fermentador) {

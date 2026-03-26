@@ -6,6 +6,7 @@ namespace AtonBeerTesis.Application.Interfaces
     {
         Task<List<Fermentador>> GetAllAsync();
         Task<List<Fermentador>> GetAllConPlanificacionAsync();
+        Task<bool> DeleteAsync(int id);
         Task<Fermentador> AddAsync(Fermentador fermentador);
         Task<Fermentador?> GetByIdAsync(int id);
 
