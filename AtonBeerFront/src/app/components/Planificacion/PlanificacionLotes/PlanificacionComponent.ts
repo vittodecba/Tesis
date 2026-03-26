@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Receta, RecetaService } from '../../../services/receta';
 import {FermentadorService} from '../../../services/fermentador';
 import { PlanificacionService } from '../../../services/PlanificacionService';
@@ -10,7 +10,7 @@ import { PlanificacionService } from '../../../services/PlanificacionService';
 @Component({
   selector: 'app-planificacion-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './PlanificacionComponent.html'
 })
 export class PlanificacionFormComponent implements OnInit {
@@ -98,7 +98,21 @@ export class PlanificacionFormComponent implements OnInit {
       error: (err: any) => {
         const msg = err.error?.message || 'Error al guardar la planificación';
         Swal.fire('Error', msg, 'error');
+        if (msg.includes('IX_Fermentador_Fecha')) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Fermentador Ocupado',
+          text: 'Ese fermentador ya tiene una cocción programada para esa fecha. Elegí otro tanque o cambiá el día de inicio.',
+          confirmButtonColor: '#3085d6'
+        });
+      } else {
+        // Por si falla cualquier otra cosa
+        Swal.fire('Error', 'No se pudo guardar: ' + msg, 'error');
+      }
       }
     });
+  }
+  cancelar() {
+    this.router.navigate(['/planificacion/Listado']);
   }
 }
