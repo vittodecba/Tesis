@@ -78,5 +78,15 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task DeleteByIdAsync(int id)
+        {
+            var lote = await _context.Lotes.FindAsync(id);
+            if (lote != null)
+            {
+                _context.Lotes.Remove(lote);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

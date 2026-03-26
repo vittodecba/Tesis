@@ -5,8 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { PlanificacionService } from '../../../services/PlanificacionService';
 import { RecetaService, Receta } from '../../../services/receta';
 import { FermentadorService } from '../../../services/fermentador';
-import { LucideAngularModule, Plus, Calendar, FlaskConical, ClipboardList, Pencil, List, LayoutGrid, Search } from 'lucide-angular';
+import { LucideAngularModule, Plus, Calendar, FlaskConical, ClipboardList, Pencil, List, LayoutGrid, Search, Trash2 } from 'lucide-angular';
 import { PlanificacionCalendarComponent } from '../PlanificacionCalendario/PlanCalendario';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-planificacion-list',
@@ -45,6 +46,8 @@ export class PlanificacionListComponent implements OnInit {
   List = List;
   LayoutGrid = LayoutGrid;
   Search = Search;
+  Trash2 = Trash2;
+  Swal = Swal;
 
   estadosMapping: { [key: number]: { nombre: string, clase: string, color: string } } = {
     0: { nombre: 'Cancelado',   clase: 'bg-danger',            color: '#dc3545' },
@@ -184,4 +187,30 @@ export class PlanificacionListComponent implements OnInit {
       }
     });
   }
+  eliminarLote(id: number) {
+  Swal.fire({
+    title: '¿Eliminar producción?',
+    text: "Esta acción borrará el lote y liberará el fermentador permanentemente.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'No, mantener'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Llamamos al servicio (asegurate que el nombre coincida con tu PlanificacionService)
+      this._planifService.eliminar(id).subscribe({
+        next: () => {
+          Swal.fire('¡Eliminado!', 'El registro fue borrado con éxito.', 'success');
+          this.cargarPlanificaciones(); // Refrescamos la lista
+        },
+        error: (err) => {
+          console.error(err);
+          Swal.fire('Error', 'No se pudo eliminar el lote.', 'error');
+        }
+      });
+    }
+  });
+}
 }

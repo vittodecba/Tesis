@@ -21,7 +21,7 @@
       </div>
       <button routerLink="/planificacion/nueva" class="btn btn-primary d-flex align-items-center shadow">
         <lucide-icon [img]="Plus" [size]="18" class="me-2"></lucide-icon>
-        Nueva Planificación
+        Nuevo Lote
       </button>
     </div>
   </div>
@@ -33,7 +33,6 @@
         <label class="form-label small fw-semibold text-muted">Estado</label>
         <select class="form-select form-select-sm" [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
           <option value="">Todos</option>
-          <option value="0">Cancelado</option>
           <option value="1">Planificado</option>
           <option value="2">En Proceso</option>
           <option value="3">Finalizado</option>
@@ -122,6 +121,9 @@
                   <button class="btn btn-sm btn-outline-secondary" (click)="abrirModal(p)" title="Editar">
                     <lucide-icon [img]="Pencil" [size]="14"></lucide-icon>
                   </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="eliminarLote(p.loteId)" title="Eliminar">
+                    <lucide-icon [img]="Trash2" [size]="14"></lucide-icon>
+                  </button>
                 </div>
               </td>
             </tr>
@@ -179,6 +181,9 @@
           <button class="btn btn-outline-info btn-sm w-100" (click)="verDetalle(p.id)">
             Ver Detalle
           </button>
+          <button class="btn btn-outline-danger btn-sm" (click)="eliminarLote(p.loteId)" title="Eliminar">
+             <lucide-icon [img]="Trash2" [size]="14"></lucide-icon>
+           </button>
         </div>
       </div>
     </div>
@@ -213,8 +218,7 @@
       </div>
       <div class="mb-3">
         <label class="form-label fw-semibold">Estado</label>
-        <select class="form-select" [(ngModel)]="loteEditando.estado">
-          <option [value]="0">Cancelado</option>
+        <select class="form-select" [(ngModel)]="loteEditando.estado">          
           <option [value]="1">Planificado</option>
           <option [value]="2">En Proceso</option>
           <option [value]="3">Finalizado</option>

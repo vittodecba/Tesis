@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 
 @Injectable({
   providedIn: 'root'
@@ -24,5 +25,8 @@ export class PlanificacionService {
 }
 actualizarPlanificacion(loteId: number, datos: any): Observable<any> {
   return this.http.put<any>(`${this.apiUrl}/${loteId}`, datos);
+}
+ eliminar(id: number): Observable<any> {
+  return this.http.delete(`${this.apiUrl}/${id}`);
 }
 }

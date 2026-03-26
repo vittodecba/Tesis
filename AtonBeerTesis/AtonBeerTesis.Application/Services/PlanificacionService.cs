@@ -31,6 +31,16 @@ namespace AtonBeerTesis.Application.Services
             {
                 throw new Exception("La fecha fin de producción no puede ser menor o igual a la de inicio");
             }
+            // 1. Buscamos los datos del fermentador elegido
+            var fermentador = await _repository.GetFermentadorByIdAsync(dto.FermentadorId);
+
+            if (fermentador == null) throw new Exception("El fermentador no existe.");
+
+            // 2. Validamos que los litros no superen la capacidad
+            if (dto.VolumenLitros > fermentador.Capacidad) 
+            {
+                throw new Exception($"Capacidad insuficiente: El fermentador '{fermentador.Nombre}' solo soporta {fermentador.Capacidad}L y querés ingresar {dto.VolumenLitros}L.");
+            }
             //Fermentadores
             var ocupado = await _repository.ExisteFermentadorOcupado(dto.FermentadorId, dto.FechaInicio, dto.FechaFinEstimada);
             if (ocupado)
@@ -64,7 +74,7 @@ namespace AtonBeerTesis.Application.Services
                 Estado = EstadoLote.Planificado,
                 FechaCreacion = DateTime.Now
 
-            };
+            };           
 
             await _repository.CreateAsync(planificacion);
             dto.LoteId = loteGuardado.Id;//Actualiza el DTO con el ID del lote creado
@@ -197,6 +207,20 @@ namespace AtonBeerTesis.Application.Services
                 CantidadTotal = i.Cantidad,
                 Unidad = i.Insumo?.unidadMedida?.Nombre ?? "N/A" // <--- ACÁ ESTÁ EL CAMBIO FINAL
             });
+        }
+
+        public async Task<bool> EliminarPlanificacionAsync(int id)
+        {
+            //Busco por id
+            var planif = await _repository.GetByIdAsync(id);
+            if (planif == null)return false;
+            //Guardo el lote id asociado antes de eliminarlo
+            int loteAsociadoId = planif.LoteId;
+            //Borro el lote de la planificacion del repo
+            await _repository.DeleteAsync(id);
+            //Borro el lote del repo de lotes
+            await _loteRepository.DeleteByIdAsync(loteAsociadoId);
+            return true;
         }
     }
 }

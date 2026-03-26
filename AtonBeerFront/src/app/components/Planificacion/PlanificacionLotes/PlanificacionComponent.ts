@@ -19,6 +19,7 @@ export class PlanificacionFormComponent implements OnInit {
   fermentadores: any[] = [];
   previsualizacionInsumos: any[] = []; // 👈 Lista para la tabla
   recetaSeleccionada: any = null;      // 👈 Receta actual
+  capacidadSeleccionada: number = 0;
 
   nuevaPlanif = {
     recetaId: 0,
@@ -55,6 +56,8 @@ export class PlanificacionFormComponent implements OnInit {
 
   // Se llama cuando cambia la receta o el volumen
   actualizarPrevisualizacion() {
+    const fermentador = this.fermentadores.find(f => f.id == this.nuevaPlanif.fermentadorId);
+    this.capacidadSeleccionada = fermentador ? fermentador.capacidad : 0;
     if (this.nuevaPlanif.recetaId === 0 || this.nuevaPlanif.volumenLitros <= 0) {
       this.previsualizacionInsumos = [];
       return;
@@ -76,8 +79,15 @@ export class PlanificacionFormComponent implements OnInit {
       }
     });
   }
+  get excedeCapacidad(): boolean {
+    return this.nuevaPlanif.volumenLitros > this.capacidadSeleccionada && this.capacidadSeleccionada > 0;
+  }
 
   enviar() {
+    if (this.excedeCapacidad) {
+        Swal.fire('Atención', `El volumen supera la capacidad del fermentador (${this.capacidadSeleccionada}L)`, 'error');
+        return;
+    }
     if (this.nuevaPlanif.recetaId === 0 || this.nuevaPlanif.fermentadorId === 0 || this.nuevaPlanif.volumenLitros <= 0) {
       Swal.fire('Atención', 'Completá los campos obligatorios y el volumen', 'warning');
       return;
@@ -97,18 +107,7 @@ export class PlanificacionFormComponent implements OnInit {
       },
       error: (err: any) => {
         const msg = err.error?.message || 'Error al guardar la planificación';
-        Swal.fire('Error', msg, 'error');
-        if (msg.includes('IX_Fermentador_Fecha')) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Fermentador Ocupado',
-          text: 'Ese fermentador ya tiene una cocción programada para esa fecha. Elegí otro tanque o cambiá el día de inicio.',
-          confirmButtonColor: '#3085d6'
-        });
-      } else {
-        // Por si falla cualquier otra cosa
-        Swal.fire('Error', 'No se pudo guardar: ' + msg, 'error');
-      }
+        Swal.fire('Error', msg, 'error');        
       }
     });
   }

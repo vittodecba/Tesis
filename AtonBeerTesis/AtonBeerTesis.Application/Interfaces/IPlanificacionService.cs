@@ -13,5 +13,6 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<PlanificacionProduccionDto> ActualizarPlanificacion(int loteId, PlanificacionProduccionDto dto);
         Task<IEnumerable<object>> GetInsumosCalculadosAsync(int recetaId);
         Task AsignarFermentadorAsync(int loteId, int fermentadorId);
+        Task<bool> EliminarPlanificacionAsync(int id);
     }
 }

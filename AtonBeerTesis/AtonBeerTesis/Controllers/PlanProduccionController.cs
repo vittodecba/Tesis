@@ -114,5 +114,12 @@ namespace AtonBeerTesis.Controllers
                 return BadRequest(new { message = mensajeReal });
             }
         }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var eliminado = await _planificacionService.EliminarPlanificacionAsync(id);
+            if (!eliminado) return NotFound();
+            return Ok(new { message = "Lote eliminado y fermentador libre" });
+        }
     }
 }   

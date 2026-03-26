@@ -14,5 +14,6 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<Lote?> GetActivoByFermentadorIdAsync(int fermentadorId);
         Task<bool> ExisteCodigoAsync(string codigo);
         Task<bool> UpdateAsync(Lote lote);
+        Task DeleteByIdAsync(int id);
     }
 }

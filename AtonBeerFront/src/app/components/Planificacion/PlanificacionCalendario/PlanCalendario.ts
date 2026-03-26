@@ -32,7 +32,7 @@ export class PlanificacionCalendarComponent implements OnInit {
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,timeGridWeek'
+      right: 'dayGridMonth'
     },
     events: [],    
    eventContent: (arg: any) => this.renderEvento(arg),
