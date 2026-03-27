@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class GestionRecetas : Migration
+    public partial class InitialClean : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -33,6 +33,37 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Clientes", x => x.IdCliente);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Fermentadores",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Capacidad = table.Column<int>(type: "int", nullable: false),
+                    Estado = table.Column<int>(type: "int", maxLength: 50, nullable: false),
+                    Observaciones = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Fermentadores", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FermentadoresPruebas",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Disponibilidad = table.Column<bool>(type: "bit", nullable: false),
+                    Capacidad = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FermentadoresPruebas", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -135,6 +166,43 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Lotes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CodigoLote = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RecetaId = table.Column<int>(type: "int", nullable: false),
+                    VolumenLitros = table.Column<int>(type: "int", precision: 18, scale: 2, nullable: false),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FermentadorId = table.Column<int>(type: "int", nullable: false),
+                    FechaElaboracion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Estilo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Inoculo = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
+                    Responsable = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    DiasEstimadosFermentacion = table.Column<int>(type: "int", nullable: false),
+                    Observaciones = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    FechaFinReal = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Lotes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Lotes_Fermentadores_FermentadorId",
+                        column: x => x.FermentadorId,
+                        principalTable: "Fermentadores",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Lotes_Recetas_RecetaId",
+                        column: x => x.RecetaId,
+                        principalTable: "Recetas",
+                        principalColumn: "IdReceta",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PasosElaboracion",
                 columns: table => new
                 {
@@ -217,6 +285,45 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PlanificacionProduccion",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FermentadorId = table.Column<int>(type: "int", nullable: false),
+                    LoteId = table.Column<int>(type: "int", nullable: false),
+                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FechaInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FechaFinEstimada = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Observaciones = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UsuarioId = table.Column<int>(type: "int", nullable: false),
+                    InsumosConfirmados = table.Column<bool>(type: "bit", nullable: false),
+                    FermentadorId1 = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlanificacionProduccion", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PlanificacionProduccion_Fermentadores_FermentadorId",
+                        column: x => x.FermentadorId,
+                        principalTable: "Fermentadores",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PlanificacionProduccion_Fermentadores_FermentadorId1",
+                        column: x => x.FermentadorId1,
+                        principalTable: "Fermentadores",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_PlanificacionProduccion_Lotes_LoteId",
+                        column: x => x.LoteId,
+                        principalTable: "Lotes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "historialAccesos",
                 columns: table => new
                 {
@@ -246,7 +353,8 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RecetaId = table.Column<int>(type: "int", nullable: false),
                     InsumoId = table.Column<int>(type: "int", nullable: false),
-                    Cantidad = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    Cantidad = table.Column<decimal>(type: "decimal(18,3)", precision: 18, scale: 3, nullable: false),
+                    unidadMedidaId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -262,6 +370,89 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         column: x => x.RecetaId,
                         principalTable: "Recetas",
                         principalColumn: "IdReceta",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RecetaInsumos_unidadMedida_unidadMedidaId",
+                        column: x => x.unidadMedidaId,
+                        principalTable: "unidadMedida",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LotesPrueba",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Codigo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    RecetaId = table.Column<int>(type: "int", nullable: true),
+                    FermentadorId = table.Column<int>(type: "int", nullable: false),
+                    PlanificacionProduccionId = table.Column<int>(type: "int", nullable: true),
+                    FechaElaboracion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Estilo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Inoculo = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
+                    Responsable = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    DiasEstimadosFermentacion = table.Column<int>(type: "int", nullable: false),
+                    Estado = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Observaciones = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    FechaFinReal = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LotesPrueba", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LotesPrueba_Fermentadores_FermentadorId",
+                        column: x => x.FermentadorId,
+                        principalTable: "Fermentadores",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_LotesPrueba_PlanificacionProduccion_PlanificacionProduccionId",
+                        column: x => x.PlanificacionProduccionId,
+                        principalTable: "PlanificacionProduccion",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_LotesPrueba_Recetas_RecetaId",
+                        column: x => x.RecetaId,
+                        principalTable: "Recetas",
+                        principalColumn: "IdReceta",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RegistrosFermentacion",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    LoteId = table.Column<int>(type: "int", nullable: false),
+                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DiaFermentacion = table.Column<int>(type: "int", nullable: false),
+                    Ph = table.Column<decimal>(type: "decimal(4,2)", precision: 4, scale: 2, nullable: false),
+                    Densidad = table.Column<decimal>(type: "decimal(6,3)", precision: 6, scale: 3, nullable: false),
+                    Temperatura = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
+                    Presion = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: true),
+                    Purgas = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Extracciones = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Agregados = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Observaciones = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    LoteId1 = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RegistrosFermentacion", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RegistrosFermentacion_LotesPrueba_LoteId",
+                        column: x => x.LoteId,
+                        principalTable: "LotesPrueba",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RegistrosFermentacion_Lotes_LoteId1",
+                        column: x => x.LoteId1,
+                        principalTable: "Lotes",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -281,9 +472,50 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 column: "unidadMedidaId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Lotes_FermentadorId",
+                table: "Lotes",
+                column: "FermentadorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Lotes_RecetaId",
+                table: "Lotes",
+                column: "RecetaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LotesPrueba_FermentadorId",
+                table: "LotesPrueba",
+                column: "FermentadorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LotesPrueba_PlanificacionProduccionId",
+                table: "LotesPrueba",
+                column: "PlanificacionProduccionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LotesPrueba_RecetaId",
+                table: "LotesPrueba",
+                column: "RecetaId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PasosElaboracion_RecetaId",
                 table: "PasosElaboracion",
                 column: "RecetaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Fermentador_Fecha",
+                table: "PlanificacionProduccion",
+                columns: new[] { "FermentadorId", "FechaInicio" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlanificacionProduccion_FermentadorId1",
+                table: "PlanificacionProduccion",
+                column: "FermentadorId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlanificacionProduccion_LoteId",
+                table: "PlanificacionProduccion",
+                column: "LoteId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RecetaInsumos_InsumoId",
@@ -296,6 +528,28 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 column: "RecetaId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RecetaInsumos_unidadMedidaId",
+                table: "RecetaInsumos",
+                column: "unidadMedidaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Lote_DiaFermentacion",
+                table: "RegistrosFermentacion",
+                columns: new[] { "LoteId", "DiaFermentacion" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Lote_FechaRegistro",
+                table: "RegistrosFermentacion",
+                columns: new[] { "LoteId", "Fecha" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RegistrosFermentacion_LoteId1",
+                table: "RegistrosFermentacion",
+                column: "LoteId1");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Usuarios_RolId",
                 table: "Usuarios",
                 column: "RolId");
@@ -306,6 +560,9 @@ namespace AtonBeerTesis.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Clientes");
+
+            migrationBuilder.DropTable(
+                name: "FermentadoresPruebas");
 
             migrationBuilder.DropTable(
                 name: "historialAccesos");
@@ -323,13 +580,16 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 name: "RecetaInsumos");
 
             migrationBuilder.DropTable(
+                name: "RegistrosFermentacion");
+
+            migrationBuilder.DropTable(
                 name: "Usuarios");
 
             migrationBuilder.DropTable(
                 name: "Insumos");
 
             migrationBuilder.DropTable(
-                name: "Recetas");
+                name: "LotesPrueba");
 
             migrationBuilder.DropTable(
                 name: "roles");
@@ -339,6 +599,18 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "unidadMedida");
+
+            migrationBuilder.DropTable(
+                name: "PlanificacionProduccion");
+
+            migrationBuilder.DropTable(
+                name: "Lotes");
+
+            migrationBuilder.DropTable(
+                name: "Fermentadores");
+
+            migrationBuilder.DropTable(
+                name: "Recetas");
         }
     }
 }

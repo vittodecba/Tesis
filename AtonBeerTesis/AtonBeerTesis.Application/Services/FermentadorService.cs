@@ -9,6 +9,7 @@ namespace AtonBeerTesis.Application.Services
     public interface IFermentadorService
     {
         Task<List<FermentadorDto>> GetAllAsync();
+        Task<IEnumerable<FermentadorDetalleDto>> GetAllConLoteAsync();
         Task<FermentadorDto> CreateAsync(CreateFermentadorDto dto);
         Task<bool> UpdateAsync(int id, UpdateFermentadorDto dto);
         Task<bool> DeleteAsync(int id);

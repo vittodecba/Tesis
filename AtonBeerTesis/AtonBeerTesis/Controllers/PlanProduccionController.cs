@@ -93,11 +93,16 @@ namespace AtonBeerTesis.Controllers
         [HttpGet("{id}/insumos-combinados")]
         public async Task<IActionResult> GetInsumosCombinados(int id)
         {
-            var lista = await _planificacionService.GetAllAsync();
-            var lote = lista.FirstOrDefault(x => x.Id == id);
-            if (lote == null) return NotFound("Lote no encontrado.");
-            var insumos = await _planificacionService.GetInsumosCalculadosAsync(lote.RecetaId);
-            return Ok(insumos);
+            try
+            {
+                var insumos = await _planificacionService.GetInsumosCalculadosAsync(id);
+                if (insumos == null || !insumos.Any()) return NotFound("No se encontraron insumos para este lote.");
+                return Ok(insumos);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
         //Metodo Santi 
         [HttpPut("{id}/asignar-fermentador/{fermentadorId}")]

@@ -1,4 +1,6 @@
-﻿namespace AtonBeerTesis.Application.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AtonBeerTesis.Application.DTOs
 {
     public class UpdateFermentadorDto
     {
