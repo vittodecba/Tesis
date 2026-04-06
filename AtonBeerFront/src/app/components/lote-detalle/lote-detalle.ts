@@ -54,8 +54,7 @@ export class LoteDetalleComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       const idNumerico = Number(id);
-      this.cargarLote(idNumerico);
-      this.cargarInsumos(idNumerico);
+      this.cargarLote(idNumerico)
       this.usuarioActual = this.authService.getCurrentUser();
       this.recetaService.getAll().subscribe({
       next: (data) => this.recetas = data ?? []
@@ -71,6 +70,8 @@ export class LoteDetalleComponent implements OnInit {
       next: (data) => {
         this.lote = data;
         this.cargando = false;
+        const loteInsumos =data.loteId || data.id
+        this.cargarInsumos(loteInsumos);
       },
       error: () => {
         this.error = 'Error al cargar el lote.';

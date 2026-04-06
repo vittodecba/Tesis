@@ -173,12 +173,13 @@ namespace AtonBeerTesis.Application.Services
             await _repository.UpdateAsync(planif);
         }
 
-        public async Task<IEnumerable<object>> GetInsumosCalculadosAsync(int planificacionId)
+        public async Task<IEnumerable<object>> GetInsumosCalculadosAsync(int loteId)
         {
-            var planif = await _repository.GetByIdAsync(planificacionId);
-            if (planif == null) return Enumerable.Empty<object>();
+            //Daba error al mostrar los detalles:
+          //var planif = await _repository.GetByIdAsync(LoteId);
+          //if (planif == null) return Enumerable.Empty<object>();
 
-            var lote = await _loteRepository.GetByIdAsync(planif.LoteId);
+            var lote = await _loteRepository.GetByIdAsync(loteId);
             if (lote == null || lote.Receta == null) return Enumerable.Empty<object>();
 
             var insumosReceta = await _repository.GetInsumosByRecetaIdAsync(lote.RecetaId);
