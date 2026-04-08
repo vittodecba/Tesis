@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { PlanificacionService } from '../../../services/PlanificacionService';
 import { RecetaService, Receta } from '../../../services/receta';
 import { FermentadorService } from '../../../services/fermentador';
-import { LucideAngularModule, Plus, Calendar, FlaskConical, ClipboardList, Pencil, List, LayoutGrid, Search, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, Plus, Calendar, FlaskConical, ClipboardList, Pencil, List, LayoutGrid, Search, Trash2, Beer } from 'lucide-angular';
 import { PlanificacionCalendarComponent } from '../PlanificacionCalendario/PlanCalendario';
 import Swal from 'sweetalert2';
 
@@ -47,6 +47,7 @@ export class PlanificacionListComponent implements OnInit {
   LayoutGrid = LayoutGrid;
   Search = Search;
   Trash2 = Trash2;
+  Beer = Beer;
   Swal = Swal;
 
   estadosMapping: { [key: number]: { nombre: string, clase: string, color: string } } = {

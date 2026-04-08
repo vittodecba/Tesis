@@ -1,128 +1,120 @@
-<div class="container mt-4">
+<div class="p-6 min-h-screen bg-orange-50/30 text-start">
 
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
     <div>
-      <h2 class="text-primary mb-0">Control de Producción</h2>
-      <p class="text-muted">Seguimiento de lotes y fermentadores</p>
+      <h2 class="text-3xl font-bold text-[#4A2C2A]">Control de Producción</h2>
+      <p class="text-gray-600">Seguimiento de lotes, fermentadores y cronograma.</p>
     </div>
-    <div class="d-flex gap-2">
-      <!-- Toggle de vistas -->
-      <div class="btn-group shadow-sm">
-        <button (click)="vista = 'tabla'" [class.active]="vista === 'tabla'" class="btn btn-outline-secondary">
-          <lucide-icon [img]="List" [size]="16" class="me-1"></lucide-icon> Listado
+
+    <div class="flex flex-wrap gap-3">
+      <div class="flex bg-white p-1 rounded-xl shadow-sm border border-gray-100">
+        <button (click)="vista = 'tabla'" [class.bg-orange-100]="vista === 'tabla'" class="p-2 rounded-lg transition-colors text-[#4A2C2A]" title="Ver Listado">
+          <lucide-icon [img]="List" [size]="18"></lucide-icon>
         </button>
-        <button (click)="vista = 'tarjetas'" [class.active]="vista === 'tarjetas'" class="btn btn-outline-secondary">
-          <lucide-icon [img]="LayoutGrid" [size]="16" class="me-1"></lucide-icon> Tarjetas
+        <button (click)="vista = 'tarjetas'" [class.bg-orange-100]="vista === 'tarjetas'" class="p-2 rounded-lg transition-colors text-[#4A2C2A]" title="Ver Tarjetas">
+          <lucide-icon [img]="LayoutGrid" [size]="18"></lucide-icon>
         </button>
-        <button (click)="vista = 'calendario'" [class.active]="vista === 'calendario'" class="btn btn-outline-secondary">
-          <lucide-icon [img]="Calendar" [size]="16" class="me-1"></lucide-icon> Calendario
+        <button (click)="vista = 'calendario'" [class.bg-orange-100]="vista === 'calendario'" class="p-2 rounded-lg transition-colors text-[#4A2C2A]" title="Ver Calendario">
+          <lucide-icon [img]="Calendar" [size]="18"></lucide-icon>
         </button>
       </div>
-      <button routerLink="/planificacion/nueva" class="btn btn-primary d-flex align-items-center shadow">
-        <lucide-icon [img]="Plus" [size]="18" class="me-2"></lucide-icon>
+
+      <button routerLink="/planificacion/nueva" class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-md bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white hover:shadow-lg">
+        <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
         Nuevo Lote
       </button>
     </div>
   </div>
 
-  <!-- Filtros (no en calendario) -->
-  <div *ngIf="vista !== 'calendario'" class="card shadow-sm border-0 mb-4 p-3">
-    <div class="row g-3 align-items-end">
-      <div class="col-md-2">
-        <label class="form-label small fw-semibold text-muted">Estado</label>
-        <select class="form-select form-select-sm" [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
-          <option value="">Todos</option>
-          <option value="1">Planificado</option>
-          <option value="2">En Proceso</option>
-          <option value="3">Finalizado</option>
-        </select>
-      </div>
-      <div class="col-md-2">
-        <label class="form-label small fw-semibold text-muted">Fermentador</label>
-        <select class="form-select form-select-sm" [(ngModel)]="filtroFermentador" (change)="aplicarFiltros()">
-          <option value="">Todos</option>
-          <option *ngFor="let f of fermentadores" [value]="f.id">{{ f.nombre }}</option>
-        </select>
-      </div>
-      <div class="col-md-2">
-        <label class="form-label small fw-semibold text-muted">Desde</label>
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="filtroFechaDesde" (change)="aplicarFiltros()">
-      </div>
-      <div class="col-md-2">
-        <label class="form-label small fw-semibold text-muted">Hasta</label>
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="filtroFechaHasta" (change)="aplicarFiltros()">
-      </div>
-      <div class="col-md-2">
-        <label class="form-label small fw-semibold text-muted">Ordenar</label>
-        <select class="form-select form-select-sm" [(ngModel)]="filtroOrden" (change)="aplicarFiltros()">
-          <option value="reciente">Más reciente</option>
-          <option value="antigua">Más antigua</option>
-        </select>
-      </div>
-      <div class="col-md-2">
-        <button class="btn btn-outline-secondary btn-sm w-100" (click)="limpiarFiltros()">
-          Limpiar filtros
-        </button>
+  <div *ngIf="vista !== 'calendario'" class="flex flex-wrap gap-4 mb-6 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+    <div class="flex flex-col">
+      <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Estado</label>
+      <select class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#E67E22] text-sm" [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+        <option value="">Todos</option>
+        <option value="1">Planificado</option>
+        <option value="2">En Proceso</option>
+        <option value="3">Finalizado</option>
+      </select>
+    </div>
+
+    <div class="flex flex-col">
+      <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Fermentador</label>
+      <select class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#E67E22] text-sm" [(ngModel)]="filtroFermentador" (change)="aplicarFiltros()">
+        <option value="">Todos</option>
+        <option *ngFor="let f of fermentadores" [value]="f.id">{{ f.nombre }}</option>
+      </select>
+    </div>
+
+    <div class="flex flex-col">
+      <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Rango de Fechas</label>
+      <div class="flex items-center gap-2">
+        <input type="date" class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" [(ngModel)]="filtroFechaDesde" (change)="aplicarFiltros()">
+        <span class="text-gray-400">→</span>
+        <input type="date" class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" [(ngModel)]="filtroFechaHasta" (change)="aplicarFiltros()">
       </div>
     </div>
+
+    <button class="text-red-500 text-sm font-medium hover:underline ml-auto mt-4" (click)="limpiarFiltros()">
+      Limpiar filtros
+    </button>
   </div>
 
-  <!-- Loading -->
-  <div *ngIf="loading" class="text-center my-5">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p>Cargando lotes...</p>
+  <div *ngIf="loading" class="flex flex-col justify-center items-center my-20">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E67E22]"></div>
+    <p class="mt-4 text-gray-500 font-medium">Cargando producción...</p>
   </div>
 
-  <!-- VISTA CALENDARIO -->
-  <div *ngIf="!loading && vista === 'calendario'">
+  <div *ngIf="!loading && vista === 'calendario'" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
     <app-planificacion-calendar></app-planificacion-calendar>
   </div>
 
-  <!-- VISTA TABLA -->
   <div *ngIf="!loading && vista === 'tabla'">
-    <div *ngIf="planificacionesFiltradas.length === 0" class="alert alert-info text-center shadow-sm">
-      <lucide-icon [img]="ClipboardList" [size]="40" class="mb-2 opacity-50"></lucide-icon>
-      <p class="mb-0">No hay producciones que coincidan con los filtros.</p>
+    <div *ngIf="planificacionesFiltradas.length === 0" class="bg-white p-12 rounded-2xl border-2 border-dashed border-gray-100 text-center">
+      <lucide-icon [img]="ClipboardList" [size]="48" class="mx-auto mb-3 text-gray-300"></lucide-icon>
+      <p class="text-gray-500">No hay producciones que coincidan con los filtros.</p>
     </div>
-    <div *ngIf="planificacionesFiltradas.length > 0" class="card shadow-sm border-0">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
+
+    <div *ngIf="planificacionesFiltradas.length > 0" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead class="bg-gray-50 border-b border-gray-100">
             <tr>
-              <th># Lote</th>
-              <th>Receta</th>
-              <th>Fermentador</th>
-              <th class="text-center">Vol. (L)</th>
-              <th>Fecha Inicio</th>
-              <th>Fecha Fin Est.</th>
-              <th>Estado</th>
-              <th class="text-end">Acciones</th>
+              <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider"># Lote</th>
+              <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Receta</th>
+              <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Vol. (L)</th>
+              <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Inicio / Fin</th>
+              <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
             </tr>
           </thead>
-          <tbody>
-            <tr *ngFor="let p of planificacionesFiltradas">
-              <td class="fw-bold">L-{{ p.loteId }}</td>
-              <td>{{ getNombreReceta(p.recetaId) }}</td>
-              <td>{{ getNombreFermentador(p.fermentadorId) }}</td>
-              <td class="text-center fw-bold text-primary">{{ p.volumenLitros }}</td>
-              <td>{{ p.fechaInicio | date:'dd/MM/yyyy' }}</td>
-              <td>{{ p.fechaFinEstimada | date:'dd/MM/yyyy' }}</td>
-              <td>
-                <span class="badge" [ngClass]="estadosMapping[p.estado].clase">
+          <tbody class="divide-y divide-gray-50">
+            <tr *ngFor="let p of planificacionesFiltradas" class="hover:bg-orange-50/50 transition-colors group">
+              <td class="px-6 py-4 font-mono font-bold text-[#4A2C2A]">L-{{ p.loteId }}</td>
+              <td class="px-6 py-4">
+                <div class="flex flex-col">
+                  <span class="text-sm font-medium text-gray-800">{{ getNombreReceta(p.recetaId) }}</span>
+                  <span class="text-[10px] text-gray-400">{{ getNombreFermentador(p.fermentadorId) }}</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-center font-bold text-[#E67E22]">{{ p.volumenLitros }}</td>
+              <td class="px-6 py-4 text-xs text-gray-600">
+                {{ p.fechaInicio | date:'dd/MM' }} — {{ p.fechaFinEstimada | date:'dd/MM' }}
+              </td>
+              <td class="px-6 py-4">
+                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase border" [ngClass]="estadosMapping[p.estado].clase">
                   {{ estadosMapping[p.estado].nombre }}
                 </span>
               </td>
-              <td class="text-end">
-                <div class="d-flex gap-2 justify-content-end">
-                  <button class="btn btn-sm btn-outline-info" (click)="verDetalle(p.id)" title="Ver detalle">
-                    <lucide-icon [img]="Search" [size]="14"></lucide-icon>
+              <td class="px-6 py-4 text-right">
+                <div class="flex justify-end gap-2">
+                  <button (click)="verDetalle(p.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Ver detalle">
+                    <lucide-icon [img]="Search" [size]="18"></lucide-icon>
                   </button>
-                  <button class="btn btn-sm btn-outline-secondary" (click)="abrirModal(p)" title="Editar">
-                    <lucide-icon [img]="Pencil" [size]="14"></lucide-icon>
+                  <button (click)="abrirModal(p)" class="p-2 text-[#4A2C2A] hover:bg-orange-50 rounded-lg transition" title="Editar">
+                    <lucide-icon [img]="Pencil" [size]="18"></lucide-icon>
                   </button>
-                  <button class="btn btn-sm btn-outline-danger" (click)="eliminarLote(p.loteId)" title="Eliminar">
-                    <lucide-icon [img]="Trash2" [size]="14"></lucide-icon>
+                  <button (click)="eliminarLote(p.loteId)" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition" title="Eliminar">
+                    <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
                   </button>
                 </div>
               </td>
@@ -133,117 +125,30 @@
     </div>
   </div>
 
-  <!-- VISTA TARJETAS -->
-  <div class="row" *ngIf="!loading && vista === 'tarjetas'">
-    <div *ngIf="planificacionesFiltradas.length === 0" class="col-12 alert alert-info shadow-sm text-center">
-      <lucide-icon [img]="ClipboardList" [size]="40" class="mb-2 opacity-50"></lucide-icon>
-      <p class="mb-0">No hay producciones que coincidan con los filtros.</p>
-    </div>
-    <div *ngFor="let p of planificacionesFiltradas" class="col-md-4 mb-4">
-      <div class="card h-100 shadow-sm border-0 border-top border-4"
-           [style.border-top-color]="estadosMapping[p.estado].color">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <h5 class="card-title fw-bold text-dark mb-0">Lote #{{ p.loteId }}</h5>
-            <div class="d-flex gap-2 align-items-center">
-              <span class="badge" [ngClass]="estadosMapping[p.estado].clase">
-                {{ estadosMapping[p.estado].nombre }}
-              </span>
-              <button class="btn btn-sm btn-outline-secondary p-1" (click)="abrirModal(p)" title="Editar lote">
-                <lucide-icon [img]="Pencil" [size]="14"></lucide-icon>
-              </button>
-            </div>
-          </div>
-          <div class="mb-2 d-flex align-items-center text-muted">
-            <lucide-icon [img]="Calendar" [size]="16" class="me-2"></lucide-icon>
-            <span>Inicio: {{ p.fechaInicio | date:'dd/MM/yyyy' }}</span>
-          </div>
-          <div class="mb-2 d-flex align-items-center text-muted">
-            <lucide-icon [img]="Calendar" [size]="16" class="me-2"></lucide-icon>
-            <span>Fin estimado: {{ p.fechaFinEstimada | date:'dd/MM/yyyy' }}</span>
-          </div>
-          <div class="mb-2 d-flex align-items-center text-muted">
-            <lucide-icon [img]="FlaskConical" [size]="16" class="me-2"></lucide-icon>
-            <span>Fermentador: <strong>{{ getNombreFermentador(p.fermentadorId) }}</strong></span>
-          </div>
-          <div class="p-2 bg-light rounded mt-3">
-            <div class="d-flex justify-content-between small mb-1">
-              <span>Receta:</span>
-              <span class="fw-bold">{{ getNombreReceta(p.recetaId) }}</span>
-            </div>
-            <div class="d-flex justify-content-between small">
-              <span>Volumen:</span>
-              <span class="fw-bold">{{ p.volumenLitros }} Litros</span>
-            </div>
-          </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" *ngIf="!loading && vista === 'tarjetas'">
+    <div *ngFor="let p of planificacionesFiltradas" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all group">
+      <div class="h-2 w-full" [style.backgroundColor]="estadosMapping[p.estado].color"></div>
+      <div class="p-5">
+        <div class="flex justify-between items-start mb-4">
+          <h5 class="font-bold text-[#4A2C2A]">Lote #{{ p.loteId }}</h5>
+          <span class="px-2 py-1 rounded-full text-[9px] font-black uppercase border" [ngClass]="estadosMapping[p.estado].clase">
+            {{ estadosMapping[p.estado].nombre }}
+          </span>
         </div>
-        <div class="card-footer bg-white border-0 pb-3">
-          <button class="btn btn-outline-info btn-sm w-100" (click)="verDetalle(p.id)">
-            Ver Detalle
-          </button>
-          <button class="btn btn-outline-danger btn-sm" (click)="eliminarLote(p.loteId)" title="Eliminar">
-             <lucide-icon [img]="Trash2" [size]="14"></lucide-icon>
-           </button>
+        <div class="space-y-2 mb-4">
+          <p class="text-sm font-medium text-gray-800 flex items-center gap-2">
+            <lucide-icon [img]="Beer" [size]="14" class="text-[#E67E22]"></lucide-icon> {{ getNombreReceta(p.recetaId) }}
+          </p>
+          <p class="text-xs text-gray-500 flex items-center gap-2">
+            <lucide-icon [img]="FlaskConical" [size]="14"></lucide-icon> {{ getNombreFermentador(p.fermentadorId) }}
+          </p>
+        </div>
+        <div class="flex items-center justify-between pt-4 border-t border-gray-50">
+          <span class="text-lg font-black text-[#E67E22]">{{ p.volumenLitros }}L</span>
+          <button (click)="verDetalle(p.id)" class="text-sm font-bold text-blue-600 hover:underline">Ver Detalle</button>
         </div>
       </div>
     </div>
   </div>
 
-</div>
-
-<!-- Modal de edición -->
-<div class="modal-backdrop-custom" *ngIf="mostrarModal" (click)="cerrarModal()"></div>
-<div class="modal-custom" *ngIf="mostrarModal">
-  <div class="modal-custom-dialog" (click)="$event.stopPropagation()">
-    <div class="modal-custom-header">
-      <h5 class="mb-0">✏️ Editar Lote #{{ loteEditando.loteId }}</h5>
-      <button class="btn-close" (click)="cerrarModal()"></button>
-    </div>
-    <div class="modal-custom-body">
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Receta</label>
-        <select class="form-select" [(ngModel)]="loteEditando.recetaId">
-          <option *ngFor="let r of recetas" [value]="r.idReceta">{{ r.nombre }}</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Fermentador</label>
-        <select class="form-select" [(ngModel)]="loteEditando.fermentadorId">
-          <option *ngFor="let f of fermentadores" [value]="f.id">{{ f.nombre }}</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Volumen (Litros)</label>
-        <input type="number" class="form-control" [(ngModel)]="loteEditando.volumenLitros" min="1">
-      </div>
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Estado</label>
-        <select class="form-select" [(ngModel)]="loteEditando.estado">          
-          <option [value]="1">Planificado</option>
-          <option [value]="2">En Proceso</option>
-          <option [value]="3">Finalizado</option>
-        </select>
-      </div>
-      <div class="row mb-3">
-        <div class="col">
-          <label class="form-label fw-semibold">Fecha Inicio</label>
-          <input type="date" class="form-control" [(ngModel)]="loteEditando.fechaInicio">
-        </div>
-        <div class="col">
-          <label class="form-label fw-semibold">Fecha Fin Estimada</label>
-          <input type="date" class="form-control" [(ngModel)]="loteEditando.fechaFinEstimada">
-        </div>
-      </div>
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Observaciones</label>
-        <textarea class="form-control" rows="3" [(ngModel)]="loteEditando.observaciones"></textarea>
-      </div>
-    </div>
-    <div class="modal-custom-footer">
-      <button class="btn btn-outline-secondary" (click)="cerrarModal()">Cancelar</button>
-      <button class="btn btn-primary" (click)="guardarCambios()" [disabled]="guardando">
-        {{ guardando ? 'Guardando...' : 'Guardar Cambios' }}
-      </button>
-    </div>
-  </div>
 </div>
