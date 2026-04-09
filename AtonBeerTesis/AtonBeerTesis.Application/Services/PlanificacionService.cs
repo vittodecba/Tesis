@@ -57,7 +57,7 @@ namespace AtonBeerTesis.Application.Services
                 FermentadorId = dto.FermentadorId,
                 FechaElaboracion = dto.FechaInicio,
                 Responsable = responsable,
-                DiasEstimadosFermentacion = (int)(dto.FechaFinEstimada - dto.FechaInicio).TotalDays, // ← calculado
+                DiasEstimadosFermentacion = (int)(dto.FechaFinEstimada - dto.FechaInicio).TotalDays,
             };
 
             var loteGuardado = await _loteRepository.CreateAsync(nuevoLote);
@@ -165,7 +165,7 @@ namespace AtonBeerTesis.Application.Services
             {
                 planificacion.Lote.RecetaId = dto.RecetaId;
                 planificacion.Lote.VolumenLitros = dto.VolumenLitros;
-                planificacion.Lote.DiasEstimadosFermentacion = (int)(dto.FechaFinEstimada - dto.FechaInicio).TotalDays; // ← también al actualizar
+                planificacion.Lote.DiasEstimadosFermentacion = (int)(dto.FechaFinEstimada - dto.FechaInicio).TotalDays;
             }
 
             await _repository.UpdateAsync(planificacion);
@@ -221,9 +221,14 @@ namespace AtonBeerTesis.Application.Services
             if (planificacion == null) return false;
 
             var fermentador = await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId);
-            if (fermentador != null && fermentador.Estado == EstadoFermentador.Ocupado)
+            if (fermentador != null)
             {
-                fermentador.Estado = EstadoFermentador.Disponible;
+                // Si estaba EnProceso → Sucio (el tanque estuvo en uso)
+                // Si estaba Planificado → Disponible (nunca se usó)
+                fermentador.Estado = planificacion.Estado == EstadoLote.EnProceso
+                    ? EstadoFermentador.Sucio
+                    : EstadoFermentador.Disponible;
+
                 await _repository.UpdateFermentadorAsync(fermentador);
             }
 
