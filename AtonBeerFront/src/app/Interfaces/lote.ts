@@ -1,21 +1,23 @@
 export interface Lote {
+  // ── De PlanificacionService (api/PlanProduccion) ──────────────
   id: number;
   loteId: number;
   recetaId: number;
+  recetaNombre?: string; // ← nuevo
+  estilo?: string; // ← nuevo (viene de Receta)
   fermentadorId: number;
   fermentadorNombre?: string;
   volumenLitros: number;
   fechaInicio?: Date;
   fechaFinEstimada?: Date;
-  estado: number; // ← solo number, no string
+  estado: number;
   observaciones?: string;
   usuarioId?: number;
+  fechaCreacion?: Date;
 
-  // De Feature (FermentadorDetalle)
+  // ── De LoteService (api/Lote) ─────────────────────────────────
   codigo?: string;
-  recetaNombre?: string;
   fechaElaboracion?: Date;
-  estilo?: string;
   inoculo?: string;
   responsable?: string;
   diasEstimadosFermentacion?: number;

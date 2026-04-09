@@ -88,7 +88,7 @@ namespace AtonBeerTesis
             // 5. Pipeline de la aplicación
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
+                app.UseSwagger();   
                 app.UseSwaggerUI();
             }
 

@@ -1,5 +1,6 @@
 ﻿using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
+using AtonBeerTesis.Domain.Enums;
 using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,7 +43,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
             return await _context.RecetaInsumos
                 .Include(ri => ri.Insumo)
-                    .ThenInclude(i => i.unidadMedida) // <--- ACÁ TAMBIÉN FALTABA
+                    .ThenInclude(i => i.unidadMedida)
                 .Where(ri => ri.RecetaId == lote.RecetaId)
                 .ToListAsync();
         }
@@ -60,11 +61,14 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task<Lote?> GetActivoByFermentadorIdAsync(int fermentadorId)
         {
+            // Solo filtra por Finalizado ya que Cancelado no existe en el enum
             return await _context.Lotes
                 .Include(l => l.Receta)
                 .Include(l => l.Fermentador)
-                .FirstOrDefaultAsync(l => l.FermentadorId == fermentadorId
-                    && l.Estado != Domain.Enums.EstadoLote.Finalizado);
+                .Include(l => l.RegistrosFermentacion)
+                .FirstOrDefaultAsync(l =>
+                    l.FermentadorId == fermentadorId &&
+                    l.Estado != EstadoLote.Finalizado);
         }
 
         public async Task<bool> ExisteCodigoAsync(string codigo)

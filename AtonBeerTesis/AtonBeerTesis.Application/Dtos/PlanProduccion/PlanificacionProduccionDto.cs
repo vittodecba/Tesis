@@ -1,9 +1,5 @@
 ﻿using AtonBeerTesis.Domain.Enums;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AtonBeerTesis.Application.Dtos
 {
@@ -11,6 +7,8 @@ namespace AtonBeerTesis.Application.Dtos
     {
         public int Id { get; set; }
         public int RecetaId { get; set; }
+        public string? RecetaNombre { get; set; }
+        public string? Estilo { get; set; }
         public int VolumenLitros { get; set; }
         public int LoteId { get; set; }
         public int FermentadorId { get; set; }
@@ -18,9 +16,8 @@ namespace AtonBeerTesis.Application.Dtos
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFinEstimada { get; set; }
         public string? Observaciones { get; set; }
-        public int UsuarioId { get; set; }       
+        public int UsuarioId { get; set; }
         public string? FermentadorNombre { get; set; }
-
         public DateTime FechaCreacion { get; set; }
     }
 }

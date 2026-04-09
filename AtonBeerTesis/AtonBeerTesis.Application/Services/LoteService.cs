@@ -9,11 +9,16 @@ namespace AtonBeerTesis.Application.Services
     {
         private readonly ILoteRepository _repository;
         private readonly IFermentadorRepository _fermentadorRepository;
+        private readonly IPlanificacionRepository _planificacionRepository; // ← nuevo
 
-        public LoteService(ILoteRepository repository, IFermentadorRepository fermentadorRepository)
+        public LoteService(
+            ILoteRepository repository,
+            IFermentadorRepository fermentadorRepository,
+            IPlanificacionRepository planificacionRepository) // ← nuevo
         {
             _repository = repository;
             _fermentadorRepository = fermentadorRepository;
+            _planificacionRepository = planificacionRepository; // ← nuevo
         }
 
         public async Task<List<LoteDto>> GetAllAsync()
@@ -29,7 +34,7 @@ namespace AtonBeerTesis.Application.Services
                 FermentadorId = l.FermentadorId,
                 FermentadorNombre = l.Fermentador?.Nombre,
                 FechaElaboracion = l.FechaElaboracion,
-                Estilo = l.Estilo,
+                Estilo = l.Estilo ?? l.Receta?.Estilo,
                 Inoculo = l.Inoculo,
                 Responsable = l.Responsable,
                 DiasEstimadosFermentacion = l.DiasEstimadosFermentacion,
@@ -57,7 +62,7 @@ namespace AtonBeerTesis.Application.Services
                 FermentadorId = lote.FermentadorId,
                 FermentadorNombre = lote.Fermentador?.Nombre,
                 FechaElaboracion = lote.FechaElaboracion,
-                Estilo = lote.Estilo,
+                Estilo = lote.Estilo ?? lote.Receta?.Estilo,
                 Inoculo = lote.Inoculo,
                 Responsable = lote.Responsable,
                 DiasEstimadosFermentacion = lote.DiasEstimadosFermentacion,
@@ -86,7 +91,7 @@ namespace AtonBeerTesis.Application.Services
                 FermentadorId = lote.FermentadorId,
                 FermentadorNombre = lote.Fermentador?.Nombre,
                 FechaElaboracion = lote.FechaElaboracion,
-                Estilo = lote.Estilo,
+                Estilo = lote.Estilo ?? lote.Receta?.Estilo,
                 Inoculo = lote.Inoculo,
                 Responsable = lote.Responsable,
                 DiasEstimadosFermentacion = lote.DiasEstimadosFermentacion,
@@ -181,7 +186,6 @@ namespace AtonBeerTesis.Application.Services
             if (dto.Observaciones != null)
                 lote.Observaciones = dto.Observaciones;
 
-            // Estado viene como string desde el DTO, lo parseamos al enum
             if (!string.IsNullOrWhiteSpace(dto.Estado))
                 lote.Estado = Enum.Parse<EstadoLote>(dto.Estado);
 
@@ -193,17 +197,27 @@ namespace AtonBeerTesis.Application.Services
             var lote = await _repository.GetByIdAsync(id);
             if (lote == null) return false;
 
+            // 1. Finalizar el lote
             lote.Estado = EstadoLote.Finalizado;
             lote.FechaFinReal = DateTime.Now;
 
             var updated = await _repository.UpdateAsync(lote);
             if (!updated) return false;
 
+            // 2. Marcar fermentador como Sucio
             var fermentador = await _fermentadorRepository.GetByIdAsync(lote.FermentadorId);
             if (fermentador != null)
             {
                 fermentador.Estado = EstadoFermentador.Sucio;
                 await _fermentadorRepository.UpdateAsync(fermentador);
+            }
+
+            // 3. Finalizar la planificación asociada al lote ← nuevo
+            var planificacion = await _planificacionRepository.GetByLoteIdAsync(lote.Id);
+            if (planificacion != null)
+            {
+                planificacion.Estado = EstadoLote.Finalizado;
+                await _planificacionRepository.UpdateAsync(planificacion);
             }
 
             return true;

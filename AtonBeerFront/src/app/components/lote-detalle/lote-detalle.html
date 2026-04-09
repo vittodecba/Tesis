@@ -1,21 +1,28 @@
 <div class="p-6 min-h-screen bg-orange-50/30 text-start">
-
   <div *ngIf="cargando" class="flex justify-center items-center h-64">
     <p class="text-gray-500 font-medium text-lg">Cargando detalles del lote...</p>
   </div>
 
-  <div *ngIf="error" class="bg-red-50 p-8 rounded-2xl border border-red-200 text-center max-w-2xl mx-auto mt-10">
+  <div
+    *ngIf="error"
+    class="bg-red-50 p-8 rounded-2xl border border-red-200 text-center max-w-2xl mx-auto mt-10"
+  >
     <p class="text-red-600 font-bold text-xl mb-6">{{ error }}</p>
-    <button (click)="volver()" class="px-6 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition">
+    <button
+      (click)="volver()"
+      class="px-6 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition"
+    >
       Volver a Planificación
     </button>
   </div>
 
   <div *ngIf="!cargando && !error && lote" class="max-w-5xl mx-auto">
-
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
       <div class="flex items-center gap-4">
-        <button (click)="volver()" class="p-2 text-gray-500 hover:text-[#E67E22] hover:bg-orange-100 rounded-full transition-colors">
+        <button
+          (click)="volver()"
+          class="p-2 text-gray-500 hover:text-[#E67E22] hover:bg-orange-100 rounded-full transition-colors"
+        >
           <lucide-icon [img]="ArrowLeft" [size]="28"></lucide-icon>
         </button>
         <div>
@@ -24,14 +31,16 @@
         </div>
       </div>
 
-      <span class="px-4 py-2 rounded-full text-sm font-bold border"
-            [ngClass]="estadosMapping[lote.estado]?.color">
+      <span
+        class="px-4 py-2 rounded-full text-sm font-bold border"
+        [ngClass]="estadosMapping[lote.estado]?.color"
+      >
         {{ estadosMapping[lote.estado]?.nombre }}
       </span>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
+      <!-- INFORMACIÓN PRINCIPAL -->
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <h3 class="text-lg font-bold text-[#4A2C2A] mb-4 border-b pb-2">Información Principal</h3>
         <div class="space-y-4">
@@ -40,66 +49,110 @@
               <p class="text-xs font-bold text-gray-500 uppercase">Vol. Planificado</p>
               <p class="text-md font-bold text-[#E67E22]">{{ lote.volumenLitros }} L</p>
             </div>
+
             <div>
               <p class="text-xs font-bold text-gray-500 uppercase">Receta</p>
-              <p class="text-md font-medium text-gray-800">{{ getNombreReceta(lote.recetaId) }}</p>
+              <!-- Muestra recetaNombre si viene del nuevo DTO, sino usa getNombreReceta -->
+              <p class="text-md font-medium text-gray-800">
+                {{ lote.recetaNombre || getNombreReceta(lote.recetaId) }}
+              </p>
+            </div>
+
+            <!-- ESTILO — nuevo campo -->
+            <div>
+              <p class="text-xs font-bold text-gray-500 uppercase">Estilo</p>
+              <p class="text-md font-medium text-gray-800">{{ lote.estilo || '-' }}</p>
             </div>
 
             <div class="col-span-2 md:col-span-1">
               <p class="text-xs font-bold text-gray-500 uppercase">Fermentador</p>
 
               <div *ngIf="!editandoFermentador" class="flex items-center gap-2 mt-1">
-                <p class="text-md font-medium text-gray-800">{{ lote.fermentadorNombre || 'Sin asignar' }}</p>
-                <button (click)="iniciarEdicionFermentador()" class="p-1 text-gray-400 hover:text-[#E67E22] hover:bg-orange-50 rounded transition-colors" title="Vincular fermentador">
+                <p class="text-md font-medium text-gray-800">
+                  {{ lote.fermentadorNombre || 'Sin asignar' }}
+                </p>
+                <button
+                  (click)="iniciarEdicionFermentador()"
+                  class="p-1 text-gray-400 hover:text-[#E67E22] hover:bg-orange-50 rounded transition-colors"
+                  title="Vincular fermentador"
+                >
                   <lucide-icon [img]="Edit2" [size]="16"></lucide-icon>
                 </button>
               </div>
 
               <div *ngIf="editandoFermentador" class="flex items-center gap-2 mt-1">
-                <select [(ngModel)]="nuevoFermentadorId" class="px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#E67E22] w-full max-w-[150px]">
+                <select
+                  [(ngModel)]="nuevoFermentadorId"
+                  class="px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#E67E22] w-full max-w-[150px]"
+                >
                   <option value="">Seleccione...</option>
-                  <option *ngFor="let f of fermentadoresDisponibles" [value]="f.id">{{ f.nombre }}</option>
+                  <option *ngFor="let f of fermentadoresDisponibles" [value]="f.id">
+                    {{ f.nombre }}
+                  </option>
                 </select>
-                <button (click)="guardarFermentador()" [disabled]="guardandoFermentador || !nuevoFermentadorId" class="p-1 text-green-600 hover:bg-green-50 rounded disabled:opacity-50">
+                <button
+                  (click)="guardarFermentador()"
+                  [disabled]="guardandoFermentador || !nuevoFermentadorId"
+                  class="p-1 text-green-600 hover:bg-green-50 rounded disabled:opacity-50"
+                >
                   <lucide-icon [img]="Check" [size]="18"></lucide-icon>
                 </button>
-                <button (click)="cancelarEdicionFermentador()" [disabled]="guardandoFermentador" class="p-1 text-red-500 hover:bg-red-50 rounded disabled:opacity-50">
+                <button
+                  (click)="cancelarEdicionFermentador()"
+                  [disabled]="guardandoFermentador"
+                  class="p-1 text-red-500 hover:bg-red-50 rounded disabled:opacity-50"
+                >
                   <lucide-icon [img]="X" [size]="18"></lucide-icon>
                 </button>
               </div>
             </div>
 
             <div></div>
+
             <div>
               <p class="text-xs font-bold text-gray-500 uppercase">Fecha Inicio</p>
-              <p class="text-md font-medium text-gray-800">{{ lote.fechaInicio | date:'dd/MM/yyyy' }}</p>
+              <p class="text-md font-medium text-gray-800">
+                {{ lote.fechaInicio | date: 'dd/MM/yyyy' }}
+              </p>
             </div>
+
             <div>
               <p class="text-xs font-bold text-gray-500 uppercase">Fecha Fin Est.</p>
-              <p class="text-md font-medium text-gray-800">{{ lote.fechaFinEstimada | date:'dd/MM/yyyy' }}</p>
+              <p class="text-md font-medium text-gray-800">
+                {{ lote.fechaFinEstimada | date: 'dd/MM/yyyy' }}
+              </p>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- INFORMACIÓN DE CREACIÓN + OBSERVACIONES -->
       <div class="space-y-6">
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h3 class="text-lg font-bold text-[#4A2C2A] mb-4 border-b pb-2">Información de Creación</h3>
+          <h3 class="text-lg font-bold text-[#4A2C2A] mb-4 border-b pb-2">
+            Información de Creación
+          </h3>
           <div class="space-y-4">
-           <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-             <p class="text-xs font-bold text-gray-500 uppercase mb-1">Registro del Lote</p>
-             <p class="text-sm text-gray-700">
-               Usuario: <span class="font-medium text-gray-900">
-                 {{ usuarioActual ? usuarioActual.nombre + ' ' + usuarioActual.apellido : 'Admin' }}
-               </span>
-               </p>
-                <p class="text-sm text-gray-700">
-                     Rol: <span class="font-medium text-gray-900">
-                     {{ usuarioActual ? usuarioActual.rolNombre : '-' }}
-               </span>
-                </p>
-                 <p class="text-sm text-gray-700">Fecha: {{ (lote.fechaCreacion || lote.fechaInicio) | date:'dd/MM/yyyy HH:mm' }}</p>
-             </div>                       
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+              <p class="text-xs font-bold text-gray-500 uppercase mb-1">Registro del Lote</p>
+              <p class="text-sm text-gray-700">
+                Usuario:
+                <span class="font-medium text-gray-900">
+                  {{
+                    usuarioActual ? usuarioActual.nombre + ' ' + usuarioActual.apellido : 'Admin'
+                  }}
+                </span>
+              </p>
+              <p class="text-sm text-gray-700">
+                Rol:
+                <span class="font-medium text-gray-900">
+                  {{ usuarioActual ? usuarioActual.rolNombre : '-' }}
+                </span>
+              </p>
+              <p class="text-sm text-gray-700">
+                Fecha: {{ lote.fechaCreacion || lote.fechaInicio | date: 'dd/MM/yyyy HH:mm' }}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -111,6 +164,7 @@
         </div>
       </div>
 
+      <!-- INSUMOS REQUERIDOS -->
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 md:col-span-2">
         <h3 class="text-lg font-bold text-[#4A2C2A] mb-4 border-b pb-2">Insumos Requeridos</h3>
 
@@ -128,20 +182,27 @@
             </thead>
             <tbody class="divide-y divide-gray-50">
               <tr *ngFor="let item of insumos" class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 font-medium text-gray-800">{{ item.nombreInsumo || item.material || item.insumo }}</td>
+                <td class="px-4 py-3 font-medium text-gray-800">
+                  {{ item.nombreInsumo || item.material || item.insumo }}
+                </td>
                 <td class="px-4 py-3 text-right font-bold text-[#E67E22]">
-                  {{ item.cantidad || item.cantidadTotal }} <span class="text-xs text-gray-500 font-normal">{{ item.unidadMedidaNombre || item.unidadMedida || item.unidad }}</span>
+                  {{ item.cantidad || item.cantidadTotal }}
+                  <span class="text-xs text-gray-500 font-normal">
+                    {{ item.unidadMedidaNombre || item.unidadMedida || item.unidad }}
+                  </span>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div *ngIf="!cargandoInsumos && insumos.length === 0" class="text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+        <div
+          *ngIf="!cargandoInsumos && insumos.length === 0"
+          class="text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200"
+        >
           <p class="text-gray-500">No hay insumos cargados para la receta de este lote.</p>
         </div>
       </div>
-
     </div>
   </div>
 </div>

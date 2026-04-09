@@ -12,8 +12,6 @@ namespace AtonBeerTesis.Infrastructure.Data
 
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Usuario> usuarios { get; set; }
-
-        public DbSet<LotePrueba> LotesPrueba { get; set; }
         public DbSet<RegistroFermentacion> RegistrosFermentacion { get; set; }
         public DbSet<Rol> roles { get; set; }
         public DbSet<unidadMedida> unidadMedida { get; set; }
@@ -26,7 +24,6 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<RecetaInsumo> RecetaInsumos { get; set; }
         public DbSet<PasosElaboracion> PasosElaboracion { get; set; }
         public DbSet<Fermentador> Fermentadores { get; set; }
-        public DbSet<FermentadorPrueba> FermentadoresPruebas { get; set; }
         public DbSet<PlanificacionProduccion> PlanificacionProduccion { get; set; }
         public DbSet<Lote> Lotes { get; set; }
 
@@ -34,27 +31,37 @@ namespace AtonBeerTesis.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<LotePrueba>(entity =>
+            // ── MAPEOS DE TABLAS ──────────────────────────────────────────
+            modelBuilder.Entity<Insumo>().ToTable("Insumos");
+            modelBuilder.Entity<Usuario>().ToTable("Usuarios");
+            modelBuilder.Entity<Cliente>().ToTable("Clientes");
+            modelBuilder.Entity<unidadMedida>().ToTable("unidadMedida");
+            modelBuilder.Entity<TipoInsumo>().ToTable("TiposInsumo");
+            modelBuilder.Entity<RecetaInsumo>().ToTable("RecetaInsumos");
+            modelBuilder.Entity<Receta>().ToTable("Recetas");
+            modelBuilder.Entity<Fermentador>().ToTable("Fermentadores");
+
+            modelBuilder.Entity<Cliente>().HasKey(x => x.IdCliente);
+
+            // ── LOTE ──────────────────────────────────────────────────────
+            modelBuilder.Entity<Lote>(entity =>
             {
-                entity.ToTable("LotesPrueba");
+                entity.ToTable("Lotes");
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.VolumenLitros).HasPrecision(18, 2);
 
-                entity.HasOne(e => e.Receta)
-                      .WithMany()
-                      .HasForeignKey(e => e.RecetaId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(l => l.Receta)
+                    .WithMany()
+                    .HasForeignKey(l => l.RecetaId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(e => e.Fermentador)
-                      .WithMany()
-                      .HasForeignKey(e => e.FermentadorId)
-                      .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(e => e.PlanificacionProduccion)
-                      .WithMany()
-                      .HasForeignKey(e => e.PlanificacionProduccionId)
-                      .OnDelete(DeleteBehavior.SetNull);
+                entity.HasOne(l => l.Fermentador)
+                    .WithMany()
+                    .HasForeignKey(l => l.FermentadorId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
+            // ── REGISTRO FERMENTACION ─────────────────────────────────────
             modelBuilder.Entity<RegistroFermentacion>(entity =>
             {
                 entity.ToTable("RegistrosFermentacion");
@@ -66,88 +73,62 @@ namespace AtonBeerTesis.Infrastructure.Data
                 entity.Property(e => e.Presion).HasPrecision(5, 2);
 
                 entity.HasOne(e => e.Lote)
-                      .WithMany(l => l.RegistrosFermentacion)
-                      .HasForeignKey(e => e.LoteId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany(l => l.RegistrosFermentacion)
+                    .HasForeignKey(e => e.LoteId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasIndex(e => new { e.LoteId, e.Fecha })
-                      .IsUnique()
-                      .HasDatabaseName("IX_Lote_FechaRegistro");
+                    .IsUnique()
+                    .HasDatabaseName("IX_Lote_FechaRegistro");
 
                 entity.HasIndex(e => new { e.LoteId, e.DiaFermentacion })
-                      .IsUnique()
-                      .HasDatabaseName("IX_Lote_DiaFermentacion");
+                    .IsUnique()
+                    .HasDatabaseName("IX_Lote_DiaFermentacion");
             });
 
-            // 1. MAPEOS DE TABLAS
-            modelBuilder.Entity<Insumo>().ToTable("Insumos");
-            modelBuilder.Entity<Usuario>().ToTable("Usuarios");
-            modelBuilder.Entity<Cliente>().ToTable("Clientes");
-            modelBuilder.Entity<unidadMedida>().ToTable("unidadMedida");
-            modelBuilder.Entity<TipoInsumo>().ToTable("TiposInsumo");
-            modelBuilder.Entity<RecetaInsumo>().ToTable("RecetaInsumos");
-//
-            modelBuilder.Entity<Cliente>().HasKey(x => x.IdCliente);                     
-
-                 // 2. CONFIGURACION DE RELACIONES
-                 // --- AGREGAR ESTO: Conecta la receta con la unidad de medida ---
-                modelBuilder.Entity<Lote>(entity => {
-                  entity.ToTable("Lotes");
-                  entity.HasKey(e=>e.Id);// Clave compuesta para la tabla intermedia})
-                  entity.Property(e => e.VolumenLitros).HasPrecision(18,2);
-
-                    entity.HasOne(l => l.Receta)
-                    .WithMany()
-                    .HasForeignKey(l => l.RecetaId)
-                    .OnDelete(DeleteBehavior.Restrict); //Si elimino el lote se elimina la relacion
-                    //Prueba para ver si esto era lo del error
-                    entity.HasOne(l => l.Fermentador)
-                          .WithMany()
-                          .HasForeignKey(l => l.FermentadorId)
-                          .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity<RecetaInsumo>()
-            .HasOne(ri => ri.unidadMedida)
-            .WithMany()
-            .HasForeignKey(ri => ri.unidadMedidaId)
-            .OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<PlanificacionProduccion>(entity => {
+            // ── PLANIFICACION PRODUCCION ──────────────────────────────────
+            modelBuilder.Entity<PlanificacionProduccion>(entity =>
+            {
                 entity.ToTable("PlanificacionProduccion");
                 entity.HasKey(p => p.Id);
+
                 entity.HasOne(p => p.Lote)
-                      .WithMany()
-                      .HasForeignKey(p => p.LoteId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany()
+                    .HasForeignKey(p => p.LoteId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // ← Fermentador con mayúscula
                 entity.HasOne(p => p.Fermentador)
-                    //.HasOne(p => p.FermentadorPrueba)
-                      .WithMany()
-                      .HasForeignKey(p => p.FermentadorId)
-                      .OnDelete(DeleteBehavior.Restrict);
-                       entity.HasIndex(e => new { e.FermentadorId, e.FechaInicio })
-                      .IsUnique() // Esto asegura que no haya dos planificaciones para el mismo fermentador en la misma fecha
-                     .HasDatabaseName("IX_Fermentador_Fecha"); // Nombre del �ndice
-                 });                
-                  
-//
-            modelBuilder.Entity<Receta>().ToTable("Recetas");
-            // ESTA LÍNEA ES LA QUE CORRIGE TU ERROR:
-            modelBuilder.Entity<Fermentador>().ToTable("Fermentadores");          
-            // 3. PRECISIONES DECIMALES
-            modelBuilder.Entity<Insumo>(e => e.Property(i => i.StockActual).HasPrecision(18, 2));
-//
-            modelBuilder.Entity<ProductoPrueba>(e => e.Property(p => p.StockActual).HasPrecision(18, 2));
-            modelBuilder.Entity<RecetaInsumo>(e => {
-                e.Property(ri => ri.Cantidad).HasPrecision(18, 3);
+                    .WithMany()
+                    .HasForeignKey(p => p.FermentadorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(e => new { e.FermentadorId, e.FechaInicio })
+                    .IsUnique()
+                    .HasDatabaseName("IX_Fermentador_Fecha");
             });
 
-            modelBuilder.Entity<MovimientoStock>(e => {
+            // ── RELACIONES ────────────────────────────────────────────────
+            modelBuilder.Entity<RecetaInsumo>()
+                .HasOne(ri => ri.unidadMedida)
+                .WithMany()
+                .HasForeignKey(ri => ri.unidadMedidaId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // ── PRECISIONES DECIMALES ─────────────────────────────────────
+            modelBuilder.Entity<Insumo>(e => e.Property(i => i.StockActual).HasPrecision(18, 2));
+            modelBuilder.Entity<ProductoPrueba>(e => e.Property(p => p.StockActual).HasPrecision(18, 2));
+            modelBuilder.Entity<RecetaInsumo>(e => e.Property(ri => ri.Cantidad).HasPrecision(18, 3));
+
+            modelBuilder.Entity<MovimientoStock>(e =>
+            {
                 e.Property(m => m.Cantidad).HasPrecision(18, 2);
                 e.Property(m => m.StockPrevio).HasPrecision(18, 2);
                 e.Property(m => m.StockResultante).HasPrecision(18, 2);
             });
 
-            modelBuilder.Entity<Rol>(entity => {
+            modelBuilder.Entity<Rol>(entity =>
+            {
                 entity.Property(r => r.Descripcion).HasMaxLength(200);
             });
         }
