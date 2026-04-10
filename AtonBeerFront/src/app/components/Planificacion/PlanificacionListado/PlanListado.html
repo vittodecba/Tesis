@@ -87,19 +87,15 @@
               <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-50">
+          <tbody class="divide-y divide-gray-50 text-sm">
             <tr *ngFor="let p of planificacionesFiltradas" class="hover:bg-orange-50/50 transition-colors group">
               <td class="px-6 py-4 font-mono font-bold text-[#4A2C2A]">L-{{ p.loteId }}</td>
-              <td class="px-6 py-4">
-                <div class="flex flex-col">
-                  <span class="text-sm font-medium text-gray-800">{{ getNombreReceta(p.recetaId) }}</span>
-                  <span class="text-[10px] text-gray-400">{{ getNombreFermentador(p.fermentadorId) }}</span>
-                </div>
+              <td class="px-6 py-4 font-medium text-gray-800">
+                {{ getNombreReceta(p.recetaId) }}
+                <div class="text-[10px] text-gray-400 font-normal uppercase">{{ getNombreFermentador(p.fermentadorId) }}</div>
               </td>
               <td class="px-6 py-4 text-center font-bold text-[#E67E22]">{{ p.volumenLitros }}</td>
-              <td class="px-6 py-4 text-xs text-gray-600">
-                {{ p.fechaInicio | date:'dd/MM' }} — {{ p.fechaFinEstimada | date:'dd/MM' }}
-              </td>
+              <td class="px-6 py-4 text-xs text-gray-600">{{ p.fechaInicio | date:'dd/MM' }} — {{ p.fechaFinEstimada | date:'dd/MM' }}</td>
               <td class="px-6 py-4">
                 <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase border" [ngClass]="estadosMapping[p.estado].clase">
                   {{ estadosMapping[p.estado].nombre }}
@@ -107,15 +103,9 @@
               </td>
               <td class="px-6 py-4 text-right">
                 <div class="flex justify-end gap-2">
-                  <button (click)="verDetalle(p.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Ver detalle">
-                    <lucide-icon [img]="Search" [size]="18"></lucide-icon>
-                  </button>
-                  <button (click)="abrirModal(p)" class="p-2 text-[#4A2C2A] hover:bg-orange-50 rounded-lg transition" title="Editar">
-                    <lucide-icon [img]="Pencil" [size]="18"></lucide-icon>
-                  </button>
-                  <button (click)="eliminarLote(p.loteId)" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition" title="Eliminar">
-                    <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
-                  </button>
+                  <button (click)="verDetalle(p.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"><lucide-icon [img]="Search" [size]="18"></lucide-icon></button>
+                  <button (click)="abrirModal(p)" class="p-2 text-[#4A2C2A] hover:bg-orange-50 rounded-lg transition"><lucide-icon [img]="Pencil" [size]="18"></lucide-icon></button>
+                  <button (click)="eliminarLote(p.loteId)" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"><lucide-icon [img]="Trash2" [size]="18"></lucide-icon></button>
                 </div>
               </td>
             </tr>
@@ -151,4 +141,66 @@
     </div>
   </div>
 
+</div>
+
+<div *ngIf="mostrarModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="cerrarModal()"></div>
+  <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-200 text-start">
+    <div class="bg-[#4A2C2A] p-5 flex justify-between items-center shrink-0 text-white font-bold">
+      <h5 class="text-lg flex items-center gap-2">✏️ Editar Lote #{{ loteEditando.loteId }}</h5>
+      <button (click)="cerrarModal()" class="hover:scale-110 transition-transform">✕</button>
+    </div>
+    <div class="p-8 space-y-5 overflow-y-auto max-h-[70vh]">
+      <div>
+        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Receta</label>
+        <select class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#E67E22]" [(ngModel)]="loteEditando.recetaId">
+          <option *ngFor="let r of recetas" [value]="r.idReceta">{{ r.nombre }}</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Fermentador</label>
+        <select class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none" [(ngModel)]="loteEditando.fermentadorId"
+               (change)="validarCapacidadEdicion()"> <option *ngFor="let f of fermentadores" [value]="f.id">{{ f.nombre }}</option>>
+          <option *ngFor="let f of fermentadores" [value]="f.id">{{ f.nombre }}</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Volumen (L)</label>
+          <input type="number" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none" [(ngModel)]="loteEditando.volumenLitros"
+          (input)="validarCapacidadEdicion()"
+           [class.border-red-500]="errorVolumenEdicion"> <div *ngIf="errorVolumenEdicion" class="text-red-500 text-[10px] mt-1 font-bold animate-pulse">
+       {{ errorVolumenEdicion }}>
+        </div>
+        <div>
+          <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Estado</label>
+          <select class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none" [(ngModel)]="loteEditando.estado">
+            <option [value]="1">Planificado</option>
+            <option [value]="2">En Proceso</option>
+            <option [value]="3">Finalizado</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Fecha Inicio</label>
+          <input type="date" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none" [(ngModel)]="loteEditando.fechaInicio">
+        </div>
+        <div>
+          <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Fecha Fin Est.</label>
+          <input type="date" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none" [(ngModel)]="loteEditando.fechaFinEstimada">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Observaciones</label>
+        <textarea class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none min-h-[100px] resize-none" [(ngModel)]="loteEditando.observaciones"></textarea>
+      </div>
+    </div>
+    <div class="p-6 bg-gray-50 flex justify-end gap-3 border-t border-gray-100">
+      <button (click)="cerrarModal()" class="px-6 py-3 text-gray-500 font-bold hover:bg-gray-200 rounded-xl transition">Cancelar</button>
+      <button (click)="guardarCambios()" [disabled]="guardando" class="px-8 py-3 bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white font-bold rounded-xl shadow-lg hover:shadow-orange-200 transition-all active:scale-95">
+        {{ guardando ? 'Guardando...' : 'Guardar Cambios' }}
+      </button>
+    </div>
+  </div>
 </div>

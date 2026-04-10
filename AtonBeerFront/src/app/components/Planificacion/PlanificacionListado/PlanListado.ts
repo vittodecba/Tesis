@@ -37,6 +37,7 @@ export class PlanificacionListComponent implements OnInit {
   mostrarModal: boolean = false;
   loteEditando: any = {};
   guardando: boolean = false;
+  errorVolumenEdicion: string | null= null;
 
   Plus = Plus;
   Calendar = Calendar;
@@ -128,8 +129,20 @@ export class PlanificacionListComponent implements OnInit {
   verDetalle(id: number) {
     this.router.navigate(['/planificacion/detalle', id]);
   }
+   validarCapacidadEdicion() {
+    const fermentador = this.fermentadores.find(f => f.id === Number(this.loteEditando.fermentadorId));
+    
+    if (fermentador && this.loteEditando.volumenLitros > fermentador.capacidad) {
+      this.errorVolumenEdicion = `El volumen (${this.loteEditando.volumenLitros}L) supera la capacidad de ${fermentador.nombre} (${fermentador.capacidad}L).`;
+      return false;
+    }
+    
+    this.errorVolumenEdicion = null;
+    return true;
+  }
 
   abrirModal(p: any) {
+    this.errorVolumenEdicion = null;
     this.loteEditando = {
       loteId: p.loteId,
       recetaId: p.recetaId,
@@ -149,6 +162,7 @@ export class PlanificacionListComponent implements OnInit {
   }
 
   guardarCambios() {
+    if (!this.validarCapacidadEdicion()) return;
     this.guardando = true;
     const datos = {
       loteId: Number(this.loteEditando.loteId),
