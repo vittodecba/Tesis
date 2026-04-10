@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260407033411_RemoveLotePrueba")]
-    partial class RemoveLotePrueba
+    [Migration("20260410002558_InitialFinal")]
+    partial class InitialFinal
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

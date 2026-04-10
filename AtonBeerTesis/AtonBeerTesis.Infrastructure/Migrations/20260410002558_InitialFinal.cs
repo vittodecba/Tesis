@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialClean : Migration
+    public partial class InitialFinal : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -49,21 +49,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Fermentadores", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "FermentadoresPruebas",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Disponibilidad = table.Column<bool>(type: "bit", nullable: false),
-                    Capacidad = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FermentadoresPruebas", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -379,7 +364,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "LotesPrueba",
+                name: "LotePrueba",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -399,25 +384,23 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LotesPrueba", x => x.Id);
+                    table.PrimaryKey("PK_LotePrueba", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_LotesPrueba_Fermentadores_FermentadorId",
+                        name: "FK_LotePrueba_Fermentadores_FermentadorId",
                         column: x => x.FermentadorId,
                         principalTable: "Fermentadores",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_LotesPrueba_PlanificacionProduccion_PlanificacionProduccionId",
+                        name: "FK_LotePrueba_PlanificacionProduccion_PlanificacionProduccionId",
                         column: x => x.PlanificacionProduccionId,
                         principalTable: "PlanificacionProduccion",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_LotesPrueba_Recetas_RecetaId",
+                        name: "FK_LotePrueba_Recetas_RecetaId",
                         column: x => x.RecetaId,
                         principalTable: "Recetas",
-                        principalColumn: "IdReceta",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "IdReceta");
                 });
 
             migrationBuilder.CreateTable(
@@ -443,9 +426,9 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_RegistrosFermentacion", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RegistrosFermentacion_LotesPrueba_LoteId",
+                        name: "FK_RegistrosFermentacion_LotePrueba_LoteId",
                         column: x => x.LoteId,
-                        principalTable: "LotesPrueba",
+                        principalTable: "LotePrueba",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -472,6 +455,21 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 column: "unidadMedidaId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_LotePrueba_FermentadorId",
+                table: "LotePrueba",
+                column: "FermentadorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LotePrueba_PlanificacionProduccionId",
+                table: "LotePrueba",
+                column: "PlanificacionProduccionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LotePrueba_RecetaId",
+                table: "LotePrueba",
+                column: "RecetaId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Lotes_FermentadorId",
                 table: "Lotes",
                 column: "FermentadorId");
@@ -479,21 +477,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Lotes_RecetaId",
                 table: "Lotes",
-                column: "RecetaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_LotesPrueba_FermentadorId",
-                table: "LotesPrueba",
-                column: "FermentadorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_LotesPrueba_PlanificacionProduccionId",
-                table: "LotesPrueba",
-                column: "PlanificacionProduccionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_LotesPrueba_RecetaId",
-                table: "LotesPrueba",
                 column: "RecetaId");
 
             migrationBuilder.CreateIndex(
@@ -562,9 +545,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 name: "Clientes");
 
             migrationBuilder.DropTable(
-                name: "FermentadoresPruebas");
-
-            migrationBuilder.DropTable(
                 name: "historialAccesos");
 
             migrationBuilder.DropTable(
@@ -589,7 +569,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 name: "Insumos");
 
             migrationBuilder.DropTable(
-                name: "LotesPrueba");
+                name: "LotePrueba");
 
             migrationBuilder.DropTable(
                 name: "roles");

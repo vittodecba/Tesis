@@ -135,29 +135,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.ToTable("Fermentadores", (string)null);
                 });
 
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.FermentadorPrueba", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Capacidad")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("Disponibilidad")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FermentadoresPruebas");
-                });
-
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Lote", b =>
                 {
                     b.Property<int>("Id")
@@ -280,7 +257,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.HasIndex("RecetaId");
 
-                    b.ToTable("LotesPrueba", (string)null);
+                    b.ToTable("LotePrueba");
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.MovimientoStock", b =>
@@ -771,18 +748,16 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.HasOne("AtonBeerTesis.Domain.Entities.Fermentador", "Fermentador")
                         .WithMany()
                         .HasForeignKey("FermentadorId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("AtonBeerTesis.Domain.Entities.PlanificacionProduccion", "PlanificacionProduccion")
                         .WithMany()
-                        .HasForeignKey("PlanificacionProduccionId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("PlanificacionProduccionId");
 
                     b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
                         .WithMany()
-                        .HasForeignKey("RecetaId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("RecetaId");
 
                     b.Navigation("Fermentador");
 
