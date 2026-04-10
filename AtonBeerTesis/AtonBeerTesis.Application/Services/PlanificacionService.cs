@@ -207,11 +207,19 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task<IEnumerable<object>> GetInsumosCalculadosAsync(int planificacionId)
         {
-            var insumos = await _repository.GetInsumosByRecetaIdAsync(planificacionId);
+            var planificacion = await _repository.GetByIdAsync(planificacionId);
+
+            if (planificacion == null || planificacion.Lote == null) return Enumerable.Empty<object>();
+
+            var lote = planificacion.Lote;
+            var receta = lote.Receta;
+
+            if (receta == null) return Enumerable.Empty<object>();
+            var insumos = await _loteRepository.GetRecetaInsumosByLoteIdAsync(lote.Id);
             return insumos.Select(i => new {
-                Material = i.Insumo.NombreInsumo,
-                CantidadTotal = i.Cantidad,
-                Unidad = "unid"
+                Material = i.Insumo?.NombreInsumo ?? "Sin nombre",
+                CantidadTotal = Math.Round((i.Cantidad / receta.BatchSizeLitros) * lote.VolumenLitros, 2),
+                Unidad = i.Insumo?.unidadMedida?.Nombre ?? "Unid"
             });
         }
 

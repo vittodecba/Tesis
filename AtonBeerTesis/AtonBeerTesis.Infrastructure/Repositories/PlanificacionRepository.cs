@@ -53,7 +53,9 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             return await _context.PlanificacionProduccion
                 .Include(p => p.Lote)
-                .FirstOrDefaultAsync(p => p.LoteId == id);
+                .ThenInclude(l => l.Receta)
+                .ThenInclude(r => r.RecetaInsumos)
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         // ← nuevo: busca la planificación por LoteId

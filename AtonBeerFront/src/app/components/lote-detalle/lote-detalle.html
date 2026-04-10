@@ -197,11 +197,12 @@
         </div>
 
         <div
-          *ngIf="!cargandoInsumos && insumos.length === 0"
-          class="text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200"
-        >
-          <p class="text-gray-500">No hay insumos cargados para la receta de este lote.</p>
-        </div>
+  *ngIf="!cargandoInsumos && insumos.length === 0"
+  class="text-center py-10 bg-orange-50 rounded-xl border-2 border-dashed border-orange-200"
+>
+  <p class="text-orange-700 font-medium">No se encontraron insumos para esta receta.</p>
+  <p class="text-xs text-orange-600 mt-1">Verificá que la receta ({{ lote.recetaNombre }}) tenga ingredientes asignados en el maestro de recetas.</p>
+</div>
       </div>
     </div>
   </div>

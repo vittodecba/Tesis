@@ -70,8 +70,7 @@ export class LoteDetalleComponent implements OnInit {
       next: (data) => {
         this.lote = data;
         this.cargando = false;
-        const loteInsumos =data.loteId || data.id
-        this.cargarInsumos(loteInsumos);
+        this.cargarInsumos(data.id)    
       },
       error: () => {
         this.error = 'Error al cargar el lote.';
