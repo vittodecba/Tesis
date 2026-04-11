@@ -52,12 +52,12 @@ namespace AtonBeerTesis.Application.Services
                 RecetaId = dto.RecetaId,
                 VolumenLitros = dto.VolumenLitros,
                 CodigoLote = $"L-{DateTime.Now:yyyyMMdd}-{new Random().Next(100, 999)}",
-                Estado = EstadoLote.EnProceso,
+                Estado = EstadoLote.Planificado,
                 FechaCreacion = DateTime.Now,
                 FermentadorId = dto.FermentadorId,
                 FechaElaboracion = dto.FechaInicio,
                 Responsable = responsable,
-                DiasEstimadosFermentacion = (int)(dto.FechaFinEstimada - dto.FechaInicio).TotalDays,
+                DiasEstimadosFermentacion = (int)(dto.FechaFinEstimada - dto.FechaInicio).TotalDays,                
             };
 
             var loteGuardado = await _loteRepository.CreateAsync(nuevoLote);
@@ -74,7 +74,7 @@ namespace AtonBeerTesis.Application.Services
                 FechaFinEstimada = dto.FechaFinEstimada,
                 Observaciones = dto.Observaciones,
                 UsuarioId = dto.UsuarioId,
-                Estado = EstadoLote.EnProceso,
+                Estado = EstadoLote.Planificado,
                 FechaCreacion = DateTime.Now
             };
 
@@ -137,12 +137,39 @@ namespace AtonBeerTesis.Application.Services
             var planificacion = await _repository.GetByIdAsync(loteId);
             if (planificacion == null)
                 throw new Exception($"No se encontró la planificación con Lote ID {loteId}.");
+            if (planificacion.Estado != EstadoLote.Planificado) 
+            {
+              if(planificacion.FermentadorId != dto.FermentadorId)
+                    throw new Exception("No se puede cambiar el fermentador una vez iniciada la producción");
+              if(planificacion.Lote.RecetaId != dto.RecetaId)
+                    throw new Exception("No se puede cambiar la receta una vez iniciada la producción");
+            }
 
             if (dto.FechaInicio != planificacion.FechaInicio && dto.FechaInicio < DateTime.Now.Date)
                 throw new Exception("La fecha de inicio no puede ser menor a la fecha actual.");
 
             if (dto.FechaFinEstimada <= dto.FechaInicio)
                 throw new Exception("La fecha fin no puede ser menor o igual a la de inicio.");
+          
+            if (planificacion.Estado == EstadoLote.Planificado && dto.Estado == EstadoLote.EnProceso)
+            {                
+                var recetaInsumos = await _loteRepository.GetRecetaInsumosByLoteIdAsync(loteId);
+
+                foreach (var ri in recetaInsumos)
+                {
+                    if (ri.Insumo != null)
+                    {
+                        // Calculamos la cantidad a consumir proporcional al volumen del lote
+                        decimal cantidadAConsumir = (ri.Cantidad / planificacion.Lote.Receta.BatchSizeLitros) * planificacion.Lote.VolumenLitros;
+                        // Restamos esa cantidad al stock actual del insumo                      
+                        ri.Insumo.StockActual -= cantidadAConsumir;
+                        if (ri.Insumo.StockActual < 0) ri.Insumo.StockActual = 0;
+
+                        // Si tenés un InsumoRepository, podrías llamar al Update aquí, 
+                        // pero si usás el mismo Contexto, se guarda todo junto al final.
+                    }
+                }
+            }
 
             bool cambioFermentadorOFechas = planificacion.FermentadorId != dto.FermentadorId ||
                                              planificacion.FechaInicio != dto.FechaInicio ||

@@ -153,14 +153,16 @@
     <div class="p-8 space-y-5 overflow-y-auto max-h-[70vh]">
       <div>
         <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Receta</label>
-        <select class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#E67E22]" [(ngModel)]="loteEditando.recetaId">
+        <select class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#E67E22]" [(ngModel)]="loteEditando.recetaId"
+        [disabled]="loteEditando.estado >= 2">
           <option *ngFor="let r of recetas" [value]="r.idReceta">{{ r.nombre }}</option>
         </select>
       </div>
       <div class="mb-3">
         <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Fermentador</label>
         <select class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none" [(ngModel)]="loteEditando.fermentadorId"
-               (change)="validarCapacidadEdicion()"> <option *ngFor="let f of fermentadores" [value]="f.id">{{ f.nombre }}</option>>
+               (change)="validarCapacidadEdicion()"
+               >           
           <option *ngFor="let f of fermentadores" [value]="f.id">{{ f.nombre }}</option>
         </select>
       </div>
@@ -169,8 +171,10 @@
           <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Volumen (L)</label>
           <input type="number" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none" [(ngModel)]="loteEditando.volumenLitros"
           (input)="validarCapacidadEdicion()"
-           [class.border-red-500]="errorVolumenEdicion"> <div *ngIf="errorVolumenEdicion" class="text-red-500 text-[10px] mt-1 font-bold animate-pulse">
-       {{ errorVolumenEdicion }}>
+           [class.border-red-500]="errorVolumenEdicion"
+           [disabled]="loteEditando.estado >= 2"> <div *ngIf="errorVolumenEdicion" class="text-red-500 text-[10px] mt-1 font-bold animate-pulse">
+       {{ errorVolumenEdicion }}
+        </div>
         </div>
         <div>
           <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Estado</label>

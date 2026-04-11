@@ -29,7 +29,8 @@ export class PlanificacionFormComponent implements OnInit {
     volumenLitros: 0,
     observaciones: '',
     usuarioId: 1,
-    loteId: 0
+    loteId: 0,
+    estado: 1
   };
 
   constructor(

@@ -35,7 +35,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task<IEnumerable<RecetaInsumo>> GetRecetaInsumosByLoteIdAsync(int loteId)
         {
-            var lote = await _context.Lotes
+            var lote = await _context.Lotes                
                 .Include(l => l.Receta)
                 .FirstOrDefaultAsync(l => l.Id == loteId);
 
