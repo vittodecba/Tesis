@@ -35,6 +35,9 @@ namespace AtonBeerTesis.Application.Services
                 if (fermentador.Estado == EstadoFermentador.Ocupado)
                     throw new Exception("No se puede eliminar un fermentador ocupado. Debe finalizarse el lote primero.");
 
+                if (await _repository.TieneLotesAsociadosAsync(id))
+                    throw new Exception("No se puede eliminar este fermentador porque tiene lotes asociados.");
+
                 return await _repository.DeleteAsync(id);
             }
 

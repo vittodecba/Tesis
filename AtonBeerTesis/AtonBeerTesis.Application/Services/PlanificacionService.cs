@@ -134,7 +134,7 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task<PlanificacionProduccionDto> ActualizarPlanificacion(int loteId, PlanificacionProduccionDto dto)
         {
-            var planificacion = await _repository.GetByIdAsync(loteId);
+            var planificacion = await _repository.GetByLoteIdAsync(loteId);
             if (planificacion == null)
                 throw new Exception($"No se encontró la planificación con Lote ID {loteId}.");
             if (planificacion.Estado != EstadoLote.Planificado) 
@@ -182,6 +182,24 @@ namespace AtonBeerTesis.Application.Services
                     throw new Exception("El fermentador ya está ocupado en ese rango de fechas.");
             }
 
+            // Si cambió el fermentador, actualizar estados de fermentadores
+            if (planificacion.FermentadorId != dto.FermentadorId)
+            {
+                var fermentadorAnterior = await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId);
+                if (fermentadorAnterior != null)
+                {
+                    fermentadorAnterior.Estado = EstadoFermentador.Disponible;
+                    await _repository.UpdateFermentadorAsync(fermentadorAnterior);
+                }
+
+                var fermentadorNuevo = await _repository.GetFermentadorByIdAsync(dto.FermentadorId);
+                if (fermentadorNuevo != null)
+                {
+                    fermentadorNuevo.Estado = EstadoFermentador.Ocupado;
+                    await _repository.UpdateFermentadorAsync(fermentadorNuevo);
+                }
+            }
+
             planificacion.FermentadorId = dto.FermentadorId;
             planificacion.FechaInicio = dto.FechaInicio;
             planificacion.FechaFinEstimada = dto.FechaFinEstimada;
@@ -192,6 +210,7 @@ namespace AtonBeerTesis.Application.Services
             {
                 planificacion.Lote.RecetaId = dto.RecetaId;
                 planificacion.Lote.VolumenLitros = dto.VolumenLitros;
+                planificacion.Lote.FermentadorId = dto.FermentadorId;
                 planificacion.Lote.DiasEstimadosFermentacion = (int)(dto.FechaFinEstimada - dto.FechaInicio).TotalDays;
             }
 

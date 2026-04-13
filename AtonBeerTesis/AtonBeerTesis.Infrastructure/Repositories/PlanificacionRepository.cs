@@ -62,6 +62,9 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         public async Task<PlanificacionProduccion> GetByLoteIdAsync(int loteId)
         {
             return await _context.PlanificacionProduccion
+                .Include(p => p.Lote)
+                    .ThenInclude(l => l.Receta)
+                    .ThenInclude(r => r.RecetaInsumos)
                 .FirstOrDefaultAsync(p => p.LoteId == loteId);
         }
 
