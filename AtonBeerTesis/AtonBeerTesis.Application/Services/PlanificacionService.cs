@@ -125,8 +125,21 @@ namespace AtonBeerTesis.Application.Services
             foreach (var i in insumosRequeridos)
             {
                 decimal cantidadNecesaria = (i.Cantidad / lote.Receta.BatchSizeLitros) * lote.VolumenLitros;
+                string unidadReceta = (i.unidadMedida?.Abreviatura ?? "").ToLower().Trim() ?? "";
+                string unidadStock = (i.Insumo.unidadMedida?.Abreviatura ?? "").ToLower().Trim() ?? "";
+
+                // 3. Normalizamos la cantidad necesaria a la unidad del Stock
+                // Si la receta pide 'gr' pero el stock está en 'kg', la necesidad se divide por 1000
+                if (unidadReceta == "gr" && unidadStock == "kg")
+                {
+                    cantidadNecesaria /= 1000;
+                }
+                else if (unidadReceta == "ml" && unidadStock == "lt")
+                {
+                    cantidadNecesaria /= 1000;
+                }
                 if (cantidadNecesaria > i.Insumo.StockActual)
-                    return $"Falta de stock de {i.Insumo.NombreInsumo}. Necesitas {cantidadNecesaria:F2}. Actualmente hay {i.Insumo.StockActual:F2}";
+                    return $"Falta de stock de {i.Insumo.NombreInsumo}. Necesitas {cantidadNecesaria:F2} {unidadStock}. Actualmente hay {i.Insumo.StockActual:F2} {unidadStock}";
             }
 
             return null;
@@ -134,7 +147,7 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task<PlanificacionProduccionDto> ActualizarPlanificacion(int loteId, PlanificacionProduccionDto dto)
         {
-            var planificacion = await _repository.GetByIdAsync(loteId);
+            var planificacion = await _repository.GetByLoteIdAsync(loteId);
             if (planificacion == null)
                 throw new Exception($"No se encontró la planificación con Lote ID {loteId}.");
             if (planificacion.Estado != EstadoLote.Planificado) 
@@ -156,17 +169,27 @@ namespace AtonBeerTesis.Application.Services
                 var recetaInsumos = await _loteRepository.GetRecetaInsumosByLoteIdAsync(loteId);
 
                 foreach (var ri in recetaInsumos)
-                {
+                {                   
                     if (ri.Insumo != null)
                     {
                         // Calculamos la cantidad a consumir proporcional al volumen del lote
                         decimal cantidadAConsumir = (ri.Cantidad / planificacion.Lote.Receta.BatchSizeLitros) * planificacion.Lote.VolumenLitros;
-                        // Restamos esa cantidad al stock actual del insumo                      
+                        // Restamos esa cantidad al stock actual del insumo
+                        // Conversion de unidades de medida(Gr > Kg, Ml > Lt)
+                        string unidadReceta = (ri.unidadMedida?.Abreviatura ?? "").ToLower().Trim();// Unidad de medida de la receta
+                        string unidadStock = (ri.Insumo.unidadMedida?.Abreviatura ?? "").ToLower().Trim();// Unidad de medida del stock
+                        // Si la receta pide 'gr' pero el stock está en 'kg', dividimos por 1000
+                        if (unidadReceta == "gr" && unidadStock == "kg")
+                        {
+                            cantidadAConsumir /= 1000;
+                        }
+                        // Si la receta pide 'ml' pero el stock está en 'lt', dividimos por 1000
+                        else if (unidadReceta == "ml" && unidadStock == "lt")
+                        {
+                            cantidadAConsumir /= 1000;
+                        }
                         ri.Insumo.StockActual -= cantidadAConsumir;
                         if (ri.Insumo.StockActual < 0) ri.Insumo.StockActual = 0;
-
-                        // Si tenés un InsumoRepository, podrías llamar al Update aquí, 
-                        // pero si usás el mismo Contexto, se guarda todo junto al final.
                     }
                 }
             }
@@ -203,8 +226,7 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task AsignarFermentadorAsync(int loteId, int fermentadorId)
         {
-            var lotes = await _repository.GetAllAsync();
-            var lote = lotes.FirstOrDefault(x => x.Id == loteId);
+            var lote = await _repository.GetByLoteIdAsync(loteId);
             if (lote == null) throw new Exception("Lote no encontrado.");
 
             var ocupado = await _repository.ExisteFermentadorOcupado(fermentadorId, lote.FechaInicio, lote.FechaFinEstimada, loteId);
@@ -232,10 +254,10 @@ namespace AtonBeerTesis.Application.Services
             await _repository.UpdateAsync(lote);
         }
 
-        public async Task<IEnumerable<object>> GetInsumosCalculadosAsync(int planificacionId)
+        public async Task<IEnumerable<object>> GetInsumosCalculadosAsync(int loteId)
         {
-            var planificacion = await _repository.GetByIdAsync(planificacionId);
-
+            var planificacion = await _repository.GetByLoteIdAsync(loteId);
+            
             if (planificacion == null || planificacion.Lote == null) return Enumerable.Empty<object>();
 
             var lote = planificacion.Lote;
@@ -243,16 +265,17 @@ namespace AtonBeerTesis.Application.Services
 
             if (receta == null) return Enumerable.Empty<object>();
             var insumos = await _loteRepository.GetRecetaInsumosByLoteIdAsync(lote.Id);
+            
             return insumos.Select(i => new {
                 Material = i.Insumo?.NombreInsumo ?? "Sin nombre",
                 CantidadTotal = Math.Round((i.Cantidad / receta.BatchSizeLitros) * lote.VolumenLitros, 2),
-                Unidad = i.Insumo?.unidadMedida?.Nombre ?? "Unid"
+                Unidad = i.unidadMedida?.Nombre ?? "Unid"
             });
         }
 
-        public async Task<bool> EliminarPlanificacionAsync(int id)
+        public async Task<bool> EliminarPlanificacionAsync(int loteid)
         {
-            var planificacion = await _repository.GetByIdAsync(id);
+            var planificacion = await _repository.GetByLoteIdAsync(loteid);
             if (planificacion == null) return false;
 
             var fermentador = await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId);
@@ -267,7 +290,7 @@ namespace AtonBeerTesis.Application.Services
                 await _repository.UpdateFermentadorAsync(fermentador);
             }
 
-            return await _repository.DeleteAsync(id);
+            return await _repository.DeleteAsync(planificacion.Id);
         }
     }
 }

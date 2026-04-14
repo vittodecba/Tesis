@@ -59,10 +59,15 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         }
 
         // ← nuevo: busca la planificación por LoteId
-        public async Task<PlanificacionProduccion> GetByLoteIdAsync(int loteId)
+        public async Task<PlanificacionProduccion> GetByLoteIdAsync(int id)
         {
             return await _context.PlanificacionProduccion
-                .FirstOrDefaultAsync(p => p.LoteId == loteId);
+                .Include(p => p.Fermentador)
+                .Include(p => p.Lote)
+                .ThenInclude(l => l.Receta)
+                .ThenInclude(r => r.RecetaInsumos)
+                .ThenInclude(ri => ri.Insumo)
+                .FirstOrDefaultAsync(p => p.LoteId == id || p.Id == id);
         }
 
         public async Task<PlanificacionProduccion> UpdateAsync(PlanificacionProduccion planificacion)
@@ -84,8 +89,9 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         public async Task<IEnumerable<RecetaInsumo>> GetInsumosByRecetaIdAsync(int recetaId)
         {
             return await _context.RecetaInsumos
-                .Include(ri => ri.Insumo)
-                    .ThenInclude(i => i.unidadMedida)
+                .Include(i => i.unidadMedida)//unidadMedida de la Receta
+                .Include(ri => ri.Insumo)                 
+                 .ThenInclude(i => i.unidadMedida)//unidadMedida del Stock
                 .Where(ri => ri.RecetaId == recetaId)
                 .ToListAsync();
         }
