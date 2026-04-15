@@ -58,7 +58,6 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        // ← nuevo: busca la planificación por LoteId
         public async Task<PlanificacionProduccion> GetByLoteIdAsync(int id)
         {
             return await _context.PlanificacionProduccion
@@ -68,6 +67,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .ThenInclude(r => r.RecetaInsumos)
                 .ThenInclude(ri => ri.Insumo)
                 .FirstOrDefaultAsync(p => p.LoteId == id || p.Id == id);
+
         }
 
         public async Task<PlanificacionProduccion> UpdateAsync(PlanificacionProduccion planificacion)

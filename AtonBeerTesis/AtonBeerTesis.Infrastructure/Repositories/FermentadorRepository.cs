@@ -31,6 +31,12 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
+        public async Task<bool> TieneLotesAsociadosAsync(int id)
+        {
+            return await _context.Lotes.AnyAsync(l => l.FermentadorId == id)
+                || await _context.PlanificacionProduccion.AnyAsync(p => p.FermentadorId == id);
+        }
+
         // Método 1: Traer todos
         public async Task<List<Fermentador>> GetAllAsync()
         {

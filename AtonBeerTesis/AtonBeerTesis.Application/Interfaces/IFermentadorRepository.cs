@@ -12,5 +12,6 @@ namespace AtonBeerTesis.Application.Interfaces
 
         // CORRECCIÓN: Ahora recibe la entidad, no el DTO.
         Task<bool> UpdateAsync(Fermentador fermentador);
+        Task<bool> TieneLotesAsociadosAsync(int id);
     }
 }
