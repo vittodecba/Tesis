@@ -271,7 +271,7 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task<bool> EliminarPlanificacionAsync(int id)
         {
-            var planificacion = await _repository.GetByIdAsync(id);
+            var planificacion = await _repository.GetByLoteIdAsync(id);
             if (planificacion == null) return false;
 
             var fermentador = await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId);
@@ -286,7 +286,7 @@ namespace AtonBeerTesis.Application.Services
                 await _repository.UpdateFermentadorAsync(fermentador);
             }
 
-            return await _repository.DeleteAsync(id);
+            return await _repository.DeleteAsync(planificacion.Id);
         }
     }
 }
