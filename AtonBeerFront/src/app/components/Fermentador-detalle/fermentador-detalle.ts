@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -297,15 +298,33 @@ export class FermentadorDetalleComponent implements OnInit {
     });
   }
 
-  finalizarLote() {
+  async finalizarLote() {
     if (!this.loteActivo) return;
 
-    const confirmar = window.confirm('¿Seguro que querés finalizar este lote?');
-    if (!confirmar) return;
+    const result = await Swal.fire({
+      title: '¿Cómo querés cerrar este lote?',
+      text: 'Elegí el motivo de cierre.',
+      icon: 'question',
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: '✅ Completado',
+      denyButtonText: '⚠️ Descartado / Problema',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#198754',
+      denyButtonColor: '#dc3545',
+    });
 
-    this.loteService.finalizarLote(this.loteActivo.id).subscribe({
+    if (result.isDismissed) return;
+
+    // Finalizado = 3, Descartado = 4
+    const estadoFinal = result.isConfirmed ? 3 : 4;
+    const mensajeOk = result.isConfirmed
+      ? 'Lote finalizado correctamente.'
+      : 'Lote descartado correctamente.';
+
+    this.loteService.finalizarLote(this.loteActivo.id, estadoFinal).subscribe({
       next: () => {
-        this.mensajeExito = 'Lote finalizado correctamente.';
+        this.mensajeExito = mensajeOk;
         this.cargarPantalla();
       },
       error: (err) => {

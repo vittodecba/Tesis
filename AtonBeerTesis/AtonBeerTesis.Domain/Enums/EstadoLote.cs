@@ -11,6 +11,7 @@ namespace AtonBeerTesis.Domain.Enums
       // Cancelado = 0,
        Planificado = 1,
        EnProceso = 2,
-       Finalizado=3
+       Finalizado = 3,
+       Descartado = 4
     }
 }

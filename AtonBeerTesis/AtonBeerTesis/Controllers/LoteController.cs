@@ -1,5 +1,6 @@
 ﻿using AtonBeerTesis.Application.DTOs;
 using AtonBeerTesis.Application.Interfaces;
+using AtonBeerTesis.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AtonBeerTesis.WebApi.Controllers
@@ -65,12 +66,19 @@ namespace AtonBeerTesis.WebApi.Controllers
         }
 
         [HttpPatch("{id}/finalizar")]
-        public async Task<IActionResult> Finalizar(int id)
+        public async Task<IActionResult> Finalizar(int id, [FromBody] FinalizarLoteDto? dto)
         {
-            var ok = await _service.FinalizarAsync(id);
-            if (!ok) return NotFound();
-
-            return NoContent();
+            var estadoFinal = dto?.Estado ?? EstadoLote.Finalizado;
+            try
+            {
+                var ok = await _service.FinalizarAsync(id, estadoFinal);
+                if (!ok) return NotFound();
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

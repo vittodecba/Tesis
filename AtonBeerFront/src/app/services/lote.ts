@@ -51,7 +51,8 @@ export class LoteService {
     return this.http.get<Lote>(`${this.loteApiUrl}/activo/fermentador/${fermentadorId}`);
   }
 
-  finalizarLote(id: number): Observable<any> {
-    return this.http.patch(`${this.loteApiUrl}/${id}/finalizar`, {}); // ← patch, no put
+  finalizarLote(id: number, estado?: number): Observable<any> {
+    const body = estado !== undefined ? { estado } : {};
+    return this.http.patch(`${this.loteApiUrl}/${id}/finalizar`, body);
   }
 }

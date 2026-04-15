@@ -9,6 +9,6 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<LoteDto?> GetActivoByFermentadorIdAsync(int fermentadorId);
         Task<LoteDto> CreateAsync(CreateLoteDto dto);
         Task<bool> UpdateAsync(int id, UpdateLoteDto dto);
-        Task<bool> FinalizarAsync(int id);
+        Task<bool> FinalizarAsync(int id, AtonBeerTesis.Domain.Enums.EstadoLote estadoFinal = AtonBeerTesis.Domain.Enums.EstadoLote.Finalizado);
     }
 }

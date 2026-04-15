@@ -55,7 +55,8 @@ export class PlanificacionListComponent implements OnInit {
     0: { nombre: 'Cancelado',   clase: 'bg-danger',            color: '#dc3545' },
     1: { nombre: 'Planificado', clase: 'bg-primary',           color: '#0d6efd' },
     2: { nombre: 'En Proceso',  clase: 'bg-warning text-dark', color: '#ffc107' },
-    3: { nombre: 'Finalizado',  clase: 'bg-success',           color: '#198754' }
+    3: { nombre: 'Finalizado',  clase: 'bg-success',           color: '#198754' },
+    4: { nombre: 'Descartado',  clase: 'bg-danger text-white', color: '#dc3545' }
   };
 
   constructor(

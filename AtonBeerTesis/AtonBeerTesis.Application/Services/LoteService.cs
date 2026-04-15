@@ -192,19 +192,22 @@ namespace AtonBeerTesis.Application.Services
             return await _repository.UpdateAsync(lote);
         }
 
-        public async Task<bool> FinalizarAsync(int id)
+        public async Task<bool> FinalizarAsync(int id, EstadoLote estadoFinal = EstadoLote.Finalizado)
         {
+            if (estadoFinal != EstadoLote.Finalizado && estadoFinal != EstadoLote.Descartado)
+                throw new InvalidOperationException("Estado inválido para finalización. Use Finalizado o Descartado.");
+
             var lote = await _repository.GetByIdAsync(id);
             if (lote == null) return false;
 
-            // 1. Finalizar el lote
-            lote.Estado = EstadoLote.Finalizado;
+            // 1. Cerrar el lote con el estado indicado
+            lote.Estado = estadoFinal;
             lote.FechaFinReal = DateTime.Now;
 
             var updated = await _repository.UpdateAsync(lote);
             if (!updated) return false;
 
-            // 2. Marcar fermentador como Sucio
+            // 2. Marcar fermentador como Sucio (en ambos casos: Finalizado y Descartado)
             var fermentador = await _fermentadorRepository.GetByIdAsync(lote.FermentadorId);
             if (fermentador != null)
             {
@@ -212,11 +215,11 @@ namespace AtonBeerTesis.Application.Services
                 await _fermentadorRepository.UpdateAsync(fermentador);
             }
 
-            // 3. Finalizar la planificación asociada al lote ← nuevo
+            // 3. Sincronizar la planificación asociada al lote
             var planificacion = await _planificacionRepository.GetByLoteIdAsync(lote.Id);
             if (planificacion != null)
             {
-                planificacion.Estado = EstadoLote.Finalizado;
+                planificacion.Estado = estadoFinal;
                 await _planificacionRepository.UpdateAsync(planificacion);
             }
 

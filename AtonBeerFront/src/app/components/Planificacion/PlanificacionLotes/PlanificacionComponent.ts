@@ -50,7 +50,10 @@ export class PlanificacionFormComponent implements OnInit {
       error: (e: any) => console.error('Error recetas', e)
     });
     this._fermentadorService.getFermentadores().subscribe({
-      next: (data: any) => this.fermentadores = data,
+      next: (data: any) => {
+        // Solo mostrar fermentadores en estado Disponible (estado === '1')
+        this.fermentadores = (data ?? []).filter((f: any) => String(f.estado) === '1');
+      },
       error: (e: any) => console.error('Error fermentadores', e)
     });
   }

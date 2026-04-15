@@ -94,8 +94,40 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task<IEnumerable<PlanificacionProduccionDto>> GetAllAsync()
         {
-            var planificacion = await _repository.GetAllAsync();
-            return planificacion.Select(p => new PlanificacionProduccionDto
+            var planificaciones = await _repository.GetAllAsync();
+            var lista = planificaciones.ToList();
+            var hoy = DateTime.Now.Date;
+
+            // Auto-transición: Planificado → EnProceso cuando llega la FechaInicio
+            var aTransicionar = lista
+                .Where(p => p.Estado == EstadoLote.Planificado && p.FechaInicio.Date <= hoy)
+                .ToList();
+
+            foreach (var p in aTransicionar)
+            {
+                // Descontar stock de insumos (igual que la transición manual)
+                var recetaInsumos = await _loteRepository.GetRecetaInsumosByLoteIdAsync(p.LoteId);
+                if (p.Lote?.Receta != null && p.Lote.Receta.BatchSizeLitros > 0)
+                {
+                    foreach (var ri in recetaInsumos)
+                    {
+                        if (ri.Insumo != null)
+                        {
+                            decimal cantidadAConsumir = (ri.Cantidad / p.Lote.Receta.BatchSizeLitros) * p.Lote.VolumenLitros;
+                            ri.Insumo.StockActual -= cantidadAConsumir;
+                            if (ri.Insumo.StockActual < 0) ri.Insumo.StockActual = 0;
+                        }
+                    }
+                }
+
+                p.Estado = EstadoLote.EnProceso;
+                if (p.Lote != null)
+                    p.Lote.Estado = EstadoLote.EnProceso;
+
+                await _repository.UpdateAsync(p);
+            }
+
+            return lista.Select(p => new PlanificacionProduccionDto
             {
                 Id = p.Id,
                 LoteId = p.LoteId,
@@ -169,6 +201,23 @@ namespace AtonBeerTesis.Application.Services
                         // pero si usás el mismo Contexto, se guarda todo junto al final.
                     }
                 }
+            }
+
+            // Transición a Finalizado o Descartado: liberar fermentador como Sucio y registrar fecha real
+            bool esTransicionFinal = (dto.Estado == EstadoLote.Finalizado || dto.Estado == EstadoLote.Descartado)
+                && planificacion.Estado != EstadoLote.Finalizado
+                && planificacion.Estado != EstadoLote.Descartado;
+
+            if (esTransicionFinal)
+            {
+                var fermentadorAFinalizar = await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId);
+                if (fermentadorAFinalizar != null)
+                {
+                    fermentadorAFinalizar.Estado = EstadoFermentador.Sucio;
+                    await _repository.UpdateFermentadorAsync(fermentadorAFinalizar);
+                }
+                if (planificacion.Lote != null)
+                    planificacion.Lote.FechaFinReal = DateTime.Now;
             }
 
             bool cambioFermentadorOFechas = planificacion.FermentadorId != dto.FermentadorId ||
