@@ -68,31 +68,24 @@ export class PlanificacionFormComponent implements OnInit {
       next: (receta: any) => {
         this.recetaSeleccionada = receta;
         this.previsualizacionInsumos = receta.recetaInsumos.map((i: any) => {
-          // 1. Cantidad necesaria según volumen
-          const necesario = (i.cantidad / receta.batchSizeLitros) * this.nuevaPlanif.volumenLitros;
-          
-          // 2. Normalizar Stock para la comparación visual
-          let stockParaComparar = i.stockActual;
-  
-  // Usamos 'unidadMedida' que es lo que aparece en tu tabla de stock
-  const unidadReceta = i.unidadMedida?.toLowerCase() || ''; 
-  // Intentamos sacar la unidad del stock del objeto i
-  const unidadStock = (i.unidadStockAbreviatura || i.unidadInsumo || '').toLowerCase();
+    const necesario = (i.cantidad / receta.batchSizeLitros) * this.nuevaPlanif.volumenLitros;
+    
+    // USAR EL FACTOR QUE VIENE DE LA BASE DE DATOS
+    // Si i.factor no llega, el cálculo se rompe.
+    const factor = i.factor || 1; 
+    
+    const necesarioEnBase = necesario * factor;
+    const stockEnBase = i.stockActual;
 
-  // FORZAR CONVERSIÓN: Si la receta pide gramos pero el stock es claramente mayor (Kg)
-  // O si simplemente detectamos que la receta está en 'gr' y el stock es 'kg'
-  if (unidadReceta === 'gr' && (unidadStock === 'kg' || i.stockActual < necesario)) {
-      // Si llegamos acá, asumimos que el stock de '10' son en realidad 10kg
-      stockParaComparar = i.stockActual * 1000;
-  }
-          return {
-            nombre: i.nombreInsumo,
-            necesario: necesario.toFixed(2),
-            stock: i.stockActual,
-            unidad: i.unidadMedida,
-            alcanza: necesario <= stockParaComparar
-          };
-        });
+    return {
+        nombre: i.nombreInsumo,
+        necesario: necesario.toFixed(2),
+        stock: i.stockActual,
+        unidad: i.unidadMedida,           // Etiqueta de la receta (Gr)
+        unidadStock: i.unidadMedidaStock, // Etiqueta del insumo (Kg)
+        alcanza: necesarioEnBase <= stockEnBase
+    };
+});
       }
     });
   }

@@ -124,22 +124,23 @@ namespace AtonBeerTesis.Application.Services
 
             foreach (var i in insumosRequeridos)
             {
-                decimal cantidadNecesaria = (i.Cantidad / lote.Receta.BatchSizeLitros) * lote.VolumenLitros;
-                string unidadReceta = (i.unidadMedida?.Abreviatura ?? "").ToLower().Trim() ?? "";
-                string unidadStock = (i.Insumo.unidadMedida?.Abreviatura ?? "").ToLower().Trim() ?? "";
+                // 1. Calculamos la proporción del lote respecto al batch size de la receta
+                decimal proporcionLote = (decimal)lote.VolumenLitros / (decimal)lote.Receta.BatchSizeLitros;
+                // 2. Calculamos la cantidad necesaria del insumo para el lote actual, proporcional al volumen
+                decimal camtidadUnidadReceta = i.Cantidad * proporcionLote;
+                // 3. Aplicamos el factor de conversión de la unidad de medida de la receta (si existe)
+                decimal factor = (decimal)(i.unidadMedida?.Factor ?? 1.0);
+                // 4. Obtenemos la cantidad necesaria en la unidad base del stock
+                decimal cantidadNecesariaBase = camtidadUnidadReceta * factor;
+                // 5. Comparamos con el stock actual del insumo, teniendo en cuenta la unidad de medida del stock
+                string unidadStock = (i.Insumo.unidadMedida?.Abreviatura ?? "").Trim().ToLower();
 
-                // 3. Normalizamos la cantidad necesaria a la unidad del Stock
-                // Si la receta pide 'gr' pero el stock está en 'kg', la necesidad se divide por 1000
-                if (unidadReceta == "gr" && unidadStock == "kg")
-                {
-                    cantidadNecesaria /= 1000;
-                }
-                else if (unidadReceta == "ml" && unidadStock == "lt")
-                {
-                    cantidadNecesaria /= 1000;
-                }
-                if (cantidadNecesaria > i.Insumo.StockActual)
-                    return $"Falta de stock de {i.Insumo.NombreInsumo}. Necesitas {cantidadNecesaria:F2} {unidadStock}. Actualmente hay {i.Insumo.StockActual:F2} {unidadStock}";
+                if (cantidadNecesariaBase > i.Insumo.StockActual)// Si la cantidad necesaria en la unidad base es mayor que el stock actual, hay insuficiencia
+                {                    
+                    return $"Stock insuficiente para el insumo '{i.Insumo?.NombreInsumo ?? "Sin nombre"}'. " +
+                           $"Cantidad necesaria: {Math.Round(cantidadNecesariaBase, 2)} {unidadStock}, " + // <-- Usar unidadStock
+                           $"Stock actual: {Math.Round(i.Insumo.StockActual, 2)} {unidadStock}.";
+                }                
             }
 
             return null;
@@ -150,12 +151,28 @@ namespace AtonBeerTesis.Application.Services
             var planificacion = await _repository.GetByLoteIdAsync(loteId);
             if (planificacion == null)
                 throw new Exception($"No se encontró la planificación con Lote ID {loteId}.");
-            if (planificacion.Estado != EstadoLote.Planificado) 
+
+            if (planificacion.Estado != EstadoLote.Planificado)
             {
-              if(planificacion.FermentadorId != dto.FermentadorId)
+                if (planificacion.FermentadorId != dto.FermentadorId)
                     throw new Exception("No se puede cambiar el fermentador una vez iniciada la producción");
-              if(planificacion.Lote.RecetaId != dto.RecetaId)
+                if (planificacion.Lote.RecetaId != dto.RecetaId)
                     throw new Exception("No se puede cambiar la receta una vez iniciada la producción");
+            }
+            //Guardamos el valor inicial antes de modificarlo
+            var volumenAnterior = planificacion.Lote.VolumenLitros;
+
+            // Seteamos los nuevos valores para que 'StockSuficientePorLote' los vea
+            planificacion.Lote.VolumenLitros = dto.VolumenLitros;
+            planificacion.Lote.RecetaId = dto.RecetaId; // Por si también cambió la receta
+
+            
+            // Si el volumen es 1000L y no hay malta, acá salta la excepción y no se guarda nada.
+            var mensajeError = await StockSuficientePorLote(loteId);
+            if (mensajeError != null)
+            {
+                planificacion.Lote.VolumenLitros = volumenAnterior; // Revertimos el objeto en memoria
+                throw new Exception("Error de stock: " + mensajeError);
             }
 
             if (dto.FechaInicio != planificacion.FechaInicio && dto.FechaInicio < DateTime.Now.Date)
@@ -163,36 +180,25 @@ namespace AtonBeerTesis.Application.Services
 
             if (dto.FechaFinEstimada <= dto.FechaInicio)
                 throw new Exception("La fecha fin no puede ser menor o igual a la de inicio.");
-          
+
             if (planificacion.Estado == EstadoLote.Planificado && dto.Estado == EstadoLote.EnProceso)
-            {                
+            {
                 var recetaInsumos = await _loteRepository.GetRecetaInsumosByLoteIdAsync(loteId);
 
                 foreach (var ri in recetaInsumos)
-                {                   
+                {
                     if (ri.Insumo != null)
                     {
-                        // Calculamos la cantidad a consumir proporcional al volumen del lote
-                        decimal cantidadAConsumir = (ri.Cantidad / planificacion.Lote.Receta.BatchSizeLitros) * planificacion.Lote.VolumenLitros;
-                        // Restamos esa cantidad al stock actual del insumo
-                        // Conversion de unidades de medida(Gr > Kg, Ml > Lt)
-                        string unidadReceta = (ri.unidadMedida?.Abreviatura ?? "").ToLower().Trim();// Unidad de medida de la receta
-                        string unidadStock = (ri.Insumo.unidadMedida?.Abreviatura ?? "").ToLower().Trim();// Unidad de medida del stock
-                        // Si la receta pide 'gr' pero el stock está en 'kg', dividimos por 1000
-                        if (unidadReceta == "gr" && unidadStock == "kg")
-                        {
-                            cantidadAConsumir /= 1000;
-                        }
-                        // Si la receta pide 'ml' pero el stock está en 'lt', dividimos por 1000
-                        else if (unidadReceta == "ml" && unidadStock == "lt")
-                        {
-                            cantidadAConsumir /= 1000;
-                        }
-                        ri.Insumo.StockActual -= cantidadAConsumir;
+                        decimal factor = (decimal)(ri.unidadMedida?.Factor ?? 1.0);
+                        decimal cantidadSegunReceta = (ri.Cantidad / (decimal)planificacion.Lote.Receta.BatchSizeLitros) * (decimal)planificacion.Lote.VolumenLitros;
+                        decimal cantidadAConsumirEnBase = cantidadSegunReceta * factor;
+
+                        ri.Insumo.StockActual -= cantidadAConsumirEnBase;
+
                         if (ri.Insumo.StockActual < 0) ri.Insumo.StockActual = 0;
                     }
                 }
-            }
+            } // <--- ESTA LLAVE FALTABA EN TU CÓDIGO PARA CERRAR EL BLOQUE DE STOCK
 
             bool cambioFermentadorOFechas = planificacion.FermentadorId != dto.FermentadorId ||
                                              planificacion.FechaInicio != dto.FechaInicio ||
@@ -205,7 +211,6 @@ namespace AtonBeerTesis.Application.Services
                     throw new Exception("El fermentador ya está ocupado en ese rango de fechas.");
             }
 
-            // Si cambió el fermentador, actualizar estados de fermentadores
             if (planificacion.FermentadorId != dto.FermentadorId)
             {
                 var fermentadorAnterior = await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId);
