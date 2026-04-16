@@ -178,14 +178,33 @@ export class PlanificacionListComponent implements OnInit {
     };
     this._planifService.actualizarPlanificacion(datos.loteId, datos).subscribe({
       next: () => {
+        Swal.fire('¡Éxito!', 'Los cambios se guardaron correctamente.', 'success');
         this.cerrarModal();
         this.cargarPlanificaciones();
       },
       error: (e) => {
-        console.error('Error al guardar', e);
-        alert(e.error?.message ?? 'Error al guardar los cambios');
-        this.guardando = false;
-      }
+  console.error('Error al guardar', e); 
+ 
+  let mensajeDetalle = "Error al guardar los cambios";
+  
+  if (typeof e.error === 'string') {
+    mensajeDetalle = e.error;
+  } else if (e.error && e.error.message) {
+    mensajeDetalle = e.error.message; 
+  } else if (e.message) {
+    mensajeDetalle = e.message; 
+  }
+
+  Swal.fire({
+    title: 'Error de Validación',
+    text: mensajeDetalle, 
+    icon: 'error',
+    confirmButtonText: 'Entendido',
+    confirmButtonColor: '#7a6af5' 
+  });
+  
+  this.guardando = false;
+}
     });
   }
 
