@@ -55,9 +55,9 @@
       </div>
     </div>
 
-    <button *ngIf="filtroEstado !== '2' || filtroFermentador !== '' || filtroFechaDesde || filtroFechaHasta" class="text-red-500 text-sm font-medium hover:underline ml-auto mt-4" (click)="limpiarFiltros()">
-  Limpiar filtros
-</button>
+    <button class="text-red-500 text-sm font-medium hover:underline ml-auto mt-4" (click)="limpiarFiltros()">
+      Limpiar filtros
+    </button>
   </div>
 
   <div *ngIf="loading" class="flex flex-col justify-center items-center my-20">

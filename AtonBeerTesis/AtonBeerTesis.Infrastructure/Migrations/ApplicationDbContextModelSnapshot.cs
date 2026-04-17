@@ -661,9 +661,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
 
-                    b.Property<double>("Factor")
-                        .HasColumnType("float");
-
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

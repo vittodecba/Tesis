@@ -55,22 +55,17 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .Include(p => p.Lote)
                 .ThenInclude(l => l.Receta)
                 .ThenInclude(r => r.RecetaInsumos)
-                .ThenInclude(ri => ri.unidadMedida)
-                .FirstOrDefaultAsync(p => p.Id == id || p.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<PlanificacionProduccion> GetByLoteIdAsync(int id)
+        // ← nuevo: busca la planificación por LoteId
+        public async Task<PlanificacionProduccion> GetByLoteIdAsync(int loteId)
         {
             return await _context.PlanificacionProduccion
-                .Include(p => p.Fermentador)
                 .Include(p => p.Lote)
-                .ThenInclude(l => l.Receta)
-                .ThenInclude(r => r.RecetaInsumos)
-                .ThenInclude(ri => ri.Insumo)
-                .Include(p => p.Lote.Receta.RecetaInsumos)//Incluimos los insumos de la receta para tener toda la información necesaria en un solo query
-                .ThenInclude(ri => ri.unidadMedida)
-                .FirstOrDefaultAsync(p => p.LoteId == id || p.Id == id);
-
+                    .ThenInclude(l => l.Receta)
+                    .ThenInclude(r => r.RecetaInsumos)
+                .FirstOrDefaultAsync(p => p.LoteId == loteId);
         }
 
         public async Task<PlanificacionProduccion> UpdateAsync(PlanificacionProduccion planificacion)
@@ -92,9 +87,8 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         public async Task<IEnumerable<RecetaInsumo>> GetInsumosByRecetaIdAsync(int recetaId)
         {
             return await _context.RecetaInsumos
-                .Include(i => i.unidadMedida)//unidadMedida de la Receta
-                .Include(ri => ri.Insumo)                 
-                 .ThenInclude(i => i.unidadMedida)//unidadMedida del Stock
+                .Include(ri => ri.Insumo)
+                    .ThenInclude(i => i.unidadMedida)
                 .Where(ri => ri.RecetaId == recetaId)
                 .ToListAsync();
         }
