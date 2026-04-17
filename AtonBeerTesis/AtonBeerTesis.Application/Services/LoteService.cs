@@ -208,7 +208,9 @@ namespace AtonBeerTesis.Application.Services
             if (!updated) return false;
 
             // 2. Marcar fermentador como Sucio (en ambos casos: Finalizado y Descartado)
-            var fermentador = await _fermentadorRepository.GetByIdAsync(lote.FermentadorId);
+            var fermentador = lote.FermentadorId.HasValue
+                ? await _fermentadorRepository.GetByIdAsync(lote.FermentadorId.Value)
+                : null;
             if (fermentador != null)
             {
                 fermentador.Estado = EstadoFermentador.Sucio;

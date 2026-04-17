@@ -58,7 +58,7 @@ namespace AtonBeerTesis.Infrastructure.Data
                 entity.HasOne(l => l.Fermentador)
                     .WithMany()
                     .HasForeignKey(l => l.FermentadorId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             // ── REGISTRO FERMENTACION ─────────────────────────────────────
@@ -101,7 +101,7 @@ namespace AtonBeerTesis.Infrastructure.Data
                 entity.HasOne(p => p.Fermentador)
                     .WithMany()
                     .HasForeignKey(p => p.FermentadorId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.SetNull);
 
                 entity.HasIndex(e => new { e.FermentadorId, e.FechaInicio })
                     .IsUnique()

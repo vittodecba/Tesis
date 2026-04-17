@@ -37,10 +37,9 @@ namespace AtonBeerTesis.Domain.Entities
             set => CodigoLote = value;
         }
 
-        [Required]
-        public int FermentadorId { get; set; }
+        public int? FermentadorId { get; set; }
         [ForeignKey(nameof(FermentadorId))]
-        public Fermentador Fermentador { get; set; } = null!;
+        public Fermentador? Fermentador { get; set; }
 
         public DateTime FechaElaboracion { get; set; }
 

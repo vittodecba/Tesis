@@ -34,7 +34,7 @@ namespace AtonBeerTesis.Application.Services
             if (dto.FechaFinEstimada <= dto.FechaInicio)
                 throw new Exception("La fecha fin de producción no puede ser menor o igual a la de inicio.");
 
-            var ocupado = await _repository.ExisteFermentadorOcupado(dto.FermentadorId, dto.FechaInicio, dto.FechaFinEstimada);
+            var ocupado = await _repository.ExisteFermentadorOcupado(dto.FermentadorId ?? 0, dto.FechaInicio, dto.FechaFinEstimada);
             if (ocupado)
                 throw new Exception("El fermentador seleccionado ya está ocupado en la fecha indicada.");
 
@@ -81,7 +81,7 @@ namespace AtonBeerTesis.Application.Services
             await _repository.CreateAsync(planificacion);
 
             // Marcar fermentador como Ocupado
-            var fermentador = await _repository.GetFermentadorByIdAsync(dto.FermentadorId);
+            var fermentador = await _repository.GetFermentadorByIdAsync(dto.FermentadorId ?? 0);
             if (fermentador != null)
             {
                 fermentador.Estado = EstadoFermentador.Ocupado;
@@ -210,7 +210,9 @@ namespace AtonBeerTesis.Application.Services
 
             if (esTransicionFinal)
             {
-                var fermentadorAFinalizar = await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId);
+                var fermentadorAFinalizar = planificacion.FermentadorId.HasValue
+                    ? await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId.Value)
+                    : null;
                 if (fermentadorAFinalizar != null)
                 {
                     fermentadorAFinalizar.Estado = EstadoFermentador.Sucio;
@@ -226,7 +228,7 @@ namespace AtonBeerTesis.Application.Services
 
             if (cambioFermentadorOFechas)
             {
-                var ocupado = await _repository.ExisteFermentadorOcupado(dto.FermentadorId, dto.FechaInicio, dto.FechaFinEstimada, loteId);
+                var ocupado = await _repository.ExisteFermentadorOcupado(dto.FermentadorId ?? 0, dto.FechaInicio, dto.FechaFinEstimada, loteId);
                 if (ocupado)
                     throw new Exception("El fermentador ya está ocupado en ese rango de fechas.");
             }
@@ -234,14 +236,16 @@ namespace AtonBeerTesis.Application.Services
             // Si cambió el fermentador, actualizar estados de fermentadores
             if (planificacion.FermentadorId != dto.FermentadorId)
             {
-                var fermentadorAnterior = await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId);
+                var fermentadorAnterior = planificacion.FermentadorId.HasValue
+                    ? await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId.Value)
+                    : null;
                 if (fermentadorAnterior != null)
                 {
                     fermentadorAnterior.Estado = EstadoFermentador.Disponible;
                     await _repository.UpdateFermentadorAsync(fermentadorAnterior);
                 }
 
-                var fermentadorNuevo = await _repository.GetFermentadorByIdAsync(dto.FermentadorId);
+                var fermentadorNuevo = await _repository.GetFermentadorByIdAsync(dto.FermentadorId ?? 0);
                 if (fermentadorNuevo != null)
                 {
                     fermentadorNuevo.Estado = EstadoFermentador.Ocupado;
@@ -279,9 +283,9 @@ namespace AtonBeerTesis.Application.Services
             if (ocupado)
                 throw new Exception("El fermentador ya está ocupado en ese rango de fechas.");
 
-            if (lote.FermentadorId != 0 && lote.FermentadorId != fermentadorId)
+            if (lote.FermentadorId.HasValue && lote.FermentadorId.Value != fermentadorId)
             {
-                var anterior = await _repository.GetFermentadorByIdAsync(lote.FermentadorId);
+                var anterior = await _repository.GetFermentadorByIdAsync(lote.FermentadorId.Value);
                 if (anterior != null)
                 {
                     anterior.Estado = EstadoFermentador.Disponible;
@@ -323,19 +327,29 @@ namespace AtonBeerTesis.Application.Services
             var planificacion = await _repository.GetByLoteIdAsync(id);
             if (planificacion == null) return false;
 
-            var fermentador = await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId);
+            var fermentador = planificacion.FermentadorId.HasValue
+                ? await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId.Value)
+                : null;
             if (fermentador != null)
             {
-                // Si estaba EnProceso → Sucio (el tanque estuvo en uso)
-                // Si estaba Planificado → Disponible (nunca se usó)
-                fermentador.Estado = planificacion.Estado == EstadoLote.EnProceso
-                    ? EstadoFermentador.Sucio
-                    : EstadoFermentador.Disponible;
-
-                await _repository.UpdateFermentadorAsync(fermentador);
+                if (planificacion.Estado == EstadoLote.Planificado)
+                {
+                    // Nunca se usó → liberar fermentador
+                    fermentador.Estado = EstadoFermentador.Disponible;
+                    await _repository.UpdateFermentadorAsync(fermentador);
+                }
+                else if (planificacion.Estado == EstadoLote.EnProceso)
+                {
+                    // Estaba en uso → marcar como Sucio
+                    fermentador.Estado = EstadoFermentador.Sucio;
+                    await _repository.UpdateFermentadorAsync(fermentador);
+                }
+                // Finalizado/Descartado: fermentador ya quedó Sucio durante la finalización, no tocar
             }
 
-            return await _repository.DeleteAsync(planificacion.Id);
+            // Eliminar el Lote — EF Core cascade borra PlanificacionProduccion, SQL cascade borra RegistrosFermentacion
+            await _loteRepository.DeleteByIdAsync(planificacion.LoteId);
+            return true;
         }
     }
 }

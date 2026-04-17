@@ -6,7 +6,7 @@
         public string Codigo { get; set; } = string.Empty;
         public int? RecetaId { get; set; }
         public string? RecetaNombre { get; set; }
-        public int FermentadorId { get; set; }
+        public int? FermentadorId { get; set; }
         public string? FermentadorNombre { get; set; }
         public DateTime FechaElaboracion { get; set; }
         public string? Estilo { get; set; }

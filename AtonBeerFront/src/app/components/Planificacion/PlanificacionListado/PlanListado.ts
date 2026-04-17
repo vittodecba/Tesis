@@ -17,6 +17,8 @@ import Swal from 'sweetalert2';
   styleUrls: ['./PlanListado.scss']
 })
 export class PlanificacionListComponent implements OnInit {
+  hoy: string = new Date().toISOString().split('T')[0]; // formato yyyy-MM-dd para [min]
+
   planificaciones: any[] = [];
   planificacionesFiltradas: any[] = [];
   recetas: Receta[] = [];
@@ -38,6 +40,13 @@ export class PlanificacionListComponent implements OnInit {
   loteEditando: any = {};
   guardando: boolean = false;
   errorVolumenEdicion: string | null= null;
+
+  // Fermentadores visibles en el select de edición: solo Disponibles + el actualmente asignado
+  get fermentadoresDisponiblesEdicion(): any[] {
+    return this.fermentadores.filter(f =>
+      String(f.estado) === '1' || f.id === Number(this.loteEditando?.fermentadorId)
+    );
+  }
 
   Plus = Plus;
   Calendar = Calendar;

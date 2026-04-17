@@ -10,11 +10,9 @@ namespace AtonBeerTesis.Domain.Entities
     {
         [Key]
         public int Id { get; set; }
-        [Required]
-        public int FermentadorId { get; set; }
+        public int? FermentadorId { get; set; }
         [ForeignKey("FermentadorId")]
-        // Agregamos el ? para que EF no lo exija como objeto completo al guardar
-        public Fermentador Fermentador { get; set; } = null!;   
+        public Fermentador? Fermentador { get; set; }
         // [Required]
         // public int FermentadorId { get; set; }
         // [ForeignKey("FermentadorId")]

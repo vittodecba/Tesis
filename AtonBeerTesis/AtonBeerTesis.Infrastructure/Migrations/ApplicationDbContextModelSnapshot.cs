@@ -166,7 +166,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Property<DateTime?>("FechaFinReal")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("FermentadorId")
+                    b.Property<int?>("FermentadorId")
                         .HasColumnType("int");
 
                     b.Property<string>("Inoculo")
@@ -357,7 +357,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Property<DateTime>("FechaInicio")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("FermentadorId")
+                    b.Property<int?>("FermentadorId")
                         .HasColumnType("int");
 
                     b.Property<int?>("FermentadorId1")
@@ -384,7 +384,8 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.HasIndex("FermentadorId", "FechaInicio")
                         .IsUnique()
-                        .HasDatabaseName("IX_Fermentador_Fecha");
+                        .HasDatabaseName("IX_Fermentador_Fecha")
+                        .HasFilter("[FermentadorId] IS NOT NULL");
 
                     b.ToTable("PlanificacionProduccion", (string)null);
                 });
@@ -729,8 +730,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.HasOne("AtonBeerTesis.Domain.Entities.Fermentador", "Fermentador")
                         .WithMany()
                         .HasForeignKey("FermentadorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
                         .WithMany()
@@ -782,8 +782,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.HasOne("AtonBeerTesis.Domain.Entities.Fermentador", "Fermentador")
                         .WithMany()
                         .HasForeignKey("FermentadorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("AtonBeerTesis.Domain.Entities.Fermentador", null)
                         .WithMany("Planificaciones")

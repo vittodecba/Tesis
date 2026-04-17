@@ -15,6 +15,8 @@ import { PlanificacionService } from '../../../services/PlanificacionService';
 })
 export class PlanificacionFormComponent implements OnInit {
 
+  hoy: string = new Date().toISOString().split('T')[0]; // formato yyyy-MM-dd para [min]
+
   recetas: any[] = [];
   fermentadores: any[] = [];
   previsualizacionInsumos: any[] = []; // 👈 Lista para la tabla

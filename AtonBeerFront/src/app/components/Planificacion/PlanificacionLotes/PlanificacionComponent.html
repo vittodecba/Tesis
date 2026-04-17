@@ -42,7 +42,7 @@
     <div class="row">
       <div class="col-md-6 mb-3">
         <label class="form-label">Fecha de Inicio:</label>
-        <input type="date" [(ngModel)]="nuevaPlanif.fechaInicio" class="form-control">
+        <input type="date" [(ngModel)]="nuevaPlanif.fechaInicio" class="form-control" [min]="hoy">
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label">Fecha Fin Estimada:</label>

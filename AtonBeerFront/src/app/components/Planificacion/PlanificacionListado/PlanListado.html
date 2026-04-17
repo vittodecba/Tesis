@@ -164,7 +164,7 @@
         <select class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none" [(ngModel)]="loteEditando.fermentadorId"
                (change)="validarCapacidadEdicion()"
                [disabled]="loteEditando.estado >= 2">
-          <option *ngFor="let f of fermentadores" [value]="f.id">{{ f.nombre }}</option>
+          <option *ngFor="let f of fermentadoresDisponiblesEdicion" [value]="f.id">{{ f.nombre }}</option>
         </select>
       </div>
       <div class="grid grid-cols-2 gap-4">
@@ -189,11 +189,11 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Fecha Inicio</label>
-          <input type="date" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none" [(ngModel)]="loteEditando.fechaInicio">
+          <input type="date" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none" [(ngModel)]="loteEditando.fechaInicio" [min]="hoy">
         </div>
         <div>
           <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Fecha Fin Est.</label>
-          <input type="date" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none" [(ngModel)]="loteEditando.fechaFinEstimada">
+          <input type="date" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none" [(ngModel)]="loteEditando.fechaFinEstimada" [min]="loteEditando.fechaInicio">
         </div>
       </div>
       <div>
