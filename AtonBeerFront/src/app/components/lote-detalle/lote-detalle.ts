@@ -92,7 +92,11 @@ export class LoteDetalleComponent implements OnInit {
 
   cargarFermentadores() {
     this.fermentadorService.getFermentadores().subscribe({
-      next: (data) => this.fermentadoresDisponibles = data,
+      next: (data) => {
+        this.fermentadoresDisponibles = (data ?? []).filter((f: any) =>
+          String(f.estado) === '1' || f.id === this.lote?.fermentadorId
+        );
+      },
       error: (err) => console.error('Error al cargar fermentadores', err)
     });
   }
