@@ -1,0 +1,14 @@
+﻿using AtonBeerTesis.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AtonBeerTesis.Application.Interfaces
+{
+    public interface IPedidoRepository
+    {
+        Task<Pedido> AddAsync(Pedido pedido);
+    }
+}

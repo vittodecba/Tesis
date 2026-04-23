@@ -26,7 +26,6 @@ namespace AtonBeerTesis
             builder.Services.AddControllers()
             .AddJsonOptions(options =>
             {
-                // Esto hace que al API le de igual si mandás UnidadMedidaId o unidadmedidaid
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
             });
             builder.Services.AddEndpointsApiExplorer();
@@ -45,11 +44,11 @@ namespace AtonBeerTesis
 
             // 4. Inyección de Dependencias (Servicios y Repositorios)
 
-            // --- CLIENTES (De Main) ---
+            // --- CLIENTES ---
             builder.Services.AddScoped<IClienteService, ClienteService>();
             builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 
-            // --- USUARIOS Y ROLES (De tu rama) ---
+            // --- USUARIOS Y ROLES ---
             builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped<IRolRepository, RolRepository>();
             builder.Services.AddScoped<IRolService, RolService>();
@@ -64,7 +63,7 @@ namespace AtonBeerTesis
             //--- MOVIMIENTO DE STOCK ---
             builder.Services.AddScoped<IStockService, StockService>();
 
-            // --- RECETAS (Lo que faltaba de Vitto) ---
+            // --- RECETAS ---
             builder.Services.AddScoped<IRecetaRepository, RecetaRepository>();
             builder.Services.AddScoped<IRecetaService, RecetaService>();
 
@@ -81,20 +80,23 @@ namespace AtonBeerTesis
             //--- Planificación de Producción ---
             builder.Services.AddScoped<IPlanificacionRepository, PlanificacionRepository>();
             builder.Services.AddScoped<IPlanificacionService, PlanificacionService>();
+
             //--- Lotes ---
             builder.Services.AddScoped<ILoteRepository, LoteRepository>();
+
+            //--- PEDIDOS (NUEVO) ---
+            builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
+            builder.Services.AddScoped<IPedidoService, PedidoService>();
+
             var app = builder.Build();
 
             // 5. Pipeline de la aplicación
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();   
+                app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
-            // app.UseHttpsRedirection();
-
-            // Usamos la política "Angular" que definimos arriba
             app.UseCors("Angular");
             app.UseAuthorization();
             app.MapControllers();
