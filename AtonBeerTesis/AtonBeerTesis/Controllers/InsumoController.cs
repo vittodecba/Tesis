@@ -53,7 +53,8 @@ namespace AtonBeerTesis.Api.Controllers
         public async Task<IActionResult> CrearInsumo([FromBody] InsumoDto insumoDto)
         {
             // ... validaciones de null y existencia ...
-
+            var unidad = await _context.unidadMedida.FindAsync(insumoDto.unidadMedidaId);
+            decimal factor = (decimal)(unidad?.Factor ?? 1.0);
             var nuevoInsumo = new Insumo
             {
                 NombreInsumo = insumoDto.NombreInsumo,
@@ -63,7 +64,7 @@ namespace AtonBeerTesis.Api.Controllers
                 // FORZAMOS EL ID DIRECTAMENTE
                 unidadMedidaId = insumoDto.unidadMedidaId,
 
-                StockActual = insumoDto.StockActual,
+                StockActual = insumoDto.StockActual * factor,
                 UltimaActualizacion = DateTime.Now,
                 Observaciones = insumoDto.Observaciones,
                 Activo = true
@@ -82,7 +83,8 @@ namespace AtonBeerTesis.Api.Controllers
         {
             var insumo = await _context.Insumos.FindAsync(id);
             if (insumo == null) return NotFound();
-
+            var unidad = await _context.unidadMedida.FindAsync(insumoDto.unidadMedidaId);
+            decimal factor = (decimal)(unidad?.Factor ?? 1.0);
             bool existe = await _context.Insumos.AnyAsync(x =>
                 x.NombreInsumo == insumoDto.NombreInsumo &&
                 x.TipoInsumoId == insumoDto.TipoInsumoId &&
@@ -98,7 +100,7 @@ namespace AtonBeerTesis.Api.Controllers
             // Usamos la propiedad del modelo real: UnidadMedidaId
             insumo.unidadMedidaId = insumoDto.unidadMedidaId;
 
-            insumo.StockActual = insumoDto.StockActual;
+            insumo.StockActual = insumoDto.StockActual * factor;
             insumo.Observaciones = insumoDto.Observaciones;
             insumo.UltimaActualizacion = DateTime.Now;
 

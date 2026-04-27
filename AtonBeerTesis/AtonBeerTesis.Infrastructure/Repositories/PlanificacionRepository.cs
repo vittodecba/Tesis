@@ -55,7 +55,8 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .Include(p => p.Lote)
                 .ThenInclude(l => l.Receta)
                 .ThenInclude(r => r.RecetaInsumos)
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .ThenInclude(ri => ri.unidadMedida)
+                .FirstOrDefaultAsync(p => p.Id == id || p.Id == id);
         }
 
         // ← nuevo: busca la planificación por LoteId
@@ -65,6 +66,9 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .Include(p => p.Lote)
                     .ThenInclude(l => l.Receta)
                     .ThenInclude(r => r.RecetaInsumos)
+                    .ThenInclude(i => i.Insumo)
+                    .Include(p => p.Lote.Receta.RecetaInsumos)//Incluimos los insumos de la receta para tener toda la información necesaria en un solo query
+                    .ThenInclude(ri => ri.unidadMedida)
                 .FirstOrDefaultAsync(p => p.LoteId == loteId);
         }
 

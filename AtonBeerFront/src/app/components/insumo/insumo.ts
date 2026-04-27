@@ -98,7 +98,12 @@ export class InsumoComponent implements OnInit {
   // --- GESTIÓN DE UNIDADES (Nueva integración) ---
   cargarUnidades() {
     this.unidadService.getUnidades().subscribe({
-      next: (data: any) => { this.unidadesOpciones = data; },
+      next: (data: any) => {
+        const unidadesAceptables = ['Kg', 'Gr', 'Lt', 'Ml', 'Un'];
+         this.unidadesOpciones = data;
+         data.filter((u: any) => 
+        unidadesAceptables.includes(u.abreviatura));
+         },
       error: (err: any) => console.error('Error al cargar unidades:', err)
     });
   }

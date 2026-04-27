@@ -12,5 +12,6 @@ namespace AtonBeerTesis.Domain.Entities
         public string Nombre { get; set; } = string.Empty;//Aseguramos que no sea nulo
         public string Abreviatura { get; set; } = string.Empty;
         public bool Activo { get; set; } = true;
+        public double Factor { get; set; }
     }
 }

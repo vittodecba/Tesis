@@ -72,15 +72,25 @@ export class PlanificacionFormComponent implements OnInit {
     this._recetaService.getRecetaDetalle(this.nuevaPlanif.recetaId).subscribe({
       next: (receta: any) => {
         this.recetaSeleccionada = receta;
+        console.log("DATOS DE LA RECETA:", receta);
         this.previsualizacionInsumos = receta.recetaInsumos.map((i: any) => {
           const necesario = (i.cantidad / receta.batchSizeLitros) * this.nuevaPlanif.volumenLitros;
+    console.log(`Insumo: ${i.nombreInsumo}, Factor que llega:`, i.factor);
+    
+    // USAR EL FACTOR QUE VIENE DE LA BASE DE DATOS
+    // Si i.factor no llega, el cálculo se rompe.
+    const factor = i.factor !== undefined ? i.factor : (i.Factor !== undefined ? i.Factor : 1);
+    
+    const necesarioEnBase = necesario * factor;
+    const stockEnBase = i.stockActual;
           return {
-            nombre: i.nombreInsumo,
-            necesario: necesario.toFixed(2),
-            stock: i.stockActual,
-            unidad: i.unidadMedida,
-            alcanza: necesario <= i.stockActual
-          };
+        nombre: i.nombreInsumo,
+        necesario: necesario.toFixed(2),
+        stock: i.stockActual,
+        unidad: i.unidadMedida,           // Etiqueta de la receta (Gr)
+        unidadStock: i.unidadMedidaStock, // Etiqueta del insumo (Kg)
+        alcanza: necesarioEnBase <= stockEnBase
+    };
         });
       }
     });

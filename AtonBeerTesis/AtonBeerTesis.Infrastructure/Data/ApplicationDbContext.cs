@@ -11,6 +11,7 @@ namespace AtonBeerTesis.Infrastructure.Data
           : base(options) { }
 
         public DbSet<Cliente> Clientes { get; set; }
+
         public DbSet<Usuario> usuarios { get; set; }
         public DbSet<RegistroFermentacion> RegistrosFermentacion { get; set; }
         public DbSet<Rol> roles { get; set; }

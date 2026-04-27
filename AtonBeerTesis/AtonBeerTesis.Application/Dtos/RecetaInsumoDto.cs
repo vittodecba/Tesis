@@ -12,9 +12,11 @@ namespace AtonBeerTesis.Application.Dtos
         public int RecetaId { get; set; }
         public int InsumoId { get; set; }
         public string? NombreInsumo { get; set; }
-        public decimal Cantidad { get; set; }
+        public decimal Cantidad { get; set; }        
         public string? UnidadMedida { get; set; }
         public int UnidadMedidaId { get; set; }
         public decimal StockActual { get; set; }
+        public decimal? Factor { get; set; }
+        public string? unidadMedidaStock { get; set; }
     }
 }

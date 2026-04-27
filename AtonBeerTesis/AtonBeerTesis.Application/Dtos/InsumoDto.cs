@@ -13,6 +13,7 @@
         //
         public int unidadMedidaId { get; set; }
         public string? Unidad { get; set; }//Este es para que el front vea el nombre
+        public string? UnidadStockAbreviatura { get; set; }
         public decimal StockActual { get; set; } // <--- Faltaba este
 
         public string Observaciones { get; set; }
