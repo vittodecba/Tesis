@@ -1,14 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-recuperar-contrasena',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './recuperar-contrasena.html',
 })
 export class RecuperarContrasenaComponent {
@@ -19,18 +19,22 @@ export class RecuperarContrasenaComponent {
   cargando: boolean = false;
 
   enviarSolicitud(): void {
-    if (!this.email) return;
+    if (!this.email) {
+      Swal.fire('Atención', 'Por favor ingresá tu email', 'warning');
+      return;
+    }
 
     this.cargando = true;
     this.authService.recuperarContrasena(this.email).subscribe({
-      next: (response: any) => {
+      next: () => {
         this.cargando = false;
-        Swal.fire('Enviado', 'Revisa tu correo electrónico', 'success');
-        this.router.navigate(['/login']);
+        Swal.fire('Enviado', 'Revisá tu correo para obtener el código de seguridad', 'success');
+        this.router.navigate(['/restablecer-contrasena']);
       },
-      error: (err: any) => {
+      error: (err) => {
         this.cargando = false;
-        Swal.fire('Error', 'No se pudo enviar el correo', 'error');
+        const mensaje = err.error?.message || err.error || 'No se pudo enviar el correo';
+        Swal.fire('Error', mensaje, 'error');
       },
     });
   }

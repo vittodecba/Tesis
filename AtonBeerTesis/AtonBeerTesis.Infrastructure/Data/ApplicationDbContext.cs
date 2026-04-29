@@ -11,7 +11,6 @@ namespace AtonBeerTesis.Infrastructure.Data
           : base(options) { }
 
         public DbSet<Cliente> Clientes { get; set; }
-
         public DbSet<Usuario> usuarios { get; set; }
         public DbSet<RegistroFermentacion> RegistrosFermentacion { get; set; }
         public DbSet<Rol> roles { get; set; }
@@ -43,6 +42,13 @@ namespace AtonBeerTesis.Infrastructure.Data
             modelBuilder.Entity<Fermentador>().ToTable("Fermentadores");
 
             modelBuilder.Entity<Cliente>().HasKey(x => x.IdCliente);
+
+            // ── CONFIGURACIÓN USUARIO-ROL (FIX BORRADO CASCADA) ───────────
+            modelBuilder.Entity<Usuario>()
+                .HasOne(u => u.Rol)
+                .WithMany()
+                .HasForeignKey(u => u.RolId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // ── LOTE ──────────────────────────────────────────────────────
             modelBuilder.Entity<Lote>(entity =>
@@ -98,7 +104,6 @@ namespace AtonBeerTesis.Infrastructure.Data
                     .HasForeignKey(p => p.LoteId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                // ← Fermentador con mayúscula
                 entity.HasOne(p => p.Fermentador)
                     .WithMany()
                     .HasForeignKey(p => p.FermentadorId)

@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Pencil, Trash2, Plus } from 'lucide-angular'; // Agregado Lucide
+import { LucideAngularModule, Pencil, Trash2, Plus } from 'lucide-angular';
 import { RolService } from '../../services/rol';
 
 @Component({
   selector: 'app-roles-gestion',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule], // Agregado LucideAngularModule
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './roles-gestion.html',
   styleUrl: './roles-gestion.css',
 })
@@ -49,9 +49,22 @@ export class RolesGestion implements OnInit {
   }
 
   guardarRol() {
-    if (this.formNombre.trim() === '') return;
+    const nombreIngresado = this.formNombre.trim();
+    if (nombreIngresado === '') return;
+
+    
+    const nombreDuplicado = this.roles.some(rol => 
+      rol.nombre.toLowerCase() === nombreIngresado.toLowerCase() && 
+      rol.id !== this.idEdicion
+    );
+
+    if (nombreDuplicado) {
+      alert('Ya existe un rol con ese nombre. Por favor, ingresá uno distinto.');
+      return;
+    }
+
     if (this.idEdicion) {
-      const rolEditado = { id: this.idEdicion, nombre: this.formNombre, descripcion: this.formDescripcion };
+      const rolEditado = { id: this.idEdicion, nombre: nombreIngresado, descripcion: this.formDescripcion };
       this.rolService.editarRol(this.idEdicion, rolEditado).subscribe({
         next: () => {
           alert('¡Rol editado con éxito!');
@@ -61,7 +74,7 @@ export class RolesGestion implements OnInit {
         error: (e) => alert('Error al editar el rol.')
       });
     } else {
-      const nuevoRol = { nombre: this.formNombre, descripcion: this.formDescripcion };
+      const nuevoRol = { nombre: nombreIngresado, descripcion: this.formDescripcion };
       this.rolService.crearRol(nuevoRol).subscribe({
         next: () => {
           alert('¡Rol creado con éxito!');

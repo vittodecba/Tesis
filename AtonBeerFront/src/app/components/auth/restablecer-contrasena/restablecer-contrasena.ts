@@ -3,55 +3,53 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { LucideAngularModule, Eye, EyeOff } from 'lucide-angular';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-restablecer-contrasena',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule],
   templateUrl: './restablecer-contrasena.html',
 })
 export class RestablecerContrasenaComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
-  
+
+  readonly Eye = Eye;
+  readonly EyeOff = EyeOff;
+
   email: string = '';
   token: string = '';
   nuevaPassword: string = '';
+  confirmarPassword: string = '';
   cargando: boolean = false;
-  paso: number = 1; 
 
-  enviarSolicitud() {
-    if (!this.email) return;
-    this.cargando = true;
-    this.authService.recuperarContrasena(this.email).subscribe({
-      next: () => {
-        this.cargando = false;
-        this.paso = 2; 
-        alert('Código enviado. Revisá tu mail.');
-      },
-      error: (err: any) => {
-        this.cargando = false;
-        this.mostrarError(err);
-      }
-    });
-  }
+  mostrarPassword = false;
+  mostrarConfirmarPassword = false;
 
   confirmarRestablecimiento() {
-    if (!this.token || !this.nuevaPassword) {
-      alert('Completá todos los campos');
+    if (!this.email || !this.token || !this.nuevaPassword || !this.confirmarPassword) {
+      Swal.fire('Error', 'Por favor, completá todos los campos', 'error');
       return;
     }
-    
-    const datos = { 
-      email: this.email, 
-      token: this.token, 
-      nuevaPassword: this.nuevaPassword 
+
+    if (this.nuevaPassword !== this.confirmarPassword) {
+      Swal.fire('Error', 'Las contraseñas no coinciden', 'error');
+      return;
+    }
+
+    const datos = {
+      email: this.email,
+      token: this.token,
+      nuevaPassword: this.nuevaPassword
     };
-    
+
     this.cargando = true;
     this.authService.restablecerContrasena(datos).subscribe({
       next: () => {
-        alert('Contraseña cambiada con éxito.');
+        this.cargando = false;
+        Swal.fire('¡Éxito!', 'Tu contraseña ha sido actualizada', 'success');
         this.router.navigate(['/login']);
       },
       error: (err: any) => {
@@ -61,26 +59,24 @@ export class RestablecerContrasenaComponent {
     });
   }
 
-  // MÉTODO NUEVO PARA EXTRAER EL ERROR REAL
+  toggleMostrarPassword() {
+    this.mostrarPassword = !this.mostrarPassword;
+  }
+
+  toggleMostrarConfirmarPassword() {
+    this.mostrarConfirmarPassword = !this.mostrarConfirmarPassword;
+  }
+
   private mostrarError(err: any) {
     let mensaje = 'Ocurrió un error inesperado';
-
     if (err.error) {
-      // 1. Si el backend mandó { "message": "..." }
-      if (err.error.message) {
-        mensaje = err.error.message;
-      } 
-      // 2. Si es el formato estándar de validación de .NET { "errors": { "Campo": ["Error"] } }
+      if (err.error.message) mensaje = err.error.message;
       else if (err.error.errors) {
         const listaErrores = Object.values(err.error.errors).flat();
         mensaje = listaErrores.join(' ');
       }
-      // 3. Si el error es un string simple
-      else if (typeof err.error === 'string') {
-        mensaje = err.error;
-      }
+      else if (typeof err.error === 'string') mensaje = err.error;
     }
-
-    alert(mensaje);
+    Swal.fire('Error', mensaje, 'error');
   }
 }

@@ -11,7 +11,7 @@
         <input class="h-5 w-10 accent-[#E67E22]" type="checkbox" id="filtroInactivos" [(ngModel)]="verInactivos" (change)="cargarUsuarios()" />
       </label>
 
-      <button class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-md bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white hover:shadow-lg" (click)="abrirModal()" type="button">
+      <button class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-md bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white hover:shadow-lg hover:brightness-110" (click)="abrirModal()" type="button">
         + Nuevo Usuario
       </button>
     </div>
@@ -30,38 +30,29 @@
             <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
           </tr>
         </thead>
-
         <tbody class="divide-y divide-gray-50">
           <tr *ngFor="let u of usuarios" class="hover:bg-orange-50/50 transition-colors group">
             <td class="px-6 py-4 text-sm font-medium text-[#4A2C2A]">{{ u.nombre }}</td>
             <td class="px-6 py-4 text-sm text-gray-700">{{ u.apellido }}</td>
             <td class="px-6 py-4 text-sm text-gray-600">{{ u.email }}</td>
             <td class="px-6 py-4">
-              <span class="px-3 py-1 bg-orange-100 text-[#E67E22] rounded-full text-sm font-semibold">
-                {{ u.rolNombre }}
-              </span>
+              <span class="px-3 py-1 bg-orange-100 text-[#E67E22] rounded-full text-sm font-semibold">{{ u.rolNombre }}</span>
             </td>
             <td class="px-6 py-4">
               <span class="px-3 py-1 rounded-full text-sm font-semibold" [ngClass]="u.activo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
                 {{ u.activo ? 'Activo' : 'Inactivo' }}
               </span>
             </td>
-
             <td class="px-6 py-4 text-right">
               <div class="flex justify-end gap-4">
                 <button (click)="abrirModal(u)" class="text-[#4A2C2A] hover:scale-110 transition" title="Modificar">
                   <lucide-icon [img]="Pencil" [size]="20"></lucide-icon>
                 </button>
-
                 <button (click)="toggleActivo(u)" class="transition hover:scale-110" [ngClass]="u.activo ? 'text-red-500' : 'text-green-600'" [title]="u.activo ? 'Desactivar' : 'Activar'">
                   <lucide-icon [img]="u.activo ? Ban : CheckCircle" [size]="20"></lucide-icon>
                 </button>
               </div>
             </td>
-          </tr>
-
-          <tr *ngIf="usuarios?.length === 0">
-            <td colspan="6" class="px-6 py-8 text-center text-gray-500 font-semibold">No hay usuarios para mostrar.</td>
           </tr>
         </tbody>
       </table>
@@ -75,45 +66,48 @@
           <h5 class="modal-title text-white font-semibold text-lg">{{ tituloModal }}</h5>
           <button type="button" class="btn-close usuarios-close" (click)="cerrarModal()"></button>
         </div>
-
         <div class="modal-body usuarios-modal-body">
           <form (ngSubmit)="guardar()">
             <div class="mb-3">
-              <label class="form-label usuarios-label">Nombre</label>
+              <label class="usuarios-label">Nombre</label>
               <input type="text" class="form-control usuarios-input" [(ngModel)]="datosForm.nombre" name="nombre" required />
             </div>
-
             <div class="mb-3">
-              <label class="form-label usuarios-label">Apellido</label>
+              <label class="usuarios-label">Apellido</label>
               <input type="text" class="form-control usuarios-input" [(ngModel)]="datosForm.apellido" name="apellido" required />
             </div>
-
             <div class="mb-3">
-              <label class="form-label usuarios-label">Email</label>
+              <label class="usuarios-label">Email</label>
               <input type="email" class="form-control usuarios-input" [(ngModel)]="datosForm.email" name="email" required />
             </div>
-
             <div class="mb-3">
-              <label class="form-label usuarios-label">Rol</label>
+              <label class="usuarios-label">Rol</label>
               <select class="form-select usuarios-input" [(ngModel)]="datosForm.rolId" name="rolId">
                 <option [value]="0">-- Seleccionar Rol --</option>
                 <option *ngFor="let r of roles" [value]="r.id">{{ r.nombre }}</option>
               </select>
             </div>
-
             <div *ngIf="!esEdicion">
               <div class="mb-3">
-                <label class="form-label usuarios-label">Contraseña</label>
-                <input type="password" class="form-control usuarios-input" [(ngModel)]="datosForm.password" name="password" />
+                <label class="usuarios-label">Contraseña</label>
+                <div class="position-relative">
+                  <input [type]="mostrarPassword ? 'text' : 'password'" class="form-control usuarios-input" [(ngModel)]="datosForm.password" name="password" />
+                  <button type="button" class="btn position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent" (click)="toggleMostrarPassword()">
+                    <lucide-icon [img]="mostrarPassword ? EyeOff : Eye" [size]="20" class="text-gray-400"></lucide-icon>
+                  </button>
+                </div>
               </div>
-
               <div class="mb-3">
-                <label class="form-label usuarios-label">Confirmar Contraseña</label>
-                <input type="password" class="form-control usuarios-input" [(ngModel)]="datosForm.confirmarPassword" name="confirmarPassword" />
+                <label class="usuarios-label">Confirmar Contraseña</label>
+                <div class="position-relative">
+                  <input [type]="mostrarConfirmarPassword ? 'text' : 'password'" class="form-control usuarios-input" [(ngModel)]="datosForm.confirmarPassword" name="confirmarPassword" />
+                  <button type="button" class="btn position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent" (click)="toggleMostrarConfirmarPassword()">
+                    <lucide-icon [img]="mostrarConfirmarPassword ? EyeOff : Eye" [size]="20" class="text-gray-400"></lucide-icon>
+                  </button>
+                </div>
               </div>
             </div>
-
-            <div class="modal-footer usuarios-modal-footer">
+            <div class="usuarios-modal-footer">
               <button type="button" class="usuarios-btnSecondary" (click)="cerrarModal()">Cancelar</button>
               <button type="submit" class="usuarios-btnPrimary">Guardar</button>
             </div>

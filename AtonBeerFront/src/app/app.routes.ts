@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './components/layout/layout';
 import { LoginComponent } from './features/auth/login/login.component';
-import { RegisterComponent } from './features/auth/register/register.component';
+import { RecuperarContrasenaComponent } from './components/auth/recuperar-contrasena/recuperar-contrasena';
 import { RestablecerContrasenaComponent } from './components/auth/restablecer-contrasena/restablecer-contrasena';
 import { ClientesComponent } from './components/clientes/clientes.component';
 import { InicioComponent } from './components/Inicio/inicio.component';
@@ -22,8 +22,8 @@ import { PlanificacionFormComponent } from './components/Planificacion/Planifica
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { path: 'registro', component: RegisterComponent },
-  { path: 'recuperar-password', component: RestablecerContrasenaComponent },
+  { path: 'recuperar-password', component: RecuperarContrasenaComponent },
+  { path: 'restablecer-contrasena', component: RestablecerContrasenaComponent },
   {
     path: '',
     component: LayoutComponent,
@@ -89,15 +89,15 @@ export const routes: Routes = [
         data: { title: 'Planificación', subtitle: 'Gestión y seguimiento de lotes' },
       },
       {
-  path: 'planificacion/Listado',
-  component: PlanificacionListComponent,
-  data: { title: 'Planificacion', subtitle: 'Planificaciones activas' }
-},
-{
-  path: 'planificacion/nueva',
-  component: PlanificacionFormComponent,
-  data: { title: 'Nueva Planificacion', subtitle: 'Programar Coccion' }
-},
+        path: 'planificacion/Listado',
+        component: PlanificacionListComponent,
+        data: { title: 'Planificacion', subtitle: 'Planificaciones activas' }
+      },
+      {
+        path: 'planificacion/nueva',
+        component: PlanificacionFormComponent,
+        data: { title: 'Nueva Planificacion', subtitle: 'Programar Coccion' }
+      },
       {
         path: 'planificacion/detalle/:id',
         component: LoteDetalleComponent,
