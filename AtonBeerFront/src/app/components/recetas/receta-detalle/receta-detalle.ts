@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { LucideAngularModule, Pencil, Plus, Trash2, X, Beer, Save } from 'lucide-angular'; 
-import { Receta, RecetaService } from '../../../services/receta'; 
+import { LucideAngularModule, Pencil, Plus, Trash2, X, Beer, Save, Check} from 'lucide-angular'; 
+import { Receta, RecetaService} from '../../../services/receta';
 import { InsumoService } from '../../../services/insumo.service'; 
 import { UnidadMedidaService } from '../../../services/unidadMedida';
 
@@ -27,18 +27,22 @@ export class RecetaDetalle implements OnInit {
   receta: any | null = null;
   cargando: boolean = true;
   
-  Pencil = Pencil; Plus = Plus; Trash2 = Trash2; X = X; Beer = Beer; Save = Save;
+  Pencil = Pencil; Plus = Plus; Trash2 = Trash2; X = X; Beer = Beer; Save = Save; Check = Check;
 
   showModal = false;
   form: FormGroup;
-  estilos: string[] = ['IPA', 'Stout', 'Golden', 'Honey'];
+  estilos: string[] = [];
+  estilosDefault: string[] = ['IPA', 'Stout', 'Golden', 'Honey'];
 
   listaInsumos: any[] = [];
   listaUnidades: any[] = [];
-  insumoIdSeleccionado: number = 0;
-  unidadIdSeleccionada: number = 0;
-  cantidadIngresada: number = 0;
+  InsumoDuplicado: boolean = false
   mostrarFormInsumo: boolean = false; 
+  editandoInsumo = false;
+  insumoIdSeleccionado: number = 0;
+  cantidadIngresada: number = 0;
+  unidadIdSeleccionada: number = 0;
+  mensajeErrorNombre: string = '';
 
   pasos: RecetaPaso[] = []; 
   showModalPaso = false;
@@ -51,7 +55,7 @@ export class RecetaDetalle implements OnInit {
     private recetaService: RecetaService,
     private fb: FormBuilder,
     private insumoService: InsumoService,
-    private unidadService: UnidadMedidaService
+    private unidadService: UnidadMedidaService,    
   ) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required]],
@@ -65,7 +69,8 @@ export class RecetaDetalle implements OnInit {
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
-      const id = Number(idParam);
+      const id = Number(idParam); 
+      this.cargarEstilosLocales()     
       this.cargarReceta(id);
       this.cargarInsumosDisponibles();
       this.cargarUnidades();
@@ -85,6 +90,19 @@ export class RecetaDetalle implements OnInit {
         this.cargando = false;
       }
     });
+  }
+  cargarEstilosLocales() {
+    const guardados = localStorage.getItem('estilos_cerveza');
+    if (guardados) {
+      this.estilos = JSON.parse(guardados);
+    } else {
+      this.estilos = [...this.estilosDefault];
+      this.guardarEstilosLocales();
+    }
+  }
+  
+  guardarEstilosLocales() {
+    localStorage.setItem('estilos_cerveza', JSON.stringify(this.estilos));
   }
 
   cargarUnidades(): void {
@@ -110,7 +128,7 @@ export class RecetaDetalle implements OnInit {
     if (!insumo) return '';
     return insumo.unidad || insumo.Unidad || insumo.unidadMedida?.abreviatura || '';
   }
-
+//Pasos Elaboracion//
   abrirModalPaso() {
     this.editandoPaso = false;
     this.pasoActual = { nombre: '', descripcion: '', temperatura: 65, tiempo: 60, orden: this.pasos.length + 1 };
@@ -183,17 +201,49 @@ export class RecetaDetalle implements OnInit {
         alert('Receta actualizada');
         this.closeModal();
         this.cargarReceta(this.receta!.idReceta);
-      }
+      },
+      error: (err) => {      
+      this.mensajeErrorNombre = err.error?.message || err.error || "El nombre ya está en uso.";
+    }
     });
+  }
+///INSUMOS
+limpiarFormInsumo() {
+    this.insumoIdSeleccionado = 0;
+    this.cantidadIngresada = 0;
+    this.unidadIdSeleccionada = 0;
+    this.editandoInsumo = false;
+    this.mostrarFormInsumo = false;
+    this.InsumoDuplicado = false;
   }
 
   cargarInsumosDisponibles(): void {
     this.insumoService.obtenerInsumos().subscribe({
       next: (data) => this.listaInsumos = data
     });
-  }
+  } 
 
-  agregarInsumoDinamico(): void {
+  verificarDuplicado() {
+  if (!this.receta || !this.receta.recetaInsumos) {
+    this.InsumoDuplicado = false;
+    return;
+  }
+  this.InsumoDuplicado = this.receta.recetaInsumos.some(
+    (item: any) => Number(item.insumoId) == Number(this.insumoIdSeleccionado)
+  );
+  console.log("¿Está duplicado?", this.InsumoDuplicado);
+}
+  prepararEdicionInsumo(item: any) {
+  this.mostrarFormInsumo = true;
+  this.editandoInsumo = true; // Cambiamos el modo
+  
+  // Cargamos los datos en el formulario
+  this.insumoIdSeleccionado = item.insumoId;
+  this.cantidadIngresada = item.cantidad;
+  this.unidadIdSeleccionada = item.unidadMedidaId;
+}
+
+  agregarInsumoDinamico(suma: boolean): void {
     if (!this.receta || this.insumoIdSeleccionado === 0 || this.unidadIdSeleccionada === 0) return;
 
     const dto = {
@@ -201,14 +251,36 @@ export class RecetaDetalle implements OnInit {
       cantidad: this.cantidadIngresada,
       unidadMedidaId: Number(this.unidadIdSeleccionada)
     };
+    if (this.editandoInsumo) {
+    this.recetaService.actualizarInsumo(this.receta.idReceta, dto, suma).subscribe({
+      next: () => {
+        this.cargarReceta(this.receta.idReceta);
+        this.limpiarFormInsumo();
+        this.editandoInsumo = false;
+      },
+      error: (err) => alert(err.error || "No se pudo actualizar el insumo.")
+    });
+  }else{
 
     this.recetaService.addInsumo(this.receta.idReceta, dto).subscribe({
       next: () => {
         this.cargarReceta(this.receta!.idReceta);
-        this.resetFormInsumo();
-      }
+        this.limpiarFormInsumo();
+      },
+      error: (err) => alert(err.error || "⚠️ El insumo ya existe en la receta.")
     });
   }
+}
+prepararNuevoInsumo() {
+  if (this.mostrarFormInsumo) {
+    // Si el formulario ya está abierto, lo cerramos y limpiamos
+    this.limpiarFormInsumo();
+  } else {
+    // Si está cerrado, nos aseguramos de que no entre en modo edición
+    this.limpiarFormInsumo();
+    this.mostrarFormInsumo = true;
+  }
+}
 
   eliminarInsumo(insumoId: number): void {
     if (confirm('¿Quitar ingrediente?')) {
@@ -218,7 +290,7 @@ export class RecetaDetalle implements OnInit {
     }
   }
 
-  // 🔥 NUEVO - CREAR UNIDAD
+  //CREAR UNIDAD
   crearUnidad() {
     const nombre = prompt("Nombre de la unidad (ej: Kilogramos):");
     if (!nombre) return;
@@ -239,7 +311,7 @@ export class RecetaDetalle implements OnInit {
     });
   }
 
-  // 🔥 NUEVO - ELIMINAR UNIDAD
+  //ELIMINAR UNIDAD
   eliminarUnidadDeLista() {
     if (!this.unidadIdSeleccionada) return;
 
@@ -254,12 +326,5 @@ export class RecetaDetalle implements OnInit {
         }
       });
     }
-  }
-
-  private resetFormInsumo() {
-    this.insumoIdSeleccionado = 0;
-    this.cantidadIngresada = 0;
-    this.unidadIdSeleccionada = 0;
-    this.mostrarFormInsumo = false;
   }
 }

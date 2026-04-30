@@ -15,6 +15,7 @@ namespace AtonBeerTesis.Application.Interfaces
         List<string> GetEstadosReceta();
         Task<bool> AddInsumoToReceta(int id, RecetaInsumoDto dto);
         Task<bool> RemoveInsumoDeReceta(int id, int insumoId);
+        Task<bool> ActualizarInsumoEnRecetaAsync(int recetaId, RecetaInsumoDto dto, bool Suma);
         Task<PasosElaboracion> CrearPasoAsync(int recetaId, PasosElaboracion paso);
         Task<bool> EditarPasoAsync(int recetaId, int pasoId, PasosElaboracion paso);
         Task<bool> EliminarPasoAsync(int recetaId, int pasoId);
@@ -25,9 +26,9 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<List<Receta>> GetAllAsync(string? nombre = null, string? estilo = null, string? estado = null, string? orden = null);
         Task<Receta?> GetByIdAsync(int id);
         Task AddAsync(Receta receta);
-        Task UpdateAsync(Receta receta);
+        Task<bool> UpdateAsync(Receta receta);
         Task<bool> AddInsumoAsync(RecetaInsumo relacion);
-        Task<bool> RemoveInsumoAsync(int idReceta, int idInsumo);
+        Task<bool> RemoveInsumoAsync(int idReceta, int idInsumo);        
         Task<PasosElaboracion> AddPasoAsync(PasosElaboracion paso);
         Task<bool> UpdatePasoAsync(PasosElaboracion paso);
         Task<bool> DeletePasoAsync(int pasoId);

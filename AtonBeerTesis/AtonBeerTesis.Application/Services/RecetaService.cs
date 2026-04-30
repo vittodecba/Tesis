@@ -92,11 +92,6 @@ namespace AtonBeerTesis.Application.Services
             receta.Notas = dto.Notas?.Trim();
             receta.Estado = estadoEnum;
             receta.FechaActualizacion = DateTime.UtcNow;
-
-
-            // --- CORRECCIÓN FINAL ---
-            // Si viene null O viene vacío (Count == 0), NO tocamos los ingredientes.
-            // Así protegemos la receta cuando se desactiva desde el listado.
             if (dto.RecetaInsumos != null && dto.RecetaInsumos.Count > 0)
             {
                 // Borramos los que tiene actualmente la receta en memoria
@@ -189,7 +184,7 @@ namespace AtonBeerTesis.Application.Services
                     unidadMedidaStock = ri.Insumo?.unidadMedida?.Abreviatura ?? "Un"
                 }).ToList() ?? new List<RecetaInsumoDto>(),
 
-                PasosElaboracion = receta.PasosElaboracion?.Select(p => new PasosElaboracionDto
+                PasosElaboracion = receta.PasosElaboracion?.OrderBy(p => p.Orden).Select(p => new PasosElaboracionDto
                 {
                     Id = p.Id,
                     Nombre = p.Nombre,
@@ -201,6 +196,7 @@ namespace AtonBeerTesis.Application.Services
             };
         }
 
+        //INSUMOS EN RECETA//
         private async Task<bool> ExisteNombreAsync(string nombre, int? idExcluido = null)
         {
             var todas = await _recetaRepository.GetAllAsync();
@@ -215,22 +211,14 @@ namespace AtonBeerTesis.Application.Services
         public async Task<bool> AddInsumoToReceta(int id, RecetaInsumoDto dto)
         {
             var receta = await _recetaRepository.GetByIdAsync(id);
-            if (receta == null) return false;
-
-            var existente = receta.RecetaInsumos
-                .FirstOrDefault(x => x.InsumoId == dto.InsumoId);
-
-            if (existente != null)
-            {
-                existente.Cantidad = dto.Cantidad;
-                existente.unidadMedidaId = dto.UnidadMedidaId;
-
-                await _recetaRepository.UpdateAsync(receta);
-                return true;
-            }
-            else
-            {
-                var nuevaRelacion = new RecetaInsumo
+            if (receta == null) return false;         
+         
+            if (receta.RecetaInsumos.Any(x => x.InsumoId == dto.InsumoId))
+            {               
+                throw new Exception("Este insumo ya está cargado en la receta. Use el botón editar si desea cambiar la cantidad.");
+            }     
+            
+             var nuevaRelacion = new RecetaInsumo
                 {
                     RecetaId = id,
                     InsumoId = dto.InsumoId,
@@ -238,20 +226,48 @@ namespace AtonBeerTesis.Application.Services
                     unidadMedidaId = dto.UnidadMedidaId
                 };
 
-                return await _recetaRepository.AddInsumoAsync(nuevaRelacion);
-            }
+                return await _recetaRepository.AddInsumoAsync(nuevaRelacion);             
         }
+
 
         public async Task<bool> RemoveInsumoDeReceta(int id, int insumoId)
         {
             return await _recetaRepository.RemoveInsumoAsync(id, insumoId);
         }
 
+        public async Task<bool> ActualizarInsumoEnRecetaAsync(int recetaId, RecetaInsumoDto dto, bool Suma)
+        {
+            var receta = await _recetaRepository.GetByIdAsync(recetaId);
+            if (receta == null) return false;
+
+            // Relación existente entre la receta y el insumo para actualizar
+            var existente = receta.RecetaInsumos.FirstOrDefault(x => x.InsumoId == dto.InsumoId);
+            if (existente == null) return false;
+            if (Suma)
+            {
+                existente.Cantidad += dto.Cantidad; // SUMA: (Cantidad actual + lo ingresado)
+            }
+            else
+            {
+                existente.Cantidad = dto.Cantidad;  // REEMPLAZA: (Pisa el valor con lo nuevo)
+            }
+            existente.unidadMedidaId = dto.UnidadMedidaId;            
+            return await _recetaRepository.UpdateAsync(receta);
+        }
+
+        //PASOS DE ELABORACIÓN//
         public async Task<PasosElaboracion> CrearPasoAsync(int recetaId, PasosElaboracion paso)
         {
             var recetaExistente = await _recetaRepository.GetByIdAsync(recetaId);
             if (recetaExistente == null) throw new Exception("La receta no existe.");
-
+            //si el usuario pone un orden que ya existe desplazo los demas pasos para que no queden con el mismo orden
+            var pasosExistentes = recetaExistente.PasosElaboracion?.Where(p => p.Orden >= paso.Orden)
+                .OrderByDescending(p => p.Orden);//Ordeno de mayor a menor para que al desplazar los pasos no se pisen entre sí
+            foreach (var p in pasosExistentes)
+            {
+                p.Orden++;
+                await _recetaRepository.UpdatePasoAsync(p);
+            }
             paso.RecetaId = recetaId;
             return await _recetaRepository.AddPasoAsync(paso);
         }
@@ -263,7 +279,18 @@ namespace AtonBeerTesis.Application.Services
 
             var pasoExistente = receta.PasosElaboracion.FirstOrDefault(p => p.Id == pasoId);
             if (pasoExistente == null) return false;
+            if (pasoExistente.Orden != pasoEditado.Orden)
+            {
+                var pasosA_Mover = receta.PasosElaboracion
+                    .Where(p => p.Id != pasoId && p.Orden >= pasoEditado.Orden)
+                    .OrderByDescending(p => p.Orden);
 
+                foreach (var p in pasosA_Mover)
+                {
+                    p.Orden++;
+                    await _recetaRepository.UpdatePasoAsync(p);
+                }
+            }
             pasoExistente.Nombre = pasoEditado.Nombre;
             pasoExistente.Descripcion = pasoEditado.Descripcion;
             pasoExistente.Temperatura = pasoEditado.Temperatura;
@@ -275,7 +302,24 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task<bool> EliminarPasoAsync(int recetaId, int pasoId)
         {
-            return await _recetaRepository.DeletePasoAsync(pasoId);
+            // 1. Borro el paso
+            var eliminado = await _recetaRepository.DeletePasoAsync(pasoId);
+            if (!eliminado) return false;
+
+            // 2. Busco la receta para obtener los pasos que quedaron
+            var receta = await _recetaRepository.GetByIdAsync(recetaId);
+            if (receta != null && receta.PasosElaboracion != null)
+            {
+                // Agrupo los pasos restantes ordenados por su orden actual
+                var pasosRestantes = receta.PasosElaboracion.OrderBy(p => p.Orden).ToList();
+                // Se re asigna el orden de cada paso para que queden consecutivos (1, 2, 3, ...)
+                for (int i = 0; i < pasosRestantes.Count; i++)
+                {
+                    pasosRestantes[i].Orden = i + 1;
+                    await _recetaRepository.UpdatePasoAsync(pasosRestantes[i]);
+                }
+            }
+            return true;
         }
     }
 }

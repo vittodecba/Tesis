@@ -28,7 +28,8 @@ export class RecetaListComponent implements OnInit {
   isEditing = false; 
   recetaIdSeleccionada: number | null = null; 
   form: FormGroup;
-
+  mensajeError: string | null = null; 
+  pasos: any[] = [];
   filtroNombre: string = '';
   filtroEstilo: string = '';
   filtroEstado: string = 'Activa';   
@@ -165,18 +166,23 @@ export class RecetaListComponent implements OnInit {
       });
     }
   }
-
-  // --- RESTO DE TUS MÉTODOS (loadRecetas, openCreate, guardarReceta, etc.) ---
-  // IMPORTANTE: En guardarReceta(), asegúrate de enviar el unidadMedidaId:
   
   guardarReceta() {
     if (this.form.invalid) return;
     this.cargando = true;
-
+    this.mensajeError = null;
     if (this.isEditing && this.recetaIdSeleccionada) {
       this.recetaService.update(this.recetaIdSeleccionada, this.form.value).subscribe({
         next: () => { this.closeModal(); this.loadRecetas(); },
-        error: () => this.cargando = false
+        error: (err) => {
+          this.cargando = false
+           console.error("Error completo:", err); 
+  let textoError = err.error?.message || err.error || 'Error inesperado';
+  if (typeof textoError === 'string' && textoError.includes('\n')) {
+    textoError = textoError.split('\n')[0];
+  }
+  this.mensajeError = textoError.replace('System.Exception: ', '').trim();
+        }
       });
     } else {
       const recetaParaEnviar = {
@@ -193,7 +199,14 @@ export class RecetaListComponent implements OnInit {
           this.closeModal();
           this.loadRecetas(); 
         },
-        error: () => { this.cargando = false; alert('Error al crear la receta.'); }
+        error: (err) => { this.cargando = false;
+          console.error("Error completo:", err);
+  let textoError = err.error?.message || err.error || 'Error inesperado';
+  if (typeof textoError === 'string' && textoError.includes('\n')) {
+    textoError = textoError.split('\n')[0];
+  }
+  this.mensajeError = textoError.replace('System.Exception: ', '').trim();
+         }
       });
     }
   }
@@ -211,6 +224,7 @@ export class RecetaListComponent implements OnInit {
   }
 
   openCreate() {
+    this.mensajeError = null;
     this.isEditing = false;
     this.form.reset({ batchSizeLitros: 20, estado: 'Activa', estilo: '' });
     this.insumosElegidos = []; 
@@ -224,6 +238,7 @@ export class RecetaListComponent implements OnInit {
   aplicarFiltros() { this.loadRecetas(); }
   limpiarFiltros() { this.filtroNombre = ''; this.filtroEstilo = ''; this.filtroEstado = 'Activa'; this.aplicarFiltros(); }  
   openEdit(r: any) { 
+    this.mensajeError = null;
     this.isEditing = true;
     this.recetaIdSeleccionada = r.idReceta;
     this.form.patchValue({
