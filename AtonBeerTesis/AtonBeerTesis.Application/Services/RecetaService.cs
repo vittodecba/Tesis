@@ -156,8 +156,8 @@ namespace AtonBeerTesis.Application.Services
             return true;
         }
 
-        public List<string> GetEstadosReceta() => Enum.GetNames(typeof(EstadoReceta)).ToList();              
-        
+        public List<string> GetEstadosReceta() => Enum.GetNames(typeof(EstadoReceta)).ToList();
+
         private RecetaDto MapToDto(Receta receta)
         {
             return new RecetaDto
@@ -170,7 +170,7 @@ namespace AtonBeerTesis.Application.Services
                 Estado = receta.Estado.ToString(),
                 FechaCreacion = receta.FechaCreacion,
                 FechaActualizacion = receta.FechaActualizacion,
-                
+
                 RecetaInsumos = receta.RecetaInsumos?.Select(ri => new RecetaInsumoDto
                 {
                     InsumoId = ri.InsumoId,
@@ -194,6 +194,61 @@ namespace AtonBeerTesis.Application.Services
                     Orden = p.Orden
                 }).ToList() ?? new List<PasosElaboracionDto>()
             };
+        }
+        public async Task<int> DuplicarRecetaAsync(int idOriginal)
+        {
+            var original = await _recetaRepository.GetByIdAsync(idOriginal);                     
+            if (original == null) return 0;
+            string nombreOriginal = original.Nombre;//La primera version
+            string nuevoNombre = "";
+         
+            string prefijoBusqueda = nombreOriginal.Contains(" V") ? $"{nombreOriginal}." : $"{nombreOriginal} V";
+
+            var descendientes = await _recetaRepository.GetAllAsync();
+            var hijosDirectos = descendientes
+                .Where(r => r.Nombre.StartsWith(prefijoBusqueda))
+                .ToList();
+            int siguienteNumero = hijosDirectos.Count + 1;
+
+            if (nombreOriginal.Contains(" V"))
+            {
+                nuevoNombre = $"{nombreOriginal}.{siguienteNumero}"; // Crea V2.1, V2.2...
+            }
+            else
+            {
+                nuevoNombre = $"{nombreOriginal} V{siguienteNumero + 1}"; // Crea V2, V3... (el +1 es porque la V1 es la original)
+            }
+            // Creamos la nueva receta, la copia
+            var nuevaReceta = new Receta
+            {
+                Nombre = nuevoNombre, //Para que sea V2;V3;..
+                Estilo = original.Estilo,
+                BatchSizeLitros = original.BatchSizeLitros,
+                Notas = original.Notas,
+                Estado = EstadoReceta.Activa,
+                // Clonamos la lista de Insumos
+                // Creamos objetos nuevos para que tengan su propio ID en la tabla intermedia
+                RecetaInsumos = original.RecetaInsumos.Select(i => new RecetaInsumo
+                {
+                    InsumoId = i.InsumoId,
+                    Cantidad = i.Cantidad,
+                    unidadMedidaId = i.unidadMedidaId
+                }).ToList(),
+
+                // 4. Clonamos la lista de Pasos
+                PasosElaboracion = original.PasosElaboracion.Select(p => new PasosElaboracion
+                {
+                    Nombre = p.Nombre,
+                    Descripcion = p.Descripcion,
+                    Temperatura = p.Temperatura,
+                    Tiempo = p.Tiempo,
+                    Orden = p.Orden,
+                }).ToList()
+            };
+
+            // 5. Guardamos la nueva receta en la base de datos
+            await _recetaRepository.AddAsync(nuevaReceta);
+            return nuevaReceta.IdReceta;
         }
 
         //INSUMOS EN RECETA//

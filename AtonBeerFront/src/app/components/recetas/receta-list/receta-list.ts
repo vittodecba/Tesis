@@ -4,11 +4,12 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { RouterModule } from '@angular/router';
 import {
   LucideAngularModule,
-  Search, Plus, Pencil, FileText, X, Filter, Beer, ChevronDown, Trash2, Save
+  Search, Plus, Copy, Pencil, FileText, X, Filter, Beer, ChevronDown, Trash2, Save
 } from 'lucide-angular';
 import { RecetaService, Receta } from '../../../services/receta';
 import { InsumoService } from '../../../services/insumo.service';
-import { UnidadMedidaService } from '../../../services/unidadMedida'; // <--- IMPORTANTE
+import { UnidadMedidaService } from '../../../services/unidadMedida';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-receta-list',
@@ -20,7 +21,7 @@ import { UnidadMedidaService } from '../../../services/unidadMedida'; // <--- IM
 export class RecetaListComponent implements OnInit {
   Search = Search; Plus = Plus; Pencil = Pencil; 
   FileText = FileText; X = X; Filter = Filter; 
-  Beer = Beer; ChevronDown = ChevronDown; Trash2 = Trash2; Save = Save;
+  Beer = Beer; ChevronDown = ChevronDown; Trash2 = Trash2; Save = Save; Copy = Copy;
 
   recetas: Receta[] = [];
   cargando = false;
@@ -47,7 +48,8 @@ export class RecetaListComponent implements OnInit {
     private recetaService: RecetaService, 
     private fb: FormBuilder, 
     private insumoService: InsumoService,
-    private unidadService: UnidadMedidaService // <--- INYECTADO
+    private unidadService: UnidadMedidaService, // <--- INYECTADO
+    private router : Router
   ) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required]],
@@ -254,4 +256,14 @@ export class RecetaListComponent implements OnInit {
       next: () => this.loadRecetas()
     });
   }
+  duplicarReceta(id: number) {
+  if (confirm('¿Deseas crear una copia de esta receta?')) {
+    this.recetaService.duplicarReceta(id).subscribe({
+      next: (nuevoId) => {        
+        this.router.navigate(['/recetas/detalle', nuevoId]);
+      },
+      error: (err) => alert('Error al duplicar la receta')
+    });
+  }
+}
 }

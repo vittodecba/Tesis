@@ -54,6 +54,9 @@ export class RecetaService {
   update(id: number, receta: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, receta);
   }
+  duplicarReceta(id: number): Observable<number> {
+  return this.http.post<number>(`${this.apiUrl}/${id}/duplicar`, {});
+}
   //--- METODOS INSUMOS ---
   addInsumo(idReceta: number, datos: { 
     insumoId: number, 

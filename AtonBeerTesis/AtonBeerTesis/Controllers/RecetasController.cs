@@ -54,10 +54,22 @@ namespace AtonBeerTesis.WebApi.Controllers
                 var id = await _recetaService.CreateAsync(dto);
                 return CreatedAtAction(nameof(GetById), new { id }, new { id });
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
-            }          
+            }
+        }
+        [HttpPost("{id}/duplicar")]
+        public async Task<IActionResult> DuplicarReceta(int id)
+        {           
+            var nuevoId = await _recetaService.DuplicarRecetaAsync(id);
+
+            if (nuevoId == 0)
+            {
+                return NotFound("No se encontró la receta original para duplicar.");
+            }
+            
+            return Ok(nuevoId);
         }
 
         [HttpPut("{id:int}")]

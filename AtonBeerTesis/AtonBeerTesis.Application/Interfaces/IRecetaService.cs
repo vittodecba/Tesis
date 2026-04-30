@@ -19,6 +19,7 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<PasosElaboracion> CrearPasoAsync(int recetaId, PasosElaboracion paso);
         Task<bool> EditarPasoAsync(int recetaId, int pasoId, PasosElaboracion paso);
         Task<bool> EliminarPasoAsync(int recetaId, int pasoId);
+        Task<int> DuplicarRecetaAsync(int idOriginal);
     }
 
     public interface IRecetaRepository

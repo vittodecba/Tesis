@@ -84,6 +84,9 @@
             </td>
             <td class="px-6 py-4 text-right">
               <div class="flex justify-end gap-3">
+                <button (click)="duplicarReceta(r.idReceta)" 
+                  class="text-green-600 hover:text-green-700 transition"title="Duplicar Receta"><lucide-icon [img]="Copy" [size]="20"></lucide-icon>
+                 </button>
                 <button (click)="openEdit(r)" class="text-[#4A2C2A] hover:text-[#E67E22] transition"><lucide-icon [img]="Pencil" [size]="20"></lucide-icon></button>
                 <button [routerLink]="['/recetas/detalle', r.idReceta]" class="text-blue-800 hover:text-blue-900 transition"><lucide-icon [img]="FileText" [size]="20"></lucide-icon></button>
               </div>
@@ -158,9 +161,7 @@
                 <select [(ngModel)]="unidadIdSeleccionada" [ngModelOptions]="{standalone: true}" class="form-select border rounded-l-lg p-2 text-sm">
                   <option value="0" disabled>...</option>
                   <option *ngFor="let u of listaUnidades" [value]="u.id">{{ u.abreviatura }}</option>
-                </select>
-                <button type="button" (click)="crearUnidad()" class="btn btn-outline-success" title="Nueva Unidad">+</button>
-                <button type="button" (click)="eliminarUnidadDeLista()" class="btn btn-outline-danger" title="Eliminar Unidad">🗑</button>
+                </select>                
               </div>
             </div>
 
