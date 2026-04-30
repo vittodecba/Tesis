@@ -5,7 +5,7 @@ export interface Usuario {
   email: string;
   activo: boolean;
   rolNombre: string;
-  rolId: number; // <--- ESTO ES LO QUE FALTABA
+  rolId: number;
 }
 
 export interface UsuarioCreate {

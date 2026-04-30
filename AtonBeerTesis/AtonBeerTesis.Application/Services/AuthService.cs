@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AtonBeerTesis.Application.Dto; // <--- CAMBIADO A SINGULAR
+using AtonBeerTesis.Application.Dto;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Interfaces;
@@ -44,7 +44,6 @@ namespace AtonBeerTesis.Application.Services
             if (usuario.TokenRecuperacion != dto.Token) throw new Exception("El código es inválido.");
             if (DateTime.UtcNow > usuario.TokenExpiracion) throw new Exception("El código ha expirado.");
 
-            // CAMBIO: Aquí se guarda la nueva clave
             usuario.Contrasena = dto.NuevaPassword;
             usuario.TokenRecuperacion = null;
             usuario.TokenExpiracion = null;

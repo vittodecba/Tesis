@@ -3,14 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-// Importamos Lucide y el ícono de la persona
 import { LucideAngularModule, UserPlus } from 'lucide-angular'; 
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  // Agregamos LucideAngularModule a los imports
   imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule],
   templateUrl: './register.component.html'
 })
@@ -19,7 +17,6 @@ export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  // Declaramos el ícono para usarlo en el HTML
   UserPlus = UserPlus;
 
   registerForm: FormGroup;
