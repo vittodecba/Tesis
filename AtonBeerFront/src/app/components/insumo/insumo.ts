@@ -21,14 +21,13 @@ export class InsumoComponent implements OnInit {
   insumos: any[] = [];          
   insumosOriginales: any[] = []; 
   mostrarModal: boolean = false;  
-  
+  mensajeError: string | null = null;
   tiposOpciones: any[] = []; 
   unidadesOpciones: any[] = []; 
 
   filtroTexto: string = '';
   filtroTipo: string = ''; 
   orden: string = 'nombre';
-
   datosForm: any = {
     id: null,
     codigo: '',
@@ -214,16 +213,24 @@ export class InsumoComponent implements OnInit {
     };
 
     if (payload.id > 0) {
-      this.insumoService.actualizarInsumo(payload.id, payload).subscribe({
-        next: () => this.finalizarOperacion('Insumo actualizado con éxito'),
-        error: (err) => alert('Error al actualizar: ' + (err.error?.message || err.status))
-      });
-    } else {
-      this.insumoService.crearInsumo(payload).subscribe({
-        next: () => this.finalizarOperacion('Insumo creado con éxito'),
-        error: (err) => alert('Error al crear: Verificá los datos ingresados.')
-      });
+  this.insumoService.actualizarInsumo(payload.id, payload).subscribe({
+    next: () => this.finalizarOperacion('Insumo actualizado con éxito'),
+    error: (err) => {
+      // Captura el mensaje del BadRequest del Backend
+      const mensaje = err.error?.message || err.error || 'Error al actualizar';
+      alert(mensaje); 
     }
+  });
+} else {
+  this.insumoService.crearInsumo(payload).subscribe({
+    next: () => this.finalizarOperacion('Insumo creado con éxito'),
+    error: (err) => {
+      // Captura el mensaje "Ya existe un insumo..." que manda el C#
+      this.mensajeError = err.error?.message || err.error || 'Ya existe un insumo con ese nombre.';
+      setTimeout(() => this.mensajeError = null, 5000);
+    }
+  });
+}
   }
 
   eliminar(id: number) {

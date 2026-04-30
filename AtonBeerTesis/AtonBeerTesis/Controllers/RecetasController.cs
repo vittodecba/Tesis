@@ -49,16 +49,28 @@ namespace AtonBeerTesis.WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateRecetaDto dto)
         {
-            var id = await _recetaService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id }, new { id });
+            try
+            {
+                var id = await _recetaService.CreateAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id }, new { id });
+            }
+            catch(Exception ex) 
+            {
+                return BadRequest(new { message = ex.Message });
+            }          
         }
 
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] ActualizarRecetaDto dto)
         {
-            var ok = await _recetaService.UpdateAsync(id, dto);
-            if (!ok) return NotFound();
-            return NoContent();
+            try
+            {
+                var ok = await _recetaService.UpdateAsync(id, dto);
+                if (!ok) return NotFound();
+                return NoContent();
+            }
+            catch(Exception ex) { return BadRequest(new { message = ex.Message }); }
+           
         }
 
         [HttpPatch("{id:int}")]
@@ -94,6 +106,16 @@ namespace AtonBeerTesis.WebApi.Controllers
             return BadRequest("No se pudo agregar el insumo.");
         }
         [Tags("RecetasDetalle")]
+        [HttpPut("{id}/insumos")]
+        public async Task<IActionResult> ActualizarInsumo(int id, [FromBody] RecetaInsumoDto dto, [FromQuery] bool suma = false)
+        {
+            // Este método debe llamar a la lógica que REEMPLAZA la cantidad en la BD
+            var resultado = await _recetaService.ActualizarInsumoEnRecetaAsync(id, dto, suma);
+
+            if (resultado) return Ok();
+            return BadRequest("No se pudo actualizar el insumo.");
+        }
+        [Tags("RecetasDetalle")]
         [HttpDelete("{id}/insumos/{insumoId}")]
         public async Task<IActionResult> EliminarInsumo(int id, int insumoId)
         {
@@ -108,6 +130,8 @@ namespace AtonBeerTesis.WebApi.Controllers
         [HttpPost("{id}/pasos")]
         public async Task<IActionResult> AgregarPaso(int id, [FromBody] PasosElaboracionDto dto) // <-- Usar DTO
         {
+            if (dto.Tiempo <= 0)
+                return BadRequest(new { message = "El tiempo del paso debe ser mayor a 0." });
             var paso = new PasosElaboracion
             {
                 Nombre = dto.Nombre,

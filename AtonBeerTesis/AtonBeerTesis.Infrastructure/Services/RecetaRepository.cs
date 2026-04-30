@@ -65,10 +65,11 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Receta receta)
+        public async Task<bool> UpdateAsync(Receta receta)
         {
            // _context.Recetas.Update(receta);
-            await _context.SaveChangesAsync();
+           var filasAfectadas = await _context.SaveChangesAsync();
+            return filasAfectadas > 0;
         }
         //Metodo para modificar una receta ya creada
         public async Task<bool> AddInsumoAsync(RecetaInsumo relacion)
