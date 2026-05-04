@@ -106,6 +106,10 @@ export class FermentadorDetalleComponent implements OnInit {
     private registroService: RegistroFermentacionService,
   ) {}
 
+  get esPlanificado(): boolean {
+    return String(this.loteActivo?.estado) === 'Planificado';
+  }
+
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     this.fermentadorId = Number(idParam);
@@ -248,8 +252,8 @@ export class FermentadorDetalleComponent implements OnInit {
       return;
     }
 
-    if (this.nuevoRegistro.temperatura <= 0) {
-      this.errorRegistro = 'La temperatura es obligatoria y debe ser mayor a 0.';
+    if (this.nuevoRegistro.temperatura === null || this.nuevoRegistro.temperatura === undefined) {
+      this.errorRegistro = 'La temperatura es obligatoria.';
       return;
     }
 
@@ -258,8 +262,8 @@ export class FermentadorDetalleComponent implements OnInit {
       return;
     }
 
-    if (this.nuevoRegistro.ph <= 0) {
-      this.errorRegistro = 'El pH es obligatorio y debe ser mayor a 0.';
+    if (this.nuevoRegistro.ph === null || this.nuevoRegistro.ph === undefined || this.nuevoRegistro.ph < 0) {
+      this.errorRegistro = 'El pH es obligatorio y debe estar entre 0 y 14.';
       return;
     }
 

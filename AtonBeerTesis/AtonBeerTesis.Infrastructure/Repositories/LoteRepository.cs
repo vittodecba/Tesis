@@ -62,14 +62,14 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task<Lote?> GetActivoByFermentadorIdAsync(int fermentadorId)
         {
-            // Solo lotes EnProceso son considerados activos en el fermentador
+            // Retorna lotes EnProceso o Planificados (futuros) asignados al fermentador
             return await _context.Lotes
                 .Include(l => l.Receta)
                 .Include(l => l.Fermentador)
                 .Include(l => l.RegistrosFermentacion)
                 .FirstOrDefaultAsync(l =>
                     l.FermentadorId == fermentadorId &&
-                    l.Estado == EstadoLote.EnProceso);
+                    (l.Estado == EstadoLote.EnProceso || l.Estado == EstadoLote.Planificado));
         }
 
         public async Task<bool> ExisteCodigoAsync(string codigo)

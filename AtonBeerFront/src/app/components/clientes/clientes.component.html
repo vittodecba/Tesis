@@ -128,10 +128,33 @@
             <label>Nombre</label><input formControlName="contactoNombre" />
           </div>
           <div class="field">
-            <label>Teléfono</label><input formControlName="contactoTelefono" />
+            <label>Teléfono <span class="required-star">*</span></label>
+            <input
+              formControlName="contactoTelefono"
+              placeholder="Ej: +54 9 11 1234-5678"
+              [class.input-error]="contactoTelefonoCtrl?.invalid && contactoTelefonoCtrl?.touched"
+            />
+            <span class="field-error-msg"
+              *ngIf="contactoTelefonoCtrl?.invalid && contactoTelefonoCtrl?.touched">
+              El teléfono de contacto es obligatorio
+            </span>
           </div>
-          <div class="field"><label>Email</label><input formControlName="contactoEmail" /></div>
+          <div class="field">
+            <label>Email de contacto</label>
+            <input
+              formControlName="contactoEmail"
+              placeholder="nombre@empresa.com"
+              [class.input-error]="contactoEmailCtrl?.invalid && contactoEmailCtrl?.touched"
+            />
+            <span class="field-error-msg"
+              *ngIf="contactoEmailCtrl?.invalid && contactoEmailCtrl?.touched">
+              Ingresá un email válido (ej: nombre@empresa.com)
+            </span>
+          </div>
         </div>
+      </div>
+      <div class="error-msg campos-incompletos" *ngIf="submitAttempted && form.invalid">
+        ⚠️ Completá todos los campos obligatorios antes de guardar.
       </div>
       <div class="error-msg" *ngIf="createError">{{ createError }}</div>
       <div class="modal-footer">

@@ -185,3 +185,29 @@
 
 .error-msg { background: #fef2f2; color: #b91c1c; padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 13px; font-weight: 600; }
 input:disabled { background-color: #f3f4f6 !important; color: #9ca3af !important; cursor: not-allowed; border-style: dashed !important; }
+
+.required-star {
+  color: #e53e3e;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.campos-incompletos {
+  background: #fff7ed;
+  color: #92400e;
+  border: 1px solid #fbbf24;
+  font-weight: 500;
+}
+
+input.input-error {
+  border-color: #e53e3e !important;
+  background-color: #fff5f5;
+  &:focus { box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.15); }
+}
+
+.field-error-msg {
+  color: #e53e3e;
+  font-size: 12px;
+  margin-top: 2px;
+  display: block;
+}

@@ -84,5 +84,13 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             _context.Fermentadores.Update(fermentador);
             return await _context.SaveChangesAsync() > 0;
         }
+
+        // Método 5: Verificar nombre duplicado
+        public async Task<bool> ExisteNombreAsync(string nombre, int? excludeId = null)
+        {
+            return await _context.Fermentadores.AnyAsync(f =>
+                f.Nombre.ToLower() == nombre.ToLower() &&
+                (!excludeId.HasValue || f.Id != excludeId.Value));
+        }
     }
 }

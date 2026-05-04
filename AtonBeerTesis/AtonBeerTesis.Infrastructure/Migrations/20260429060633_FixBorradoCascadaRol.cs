@@ -11,47 +11,66 @@ namespace AtonBeerTesis.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // Eliminar el FK actual de RegistrosFermentacion → Lotes para recrearlo correctamente
             migrationBuilder.DropForeignKey(
-                name: "FK_RegistrosFermentacion_LotePrueba_LoteId",
+                name: "FK_RegistrosFermentacion_Lotes_LoteId",
                 table: "RegistrosFermentacion");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_RegistrosFermentacion_Lotes_LoteId1",
-                table: "RegistrosFermentacion");
+            // Eliminar el FK de Usuarios → roles para recrearlo con Restrict
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_Usuarios_roles_RolId')
+                    ALTER TABLE [Usuarios] DROP CONSTRAINT [FK_Usuarios_roles_RolId];
+            ");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_Usuarios_roles_RolId",
-                table: "Usuarios");
+            // Eliminar índice LoteId1 si existe
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_RegistrosFermentacion_LoteId1'
+                           AND object_id = OBJECT_ID('RegistrosFermentacion'))
+                    DROP INDEX [IX_RegistrosFermentacion_LoteId1] ON [RegistrosFermentacion];
+            ");
 
-            migrationBuilder.DropTable(
-                name: "LotePrueba");
+            // Eliminar columna LoteId1 si existe
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+                           WHERE TABLE_NAME = 'RegistrosFermentacion' AND COLUMN_NAME = 'LoteId1')
+                    ALTER TABLE [RegistrosFermentacion] DROP COLUMN [LoteId1];
+            ");
 
-            migrationBuilder.DropIndex(
-                name: "IX_RegistrosFermentacion_LoteId1",
-                table: "RegistrosFermentacion");
+            // Eliminar tabla LotePrueba si existe (quitando sus FKs primero)
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID('LotePrueba') IS NOT NULL BEGIN
+                    DECLARE @sql NVARCHAR(MAX) = '';
+                    SELECT @sql += 'ALTER TABLE [' + t.name + '] DROP CONSTRAINT [' + fk.name + ']; '
+                    FROM sys.foreign_keys fk
+                    JOIN sys.tables t ON fk.parent_object_id = t.object_id
+                    WHERE fk.referenced_object_id = OBJECT_ID('LotePrueba');
+                    IF @sql <> '' EXEC sp_executesql @sql;
+                    DROP TABLE [LotePrueba];
+                END
+            ");
 
-            migrationBuilder.DropColumn(
-                name: "LoteId1",
-                table: "RegistrosFermentacion");
+            // Agregar RolId1 a Usuarios si no existe
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+                               WHERE TABLE_NAME = 'Usuarios' AND COLUMN_NAME = 'RolId1')
+                    ALTER TABLE [Usuarios] ADD [RolId1] int NULL;
+            ");
 
-            migrationBuilder.AddColumn<int>(
-                name: "RolId1",
-                table: "Usuarios",
-                type: "int",
-                nullable: true);
+            // Agregar Factor a unidadMedida si no existe
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+                               WHERE TABLE_NAME = 'unidadMedida' AND COLUMN_NAME = 'Factor')
+                    ALTER TABLE [unidadMedida] ADD [Factor] float NOT NULL DEFAULT 0.0;
+            ");
 
-            migrationBuilder.AddColumn<double>(
-                name: "Factor",
-                table: "unidadMedida",
-                type: "float",
-                nullable: false,
-                defaultValue: 0.0);
+            // Crear índice IX_Usuarios_RolId1 si no existe
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Usuarios_RolId1'
+                               AND object_id = OBJECT_ID('Usuarios'))
+                    CREATE INDEX [IX_Usuarios_RolId1] ON [Usuarios] ([RolId1]);
+            ");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Usuarios_RolId1",
-                table: "Usuarios",
-                column: "RolId1");
-
+            // Recrear FK de RegistrosFermentacion → Lotes con Cascade
             migrationBuilder.AddForeignKey(
                 name: "FK_RegistrosFermentacion_Lotes_LoteId",
                 table: "RegistrosFermentacion",
@@ -60,6 +79,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
+            // Recrear FK de Usuarios → roles con Restrict
             migrationBuilder.AddForeignKey(
                 name: "FK_Usuarios_roles_RolId",
                 table: "Usuarios",
@@ -68,12 +88,12 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Usuarios_roles_RolId1",
-                table: "Usuarios",
-                column: "RolId1",
-                principalTable: "roles",
-                principalColumn: "Id");
+            // Agregar FK de RolId1
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_Usuarios_roles_RolId1')
+                    ALTER TABLE [Usuarios] ADD CONSTRAINT [FK_Usuarios_roles_RolId1]
+                    FOREIGN KEY ([RolId1]) REFERENCES [roles] ([Id]);
+            ");
         }
 
         /// <inheritdoc />

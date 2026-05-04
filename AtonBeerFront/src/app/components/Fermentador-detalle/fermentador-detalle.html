@@ -68,7 +68,8 @@
             <h3 class="text-xl font-bold text-[#4A2C2A] mb-3">Lote activo</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-              <div><span class="font-bold">Código:</span> {{ loteActivo.codigo }}</div>
+              <div><span class="font-bold">Código:</span> #{{ loteActivo.id }}</div>
+              <div><span class="font-bold">Volumen:</span> {{ loteActivo.volumenLitros }} L</div>
               <div><span class="font-bold">Estado:</span> {{ loteActivo.estado }}</div>
               <div><span class="font-bold">Estilo:</span> {{ loteActivo.estilo || '-' }}</div>
               <div>
@@ -90,6 +91,7 @@
           </div>
 
           <button
+            *ngIf="!esPlanificado"
             (click)="finalizarLote()"
             class="px-5 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 transition w-fit"
           >
@@ -98,7 +100,22 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+      <div
+        *ngIf="esPlanificado"
+        class="bg-blue-50 border border-blue-200 text-blue-800 rounded-2xl p-5 mb-6 flex items-center gap-3"
+      >
+        <lucide-icon [img]="Beaker" [size]="20"></lucide-icon>
+        <div>
+          <p class="font-bold">Lote programado</p>
+          <p class="text-sm mt-1">
+            El proceso de fermentación comienza el
+            <strong>{{ loteActivo!.fechaElaboracion | date: 'dd/MM/yyyy' }}</strong>.
+            Los registros diarios estarán disponibles a partir de esa fecha.
+          </p>
+        </div>
+      </div>
+
+      <div *ngIf="!esPlanificado" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <div class="flex items-center gap-3 mb-4">
             <lucide-icon [img]="LineChart" [size]="18"></lucide-icon>
@@ -132,7 +149,7 @@
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+      <div *ngIf="!esPlanificado" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
         <div class="flex items-center gap-3 mb-4">
           <lucide-icon [img]="ClipboardList" [size]="18"></lucide-icon>
           <h3 class="text-xl font-bold text-[#4A2C2A]">Nuevo registro diario</h3>
@@ -171,6 +188,7 @@
             <input
               type="number"
               min="0"
+              max="14"
               step="0.01"
               [(ngModel)]="nuevoRegistro.ph"
               class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
@@ -196,7 +214,8 @@
             </label>
             <input
               type="number"
-              min="0"
+              min="-50"
+              max="150"
               step="0.01"
               [(ngModel)]="nuevoRegistro.temperatura"
               class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300"
@@ -271,7 +290,7 @@
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div *ngIf="!esPlanificado" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-100">
           <h3 class="text-xl font-bold text-[#4A2C2A]">Planilla de fermentación</h3>
           <p class="text-gray-600 text-sm mt-1">Historial diario cargado para el lote activo.</p>

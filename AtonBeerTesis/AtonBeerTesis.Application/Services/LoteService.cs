@@ -29,6 +29,7 @@ namespace AtonBeerTesis.Application.Services
             {
                 Id = l.Id,
                 Codigo = l.Codigo,
+                VolumenLitros = l.VolumenLitros,
                 RecetaId = l.RecetaId,
                 RecetaNombre = l.Receta?.Nombre,
                 FermentadorId = l.FermentadorId,
@@ -86,6 +87,7 @@ namespace AtonBeerTesis.Application.Services
             {
                 Id = lote.Id,
                 Codigo = lote.Codigo,
+                VolumenLitros = lote.VolumenLitros,
                 RecetaId = lote.RecetaId,
                 RecetaNombre = lote.Receta?.Nombre,
                 FermentadorId = lote.FermentadorId,

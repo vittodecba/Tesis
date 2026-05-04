@@ -67,14 +67,19 @@
                 *ngIf="item.loteId"
                 class="text-[9px] bg-[#412725] text-white px-1.5 py-0.5 rounded-md w-fit mt-1 font-bold"
               >
-                LOTE #{{ item.loteId }}
+                {{ item.codigoLote || ('LOTE #' + item.loteId) }}
               </span>
             </div>
           </td>
 
           <td class="px-6 py-4">
             <div class="flex flex-col">
-              <span class="text-sm text-gray-600 font-medium">{{ item.capacidad }} Lts</span>
+              <span class="text-sm text-gray-600 font-medium">
+                {{ item.capacidad }} Lts
+                <span *ngIf="item.volumenLitrosLote" class="text-[#e67e22] font-bold">
+                  ({{ item.volumenLitrosLote }}L en uso)
+                </span>
+              </span>
               <span
                 *ngIf="item.estiloNombre"
                 class="text-[11px] text-[#e67e22] font-black uppercase mt-0.5 italic"
@@ -174,7 +179,6 @@
               class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium bg-white disabled:bg-gray-100 disabled:text-gray-400"
             >
               <option value="1">Disponible</option>
-              <option value="2">Ocupado</option>
               <option value="3">Sucio</option>
               <option value="4">Mantenimiento</option>
             </select>

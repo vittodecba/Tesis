@@ -122,7 +122,11 @@ namespace AtonBeerTesis.Application.Services
 
                 p.Estado = EstadoLote.EnProceso;
                 if (p.Lote != null)
+                {
                     p.Lote.Estado = EstadoLote.EnProceso;
+                    // BUG 7: FechaElaboracion = fecha real de inicio del proceso
+                    p.Lote.FechaElaboracion = DateTime.Today;
+                }
 
                 await _repository.UpdateAsync(p);
             }
@@ -305,6 +309,7 @@ namespace AtonBeerTesis.Application.Services
                 planificacion.Lote.FermentadorId = dto.FermentadorId;
                 planificacion.Lote.DiasEstimadosFermentacion = (int)(dto.FechaFinEstimada - dto.FechaInicio).TotalDays;
                 planificacion.Lote.Estado = dto.Estado;
+                planificacion.Lote.Observaciones = dto.Observaciones; // FIX: sincronizar con lote-detalle y fermentador-detalle
             }
 
             await _repository.UpdateAsync(planificacion);
@@ -320,10 +325,15 @@ namespace AtonBeerTesis.Application.Services
             var lote = lotes.FirstOrDefault(x => x.Id == loteId);
             if (lote == null) throw new Exception("Lote no encontrado.");
 
+            // BUG 10: Solo se puede cambiar fermentador si el lote está Planificado (no EnProceso)
+            if (lote.Estado == EstadoLote.EnProceso)
+                throw new Exception("No se puede cambiar el fermentador de un lote que ya está En Proceso.");
+
             var ocupado = await _repository.ExisteFermentadorOcupado(fermentadorId, lote.FechaInicio, lote.FechaFinEstimada, loteId);
             if (ocupado)
                 throw new Exception("El fermentador ya está ocupado en ese rango de fechas.");
 
+            // Liberar fermentador anterior
             if (lote.FermentadorId.HasValue && lote.FermentadorId.Value != fermentadorId)
             {
                 var anterior = await _repository.GetFermentadorByIdAsync(lote.FermentadorId.Value);
@@ -334,13 +344,21 @@ namespace AtonBeerTesis.Application.Services
                 }
             }
 
+            // Actualizar PlanificacionProduccion.FermentadorId
             lote.FermentadorId = fermentadorId;
-            var nuevo = await _repository.GetFermentadorByIdAsync(fermentadorId);
-            if (nuevo != null)
+
+            // BUG 9/10: También actualizar Lote.FermentadorId para que GetActivoByFermentadorIdAsync funcione
+            if (lote.Lote != null)
             {
-                nuevo.Estado = EstadoFermentador.Ocupado;
-                await _repository.UpdateFermentadorAsync(nuevo);
+                lote.Lote.FermentadorId = fermentadorId;
+                await _loteRepository.UpdateAsync(lote.Lote);
             }
+
+            // Marcar nuevo fermentador como Ocupado
+            var nuevo = await _repository.GetFermentadorByIdAsync(fermentadorId);
+            if (nuevo == null) throw new Exception("Fermentador no encontrado.");
+            nuevo.Estado = EstadoFermentador.Ocupado;
+            await _repository.UpdateFermentadorAsync(nuevo);
 
             await _repository.UpdateAsync(lote);
         }
