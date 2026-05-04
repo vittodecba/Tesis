@@ -61,5 +61,8 @@ namespace AtonBeerTesis.Domain.Entities
 
         public virtual ICollection<RegistroFermentacion> RegistrosFermentacion { get; set; }
             = new List<RegistroFermentacion>();
+
+        public virtual ICollection<LoteDesignacion> Designaciones { get; set; }
+            = new List<LoteDesignacion>();
     }
 }

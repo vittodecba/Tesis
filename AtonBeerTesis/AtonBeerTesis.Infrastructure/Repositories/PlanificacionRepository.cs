@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
+using AtonBeerTesis.Domain.Enums;
 using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,7 +31,8 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             return await _context.PlanificacionProduccion.AnyAsync(
                 p => p.FermentadorId == fermentadorId &&
                 p.LoteId != excluirLoteId &&
-                p.Estado != 0 &&
+                p.Estado != EstadoLote.Finalizado &&
+                p.Estado != EstadoLote.Descartado &&
                 (
                     (inicio >= p.FechaInicio && inicio <= p.FechaFinEstimada) ||
                     (fin > p.FechaInicio && fin <= p.FechaFinEstimada) ||

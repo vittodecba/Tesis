@@ -8,13 +8,14 @@ namespace AtonBeerTesis.Domain.Entities
 {
     public class MovimientoStock
     {
-        public DateTime Fecha { get; set; }
         public int Id { get; set; }
-        public int ProductoId { get; set; }
-        public int Lote { get; set; }
+        public DateTime Fecha { get; set; }
+        public int ProductoStockId { get; set; }
+        public ProductoStock ProductoStock { get; set; } = null!;
+        public int? LoteId { get; set; }
         public decimal Cantidad { get; set; }
-        public string TipoMovimiento { get; set; } //Refiere a "Ingreso" o "Egreso". O sea hace los calculos en el stock.
-        public string MotivoMovimiento { get; set; }//Refiere a "Compra", "Venta", "Ajuste", etc. y esto hace referencia al por qué se hizo el movimiento.
+        public string TipoMovimiento { get; set; } = string.Empty;
+        public string MotivoMovimiento { get; set; } = string.Empty;
         public decimal StockPrevio { get; set; }
         public decimal StockResultante { get; set; }
     }

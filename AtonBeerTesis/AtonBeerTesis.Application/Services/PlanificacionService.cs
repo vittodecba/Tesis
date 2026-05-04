@@ -15,15 +15,21 @@ namespace AtonBeerTesis.Application.Services
         private readonly IPlanificacionRepository _repository;
         private readonly ILoteRepository _loteRepository;
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IRepository<ProductoStock> _productoStockRepository;
+        private readonly IRepository<MovimientoStock> _movimientoStockRepository;
 
         public PlanificacionService(
             IPlanificacionRepository repository,
             ILoteRepository loteRepository,
-            IUsuarioRepository usuarioRepository)
+            IUsuarioRepository usuarioRepository,
+            IRepository<ProductoStock> productoStockRepository,
+            IRepository<MovimientoStock> movimientoStockRepository)
         {
             _repository = repository;
             _loteRepository = loteRepository;
             _usuarioRepository = usuarioRepository;
+            _productoStockRepository = productoStockRepository;
+            _movimientoStockRepository = movimientoStockRepository;
         }
 
         public async Task<PlanificacionProduccionDto> PLanificarProduccion(PlanificacionProduccionDto dto)
@@ -264,6 +270,55 @@ namespace AtonBeerTesis.Application.Services
                 }
                 if (planificacion.Lote != null)
                     planificacion.Lote.FechaFinReal = DateTime.Now;
+
+                if (dto.Estado == EstadoLote.Finalizado)
+                {
+                    var loteConDesignaciones = await _loteRepository.GetByIdAsync(planificacion.LoteId);
+                    if (loteConDesignaciones?.Designaciones?.Any() == true)
+                    {
+                        var estiloLote = loteConDesignaciones.Estilo ?? loteConDesignaciones.Receta?.Estilo ?? string.Empty;
+                        var todosLosProductos = await _productoStockRepository.FindAllAsync();
+
+                        foreach (var designacion in loteConDesignaciones.Designaciones)
+                        {
+                            var formato = designacion.FormatoEnvase;
+                            if (formato == null || formato.CapacidadLitros <= 0) continue;
+
+                            var unidades = designacion.VolumenAsignado / formato.CapacidadLitros;
+
+                            var productoStock = todosLosProductos.FirstOrDefault(p =>
+                                p.FormatoEnvaseId == designacion.FormatoEnvaseId &&
+                                p.Estilo.Equals(estiloLote, StringComparison.OrdinalIgnoreCase));
+
+                            if (productoStock == null && !string.IsNullOrWhiteSpace(estiloLote))
+                            {
+                                productoStock = new ProductoStock
+                                {
+                                    FormatoEnvaseId = designacion.FormatoEnvaseId,
+                                    Estilo = estiloLote,
+                                    StockActual = 0
+                                };
+                                await _productoStockRepository.AddAsync(productoStock);
+                                todosLosProductos.Add(productoStock);
+                            }
+                            if (productoStock == null) continue;
+
+                            var stockPrevio = productoStock.StockActual;
+                            productoStock.StockActual += unidades;
+                            await _movimientoStockRepository.AddAsync(new MovimientoStock
+                            {
+                                ProductoStockId = productoStock.Id,
+                                LoteId = loteConDesignaciones.Id,
+                                Cantidad = unidades,
+                                TipoMovimiento = "Ingreso",
+                                MotivoMovimiento = "Produccion",
+                                StockPrevio = stockPrevio,
+                                StockResultante = productoStock.StockActual,
+                                Fecha = DateTime.Now
+                            });
+                        }
+                    }
+                }
             }
 
             bool cambioFermentadorOFechas = planificacion.FermentadorId != dto.FermentadorId ||

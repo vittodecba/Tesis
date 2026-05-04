@@ -30,6 +30,8 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .Include(l => l.Receta)
                 .Include(l => l.Fermentador)
                 .Include(l => l.RegistrosFermentacion)
+                .Include(l => l.Designaciones)
+                    .ThenInclude(d => d.FormatoEnvase)
                 .FirstOrDefaultAsync(l => l.Id == id);
         }
 

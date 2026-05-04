@@ -1,4 +1,5 @@
-﻿using AtonBeerTesis.Application.DTOs;
+﻿using AtonBeerTesis.Application.Dtos.STOCK;
+using AtonBeerTesis.Application.DTOs;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,12 @@ namespace AtonBeerTesis.WebApi.Controllers
     public class LoteController : ControllerBase
     {
         private readonly ILoteService _service;
+        private readonly ILoteDesignacionService _designacionService;
 
-        public LoteController(ILoteService service)
+        public LoteController(ILoteService service, ILoteDesignacionService designacionService)
         {
             _service = service;
+            _designacionService = designacionService;
         }
 
         [HttpGet]
@@ -79,6 +82,42 @@ namespace AtonBeerTesis.WebApi.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, detail = ex.InnerException?.Message });
+            }
+        }
+
+        // ── DESIGNACIONES DE VOLUMEN ──────────────────────────────────────
+
+        [HttpGet("{id}/designaciones")]
+        public async Task<IActionResult> GetDesignaciones(int id)
+        {
+            return Ok(await _designacionService.ObtenerPorLoteAsync(id));
+        }
+
+        [HttpPost("{id}/designaciones")]
+        public async Task<IActionResult> AddDesignacion(int id, [FromBody] CreateLoteDesignacionDto dto)
+        {
+            try
+            {
+                var resultado = await _designacionService.AgregarDesignacionAsync(id, dto);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
+        [HttpDelete("{id}/designaciones/{desId}")]
+        public async Task<IActionResult> DeleteDesignacion(int id, int desId)
+        {
+            var eliminado = await _designacionService.EliminarDesignacionAsync(desId);
+            if (!eliminado)
+                return NotFound(new { mensaje = "Designación no encontrada" });
+
+            return NoContent();
         }
     }
 }
