@@ -6,6 +6,7 @@ import { Router, RouterModule } from '@angular/router';
 import { Receta, RecetaService } from '../../../services/receta';
 import {FermentadorService} from '../../../services/fermentador';
 import { PlanificacionService } from '../../../services/PlanificacionService';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-planificacion-form',
@@ -39,10 +40,13 @@ export class PlanificacionFormComponent implements OnInit {
     private _planifService: PlanificacionService,
     private _fermentadorService: FermentadorService,
     private _recetaService: RecetaService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    const user = this.authService.getCurrentUser();
+    if (user?.id) this.nuevaPlanif.usuarioId = user.id;
     this.cargarDatos();
   }
 

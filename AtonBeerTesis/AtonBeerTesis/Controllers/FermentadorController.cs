@@ -25,12 +25,19 @@ namespace AtonBeerTesis.WebApi.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateFermentadorDto dto)
         {
-            var resultado = await _service.UpdateAsync(id, dto);
+            try
+            {
+                var resultado = await _service.UpdateAsync(id, dto);
 
-            if (!resultado)
-                return NotFound($"No se encontró el fermentador con ID {id}");
+                if (!resultado)
+                    return NotFound($"No se encontró el fermentador con ID {id}");
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]

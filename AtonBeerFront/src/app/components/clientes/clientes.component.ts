@@ -53,6 +53,7 @@ export class ClientesComponent implements OnInit {
   selectedId: number | null = null;
   saving = false;
   createError: string | null = null;
+  submitAttempted = false;
   form: FormGroup;
 
   constructor(private api: ClientesApiService, private fb: FormBuilder) {
@@ -63,7 +64,7 @@ export class ClientesComponent implements OnInit {
       ubicacion: ['', [Validators.required]],
       estadoCliente: ['Activo'], // Para que el Update no falle
       contactoNombre: [''],
-      contactoTelefono: [''],
+      contactoTelefono: ['', [Validators.required]],
       contactoEmail: ['', [Validators.email]],
     });
   }
@@ -139,17 +140,21 @@ export class ClientesComponent implements OnInit {
     this.showSummary = false;
     this.selectedCliente = null;
     this.createError = null;
+    this.submitAttempted = false;
+  }
+
+  get contactoTelefonoCtrl() {
+    return this.form.get('contactoTelefono');
+  }
+
+  get contactoEmailCtrl() {
+    return this.form.get('contactoEmail');
   }
 
   submitForm(): void {
+    this.submitAttempted = true;
     if (this.form.invalid) {
-      // Si el formulario es inválido, avisamos qué falta
-      const controles = this.form.controls;
-      for (const nombre in controles) {
-        if (controles[nombre].invalid) {
-          alert(`El campo "${nombre}" es obligatorio o tiene un formato incorrecto.`);
-        }
-      }
+      this.form.markAllAsTouched();
       return;
     }
 

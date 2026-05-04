@@ -35,10 +35,10 @@ export class LoteDetalleComponent implements OnInit {
   X = X;
 
   estadosMapping: { [key: number]: { nombre: string, color: string } } = {
-    0: { nombre: 'Cancelado',   color: 'bg-red-100 text-red-800 border-red-200' },
     1: { nombre: 'Planificado', color: 'bg-blue-100 text-blue-800 border-blue-200' },
     2: { nombre: 'En Proceso',  color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-    3: { nombre: 'Finalizado',  color: 'bg-green-100 text-green-800 border-green-200' }
+    3: { nombre: 'Finalizado',  color: 'bg-green-100 text-green-800 border-green-200' },
+    4: { nombre: 'Descartado',  color: 'bg-red-100 text-red-800 border-red-200' }
   };
 
   constructor(
