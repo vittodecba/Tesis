@@ -67,12 +67,18 @@ namespace AtonBeerTesis.Api.Controllers
             }
             var unidad = await _context.unidadMedida.FindAsync(insumoDto.unidadMedidaId);
             decimal factor = (decimal)(unidad?.Factor ?? 1.0);
+            //defino los ids de las unidades base 
+            int idKilogramos = 1; // ID para kilogramos
+            int idLitros = 2; // ID para litros
             var nuevoInsumo = new Insumo
             {
                 NombreInsumo = insumoDto.NombreInsumo,
                 Codigo = "INS-" + (await _context.Insumos.CountAsync() + 1).ToString("000"),
-                TipoInsumoId = insumoDto.TipoInsumoId,                
-                unidadMedidaId = insumoDto.unidadMedidaId,
+                TipoInsumoId = insumoDto.TipoInsumoId,
+                //Acá aplico la lógica para convertir a la unidad base (Kg o Lt) según corresponda, usando el factor de conversión
+                unidadMedidaId = (unidad.Abreviatura.ToLower() == "gr" || unidad.Abreviatura.ToLower() == "mg") ? idKilogramos :
+                                  (unidad.Abreviatura.ToLower() == "ml" || unidad.Abreviatura.ToLower() == "cl") ? idLitros :
+                                  insumoDto.unidadMedidaId, // Si no es ni peso ni volumen, se deja la unidad original
                 StockActual = insumoDto.StockActual * factor,
                 UltimaActualizacion = DateTime.Now,
                 Observaciones = insumoDto.Observaciones,
@@ -83,8 +89,10 @@ namespace AtonBeerTesis.Api.Controllers
             await _context.SaveChangesAsync();
             return Ok(new { message = "Insumo creado con éxito" });
         }
+
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarInsumo(int id, [FromBody] InsumoDto insumoDto)
+        public async Task<IActionResult> ActualizarInsumo(int id, [FromBody] InsumoDto insumoDto, [FromQuery] bool Ajuste = false)
         {
             //Tambien se busca si hay insumos iguales, en la edición
             var existeInsumo = await _context.Insumos.AnyAsync(i => i.NombreInsumo.ToLower() == insumoDto.NombreInsumo.ToLower() && i.Id != id && i.Activo);
@@ -108,13 +116,26 @@ namespace AtonBeerTesis.Api.Controllers
                 x.Id != id);
 
             if (existe) return BadRequest($"Ya existe otro insumo con ese nombre y tipo.");
-
+            decimal cantidadNormalizada = insumoDto.StockActual * factor;
+            //Volvemos a aplicar la logica de conversión a la unidad base (Kg o Lt) según corresponda, usando el factor de conversión, al editar también
+            var IdKilogramos = 1; // ID para kilogramos
+            var IdLitros = 2; // ID para litros
             // Acá se actualizan los valores
             insumo.NombreInsumo = insumoDto.NombreInsumo;
-            insumo.TipoInsumoId = insumoDto.TipoInsumoId;           
-            insumo.unidadMedidaId = insumoDto.unidadMedidaId;
-            insumo.StockActual = insumoDto.StockActual * factor;
+            insumo.TipoInsumoId = insumoDto.TipoInsumoId;
+            // Acá se actualiza la unidad de medida, aplicando la lógica para convertir a la unidad base (Kg o Lt) según corresponda, usando el factor de conversión
+            insumo.unidadMedidaId = (unidad.Abreviatura.ToLower() == "gr" || unidad.Abreviatura.ToLower() == "mg") ? IdKilogramos :
+                                    (unidad.Abreviatura.ToLower() == "ml" || unidad.Abreviatura.ToLower() == "cl") ? IdLitros :
+                                    insumoDto.unidadMedidaId; // Si no es ni peso ni volumen, se deja la unidad original
             insumo.Observaciones = insumoDto.Observaciones;
+            if (Ajuste)
+            {
+                insumo.StockActual += cantidadNormalizada;
+            }
+            else
+            {
+                insumo.StockActual = cantidadNormalizada;
+            }
             insumo.UltimaActualizacion = DateTime.Now;
             await _context.SaveChangesAsync();
             return Ok(new { message = "Insumo actualizado con éxito" });

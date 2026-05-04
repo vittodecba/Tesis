@@ -20,8 +20,8 @@ export class InsumoService {
     return this.http.post(this.apiUrl, insumo);
   }
 
-  actualizarInsumo(id: number, insumo: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, insumo);
+  actualizarInsumo(id: number, insumo: any, ajuste: boolean = false): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}?Ajuste=${ajuste}`, insumo);
   }
 
   eliminarInsumo(id: number): Observable<any> {
