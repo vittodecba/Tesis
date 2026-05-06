@@ -42,6 +42,10 @@ export class LoteDetalleComponent implements OnInit {
     4: { nombre: 'Descartado',  color: 'bg-red-100 text-red-800 border-red-200' }
   };
 
+  fmtCapacidad(litros: number): string {
+    return litros < 1 ? `${litros * 1000} ml` : `${litros} L`;
+  }
+
   // ── Designaciones ─────────────────────────────────────────────────────
   designaciones: LoteDesignacionDto[] = [];
   formatosDisponibles: FormatoEnvaseDto[] = [];

@@ -29,6 +29,20 @@ export interface CreateLoteDesignacionDto {
   volumenAsignado: number;
 }
 
+export interface MovimientoDetalladoDto {
+  id: number;
+  fecha: string;
+  tipoMovimiento: string;
+  motivoMovimiento: string;
+  cantidad: number;
+  stockPrevio: number;
+  stockResultante: number;
+  estilo: string;
+  formatoNombre: string;
+  loteId: number | null;
+  loteCodigo: string | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -69,7 +83,7 @@ export class StockService {
 
   // ── Historial de movimientos ────────────────────────────────────────────
 
-  getMovimientos(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiStock}/movimientos`);
+  getMovimientos(): Observable<MovimientoDetalladoDto[]> {
+    return this.http.get<MovimientoDetalladoDto[]>(`${this.apiStock}/movimientos`);
   }
 }

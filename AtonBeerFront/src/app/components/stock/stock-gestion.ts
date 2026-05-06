@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { StockService, FormatoEnvaseDto } from '../../services/stock.service';
+import { StockService, FormatoEnvaseDto, MovimientoDetalladoDto } from '../../services/stock.service';
 
 @Component({
   selector: 'app-stock-gestion',
@@ -16,12 +16,13 @@ export class StockGestion implements OnInit {
   searchTerm = '';
 
   formatos: FormatoEnvaseDto[] = [];
-  movimientos: any[] = [];
+  movimientos: MovimientoDetalladoDto[] = [];
 
   // Modal crear formato
   modalFormatoOpen = false;
   nuevoNombre = '';
   nuevoCapacidad: number | null = null;
+  unidadCapacidad: 'L' | 'ml' = 'L';
   creandoFormato = false;
   errorFormato = '';
 
@@ -73,8 +74,13 @@ export class StockGestion implements OnInit {
   openCrearFormato() {
     this.nuevoNombre = '';
     this.nuevoCapacidad = null;
+    this.unidadCapacidad = 'L';
     this.errorFormato = '';
     this.modalFormatoOpen = true;
+  }
+
+  fmtCapacidad(litros: number): string {
+    return litros < 1 ? `${litros * 1000} ml` : `${litros} L`;
   }
 
   guardarFormato() {
@@ -82,10 +88,13 @@ export class StockGestion implements OnInit {
       this.errorFormato = 'Completá nombre y capacidad válida';
       return;
     }
+    const capacidadEnLitros = this.unidadCapacidad === 'ml'
+      ? this.nuevoCapacidad / 1000
+      : this.nuevoCapacidad;
     this.creandoFormato = true;
     this.errorFormato = '';
     this.stockService
-      .crearFormatoEnvase({ nombre: this.nuevoNombre.trim(), capacidadLitros: this.nuevoCapacidad })
+      .crearFormatoEnvase({ nombre: this.nuevoNombre.trim(), capacidadLitros: capacidadEnLitros })
       .subscribe({
         next: () => {
           this.modalFormatoOpen = false;

@@ -245,7 +245,7 @@
             <tbody>
               <tr *ngFor="let des of designaciones" class="border-t border-gray-100 hover:bg-gray-50">
                 <td class="px-4 py-3 font-medium text-gray-800">{{ des.nombreFormato }}</td>
-                <td class="px-4 py-3 text-right text-gray-500">{{ des.capacidadLitros }}L</td>
+                <td class="px-4 py-3 text-right text-gray-500">{{ fmtCapacidad(des.capacidadLitros) }}</td>
 
                 <!-- Modo normal -->
                 <td *ngIf="editandoDesignacionId !== des.id" class="px-4 py-3 text-right text-blue-700 font-semibold">
@@ -323,7 +323,7 @@
                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none">
                 <option [ngValue]="null" disabled>Seleccionar...</option>
                 <option *ngFor="let f of formatosDisponibles" [ngValue]="f.id">
-                  {{ f.nombre }} ({{ f.capacidadLitros }}L)
+                  {{ f.nombre }} ({{ fmtCapacidad(f.capacidadLitros) }})
                 </option>
               </select>
             </div>

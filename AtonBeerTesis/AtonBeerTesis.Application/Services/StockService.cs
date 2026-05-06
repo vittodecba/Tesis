@@ -1,3 +1,4 @@
+using AtonBeerTesis.Application.Dtos.STOCK;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Interfaces;
@@ -7,11 +8,11 @@ namespace AtonBeerTesis.Application.Services
     public class StockService : IStockService
     {
         private readonly IRepository<ProductoStock> _productoStockRepository;
-        private readonly IRepository<MovimientoStock> _movimientoStockRepository;
+        private readonly IMovimientoStockRepository _movimientoStockRepository;
 
         public StockService(
             IRepository<ProductoStock> productoStockRepository,
-            IRepository<MovimientoStock> movimientoStockRepository)
+            IMovimientoStockRepository movimientoStockRepository)
         {
             _productoStockRepository = productoStockRepository;
             _movimientoStockRepository = movimientoStockRepository;
@@ -22,9 +23,9 @@ namespace AtonBeerTesis.Application.Services
             return await _productoStockRepository.GetAllAsync();
         }
 
-        public async Task<IEnumerable<MovimientoStock>> ObtenerMovimientosAsync()
+        public async Task<IEnumerable<MovimientoDetalladoDto>> ObtenerMovimientosAsync()
         {
-            return await _movimientoStockRepository.GetAllAsync();
+            return await _movimientoStockRepository.GetMovimientosDetalladosAsync();
         }
     }
 }

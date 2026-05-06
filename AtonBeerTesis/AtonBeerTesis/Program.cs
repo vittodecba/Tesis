@@ -62,6 +62,7 @@ namespace AtonBeerTesis
             builder.Services.AddScoped<IEmailService, EmailService>();
 
             //--- MOVIMIENTO DE STOCK ---
+            builder.Services.AddScoped<IMovimientoStockRepository, MovimientoStockRepository>();
             builder.Services.AddScoped<IStockService, StockService>();
             builder.Services.AddScoped<IFormatoEnvaseService, FormatoEnvaseService>();
             builder.Services.AddScoped<ILoteDesignacionService, LoteDesignacionService>();
