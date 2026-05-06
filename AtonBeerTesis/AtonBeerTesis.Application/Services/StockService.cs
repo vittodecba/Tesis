@@ -74,5 +74,94 @@ namespace AtonBeerTesis.Application.Services
                 LoteId = null
             };
         }
+
+        public async Task<MovimientoDetalladoDto> CorregirStockAsync(int productoStockId, CorreccionStockDto dto)
+        {
+            if (dto.NuevaCantidad < 0)
+                throw new Exception("El stock no puede ser negativo.");
+
+            var producto = await _productoStockRepository.FindOneAsync(productoStockId)
+                ?? throw new Exception("Producto de stock no encontrado.");
+
+            var formato = producto.FormatoEnvase;
+            var stockPrevio = producto.StockActual;
+            var diferencia = dto.NuevaCantidad - stockPrevio;
+
+            producto.StockActual = dto.NuevaCantidad;
+
+            var movimiento = new MovimientoStock
+            {
+                ProductoStockId = producto.Id,
+                LoteId = null,
+                Cantidad = Math.Abs(diferencia),
+                TipoMovimiento = diferencia >= 0 ? "Ingreso" : "Egreso",
+                MotivoMovimiento = "Corrección Manual",
+                StockPrevio = stockPrevio,
+                StockResultante = producto.StockActual,
+                Fecha = DateTime.Now
+            };
+
+            await _movimientoStockWriteRepository.AddAsync(movimiento);
+
+            return new MovimientoDetalladoDto
+            {
+                Id = movimiento.Id,
+                Fecha = movimiento.Fecha,
+                TipoMovimiento = movimiento.TipoMovimiento,
+                MotivoMovimiento = movimiento.MotivoMovimiento,
+                Cantidad = movimiento.Cantidad,
+                StockPrevio = stockPrevio,
+                StockResultante = producto.StockActual,
+                Estilo = producto.Estilo,
+                FormatoNombre = formato?.Nombre ?? "",
+                LoteId = null
+            };
+        }
+
+        public async Task<MovimientoDetalladoDto> EgresoManualAsync(CreateIngresoManualDto dto)
+        {
+            if (dto.Cantidad <= 0)
+                throw new Exception("La cantidad debe ser mayor a 0.");
+
+            var producto = await _productoStockRepository.FindOneAsync(dto.ProductoStockId)
+                ?? throw new Exception("Producto de stock no encontrado.");
+
+            if (producto.StockActual < dto.Cantidad)
+                throw new Exception($"Stock insuficiente. Stock actual: {producto.StockActual} u.");
+
+            var formato = producto.FormatoEnvase;
+            var stockPrevio = producto.StockActual;
+            producto.StockActual -= dto.Cantidad;
+
+            var motivo = string.IsNullOrWhiteSpace(dto.Motivo) ? "Egreso Manual" : dto.Motivo.Trim();
+
+            var movimiento = new MovimientoStock
+            {
+                ProductoStockId = producto.Id,
+                LoteId = null,
+                Cantidad = dto.Cantidad,
+                TipoMovimiento = "Egreso",
+                MotivoMovimiento = motivo,
+                StockPrevio = stockPrevio,
+                StockResultante = producto.StockActual,
+                Fecha = DateTime.Now
+            };
+
+            await _movimientoStockWriteRepository.AddAsync(movimiento);
+
+            return new MovimientoDetalladoDto
+            {
+                Id = movimiento.Id,
+                Fecha = movimiento.Fecha,
+                TipoMovimiento = movimiento.TipoMovimiento,
+                MotivoMovimiento = movimiento.MotivoMovimiento,
+                Cantidad = movimiento.Cantidad,
+                StockPrevio = stockPrevio,
+                StockResultante = producto.StockActual,
+                Estilo = producto.Estilo,
+                FormatoNombre = formato?.Nombre ?? "",
+                LoteId = null
+            };
+        }
     }
 }

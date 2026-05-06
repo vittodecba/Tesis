@@ -95,4 +95,15 @@ export class StockService {
   agregarIngresoManual(dto: CreateIngresoManualDto): Observable<MovimientoDetalladoDto> {
     return this.http.post<MovimientoDetalladoDto>(`${this.apiStock}/ingresos`, dto);
   }
+
+  corregirStock(productoStockId: number, nuevaCantidad: number): Observable<MovimientoDetalladoDto> {
+    return this.http.put<MovimientoDetalladoDto>(
+      `${this.apiStock}/productos/${productoStockId}/correccion`,
+      { nuevaCantidad }
+    );
+  }
+
+  egresoManual(dto: CreateIngresoManualDto): Observable<MovimientoDetalladoDto> {
+    return this.http.post<MovimientoDetalladoDto>(`${this.apiStock}/egresos`, dto);
+  }
 }

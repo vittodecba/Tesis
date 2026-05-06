@@ -135,6 +135,82 @@ export class StockGestion implements OnInit {
     });
   }
 
+  // ── Corrección de stock ───────────────────────────────────────────────
+
+  correccionProducto: { id: number; estilo: string; formatoNombre: string; stockActual: number } | null = null;
+  correccionNuevaCantidad: number | null = null;
+  corrigiendo = false;
+  errorCorreccion = '';
+
+  abrirCorreccion(prod: ProductoStockDto, formatoNombre: string) {
+    this.correccionProducto = { id: prod.id, estilo: prod.estilo, formatoNombre, stockActual: prod.stockActual };
+    this.correccionNuevaCantidad = prod.stockActual;
+    this.errorCorreccion = '';
+    this.corrigiendo = false;
+  }
+
+  confirmarCorreccion() {
+    if (!this.correccionProducto || this.correccionNuevaCantidad === null || this.correccionNuevaCantidad < 0) {
+      this.errorCorreccion = 'Ingresá una cantidad válida (≥ 0).';
+      return;
+    }
+    this.corrigiendo = true;
+    this.errorCorreccion = '';
+    this.stockService.corregirStock(this.correccionProducto.id, this.correccionNuevaCantidad).subscribe({
+      next: () => {
+        this.correccionProducto = null;
+        this.corrigiendo = false;
+        this.cargarFormatos();
+        this.cargarMovimientos();
+      },
+      error: (err) => {
+        this.errorCorreccion = err.error?.mensaje || 'Error al corregir stock.';
+        this.corrigiendo = false;
+      },
+    });
+  }
+
+  // ── Egreso Manual ─────────────────────────────────────────────────────
+
+  egresoProducto: { id: number; estilo: string; formatoNombre: string; stockActual: number } | null = null;
+  egresoCantidad: number | null = null;
+  egresoMotivo = 'Egreso Manual';
+  egresando = false;
+  errorEgreso = '';
+
+  abrirEgreso(prod: ProductoStockDto, formatoNombre: string) {
+    this.egresoProducto = { id: prod.id, estilo: prod.estilo, formatoNombre, stockActual: prod.stockActual };
+    this.egresoCantidad = null;
+    this.egresoMotivo = 'Egreso Manual';
+    this.errorEgreso = '';
+    this.egresando = false;
+  }
+
+  confirmarEgreso() {
+    if (!this.egresoProducto || !this.egresoCantidad || this.egresoCantidad <= 0) {
+      this.errorEgreso = 'Ingresá una cantidad válida mayor a 0.';
+      return;
+    }
+    this.egresando = true;
+    this.errorEgreso = '';
+    this.stockService.egresoManual({
+      productoStockId: this.egresoProducto.id,
+      cantidad: this.egresoCantidad,
+      motivo: this.egresoMotivo || 'Egreso Manual',
+    }).subscribe({
+      next: () => {
+        this.egresoProducto = null;
+        this.egresando = false;
+        this.cargarFormatos();
+        this.cargarMovimientos();
+      },
+      error: (err) => {
+        this.errorEgreso = err.error?.mensaje || 'Error al registrar egreso.';
+        this.egresando = false;
+      },
+    });
+  }
+
   // ── Ingreso Manual ────────────────────────────────────────────────────
 
   abrirIngreso(prod: ProductoStockDto, formatoNombre: string) {

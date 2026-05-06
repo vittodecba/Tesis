@@ -52,7 +52,7 @@ export class LoteDetalleComponent implements OnInit {
   cargandoDesignaciones = false;
 
   nuevaDesignacionFormatoId: number | null = null;
-  nuevaDesignacionVolumen: number | null = null;
+  nuevaDesignacionUnidades: number | null = null;
   errorDesignacion = '';
   guardandoDesignacion = false;
 
@@ -166,6 +166,22 @@ export class LoteDetalleComponent implements OnInit {
 
   // ── Designaciones ─────────────────────────────────────────────────────
 
+  get formatoSeleccionado(): FormatoEnvaseDto | null {
+    if (!this.nuevaDesignacionFormatoId) return null;
+    return this.formatosDisponibles.find(f => f.id === this.nuevaDesignacionFormatoId) ?? null;
+  }
+
+  get maxUnidades(): number {
+    const cap = this.formatoSeleccionado?.capacidadLitros ?? 0;
+    if (cap <= 0) return 0;
+    return Math.floor(this.volumenRestante / cap);
+  }
+
+  get litrosEquivalentes(): number {
+    if (!this.nuevaDesignacionUnidades || !this.formatoSeleccionado) return 0;
+    return this.nuevaDesignacionUnidades * this.formatoSeleccionado.capacidadLitros;
+  }
+
   get puedeDesignar(): boolean {
     const estado = this.lote?.estado;
     return estado === 'Planificado' || estado === 'EnProceso' ||
@@ -196,19 +212,23 @@ export class LoteDetalleComponent implements OnInit {
   }
 
   agregarDesignacion() {
-    if (!this.nuevaDesignacionFormatoId || !this.nuevaDesignacionVolumen || this.nuevaDesignacionVolumen <= 0) {
-      this.errorDesignacion = 'Seleccioná un formato e ingresá un volumen válido';
+    if (!this.nuevaDesignacionFormatoId || !this.nuevaDesignacionUnidades || this.nuevaDesignacionUnidades <= 0) {
+      this.errorDesignacion = 'Seleccioná un formato e ingresá una cantidad válida';
       return;
     }
+    const formato = this.formatoSeleccionado;
+    if (!formato) return;
+
+    const volumenAsignado = this.nuevaDesignacionUnidades * formato.capacidadLitros;
     this.guardandoDesignacion = true;
     this.errorDesignacion = '';
     this.stockService.addDesignacion(this.loteRealId, {
       formatoEnvaseId: this.nuevaDesignacionFormatoId,
-      volumenAsignado: this.nuevaDesignacionVolumen
+      volumenAsignado
     }).subscribe({
       next: () => {
         this.nuevaDesignacionFormatoId = null;
-        this.nuevaDesignacionVolumen = null;
+        this.nuevaDesignacionUnidades = null;
         this.guardandoDesignacion = false;
         this.cargarDesignaciones(this.loteRealId);
       },
@@ -228,7 +248,7 @@ export class LoteDetalleComponent implements OnInit {
 
   iniciarEdicion(des: LoteDesignacionDto) {
     this.editandoDesignacionId = des.id;
-    this.volumenEditado = des.volumenAsignado;
+    this.volumenEditado = des.unidadesResultantes;
     this.errorEdicion = '';
   }
 
@@ -246,7 +266,7 @@ export class LoteDetalleComponent implements OnInit {
       next: () => {
         this.stockService.addDesignacion(this.loteRealId, {
           formatoEnvaseId: des.formatoEnvaseId,
-          volumenAsignado: this.volumenEditado!
+          volumenAsignado: this.volumenEditado! * des.capacidadLitros
         }).subscribe({
           next: () => {
             this.guardandoEdicion = false;
