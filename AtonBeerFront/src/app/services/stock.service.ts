@@ -40,7 +40,12 @@ export interface MovimientoDetalladoDto {
   estilo: string;
   formatoNombre: string;
   loteId: number | null;
-  loteCodigo: string | null;
+}
+
+export interface CreateIngresoManualDto {
+  productoStockId: number;
+  cantidad: number;
+  motivo: string;
 }
 
 @Injectable({
@@ -85,5 +90,9 @@ export class StockService {
 
   getMovimientos(): Observable<MovimientoDetalladoDto[]> {
     return this.http.get<MovimientoDetalladoDto[]>(`${this.apiStock}/movimientos`);
+  }
+
+  agregarIngresoManual(dto: CreateIngresoManualDto): Observable<MovimientoDetalladoDto> {
+    return this.http.post<MovimientoDetalladoDto>(`${this.apiStock}/ingresos`, dto);
   }
 }

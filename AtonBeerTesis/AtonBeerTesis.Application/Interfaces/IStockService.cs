@@ -7,5 +7,6 @@ namespace AtonBeerTesis.Application.Interfaces
     {
         Task<IEnumerable<ProductoStock>> ObtenerTodosAsync();
         Task<IEnumerable<MovimientoDetalladoDto>> ObtenerMovimientosAsync();
+        Task<MovimientoDetalladoDto> AgregarIngresoManualAsync(CreateIngresoManualDto dto);
     }
 }

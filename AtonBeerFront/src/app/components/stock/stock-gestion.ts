@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { StockService, FormatoEnvaseDto, MovimientoDetalladoDto } from '../../services/stock.service';
+import { StockService, FormatoEnvaseDto, MovimientoDetalladoDto, ProductoStockDto } from '../../services/stock.service';
 
 @Component({
   selector: 'app-stock-gestion',
@@ -29,6 +29,14 @@ export class StockGestion implements OnInit {
   // Modal eliminar
   deleteModalOpen = false;
   formatoAEliminar: FormatoEnvaseDto | null = null;
+
+  // Modal ingreso manual
+  ingresoModalOpen = false;
+  ingresoProducto: { id: number; estilo: string; formatoNombre: string } | null = null;
+  ingresoCantidad: number | null = null;
+  ingresoMotivo = 'Ingreso Manual';
+  ingresando = false;
+  errorIngreso = '';
 
   constructor(private stockService: StockService) {}
 
@@ -124,6 +132,41 @@ export class StockGestion implements OnInit {
         this.cargarFormatos();
       },
       error: () => alert('Error al eliminar formato'),
+    });
+  }
+
+  // ── Ingreso Manual ────────────────────────────────────────────────────
+
+  abrirIngreso(prod: ProductoStockDto, formatoNombre: string) {
+    this.ingresoProducto = { id: prod.id, estilo: prod.estilo, formatoNombre };
+    this.ingresoCantidad = null;
+    this.ingresoMotivo = 'Ingreso Manual';
+    this.errorIngreso = '';
+    this.ingresoModalOpen = true;
+  }
+
+  confirmarIngreso() {
+    if (!this.ingresoProducto || !this.ingresoCantidad || this.ingresoCantidad <= 0) {
+      this.errorIngreso = 'Ingresá una cantidad válida mayor a 0';
+      return;
+    }
+    this.ingresando = true;
+    this.errorIngreso = '';
+    this.stockService.agregarIngresoManual({
+      productoStockId: this.ingresoProducto.id,
+      cantidad: this.ingresoCantidad,
+      motivo: this.ingresoMotivo || 'Ingreso Manual',
+    }).subscribe({
+      next: () => {
+        this.ingresoModalOpen = false;
+        this.ingresando = false;
+        this.cargarFormatos();
+        this.cargarMovimientos();
+      },
+      error: (err) => {
+        this.errorIngreso = err.error?.mensaje || 'Error al registrar el ingreso';
+        this.ingresando = false;
+      },
     });
   }
 }

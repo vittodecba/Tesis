@@ -274,6 +274,15 @@ namespace AtonBeerTesis.Application.Services
                 if (dto.Estado == EstadoLote.Finalizado)
                 {
                     var loteConDesignaciones = await _loteRepository.GetByIdAsync(planificacion.LoteId);
+
+                    var volumenDesignado = loteConDesignaciones?.Designaciones?
+                        .Sum(d => d.VolumenAsignado) ?? 0;
+                    if (volumenDesignado < (decimal)(loteConDesignaciones?.VolumenLitros ?? 0))
+                        throw new InvalidOperationException(
+                            $"No se puede finalizar: {volumenDesignado}L designados de " +
+                            $"{loteConDesignaciones?.VolumenLitros}L totales. " +
+                            "Completá la designación de volumen en el detalle del lote.");
+
                     if (loteConDesignaciones?.Designaciones?.Any() == true)
                     {
                         var estiloLote = loteConDesignaciones.Estilo ?? loteConDesignaciones.Receta?.Estilo ?? string.Empty;

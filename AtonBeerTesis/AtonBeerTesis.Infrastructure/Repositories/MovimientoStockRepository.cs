@@ -20,8 +20,6 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 from m in _context.MovimientosStock
                 join p in _context.ProductosStock on m.ProductoStockId equals p.Id
                 join f in _context.FormatosEnvase on p.FormatoEnvaseId equals f.Id
-                join l in _context.Lotes on m.LoteId equals l.Id into lotes
-                from lote in lotes.DefaultIfEmpty()
                 orderby m.Fecha descending
                 select new MovimientoDetalladoDto
                 {
@@ -34,8 +32,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                     StockResultante = m.StockResultante,
                     Estilo = p.Estilo,
                     FormatoNombre = f.Nombre,
-                    LoteId = m.LoteId,
-                    LoteCodigo = lote != null ? lote.CodigoLote : null
+                    LoteId = m.LoteId
                 }
             ).ToListAsync();
         }

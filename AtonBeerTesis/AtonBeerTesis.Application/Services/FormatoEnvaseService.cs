@@ -51,6 +51,10 @@ namespace AtonBeerTesis.Application.Services
             if (dto.CapacidadLitros <= 0)
                 throw new Exception("La capacidad en litros debe ser mayor a 0");
 
+            var existentes = await _formatoRepository.FindAllAsync();
+            if (existentes.Any(f => f.Nombre.Equals(dto.Nombre.Trim(), StringComparison.OrdinalIgnoreCase)))
+                throw new Exception($"Ya existe un formato con el nombre '{dto.Nombre.Trim()}'");
+
             var formato = new FormatoEnvase
             {
                 Nombre = dto.Nombre.Trim(),

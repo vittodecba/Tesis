@@ -235,6 +235,15 @@ namespace AtonBeerTesis.Application.Services
             }
 
             // 4. Generar ingresos de stock para cada designación (solo si finaliza, no si descarta)
+            if (estadoFinal == EstadoLote.Finalizado)
+            {
+                var volumenDesignado = lote.Designaciones.Sum(d => d.VolumenAsignado);
+                if (volumenDesignado < (decimal)lote.VolumenLitros)
+                    throw new InvalidOperationException(
+                        $"No se puede finalizar: {volumenDesignado}L designados de {lote.VolumenLitros}L totales. " +
+                        "Completá la designación de volumen en el detalle del lote.");
+            }
+
             if (estadoFinal == EstadoLote.Finalizado && lote.Designaciones.Any())
             {
                 var estiloLote = lote.Estilo ?? lote.Receta?.Estilo ?? string.Empty;

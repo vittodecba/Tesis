@@ -1,3 +1,4 @@
+using AtonBeerTesis.Application.Dtos.STOCK;
 using AtonBeerTesis.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,6 +25,20 @@ namespace AtonBeerTesis.Controllers
         public async Task<IActionResult> GetMovimientos()
         {
             return Ok(await _stockService.ObtenerMovimientosAsync());
+        }
+
+        [HttpPost("ingresos")]
+        public async Task<IActionResult> AgregarIngreso([FromBody] CreateIngresoManualDto dto)
+        {
+            try
+            {
+                var resultado = await _stockService.AgregarIngresoManualAsync(dto);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
         }
     }
 }

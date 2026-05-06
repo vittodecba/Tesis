@@ -75,6 +75,23 @@ namespace AtonBeerTesis.Application.Services
                     $"El volumen total designado ({volumenYaDesignado + dto.VolumenAsignado}L) " +
                     $"supera el volumen del lote ({lote.VolumenLitros}L)");
 
+            var designacionExistente = designacionesExistentes
+                .FirstOrDefault(d => d.LoteId == loteId && d.FormatoEnvaseId == dto.FormatoEnvaseId);
+
+            if (designacionExistente != null)
+            {
+                designacionExistente.VolumenAsignado += dto.VolumenAsignado;
+                _designacionRepository.Update(designacionExistente.Id, designacionExistente);
+                return new LoteDesignacionDto
+                {
+                    Id = designacionExistente.Id,
+                    FormatoEnvaseId = formato.Id,
+                    NombreFormato = formato.Nombre,
+                    CapacidadLitros = formato.CapacidadLitros,
+                    VolumenAsignado = designacionExistente.VolumenAsignado
+                };
+            }
+
             var designacion = new LoteDesignacion
             {
                 LoteId = loteId,

@@ -332,8 +332,8 @@ export class FermentadorDetalleComponent implements OnInit {
         this.cargarPantalla();
       },
       error: (err) => {
-        console.error(err);
-        this.errorCarga = err?.error || 'No se pudo finalizar el lote.';
+        const msg = err?.error?.message || 'No se pudo finalizar el lote.';
+        Swal.fire('No se puede finalizar', msg, 'warning');
       },
     });
   }

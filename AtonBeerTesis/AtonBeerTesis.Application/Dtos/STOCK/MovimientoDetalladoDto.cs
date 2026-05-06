@@ -12,6 +12,5 @@ namespace AtonBeerTesis.Application.Dtos.STOCK
         public string Estilo { get; set; } = "";
         public string FormatoNombre { get; set; } = "";
         public int? LoteId { get; set; }
-        public string? LoteCodigo { get; set; }
     }
 }

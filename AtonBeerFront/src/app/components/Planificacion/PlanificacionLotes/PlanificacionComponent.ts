@@ -122,7 +122,11 @@ export class PlanificacionFormComponent implements OnInit {
 
     this._planifService.crearPlanificacion(this.nuevaPlanif).subscribe({
       next: () => {
-        Swal.fire('¡Éxito!', 'Producción planificada correctamente', 'success');
+        Swal.fire({
+          title: '¡Lote creado!',
+          html: 'La producción fue planificada correctamente.<br><br><span style="font-size:0.9em">📋 <strong>Recordá hacer la designación de volumen</strong> en el detalle del lote antes de finalizarlo.</span>',
+          icon: 'success'
+        });
         this.router.navigate(['/planificacion/Listado']);
       },
       error: (err: any) => {

@@ -9,13 +9,16 @@ namespace AtonBeerTesis.Application.Services
     {
         private readonly IRepository<ProductoStock> _productoStockRepository;
         private readonly IMovimientoStockRepository _movimientoStockRepository;
+        private readonly IRepository<MovimientoStock> _movimientoStockWriteRepository;
 
         public StockService(
             IRepository<ProductoStock> productoStockRepository,
-            IMovimientoStockRepository movimientoStockRepository)
+            IMovimientoStockRepository movimientoStockRepository,
+            IRepository<MovimientoStock> movimientoStockWriteRepository)
         {
             _productoStockRepository = productoStockRepository;
             _movimientoStockRepository = movimientoStockRepository;
+            _movimientoStockWriteRepository = movimientoStockWriteRepository;
         }
 
         public async Task<IEnumerable<ProductoStock>> ObtenerTodosAsync()
@@ -26,6 +29,50 @@ namespace AtonBeerTesis.Application.Services
         public async Task<IEnumerable<MovimientoDetalladoDto>> ObtenerMovimientosAsync()
         {
             return await _movimientoStockRepository.GetMovimientosDetalladosAsync();
+        }
+
+        public async Task<MovimientoDetalladoDto> AgregarIngresoManualAsync(CreateIngresoManualDto dto)
+        {
+            if (dto.Cantidad <= 0)
+                throw new Exception("La cantidad debe ser mayor a 0");
+
+            var producto = await _productoStockRepository.FindOneAsync(dto.ProductoStockId)
+                ?? throw new Exception("Producto de stock no encontrado");
+
+            var formato = producto.FormatoEnvase;
+
+            var stockPrevio = producto.StockActual;
+            producto.StockActual += dto.Cantidad;
+
+            var motivo = string.IsNullOrWhiteSpace(dto.Motivo) ? "Ingreso Manual" : dto.Motivo.Trim();
+
+            var movimiento = new MovimientoStock
+            {
+                ProductoStockId = producto.Id,
+                LoteId = null,
+                Cantidad = dto.Cantidad,
+                TipoMovimiento = "Ingreso",
+                MotivoMovimiento = motivo,
+                StockPrevio = stockPrevio,
+                StockResultante = producto.StockActual,
+                Fecha = DateTime.Now
+            };
+
+            await _movimientoStockWriteRepository.AddAsync(movimiento);
+
+            return new MovimientoDetalladoDto
+            {
+                Id = movimiento.Id,
+                Fecha = movimiento.Fecha,
+                TipoMovimiento = movimiento.TipoMovimiento,
+                MotivoMovimiento = movimiento.MotivoMovimiento,
+                Cantidad = movimiento.Cantidad,
+                StockPrevio = movimiento.StockPrevio,
+                StockResultante = movimiento.StockResultante,
+                Estilo = producto.Estilo,
+                FormatoNombre = formato?.Nombre ?? "",
+                LoteId = null
+            };
         }
     }
 }
