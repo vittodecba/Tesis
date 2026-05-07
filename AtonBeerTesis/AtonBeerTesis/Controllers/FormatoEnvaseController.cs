@@ -38,11 +38,18 @@ namespace AtonBeerTesis.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var eliminado = await _service.EliminarFormatoAsync(id);
-            if (!eliminado)
-                return NotFound(new { mensaje = "Formato de envase no encontrado" });
+            try
+            {
+                var eliminado = await _service.EliminarFormatoAsync(id);
+                if (!eliminado)
+                    return NotFound(new { mensaje = "Formato de envase no encontrado" });
 
-            return NoContent();
+                return Ok(new { mensaje = "Formato eliminado correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
         }
     }
 }

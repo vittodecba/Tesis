@@ -71,6 +71,7 @@ namespace AtonBeerTesis.Application.Services
                 StockResultante = movimiento.StockResultante,
                 Estilo = producto.Estilo,
                 FormatoNombre = formato?.Nombre ?? "",
+                CapacidadLitros = formato?.CapacidadLitros ?? 0,
                 LoteId = null
             };
         }
@@ -114,6 +115,7 @@ namespace AtonBeerTesis.Application.Services
                 StockResultante = producto.StockActual,
                 Estilo = producto.Estilo,
                 FormatoNombre = formato?.Nombre ?? "",
+                CapacidadLitros = formato?.CapacidadLitros ?? 0,
                 LoteId = null
             };
         }
@@ -160,6 +162,7 @@ namespace AtonBeerTesis.Application.Services
                 StockResultante = producto.StockActual,
                 Estilo = producto.Estilo,
                 FormatoNombre = formato?.Nombre ?? "",
+                CapacidadLitros = formato?.CapacidadLitros ?? 0,
                 LoteId = null
             };
         }

@@ -10,15 +10,18 @@ namespace AtonBeerTesis.Application.Services
         private readonly IRepository<FormatoEnvase> _formatoRepository;
         private readonly IRepository<ProductoStock> _productoStockRepository;
         private readonly IRecetaRepository _recetaRepository;
+        private readonly IRepository<LoteDesignacion> _designacionRepository;
 
         public FormatoEnvaseService(
             IRepository<FormatoEnvase> formatoRepository,
             IRepository<ProductoStock> productoStockRepository,
-            IRecetaRepository recetaRepository)
+            IRecetaRepository recetaRepository,
+            IRepository<LoteDesignacion> designacionRepository)
         {
             _formatoRepository = formatoRepository;
             _productoStockRepository = productoStockRepository;
             _recetaRepository = recetaRepository;
+            _designacionRepository = designacionRepository;
         }
 
         public async Task<IEnumerable<FormatoEnvaseDto>> ObtenerTodosAsync()
@@ -52,8 +55,10 @@ namespace AtonBeerTesis.Application.Services
                 throw new Exception("La capacidad en litros debe ser mayor a 0");
 
             var existentes = await _formatoRepository.FindAllAsync();
-            if (existentes.Any(f => f.Nombre.Equals(dto.Nombre.Trim(), StringComparison.OrdinalIgnoreCase)))
-                throw new Exception($"Ya existe un formato con el nombre '{dto.Nombre.Trim()}'");
+            if (existentes.Any(f =>
+                f.Nombre.Equals(dto.Nombre.Trim(), StringComparison.OrdinalIgnoreCase) &&
+                f.CapacidadLitros == dto.CapacidadLitros))
+                throw new Exception($"Ya existe un formato '{dto.Nombre.Trim()}' con capacidad {dto.CapacidadLitros}L.");
 
             var formato = new FormatoEnvase
             {
@@ -99,6 +104,12 @@ namespace AtonBeerTesis.Application.Services
         {
             var formato = await _formatoRepository.FindOneAsync(id);
             if (formato == null) return false;
+
+            // Validar ANTES de borrar cualquier cosa
+            var tieneDesignaciones = await _designacionRepository.CountAsync(d => d.FormatoEnvaseId == id) > 0;
+            if (tieneDesignaciones)
+                throw new InvalidOperationException(
+                    "No se puede eliminar: hay lotes que usan este formato en sus designaciones de volumen.");
 
             var productos = await _productoStockRepository.FindAllAsync();
             var productosDelFormato = productos.Where(p => p.FormatoEnvaseId == id).ToList();

@@ -39,6 +39,7 @@ export interface MovimientoDetalladoDto {
   stockResultante: number;
   estilo: string;
   formatoNombre: string;
+  capacidadLitros: number;
   loteId: number | null;
 }
 

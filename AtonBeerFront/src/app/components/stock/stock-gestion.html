@@ -165,7 +165,7 @@
             </td>
             <td class="px-4 py-3">
               <p class="font-medium text-gray-800">{{ mov.estilo }}</p>
-              <p class="text-xs text-gray-400">{{ mov.formatoNombre }}</p>
+              <p class="text-xs text-gray-400">{{ mov.formatoNombre }} · {{ fmtCapacidad(mov.capacidadLitros) }}</p>
             </td>
             <td class="px-4 py-3 text-right font-semibold"
               [class.text-green-600]="mov.tipoMovimiento === 'Ingreso'"

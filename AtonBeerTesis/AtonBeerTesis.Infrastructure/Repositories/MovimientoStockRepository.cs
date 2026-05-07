@@ -32,6 +32,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                     StockResultante = m.StockResultante,
                     Estilo = p.Estilo,
                     FormatoNombre = f.Nombre,
+                    CapacidadLitros = f.CapacidadLitros,
                     LoteId = m.LoteId
                 }
             ).ToListAsync();

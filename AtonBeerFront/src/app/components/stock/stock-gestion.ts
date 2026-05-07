@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -131,7 +132,11 @@ export class StockGestion implements OnInit {
         this.formatoAEliminar = null;
         this.cargarFormatos();
       },
-      error: () => alert('Error al eliminar formato'),
+      error: (err) => {
+        this.deleteModalOpen = false;
+        this.formatoAEliminar = null;
+        Swal.fire('No se puede eliminar', err.error?.mensaje || 'Error al eliminar el formato.', 'warning');
+      },
     });
   }
 
