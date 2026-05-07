@@ -8,6 +8,7 @@ import { FermentadorService } from '../../services/fermentador';
 import { ArrowLeft, Edit2, Check, X, LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth.service';
 import { RecetaService, Receta } from '../../services/receta';
+import { StockService, FormatoEnvaseDto, LoteDesignacionDto } from '../../services/stock.service';
 
 @Component({
   selector: 'app-lote-detalle',
@@ -41,13 +42,34 @@ export class LoteDetalleComponent implements OnInit {
     4: { nombre: 'Descartado',  color: 'bg-red-100 text-red-800 border-red-200' }
   };
 
+  fmtCapacidad(litros: number): string {
+    return litros < 1 ? `${litros * 1000} ml` : `${litros} L`;
+  }
+
+  // ── Designaciones ─────────────────────────────────────────────────────
+  designaciones: LoteDesignacionDto[] = [];
+  formatosDisponibles: FormatoEnvaseDto[] = [];
+  cargandoDesignaciones = false;
+
+  nuevaDesignacionFormatoId: number | null = null;
+  nuevaDesignacionUnidades: number | null = null;
+  errorDesignacion = '';
+  guardandoDesignacion = false;
+
+  // ── Edición inline ────────────────────────────────────────────────────
+  editandoDesignacionId: number | null = null;
+  volumenEditado: number | null = null;
+  guardandoEdicion = false;
+  errorEdicion = '';
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private loteService: LoteService,
     private fermentadorService: FermentadorService,
     private authService: AuthService,
-    private recetaService: RecetaService
+    private recetaService: RecetaService,
+    private stockService: StockService
   ) {}
 
   ngOnInit(): void {
@@ -65,12 +87,17 @@ export class LoteDetalleComponent implements OnInit {
     }
   }
 
+  get loteRealId(): number {
+    return this.lote?.loteId || this.lote?.id || 0;
+  }
+
   cargarLote(id: number) {
     this.loteService.getLoteById(id).subscribe({
       next: (data) => {
         this.lote = data;
         this.cargando = false;
-        this.cargarInsumos(data.id)    
+        this.cargarInsumos(data.id);
+        this.cargarDesignaciones(data.loteId || data.id);
       },
       error: () => {
         this.error = 'Error al cargar el lote.';
@@ -135,5 +162,128 @@ export class LoteDetalleComponent implements OnInit {
   getNombreReceta(recetaId: number): string {
     const receta = this.recetas.find(r => r.idReceta === recetaId);
     return receta ? receta.nombre : `Receta #${recetaId}`;
+  }
+
+  // ── Designaciones ─────────────────────────────────────────────────────
+
+  get formatoSeleccionado(): FormatoEnvaseDto | null {
+    if (!this.nuevaDesignacionFormatoId) return null;
+    return this.formatosDisponibles.find(f => f.id === this.nuevaDesignacionFormatoId) ?? null;
+  }
+
+  get maxUnidades(): number {
+    const cap = this.formatoSeleccionado?.capacidadLitros ?? 0;
+    if (cap <= 0) return 0;
+    return Math.floor(this.volumenRestante / cap);
+  }
+
+  get litrosEquivalentes(): number {
+    if (!this.nuevaDesignacionUnidades || !this.formatoSeleccionado) return 0;
+    return this.nuevaDesignacionUnidades * this.formatoSeleccionado.capacidadLitros;
+  }
+
+  get puedeDesignar(): boolean {
+    const estado = this.lote?.estado;
+    return estado === 'Planificado' || estado === 'EnProceso' ||
+           estado === 'Planificado' || estado === 1 || estado === 2;
+  }
+
+  get volumenDesignado(): number {
+    return this.designaciones.reduce((sum, d) => sum + d.volumenAsignado, 0);
+  }
+
+  get volumenRestante(): number {
+    return (this.lote?.volumenLitros ?? 0) - this.volumenDesignado;
+  }
+
+  cargarDesignaciones(loteId: number) {
+    this.cargandoDesignaciones = true;
+    this.stockService.getDesignacionesByLote(loteId).subscribe({
+      next: (data) => {
+        this.designaciones = data;
+        this.cargandoDesignaciones = false;
+      },
+      error: () => { this.cargandoDesignaciones = false; }
+    });
+    this.stockService.getFormatosEnvase().subscribe({
+      next: (data) => (this.formatosDisponibles = data),
+      error: () => {}
+    });
+  }
+
+  agregarDesignacion() {
+    if (!this.nuevaDesignacionFormatoId || !this.nuevaDesignacionUnidades || this.nuevaDesignacionUnidades <= 0) {
+      this.errorDesignacion = 'Seleccioná un formato e ingresá una cantidad válida';
+      return;
+    }
+    const formato = this.formatoSeleccionado;
+    if (!formato) return;
+
+    const volumenAsignado = this.nuevaDesignacionUnidades * formato.capacidadLitros;
+    this.guardandoDesignacion = true;
+    this.errorDesignacion = '';
+    this.stockService.addDesignacion(this.loteRealId, {
+      formatoEnvaseId: this.nuevaDesignacionFormatoId,
+      volumenAsignado
+    }).subscribe({
+      next: () => {
+        this.nuevaDesignacionFormatoId = null;
+        this.nuevaDesignacionUnidades = null;
+        this.guardandoDesignacion = false;
+        this.cargarDesignaciones(this.loteRealId);
+      },
+      error: (err) => {
+        this.errorDesignacion = err.error?.mensaje || 'Error al agregar designación';
+        this.guardandoDesignacion = false;
+      }
+    });
+  }
+
+  eliminarDesignacion(desId: number) {
+    this.stockService.deleteDesignacion(this.loteRealId, desId).subscribe({
+      next: () => this.cargarDesignaciones(this.loteRealId),
+      error: () => alert('Error al eliminar designación')
+    });
+  }
+
+  iniciarEdicion(des: LoteDesignacionDto) {
+    this.editandoDesignacionId = des.id;
+    this.volumenEditado = des.unidadesResultantes;
+    this.errorEdicion = '';
+  }
+
+  cancelarEdicion() {
+    this.editandoDesignacionId = null;
+    this.volumenEditado = null;
+    this.errorEdicion = '';
+  }
+
+  guardarEdicion(des: LoteDesignacionDto) {
+    if (!this.volumenEditado || this.volumenEditado <= 0) return;
+    this.guardandoEdicion = true;
+    this.errorEdicion = '';
+    this.stockService.deleteDesignacion(this.loteRealId, des.id).subscribe({
+      next: () => {
+        this.stockService.addDesignacion(this.loteRealId, {
+          formatoEnvaseId: des.formatoEnvaseId,
+          volumenAsignado: this.volumenEditado! * des.capacidadLitros
+        }).subscribe({
+          next: () => {
+            this.guardandoEdicion = false;
+            this.cancelarEdicion();
+            this.cargarDesignaciones(this.loteRealId);
+          },
+          error: (err) => {
+            this.errorEdicion = err.error?.mensaje || 'Volumen inválido';
+            this.guardandoEdicion = false;
+            this.cargarDesignaciones(this.loteRealId);
+          }
+        });
+      },
+      error: () => {
+        this.errorEdicion = 'Error al eliminar la designación anterior';
+        this.guardandoEdicion = false;
+      }
+    });
   }
 }

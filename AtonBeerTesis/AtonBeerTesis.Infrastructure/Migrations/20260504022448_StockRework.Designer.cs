@@ -4,6 +4,7 @@ using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260504022448_StockRework")]
+    partial class StockRework
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -366,11 +369,14 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FermentadorId");
-
                     b.HasIndex("FermentadorId1");
 
                     b.HasIndex("LoteId");
+
+                    b.HasIndex("FermentadorId", "FechaInicio")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Fermentador_Fecha")
+                        .HasFilter("[FermentadorId] IS NOT NULL");
 
                     b.ToTable("PlanificacionProduccion", (string)null);
                 });

@@ -2,6 +2,7 @@
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Enums;
+using AtonBeerTesis.Domain.Interfaces;
 
 namespace AtonBeerTesis.Application.Services
 {
@@ -9,16 +10,22 @@ namespace AtonBeerTesis.Application.Services
     {
         private readonly ILoteRepository _repository;
         private readonly IFermentadorRepository _fermentadorRepository;
-        private readonly IPlanificacionRepository _planificacionRepository; // ← nuevo
+        private readonly IPlanificacionRepository _planificacionRepository;
+        private readonly IRepository<ProductoStock> _productoStockRepository;
+        private readonly IRepository<MovimientoStock> _movimientoStockRepository;
 
         public LoteService(
             ILoteRepository repository,
             IFermentadorRepository fermentadorRepository,
-            IPlanificacionRepository planificacionRepository) // ← nuevo
+            IPlanificacionRepository planificacionRepository,
+            IRepository<ProductoStock> productoStockRepository,
+            IRepository<MovimientoStock> movimientoStockRepository)
         {
             _repository = repository;
             _fermentadorRepository = fermentadorRepository;
-            _planificacionRepository = planificacionRepository; // ← nuevo
+            _planificacionRepository = planificacionRepository;
+            _productoStockRepository = productoStockRepository;
+            _movimientoStockRepository = movimientoStockRepository;
         }
 
         public async Task<List<LoteDto>> GetAllAsync()
@@ -225,6 +232,64 @@ namespace AtonBeerTesis.Application.Services
             {
                 planificacion.Estado = estadoFinal;
                 await _planificacionRepository.UpdateAsync(planificacion);
+            }
+
+            // 4. Generar ingresos de stock para cada designación (solo si finaliza, no si descarta)
+            if (estadoFinal == EstadoLote.Finalizado)
+            {
+                var volumenDesignado = lote.Designaciones.Sum(d => d.VolumenAsignado);
+                if (volumenDesignado < (decimal)lote.VolumenLitros)
+                    throw new InvalidOperationException(
+                        $"No se puede finalizar: {volumenDesignado}L designados de {lote.VolumenLitros}L totales. " +
+                        "Completá la designación de volumen en el detalle del lote.");
+            }
+
+            if (estadoFinal == EstadoLote.Finalizado && lote.Designaciones.Any())
+            {
+                var estiloLote = lote.Estilo ?? lote.Receta?.Estilo ?? string.Empty;
+                var todosLosProductos = await _productoStockRepository.FindAllAsync();
+
+                foreach (var designacion in lote.Designaciones)
+                {
+                    var formato = designacion.FormatoEnvase;
+                    if (formato == null || formato.CapacidadLitros <= 0) continue;
+
+                    var unidades = designacion.VolumenAsignado / formato.CapacidadLitros;
+
+                    var productoStock = todosLosProductos.FirstOrDefault(p =>
+                        p.FormatoEnvaseId == designacion.FormatoEnvaseId &&
+                        p.Estilo.Equals(estiloLote, StringComparison.OrdinalIgnoreCase));
+
+                    // Si no existe, lo creamos on-the-fly (puede ocurrir si el formato
+                    // fue creado antes que la receta con este estilo)
+                    if (productoStock == null && !string.IsNullOrWhiteSpace(estiloLote))
+                    {
+                        productoStock = new ProductoStock
+                        {
+                            FormatoEnvaseId = designacion.FormatoEnvaseId,
+                            Estilo = estiloLote,
+                            StockActual = 0
+                        };
+                        await _productoStockRepository.AddAsync(productoStock);
+                        todosLosProductos.Add(productoStock);
+                    }
+
+                    if (productoStock == null) continue;
+
+                    var stockPrevio = productoStock.StockActual;
+                    productoStock.StockActual += unidades;
+                    await _movimientoStockRepository.AddAsync(new MovimientoStock
+                    {
+                        ProductoStockId = productoStock.Id,
+                        LoteId = lote.Id,
+                        Cantidad = unidades,
+                        TipoMovimiento = "Ingreso",
+                        MotivoMovimiento = "Produccion",
+                        StockPrevio = stockPrevio,
+                        StockResultante = productoStock.StockActual,
+                        Fecha = DateTime.Now
+                    });
+                }
             }
 
             return true;
