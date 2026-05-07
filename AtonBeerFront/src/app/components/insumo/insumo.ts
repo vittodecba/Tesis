@@ -23,7 +23,8 @@ export class InsumoComponent implements OnInit {
   mostrarModal: boolean = false;  
   mensajeError: string | null = null;
   tiposOpciones: any[] = []; 
-  unidadesOpciones: any[] = []; 
+  unidadesOpciones: any[] = [];
+  unidadesFiltradas: any[] = []; 
   ajuste: boolean = false;
   paginaActual: number = 1;
   itemsPorPagina: number = 10;
@@ -98,17 +99,20 @@ export class InsumoComponent implements OnInit {
   }
 
   // --- GESTIÓN DE UNIDADES (Nueva integración) ---
-  cargarUnidades() {
-    this.unidadService.getUnidades().subscribe({
-      next: (data: any) => {
-        const unidadesAceptables = ['Kg', 'Gr', 'Lt', 'Ml', 'Un'];
-         this.unidadesOpciones = data;
-         data.filter((u: any) => 
-        unidadesAceptables.includes(u.abreviatura));
-         },
-      error: (err: any) => console.error('Error al cargar unidades:', err)
-    });
-  }
+ cargarUnidades() {
+  this.unidadService.getUnidades().subscribe({
+    next: (data: any) => {
+      this.unidadesOpciones = data;
+      const unidadesAceptables = ['Kg', 'Gr', 'Lt', 'Ml', 'Un'];
+      
+      // Filtramos y guardamos en nuestra nueva variable
+      this.unidadesFiltradas = data.filter((u: any) => 
+        unidadesAceptables.includes(u.abreviatura)
+      );
+    },
+    error: (err: any) => console.error('Error al cargar unidades:', err)
+  });
+}
 
   crearUnidad() {
     const nombre = prompt("Nombre de la unidad (ej: Kilogramos):");

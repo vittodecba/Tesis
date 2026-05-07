@@ -64,7 +64,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-50">
-          <tr *ngFor="let r of recetas" class="hover:bg-orange-50/50 transition-colors group">
+          <tr *ngFor="let r of recetasPaginadas" class="hover:bg-orange-50/50 transition-colors group">
             <td class="px-6 py-4 text-sm font-medium text-[#4A2C2A]">{{ r.nombre }}</td>
             <td class="px-6 py-4 text-sm text-gray-700 font-mono">REC-{{ r.idReceta }}</td>
             <td class="px-6 py-4">
@@ -91,10 +91,29 @@
                 <button [routerLink]="['/recetas/detalle', r.idReceta]" class="text-blue-800 hover:text-blue-900 transition"><lucide-icon [img]="FileText" [size]="20"></lucide-icon></button>
               </div>
             </td>
-          </tr>
+          </tr>          
         </tbody>
       </table>
     </div>
+<div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
+  <div class="flex flex-1 justify-between sm:hidden">
+    <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1" class="...">Anterior</button>
+    <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual * itemsPorPagina >= recetasFiltradas.length" class="...">Siguiente</button>
+  </div>
+  <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+    <p class="text-sm text-gray-700">
+      Página <span class="font-medium">{{paginaActual}}</span>
+    </p>
+    <div class="flex gap-2">    
+      <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1" class="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50">
+        <lucide-icon [img]="ChevronLeft" [size]="18"></lucide-icon>
+      </button>
+      <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual * itemsPorPagina >= recetasFiltradas.length" class="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50">
+        <lucide-icon [img]="ChevronRight" [size]="18"></lucide-icon>
+      </button>
+    </div>
+  </div>
+</div>
   </div>
 </div>
 
@@ -168,8 +187,13 @@
             <div class="col-12 mt-2">
               <button type="button" (click)="agregarInsumoALista()" 
                 class="w-full py-2 bg-orange-100 text-[#E67E22] rounded-lg font-bold border border-orange-200 hover:bg-orange-200 transition"
+                [ngClass]="{
+    'bg-orange-100 text-[#E67E22] border-orange-200 hover:bg-orange-200': !insumoYaEnLista(),
+    'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed': insumoYaEnLista()
+  }"
                 [disabled]="insumoIdSeleccionado === 0 || cantidadIngresada <= 0 || unidadIdSeleccionada === 0">
-                <lucide-icon [img]="Plus" [size]="16" class="me-1"></lucide-icon> Añadir a la receta
+                <lucide-icon [img]="insumoYaEnLista() ? X : Plus" [size]="16"></lucide-icon>
+  {{ insumoYaEnLista() ? 'Insumo ya añadido' : 'Añadir a la receta' }}
               </button>
             </div>
           </div>

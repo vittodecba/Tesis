@@ -55,8 +55,7 @@
             <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-50">
-          <!-- SE AGREGÓ EL SLICE PARA LA PAGINACIÓN -->
+        <tbody class="divide-y divide-gray-50">         
           <tr *ngFor="let item of insumos.slice((paginaActual - 1) * itemsPorPagina, paginaActual * itemsPorPagina)" class="hover:bg-orange-50/50 transition-colors group">
             <td class="px-6 py-4 text-sm font-medium text-[#4A2C2A]">
                 {{ item.nombreInsumo }}
@@ -71,8 +70,7 @@
             <td class="px-6 py-4 text-sm text-gray-700">{{ item.unidad || '---' }}
               <span class="text-xs text-gray-400">(Base)</span>
             </td>
-            <td class="px-6 py-4 text-sm font-bold text-gray-700">
-                <!-- SE AGREGÓ EL PIPE DE NÚMERO PARA DECIMALES -->
+            <td class="px-6 py-4 text-sm font-bold text-gray-700">                
                 {{ item.stockActual | number:'1.1-4' }} 
                 <span class="text-[#E67E22] ml-1">{{ item.unidad }}</span>
             </td>      
@@ -82,8 +80,7 @@
                 <button (click)="prepararEdicion(item)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Editar datos">
                   <lucide-icon [name]="Pencil" class="h-5 w-5"></lucide-icon>
                 </button>
-
-                <!-- BOTÓN DE AJUSTE (SUMAR) -->
+                
                 <button (click)="prepararAjuste(item)" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Cargar Stock">
                   <lucide-icon [name]="Plus" class="h-5 w-5"></lucide-icon>
                 </button>
@@ -96,9 +93,7 @@
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- SE AGREGÓ EL BLOQUE DE PAGINACIÓN AL FINAL DE LA TABLA -->
+    </div>    
     <div class="flex justify-between items-center p-4 bg-gray-50 border-t border-gray-100" *ngIf="insumos.length > itemsPorPagina">
       <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1" class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors">
         Anterior
@@ -113,8 +108,7 @@
   <div *ngIf="mostrarModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
         <div class="flex items-center justify-between p-6 border-b border-gray-100">
-      <h2 class="text-xl font-bold text-[#4A2C2A]">
-        <!-- TÍTULO DINÁMICO -->
+      <h2 class="text-xl font-bold text-[#4A2C2A]">       
         {{ ajuste ? 'Cargar Stock: ' + datosForm.nombreInsumo : (datosForm.id ? 'Editar Insumo' : 'Nuevo Insumo') }}
       </h2>
       <button (click)="cerrarModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
@@ -123,12 +117,12 @@
     </div>
         <div class="p-6">
             <div class="space-y-4">
-                <div *ngIf="!ajuste"> <!-- OCULTAR NOMBRE SI ES SOLO AJUSTE -->
+                <div *ngIf="!ajuste">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
                     <input [(ngModel)]="datosForm.nombreInsumo" name="nombre" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none" />
                 </div>
                 
-                <div *ngIf="!ajuste"> <!-- OCULTAR TIPO SI ES SOLO AJUSTE -->
+                <div *ngIf="!ajuste"> 
                     <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Insumo</label>
                     <div class="flex gap-2">
                         <select [(ngModel)]="datosForm.tipoInsumoId" name="tipoInsumoId" class="flex-1 border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
@@ -145,12 +139,10 @@
                 </div>
 
                 <div class="grid grid-cols-1 gap-4">
-                    <div>
-                        <!-- ETIQUETA DINÁMICA -->
+                    <div>                        
                         <label class="block text-sm font-medium text-gray-700 mb-1">
                           {{ ajuste ? 'Cantidad a sumar' : (datosForm.id ? 'Stock Actual' : 'Cantidad Inicial') }}
-                        </label>
-                        <!-- STEP AGREGADO PARA DECIMALES -->
+                        </label>                       
                         <input
                          [(ngModel)]="datosForm.stockActual"  name="cantidad" type="number" min="0" step="0.0001"
                           #cantInput="ngModel" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none"
@@ -163,7 +155,9 @@
                         <div class="flex gap-2">
                             <select [(ngModel)]="datosForm.unidadMedidaId" name="unidad" class="flex-1 border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#E67E22] outline-none">
                                 <option [value]="null" disabled selected>Seleccione unidad</option>
-                                <option *ngFor="let u of unidadesOpciones" [value]="u.id">{{ u.nombre }} ({{ u.abreviatura }})</option>
+                                <option *ngFor="let u of unidadesFiltradas" [value]="u.id">
+        {{ u.nombre }} ({{ u.abreviatura }})
+    </option>
                             </select>
                         </div>
                     </div>

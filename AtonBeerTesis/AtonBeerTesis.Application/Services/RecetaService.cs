@@ -45,6 +45,14 @@ namespace AtonBeerTesis.Application.Services
 
             if (dto.BatchSizeLitros <= 0)
                 throw new Exception("El volumen (BatchSizeLitros) debe ser mayor a 0");
+            if(dto.RecetaInsumos != null && dto.RecetaInsumos.Count > 0)
+            {
+                var duplicado = dto.RecetaInsumos.GroupBy(i => i.InsumoId).FirstOrDefault(g => g.Count() > 1);
+                if (duplicado != null)
+                {
+                    throw new Exception($"El insumo con ID {duplicado.Key} está repetido en la receta. Por favor, elimine los duplicados.");
+                }
+            }
 
             var receta = new Receta
             {
