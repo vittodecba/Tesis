@@ -1,0 +1,115 @@
+# AtonBeer - Tesis
+
+Sistema de gestión para producción de cerveza artesanal. Cubre recetas, planificación de lotes, fermentación y stock.
+
+## Stack Técnico
+
+- **Backend:** .NET 8 Web API, Entity Framework Core 8, SQL Server
+- **Frontend:** Angular 17+ (standalone components), TailwindCSS
+- **Arquitectura:** Clean Architecture (Domain → Application → Infrastructure → API)
+
+## Estructura del repositorio
+
+```
+Tesis/
+├── AtonBeerTesis/          # Backend .NET
+│   ├── AtonBeerTesis/              # API layer (Controllers, Program.cs)
+│   ├── AtonBeerTesis.Application/  # Services, Interfaces, DTOs
+│   ├── AtonBeerTesis.Domain/       # Entities, Enums, Interfaces
+│   └── AtonBeerTesis.Infrastructure/ # DbContext, Repositories, Migrations
+└── AtonBeerFront/          # Frontend Angular
+    └── src/app/
+        ├── components/     # Feature components
+        ├── services/       # HTTP services
+        └── Interfaces/     # TypeScript interfaces
+```
+
+## Comandos clave
+
+```bash
+# Backend
+cd AtonBeerTesis
+dotnet run --project AtonBeerTesis      # Puerto 5190
+dotnet ef migrations add <Name> --project AtonBeerTesis.Infrastructure --startup-project AtonBeerTesis --configuration Release
+dotnet ef database update --project AtonBeerTesis.Infrastructure --startup-project AtonBeerTesis --configuration Release
+
+# Frontend
+cd AtonBeerFront
+npm install
+ng serve    # Puerto 4200
+```
+
+> **Nota:** Usar `--configuration Release` en migraciones cuando VS tiene el proyecto en Debug abierto (bloquea DLLs).
+
+## Módulos principales
+
+### Recetas (`/recetas`)
+- CRUD completo con ingredientes (`RecetaInsumo`) y pasos de elaboración
+- Duplicado de recetas con versionado automático (V2, V3, V2.1…)
+- Estilos de cerveza como strings en el campo `Estilo`
+- **Al crear una receta con un estilo nuevo → se agrega automáticamente a todos los FormatosEnvase de stock**
+
+### Lotes (`/planificacion`)
+- Ciclo: Planificado → EnProceso → Finalizado / Descartado
+- Vinculado a una Receta y un Fermentador
+- **Sección de Designación de Volumen:** el usuario asigna litros a formatos de envase antes de finalizar
+- **Al finalizar → el sistema genera ingresos de stock automáticamente** para cada designación
+- Registros de fermentación diarios (pH, densidad, temperatura, presión)
+
+### Stock (`/stock`)
+- **FormatoEnvase:** tipos de envase con capacidad en litros (Barril 50L, Lata 473ml, etc.)
+- **ProductoStock:** combinación FormatoEnvase × Estilo, con stock en unidades
+- **MovimientoStock:** historial de ingresos/egresos con trazabilidad al lote
+
+### Fermentadores
+- Estados: Disponible, Ocupado, Sucio
+- Un lote activo por fermentador a la vez
+
+### Planificación de Producción
+- Vincula Lote + Fermentador con fecha de inicio
+- Se sincroniza con el estado del Lote al finalizar
+
+## Reglas de negocio críticas
+
+### Validaciones de Designación de Volumen
+1. **División exacta:** `volumenAsignado % formato.CapacidadLitros == 0`  
+   Ej: 40L en barriles de 50L → ERROR (no cabe exacto)
+2. **No exceder producción:** `SUM(designaciones) <= lote.VolumenLitros`  
+   Ej: 60L + 70L > 100L del lote → ERROR
+3. **Estado del lote:** solo Planificado o EnProceso permiten modificar designaciones
+
+### Generación automática de stock al finalizar lote
+- Solo cuando `estadoFinal == Finalizado` (no Descartado)
+- `unidades = designacion.VolumenAsignado / formato.CapacidadLitros`
+- Busca `ProductoStock` por `FormatoEnvaseId` + `Estilo` del lote
+- Registra `MovimientoStock` con `MotivoMovimiento = "Produccion"`
+
+### Sincronización de estilos
+- Al crear una Receta con un Estilo nuevo → `FormatoEnvaseService.AgregarEstiloATodosLosFormatosAsync(estilo)`
+- Al crear un FormatoEnvase → se crean `ProductoStock` para todos los estilos existentes en Recetas
+
+## Patrones de código
+
+### Backend
+- Repositories genéricos `IRepository<T>` para CRUD simple
+- Repositories especializados (IRecetaRepository, ILoteRepository) para queries con Include
+- DTOs en `Application/Dtos/` organizados por módulo (subcarpeta `STOCK/`, `LOTE/`, etc.)
+- Servicios inyectados como `Scoped` en `Program.cs`
+
+### Frontend
+- Components standalone (Angular 17+)
+- Services en `src/app/services/`
+- Interfaces TypeScript en el mismo archivo del service (exportadas)
+- TailwindCSS para estilos, sin CSS custom salvo animaciones
+
+## Base de datos
+
+**Tablas principales:**
+- `Recetas`, `RecetaInsumos`, `PasosElaboracion`
+- `Lotes`, `LoteDesignaciones`
+- `Fermentadores`, `RegistrosFermentacion`
+- `PlanificacionProduccion`
+- `FormatosEnvase`, `ProductosStock`, `MovimientosStock`
+- `ProductosPrueba` (legacy, no usar — reemplazado por ProductosStock)
+
+**Última migración:** `StockRework` — agrega FormatosEnvase, ProductosStock, LoteDesignaciones; migra MovimientosStock a la nueva FK.

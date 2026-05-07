@@ -1,202 +1,412 @@
-<div class="stockShell p-4 md:p-8">
-  <div class="flex justify-between items-center mb-8">
+<div class="min-h-screen bg-gray-50 p-6">
+  <!-- Header -->
+  <div class="mb-6 flex items-center justify-between">
     <div>
-      <h2 class="text-3xl font-bold" [style.color]="COLORS.brown">Control de Stock</h2>
-      <p class="text-gray-500">Gestión de unidades y trazabilidad.</p>
+      <h1 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Stock</h1>
+      <p class="text-sm text-gray-500">Formatos de envase y stock por estilo</p>
     </div>
     <button
-      (click)="openCreateModal()"
-      class="px-6 py-3 rounded-xl font-bold text-white shadow-lg transition hover:scale-105"
-      [style.backgroundImage]="
-        'linear-gradient(to right,' + COLORS.brown + ',' + COLORS.orange + ')'
-      "
-    >
-      + Nuevo Producto
+      *ngIf="tab === 'formatos'"
+      (click)="openCrearFormato()"
+      class="rounded-lg bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] px-4 py-2 text-sm font-medium text-white transition-colors">
+      + Nuevo Formato
     </button>
   </div>
 
-  <div class="flex gap-2 mb-6">
+  <!-- Tabs -->
+  <div class="mb-6 flex gap-2 border-b border-gray-200">
+    <button
+      (click)="tab = 'formatos'"
+      [class.border-b-2]="tab === 'formatos'"
+      [class.border-amber-600]="tab === 'formatos'"
+      [class.text-amber-700]="tab === 'formatos'"
+      class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
+      Formatos de Envase
+    </button>
     <button
       (click)="tab = 'stock'"
-      class="px-6 py-2 rounded-xl font-bold border transition"
-      [style.backgroundColor]="tab === 'stock' ? COLORS.brown : 'white'"
-      [style.color]="tab === 'stock' ? 'white' : '#666'"
-    >
-      Inventario
-    </button>
-    <button
-      (click)="tab = 'movimientos'"
-      class="px-6 py-2 rounded-xl font-bold border transition"
-      [style.backgroundColor]="tab === 'movimientos' ? COLORS.brown : 'white'"
-      [style.color]="tab === 'movimientos' ? 'white' : '#666'"
-    >
-      Historial
+      [class.border-b-2]="tab === 'stock'"
+      [class.border-amber-600]="tab === 'stock'"
+      [class.text-amber-700]="tab === 'stock'"
+      class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
+      Historial de Movimientos
     </button>
   </div>
 
-  <div *ngIf="tab === 'stock'" class="mb-6 relative max-w-md">
+  <!-- Buscador -->
+  <div class="mb-4">
     <input
       [(ngModel)]="searchTerm"
-      type="text"
-      placeholder="🔍 Buscar estilo (IPA, Honey...)"
-      class="w-full pl-6 pr-4 py-3 bg-white border-2 border-gray-100 rounded-2xl outline-none focus:border-orange-500 transition-all shadow-sm font-medium"
-    />
+      placeholder="Buscar por formato o estilo..."
+      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-amber-500 focus:outline-none" />
   </div>
 
-  <div *ngIf="tab === 'stock'" class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-    <div
-      *ngFor="let grupo of gruposFiltrados"
-      class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
-    >
+  <!-- ── TAB FORMATOS ── -->
+  <div *ngIf="tab === 'formatos'">
+    <div *ngIf="formatosFiltrados.length === 0" class="rounded-lg bg-white p-8 text-center text-gray-400 shadow-sm">
+      No hay formatos creados. Creá el primero con "+ Nuevo Formato".
+    </div>
+
+    <div class="space-y-3">
       <div
-        (click)="toggleExpand(grupo.formato)"
-        class="p-6 cursor-pointer hover:bg-gray-50 flex justify-between items-center"
-      >
-        <div>
-          <span class="text-xs font-black text-orange-500 uppercase">Formato</span>
-          <h3 class="text-2xl font-bold" [style.color]="COLORS.brown">{{ grupo.formato }}</h3>
+        *ngFor="let formato of formatosFiltrados"
+        class="rounded-lg bg-white shadow-sm border border-gray-100 overflow-hidden">
+        <!-- Cabecera del formato -->
+        <div
+          class="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+          (click)="toggleExpand(formato.id)">
+          <div class="flex items-center gap-3">
+            <span class="text-lg">🍺</span>
+            <div>
+              <p class="font-semibold text-gray-800">{{ formato.nombre }}</p>
+              <p class="text-xs text-gray-500">{{ fmtCapacidad(formato.capacidadLitros) }} por unidad · {{ formato.productos.length }} estilo(s)</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="text-sm font-medium text-amber-700">{{ getTotalStock(formato) }} u. total</span>
+            <button
+              (click)="confirmarEliminar(formato); $event.stopPropagation()"
+              class="rounded p-1 text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors text-xs">
+              Eliminar
+            </button>
+            <span class="text-gray-400 text-sm">{{ expandedId === formato.id ? '▲' : '▼' }}</span>
+          </div>
         </div>
-        <div class="text-right">
-          <p class="text-xs text-gray-400 font-bold uppercase">Stock Total</p>
-          <span class="text-3xl font-black" [style.color]="COLORS.brown">{{ grupo.totalStock }}</span>
+
+        <!-- Estilos expandibles -->
+        <div *ngIf="expandedId === formato.id" class="border-t border-gray-100 bg-gray-50">
+          <div *ngIf="formato.productos.length === 0" class="p-4 text-sm text-gray-400 text-center">
+            Sin estilos aún. Creá una receta para que aparezcan automáticamente.
+          </div>
+          <table *ngIf="formato.productos.length > 0" class="w-full text-sm">
+            <thead>
+              <tr class="text-xs text-gray-500 uppercase tracking-wide">
+                <th class="px-6 py-2 text-left">Estilo</th>
+                <th class="px-6 py-2 text-right">Stock actual (unidades)</th>
+                <th class="px-6 py-2 text-right"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let prod of formato.productos"
+                class="border-t border-gray-100 hover:bg-white transition-colors">
+                <td class="px-6 py-3 font-medium text-gray-700">{{ prod.estilo }}</td>
+                <td class="px-6 py-3 text-right">
+                  <span
+                    [class.text-green-600]="prod.stockActual > 0"
+                    [class.text-gray-400]="prod.stockActual === 0"
+                    class="font-semibold">
+                    {{ prod.stockActual }}
+                  </span>
+                </td>
+                <td class="px-6 py-3 text-right">
+                  <div class="flex justify-end gap-3">
+                    <button
+                      (click)="abrirIngreso(prod, formato.nombre); $event.stopPropagation()"
+                      class="text-xs font-medium text-amber-600 hover:text-amber-800 transition-colors">
+                      + Agregar
+                    </button>
+                    <button
+                      (click)="abrirCorreccion(prod, formato.nombre); $event.stopPropagation()"
+                      class="text-xs font-medium text-blue-500 hover:text-blue-700 transition-colors">
+                      Editar
+                    </button>
+                    <button
+                      (click)="abrirEgreso(prod, formato.nombre); $event.stopPropagation()"
+                      class="text-xs font-medium text-red-400 hover:text-red-600 transition-colors">
+                      - Retirar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
+    </div>
+  </div>
 
-      <div *ngIf="expandedId === grupo.formato" class="p-4 bg-gray-50 border-t space-y-2">
-        <div
-          *ngFor="let item of grupo.items"
-          class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100"
-        >
-          <span class="font-bold text-gray-700">{{ item.estilo || item.Estilo }}</span>
-          <div class="flex items-center gap-2">
-            <span class="font-black text-lg mr-2">{{ item.stockActual || item.StockActual }} u.</span>
-            
-            <button (click)="openEditModal(item)" class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition" title="Editar">
-              ✏️
+  <!-- ── TAB HISTORIAL DE MOVIMIENTOS ── -->
+  <div *ngIf="tab === 'stock'">
+    <div *ngIf="movimientos.length === 0" class="rounded-lg bg-white p-8 text-center text-gray-400 shadow-sm">
+      No hay movimientos de stock registrados aún.
+    </div>
+
+    <div class="overflow-x-auto rounded-lg bg-white shadow-sm" *ngIf="movimientos.length > 0">
+      <table class="w-full text-sm">
+        <thead class="bg-amber-50 text-xs text-gray-600 uppercase tracking-wide">
+          <tr>
+            <th class="px-4 py-3 text-left">Fecha</th>
+            <th class="px-4 py-3 text-left">Tipo</th>
+            <th class="px-4 py-3 text-left">Producto</th>
+            <th class="px-4 py-3 text-right">Cantidad</th>
+            <th class="px-4 py-3 text-left">Motivo</th>
+            <th class="px-4 py-3 text-right">Stock anterior</th>
+            <th class="px-4 py-3 text-right">Stock resultante</th>
+            <th class="px-4 py-3 text-left">Lote</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let mov of movimientos"
+            class="border-t border-gray-100 hover:bg-gray-50 transition-colors">
+            <td class="px-4 py-3 text-gray-500 whitespace-nowrap">
+              {{ mov.fecha | date:'dd/MM/yyyy HH:mm' }}
+            </td>
+            <td class="px-4 py-3">
+              <span
+                class="inline-block rounded-full px-2 py-0.5 text-xs font-semibold"
+                [class.bg-green-100]="mov.tipoMovimiento === 'Ingreso'"
+                [class.text-green-700]="mov.tipoMovimiento === 'Ingreso'"
+                [class.bg-red-100]="mov.tipoMovimiento === 'Egreso'"
+                [class.text-red-700]="mov.tipoMovimiento === 'Egreso'">
+                {{ mov.tipoMovimiento }}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <p class="font-medium text-gray-800">{{ mov.estilo }}</p>
+              <p class="text-xs text-gray-400">{{ mov.formatoNombre }} · {{ fmtCapacidad(mov.capacidadLitros) }}</p>
+            </td>
+            <td class="px-4 py-3 text-right font-semibold"
+              [class.text-green-600]="mov.tipoMovimiento === 'Ingreso'"
+              [class.text-red-500]="mov.tipoMovimiento === 'Egreso'">
+              {{ mov.tipoMovimiento === 'Ingreso' ? '+' : '-' }}{{ mov.cantidad }} u.
+            </td>
+            <td class="px-4 py-3 text-gray-500">{{ mov.motivoMovimiento }}</td>
+            <td class="px-4 py-3 text-right text-gray-400">{{ mov.stockPrevio }} u.</td>
+            <td class="px-4 py-3 text-right font-semibold text-gray-700">{{ mov.stockResultante }} u.</td>
+            <td class="px-4 py-3">
+              <span *ngIf="mov.loteId" class="inline-block rounded bg-blue-50 px-2 py-0.5 text-xs text-blue-600 font-medium">
+                L-{{ mov.loteId }}
+              </span>
+              <span *ngIf="!mov.loteId" class="text-gray-300">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Crear Formato ── -->
+<div *ngIf="modalFormatoOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+    <h2 class="mb-4 text-lg font-bold text-gray-800">Nuevo Formato de Envase</h2>
+    <div class="space-y-4">
+      <div>
+        <label class="mb-1 block text-sm font-medium text-gray-700">Nombre del formato</label>
+        <input
+          [(ngModel)]="nuevoNombre"
+          placeholder="Ej: Barril, Lata, Botella..."
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
+      </div>
+      <div>
+        <div class="mb-1 flex items-center justify-between">
+          <label class="text-sm font-medium text-gray-700">
+            Capacidad en {{ unidadCapacidad === 'L' ? 'litros' : 'mililitros' }}
+          </label>
+          <div class="flex rounded-lg border border-gray-300 overflow-hidden text-xs font-medium">
+            <button
+              type="button"
+              (click)="unidadCapacidad = 'L'"
+              [class.bg-amber-600]="unidadCapacidad === 'L'"
+              [class.text-white]="unidadCapacidad === 'L'"
+              [class.text-gray-500]="unidadCapacidad !== 'L'"
+              class="px-3 py-1 transition-colors">
+              L
             </button>
-            <button (click)="confirmarEliminar(item)" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition" title="Borrar">
-              🗑️
-            </button>
-            <button (click)="openMovModal(item)" class="p-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-600 hover:text-white transition shadow-sm" title="Registrar Movimiento">
-              📦
+            <button
+              type="button"
+              (click)="unidadCapacidad = 'ml'"
+              [class.bg-amber-600]="unidadCapacidad === 'ml'"
+              [class.text-white]="unidadCapacidad === 'ml'"
+              [class.text-gray-500]="unidadCapacidad !== 'ml'"
+              class="px-3 py-1 transition-colors">
+              ml
             </button>
           </div>
         </div>
+        <input
+          [(ngModel)]="nuevoCapacidad"
+          type="number"
+          [step]="unidadCapacidad === 'ml' ? 1 : 0.001"
+          [min]="unidadCapacidad === 'ml' ? 1 : 0.001"
+          [placeholder]="unidadCapacidad === 'ml' ? 'Ej: 473, 330, 750...' : 'Ej: 50, 20, 5...'"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
+        <p class="mt-1 text-xs text-gray-400">
+          Esta capacidad se usará para validar que los volúmenes del lote sean múltiplos exactos.
+        </p>
       </div>
+      <p *ngIf="errorFormato" class="text-sm text-red-500">{{ errorFormato }}</p>
     </div>
-
-    <div *ngIf="gruposFiltrados.length === 0" class="col-span-full py-12 text-center">
-      <p class="text-gray-400 font-bold">No se encontraron estilos que coincidan con "{{ searchTerm }}"</p>
-    </div>
-  </div>
-
-  <div *ngIf="tab === 'movimientos'" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-    <table class="w-full text-left">
-      <thead class="bg-gray-50 border-b">
-        <tr>
-          <th class="p-4 text-xs font-bold text-gray-500 uppercase">Fecha</th>
-          <th class="p-4 text-xs font-bold text-gray-500 uppercase">Producto</th>
-          <th class="p-4 text-xs font-bold text-gray-500 uppercase">Tipo</th>
-          <th class="p-4 text-xs font-bold text-gray-500 uppercase text-right">Cantidad</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y">
-        <tr *ngFor="let m of movimientos">
-          <td class="p-4 text-sm">{{ m.fecha | date: 'dd/MM/yy HH:mm' }}</td>
-          <td class="p-4 font-bold">{{ m.productoNombre }}</td>
-          <td class="p-4">
-            <span class="px-2 py-1 rounded text-xs font-bold"
-              [ngClass]="m.tipoMovimiento === 'Ingreso' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
-              {{ m.tipoMovimiento }}
-            </span>
-          </td>
-          <td class="p-4 text-right font-black" [class.text-red-600]="m.tipoMovimiento === 'Egreso'">
-            {{ m.tipoMovimiento === 'Egreso' ? '-' : '+' }}{{ m.cantidad }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div *ngIf="modalProdOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
-    <div class="bg-white w-full max-w-md rounded-[32px] overflow-hidden shadow-2xl">
-      <div class="p-8 text-white" [style.backgroundColor]="COLORS.brown">
-        <h3 class="font-bold text-2xl">{{ isEditing ? 'Editar Producto' : 'Nuevo Producto' }}</h3>
-      </div>
-      <div class="p-8 space-y-6">
-        <input [(ngModel)]="prodFormato" placeholder="Formato (Ej: Barril 50L)" class="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none" />
-        <input [(ngModel)]="prodEstilo" placeholder="Estilo (Ej: IPA)" class="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none" />
-        <div class="flex gap-2">
-          <button (click)="modalProdOpen = false" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold">Cancelar</button>
-          <button (click)="guardarProducto()" class="flex-1 py-4 text-white rounded-2xl font-bold" [style.backgroundColor]="COLORS.orange">Confirmar</button>
-        </div>
-      </div>
+    <div class="mt-6 flex gap-3 justify-end">
+      <button
+        (click)="modalFormatoOpen = false"
+        class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+        Cancelar
+      </button>
+      <button
+        (click)="guardarFormato()"
+        [disabled]="creandoFormato"
+        class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 transition-colors disabled:opacity-50">
+        {{ creandoFormato ? 'Creando...' : 'Crear Formato' }}
+      </button>
     </div>
   </div>
+</div>
 
-  <div *ngIf="movModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
-    <div class="bg-white w-full max-w-md rounded-[32px] overflow-hidden shadow-2xl">
-      <div class="p-6 text-white text-center transition-colors duration-300" 
-           [style.backgroundColor]="tipoMovimientoSeleccionado === 'Ingreso' ? '#27ae60' : '#e74c3c'">
-        <h3 class="font-bold text-2xl">Registrar {{ tipoMovimientoSeleccionado }}</h3>
-        <p class="opacity-90 font-medium">{{ movProductoSeleccionado?.estilo }} ({{ movProductoSeleccionado?.formato }})</p>
+<!-- ── Modal Ingreso Manual de Stock ── -->
+<div *ngIf="ingresoModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+    <h2 class="mb-1 text-lg font-bold text-gray-800">Ingreso Manual de Stock</h2>
+    <p class="mb-4 text-sm text-gray-500">
+      <span class="font-medium text-gray-700">{{ ingresoProducto?.estilo }}</span>
+      · {{ ingresoProducto?.formatoNombre }}
+    </p>
+    <div class="space-y-4">
+      <div>
+        <label class="mb-1 block text-sm font-medium text-gray-700">Cantidad a ingresar (unidades)</label>
+        <input
+          [(ngModel)]="ingresoCantidad"
+          type="number"
+          min="1"
+          step="1"
+          placeholder="Ej: 10"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
       </div>
-
-      <div class="p-8 space-y-6">
-        <div class="flex gap-2 p-1 bg-gray-100 rounded-2xl">
-          <button 
-            (click)="tipoMovimientoSeleccionado = 'Ingreso'"
-            class="flex-1 py-3 rounded-xl font-bold transition-all"
-            [style.backgroundColor]="tipoMovimientoSeleccionado === 'Ingreso' ? 'white' : 'transparent'"
-            [style.color]="tipoMovimientoSeleccionado === 'Ingreso' ? '#27ae60' : '#666'"
-            [class.shadow-sm]="tipoMovimientoSeleccionado === 'Ingreso'">
-            📈 Ingreso
-          </button>
-          <button 
-            (click)="tipoMovimientoSeleccionado = 'Egreso'"
-            class="flex-1 py-3 rounded-xl font-bold transition-all"
-            [style.backgroundColor]="tipoMovimientoSeleccionado === 'Egreso' ? 'white' : 'transparent'"
-            [style.color]="tipoMovimientoSeleccionado === 'Egreso' ? '#e74c3c' : '#666'"
-            [class.shadow-sm]="tipoMovimientoSeleccionado === 'Egreso'">
-            📉 Egreso
-          </button>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-gray-400 uppercase mb-2 text-center">Cantidad de Unidades</label>
-          <input
-            type="number"
-            [(ngModel)]="movCantidad"
-            placeholder="0"
-            class="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-orange-500 outline-none text-3xl font-black text-center"
-          />
-        </div>
-        
-        <div class="flex gap-2 pt-2">
-          <button (click)="movModalOpen = false" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold hover:bg-gray-200 transition">
-            Cancelar
-          </button>
-          <button
-            (click)="confirmarMovimiento()"
-            class="flex-1 py-4 text-white rounded-2xl font-bold shadow-lg hover:opacity-90 transition"
-            [style.backgroundColor]="COLORS.brown">
-            Confirmar
-          </button>
-        </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-gray-700">Motivo</label>
+        <input
+          [(ngModel)]="ingresoMotivo"
+          type="text"
+          placeholder="Ej: Compra, Devolución..."
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
       </div>
+      <p *ngIf="errorIngreso" class="text-sm text-red-500">{{ errorIngreso }}</p>
+    </div>
+    <div class="mt-6 flex gap-3 justify-end">
+      <button
+        (click)="ingresoModalOpen = false"
+        class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+        Cancelar
+      </button>
+      <button
+        (click)="confirmarIngreso()"
+        [disabled]="ingresando"
+        class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 transition-colors disabled:opacity-50">
+        {{ ingresando ? 'Registrando...' : 'Confirmar ingreso' }}
+      </button>
     </div>
   </div>
+</div>
 
-  <div *ngIf="deleteModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90">
-    <div class="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl text-center">
-      <div class="p-6 bg-red-600 text-white font-bold">¿Eliminar Estilo?</div>
-      <div class="p-8">
-        <p class="mb-6">¿Estás seguro de borrar <b>{{ prodAEliminar?.estilo }}</b>?</p>
-        <div class="flex gap-2">
-          <button (click)="deleteModalOpen = false" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold">No</button>
-          <button (click)="eliminarProducto()" class="flex-1 py-4 bg-red-600 text-white rounded-2xl font-bold">Sí, Eliminar</button>
-        </div>
+<!-- ── Modal Corrección de Stock ── -->
+<div *ngIf="correccionProducto" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl">
+    <h2 class="mb-1 text-lg font-bold text-[#4A2C2A]">Corregir Stock</h2>
+    <p class="mb-1 text-sm text-gray-700 font-medium">
+      {{ correccionProducto.estilo }} · {{ correccionProducto.formatoNombre }}
+    </p>
+    <p class="mb-4 text-xs text-gray-400">Stock actual: <strong>{{ correccionProducto.stockActual }} u.</strong></p>
+    <div class="space-y-3">
+      <div>
+        <label class="mb-1 block text-xs font-bold text-gray-500 uppercase">Nuevo stock (unidades)</label>
+        <input
+          [(ngModel)]="correccionNuevaCantidad"
+          type="number"
+          min="0"
+          step="1"
+          placeholder="Ej: 45"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
+        <p *ngIf="correccionNuevaCantidad !== null && correccionNuevaCantidad !== correccionProducto.stockActual"
+          class="mt-1 text-xs text-gray-400">
+          Diferencia: {{ correccionNuevaCantidad - correccionProducto.stockActual > 0 ? '+' : '' }}{{ correccionNuevaCantidad - correccionProducto.stockActual }} u.
+        </p>
       </div>
+      <p *ngIf="errorCorreccion" class="text-sm text-red-500">{{ errorCorreccion }}</p>
+    </div>
+    <div class="mt-5 flex gap-3 justify-end">
+      <button
+        (click)="correccionProducto = null"
+        [disabled]="corrigiendo"
+        class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50">
+        Cancelar
+      </button>
+      <button
+        (click)="confirmarCorreccion()"
+        [disabled]="corrigiendo"
+        class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 transition-colors disabled:opacity-50">
+        {{ corrigiendo ? 'Guardando...' : 'Aplicar corrección' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Egreso Manual ── -->
+<div *ngIf="egresoProducto" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+    <h2 class="mb-1 text-lg font-bold text-gray-800">Egreso de Stock</h2>
+    <p class="mb-1 text-sm text-gray-700 font-medium">
+      {{ egresoProducto.estilo }} · {{ egresoProducto.formatoNombre }}
+    </p>
+    <p class="mb-4 text-xs text-gray-400">Stock disponible: <strong>{{ egresoProducto.stockActual }} u.</strong></p>
+    <div class="space-y-4">
+      <div>
+        <label class="mb-1 block text-sm font-medium text-gray-700">Cantidad a retirar (unidades)</label>
+        <input
+          [(ngModel)]="egresoCantidad"
+          type="number"
+          min="1"
+          step="1"
+          [max]="egresoProducto.stockActual"
+          placeholder="Ej: 5"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-gray-700">Motivo</label>
+        <input
+          [(ngModel)]="egresoMotivo"
+          type="text"
+          placeholder="Ej: Venta, Merma, Devolución..."
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
+      </div>
+      <p *ngIf="errorEgreso" class="text-sm text-red-500">{{ errorEgreso }}</p>
+    </div>
+    <div class="mt-6 flex gap-3 justify-end">
+      <button
+        (click)="egresoProducto = null"
+        [disabled]="egresando"
+        class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50">
+        Cancelar
+      </button>
+      <button
+        (click)="confirmarEgreso()"
+        [disabled]="egresando"
+        class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50">
+        {{ egresando ? 'Registrando...' : 'Confirmar egreso' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Confirmar Eliminar ── -->
+<div *ngIf="deleteModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl">
+    <h2 class="mb-2 text-lg font-bold text-gray-800">Eliminar Formato</h2>
+    <p class="mb-6 text-sm text-gray-600">
+      ¿Eliminás el formato <strong>{{ formatoAEliminar?.nombre }}</strong>? Se eliminarán también todos sus registros de stock.
+    </p>
+    <div class="flex gap-3 justify-end">
+      <button
+        (click)="deleteModalOpen = false; formatoAEliminar = null"
+        class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+        Cancelar
+      </button>
+      <button
+        (click)="eliminarFormato()"
+        class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors">
+        Eliminar
+      </button>
     </div>
   </div>
 </div>

@@ -10,10 +10,12 @@ namespace AtonBeerTesis.Application.Services
     public class RecetaService : IRecetaService
     {
         private readonly IRecetaRepository _recetaRepository;
+        private readonly IFormatoEnvaseService _formatoEnvaseService;
 
-        public RecetaService(IRecetaRepository recetaRepository)
+        public RecetaService(IRecetaRepository recetaRepository, IFormatoEnvaseService formatoEnvaseService)
         {
             _recetaRepository = recetaRepository;
+            _formatoEnvaseService = formatoEnvaseService;
         }
 
         public async Task<List<RecetaDto>> GetAllAsync(string? nombre = null, string? estilo = null, string? estado = null, string? orden = null)
@@ -63,6 +65,11 @@ namespace AtonBeerTesis.Application.Services
             };
 
             await _recetaRepository.AddAsync(receta);
+
+            // Sincronizar nuevo estilo con todos los formatos de envase existentes
+            if (!string.IsNullOrWhiteSpace(receta.Estilo))
+                await _formatoEnvaseService.AgregarEstiloATodosLosFormatosAsync(receta.Estilo);
+
             return receta.IdReceta;
         }
 
