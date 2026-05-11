@@ -34,6 +34,7 @@ namespace AtonBeerTesis.Application.Services
                 Id = f.Id,
                 Nombre = f.Nombre,
                 CapacidadLitros = f.CapacidadLitros,
+                EsRetornable = f.EsRetornable,
                 Productos = productosStock
                     .Where(p => p.FormatoEnvaseId == f.Id)
                     .Select(p => new ProductoStockDto
