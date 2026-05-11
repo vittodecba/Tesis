@@ -9,7 +9,10 @@ namespace AtonBeerTesis.Application.Dtos.BARRIL
         public decimal CapacidadLitros { get; set; }
         public int Estado { get; set; }
         public string EstadoTexto { get; set; } = string.Empty;
+        public int? ClienteId { get; set; }
+        public string? ClienteNombre { get; set; }
         public DateTime FechaAdquisicion { get; set; }
+        public DateTime? UltimaActualizacion { get; set; }
         public string? Observaciones { get; set; }
     }
 }

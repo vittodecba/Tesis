@@ -8,6 +8,7 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<Barril?> GetByIdAsync(int id);
         Task<Barril> AddAsync(Barril barril);
         Task<bool> UpdateAsync(Barril barril);
+        Task<bool> EliminarAsync(int id);
         Task<bool> ExisteCodigoAsync(string codigo, int? excludeId = null);
     }
 }

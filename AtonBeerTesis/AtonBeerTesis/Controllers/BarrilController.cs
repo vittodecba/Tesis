@@ -36,6 +36,22 @@ namespace AtonBeerTesis.WebApi.Controllers
             }
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var resultado = await _service.EliminarAsync(id);
+                if (!resultado)
+                    return NotFound($"No se encontró el barril con ID {id}.");
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateBarrilDto dto)
         {

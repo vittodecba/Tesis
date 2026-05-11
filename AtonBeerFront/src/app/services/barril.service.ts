@@ -10,8 +10,16 @@ export interface BarrilDto {
   capacidadLitros: number;
   estado: number;
   estadoTexto: string;
+  clienteId: number | null;
+  clienteNombre: string | null;
   fechaAdquisicion: string;
+  ultimaActualizacion: string | null;
   observaciones: string | null;
+}
+
+export interface ClienteSimpleDto {
+  idCliente: number;
+  razonSocial: string;
 }
 
 export interface CreateBarrilDto {
@@ -23,6 +31,8 @@ export interface CreateBarrilDto {
 
 export interface UpdateBarrilDto {
   estado?: number;
+  clienteId?: number | null;
+  desasociarCliente?: boolean;
   fechaAdquisicion?: string;
   observaciones: string | null;
 }
@@ -51,6 +61,14 @@ export class BarrilService {
 
   actualizarBarril(id: number, dto: UpdateBarrilDto): Observable<void> {
     return this.http.patch<void>(`${this.apiBarril}/${id}`, dto);
+  }
+
+  eliminarBarril(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiBarril}/${id}`);
+  }
+
+  getClientes(): Observable<ClienteSimpleDto[]> {
+    return this.http.get<ClienteSimpleDto[]>('http://localhost:5190/api/Clientes');
   }
 
   getFormatosRetornables(): Observable<FormatoRetornableDto[]> {

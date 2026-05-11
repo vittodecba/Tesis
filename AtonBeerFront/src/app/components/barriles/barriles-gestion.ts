@@ -4,10 +4,11 @@ import { FormsModule } from '@angular/forms';
 import {
   BarrilDto,
   BarrilService,
+  ClienteSimpleDto,
   CreateBarrilDto,
   FormatoRetornableDto,
 } from '../../services/barril.service';
-import { LucideAngularModule, Plus, Pencil, Barrel } from 'lucide-angular';
+import { LucideAngularModule, Plus, Pencil, Barrel, Trash2 } from 'lucide-angular';
 
 interface OpcionEstado { valor: number; texto: string; }
 
@@ -21,14 +22,22 @@ export class BarrilesGestion implements OnInit {
   readonly Plus   = Plus;
   readonly Pencil = Pencil;
   readonly Barrel = Barrel;
+  readonly Trash2 = Trash2;
+  readonly Math   = Math;
 
   lista: BarrilDto[] = [];
   filtrados: BarrilDto[] = [];
   formatos: FormatoRetornableDto[] = [];
+  clientes: ClienteSimpleDto[] = [];
 
-  filtroCodigo  = '';
-  filtroEstado  = 'Todos';
-  filtroFormato = 0;
+  filtroCodigo   = '';
+  filtroEstado   = 'Todos';
+  filtroFormato  = 0;
+  filtroCliente  = 0;
+
+  // Paginación
+  paginaActual = 1;
+  readonly itemsPorPagina = 10;
 
   mostrarModalCrear  = false;
   mostrarModalEditar = false;
@@ -37,18 +46,18 @@ export class BarrilesGestion implements OnInit {
 
   nuevoBarril: CreateBarrilDto = this.crearVacio();
   barrilEditando: BarrilDto | null = null;
-  observacionesEditar      = '';
-  fechaAdquisicionEditar   = '';
+  observacionesEditar    = '';
+  fechaAdquisicionEditar = '';
   estadoEditar: number | null = null;
+  clienteIdEditar: number | null = null;
 
-  // Transiciones válidas por estado (espejo del backend)
   private readonly transiciones: Record<number, OpcionEstado[]> = {
-    0: [{ valor: 1, texto: 'Lleno' }, { valor: 5, texto: 'Mantenimiento' }],   // Disponible
-    1: [{ valor: 2, texto: 'Con Cliente' }],      // Lleno
-    2: [{ valor: 3, texto: 'Sucio' }],            // ConCliente
-    3: [{ valor: 4, texto: 'En Lavado' }],        // Sucio
-    4: [{ valor: 0, texto: 'Disponible' }],       // EnLavado
-    5: [{ valor: 0, texto: 'Disponible' }],       // Mantenimiento
+    0: [{ valor: 1, texto: 'Lleno' }, { valor: 5, texto: 'Mantenimiento' }],
+    1: [{ valor: 2, texto: 'Con Cliente' }],
+    2: [{ valor: 3, texto: 'Sucio' }],
+    3: [{ valor: 4, texto: 'En Lavado' }],
+    4: [{ valor: 0, texto: 'Disponible' }],
+    5: [{ valor: 0, texto: 'Disponible' }],
   };
 
   constructor(private _service: BarrilService) {}
@@ -57,6 +66,10 @@ export class BarrilesGestion implements OnInit {
     this.cargar();
     this._service.getFormatosRetornables().subscribe({
       next: (data) => (this.formatos = data.filter((f) => f.esRetornable)),
+      error: () => {},
+    });
+    this._service.getClientes().subscribe({
+      next: (data) => (this.clientes = data),
       error: () => {},
     });
   }
@@ -78,7 +91,15 @@ export class BarrilesGestion implements OnInit {
       res = res.filter((b) => b.estadoTexto === this.filtroEstado);
     if (this.filtroFormato > 0)
       res = res.filter((b) => b.formatoEnvaseId === this.filtroFormato);
+    if (this.filtroCliente > 0)
+      res = res.filter((b) => b.clienteId === this.filtroCliente);
     this.filtrados = res;
+    this.paginaActual = 1;
+  }
+
+  get paginados(): BarrilDto[] {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    return this.filtrados.slice(inicio, inicio + this.itemsPorPagina);
   }
 
   abrirCrear() {
@@ -104,15 +125,24 @@ export class BarrilesGestion implements OnInit {
   }
 
   abrirEditar(barril: BarrilDto) {
-    this.barrilEditando       = barril;
-    this.observacionesEditar  = barril.observaciones ?? '';
+    this.barrilEditando         = barril;
+    this.observacionesEditar    = barril.observaciones ?? '';
     this.fechaAdquisicionEditar = barril.fechaAdquisicion.substring(0, 10);
-    this.estadoEditar         = null; // sin cambio por defecto
-    this.error                = '';
-    this.mostrarModalEditar   = true;
+    this.estadoEditar           = null;
+    this.clienteIdEditar        = barril.clienteId;
+    this.error                  = '';
+    this.mostrarModalEditar     = true;
   }
 
   cerrarEditar() { this.mostrarModalEditar = false; this.barrilEditando = null; }
+
+  eliminar(barril: BarrilDto) {
+    if (!confirm(`¿Seguro que querés eliminar el barril "${barril.codigo}"? Esta acción no se puede deshacer.`)) return;
+    this._service.eliminarBarril(barril.id).subscribe({
+      next: () => this.cargar(),
+      error: (err) => alert(typeof err.error === 'string' ? err.error : 'No se pudo eliminar el barril.'),
+    });
+  }
 
   get opcionesEstado(): OpcionEstado[] {
     if (!this.barrilEditando) return [];
@@ -123,9 +153,17 @@ export class BarrilesGestion implements OnInit {
     if (!this.barrilEditando) return;
     this.guardando = true;
     this.error = '';
+
+    const clienteOriginal = this.barrilEditando.clienteId;
+    const desasociar = clienteOriginal !== null && this.clienteIdEditar === null;
+    const nuevoCliente = this.clienteIdEditar !== clienteOriginal && this.clienteIdEditar !== null
+      ? this.clienteIdEditar : undefined;
+
     this._service
       .actualizarBarril(this.barrilEditando.id, {
         estado: this.estadoEditar ?? undefined,
+        clienteId: nuevoCliente,
+        desasociarCliente: desasociar,
         fechaAdquisicion: this.fechaAdquisicionEditar || undefined,
         observaciones: this.observacionesEditar || null,
       })

@@ -10,6 +10,7 @@ namespace AtonBeerTesis.Application.Services
         Task<List<BarrilDto>> GetAllAsync();
         Task<BarrilDto> CreateAsync(CreateBarrilDto dto);
         Task<bool> UpdateAsync(int id, UpdateBarrilDto dto);
+        Task<bool> EliminarAsync(int id);
     }
 
     public class BarrilService : IBarrilService
@@ -17,6 +18,20 @@ namespace AtonBeerTesis.Application.Services
         private readonly IBarrilRepository _repository;
 
         // Transiciones válidas por estado. Disponible→Lleno es exclusivo del lote (PBI C).
+        public async Task<bool> EliminarAsync(int id)
+        {
+            var barril = await _repository.GetByIdAsync(id);
+            if (barril == null) return false;
+
+            if (barril.Estado == EstadoBarril.ConCliente)
+                throw new Exception($"No se puede eliminar el barril '{barril.Codigo}': está actualmente con un cliente.");
+
+            if (barril.Estado == EstadoBarril.Lleno)
+                throw new Exception($"No se puede eliminar el barril '{barril.Codigo}': está lleno y cuenta en el stock. Primero registrá su egreso.");
+
+            return await _repository.EliminarAsync(id);
+        }
+
         private static readonly Dictionary<EstadoBarril, EstadoBarril[]> TransicionesValidas = new()
         {
             [EstadoBarril.Disponible]    = [EstadoBarril.Lleno, EstadoBarril.Mantenimiento],
@@ -48,11 +63,12 @@ namespace AtonBeerTesis.Application.Services
 
             var barril = new Barril
             {
-                Codigo           = dto.Codigo.Trim().ToUpper(),
-                FormatoEnvaseId  = dto.FormatoEnvaseId,
-                Estado           = EstadoBarril.Disponible,
-                FechaAdquisicion = dto.FechaAdquisicion,
-                Observaciones    = dto.Observaciones,
+                Codigo               = dto.Codigo.Trim().ToUpper(),
+                FormatoEnvaseId      = dto.FormatoEnvaseId,
+                Estado               = EstadoBarril.Disponible,
+                FechaAdquisicion     = dto.FechaAdquisicion,
+                UltimaActualizacion  = DateTime.Now,
+                Observaciones        = dto.Observaciones,
             };
 
             await _repository.AddAsync(barril);
@@ -79,10 +95,16 @@ namespace AtonBeerTesis.Application.Services
                 barril.Estado = nuevoEstado;
             }
 
+            if (dto.DesasociarCliente)
+                barril.ClienteId = null;
+            else if (dto.ClienteId.HasValue)
+                barril.ClienteId = dto.ClienteId.Value;
+
             if (dto.FechaAdquisicion.HasValue)
                 barril.FechaAdquisicion = dto.FechaAdquisicion.Value;
 
-            barril.Observaciones = dto.Observaciones;
+            barril.Observaciones       = dto.Observaciones;
+            barril.UltimaActualizacion = DateTime.Now;
 
             return await _repository.UpdateAsync(barril);
         }
@@ -96,8 +118,11 @@ namespace AtonBeerTesis.Application.Services
             CapacidadLitros = b.FormatoEnvase?.CapacidadLitros ?? 0,
             Estado          = (int)b.Estado,
             EstadoTexto     = ObtenerTextoEstado(b.Estado),
-            FechaAdquisicion= b.FechaAdquisicion,
-            Observaciones   = b.Observaciones,
+            ClienteId       = b.ClienteId,
+            ClienteNombre   = b.Cliente?.RazonSocial,
+            FechaAdquisicion    = b.FechaAdquisicion,
+            UltimaActualizacion = b.UltimaActualizacion,
+            Observaciones       = b.Observaciones,
         };
 
         private static string ObtenerTextoEstado(EstadoBarril estado) => estado switch

@@ -18,6 +18,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             return await _context.Barriles
                 .Include(b => b.FormatoEnvase)
+                .Include(b => b.Cliente)
                 .OrderBy(b => b.Codigo)
                 .ToListAsync();
         }
@@ -26,6 +27,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             return await _context.Barriles
                 .Include(b => b.FormatoEnvase)
+                .Include(b => b.Cliente)
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
@@ -39,6 +41,14 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         public async Task<bool> UpdateAsync(Barril barril)
         {
             _context.Barriles.Update(barril);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> EliminarAsync(int id)
+        {
+            var barril = await _context.Barriles.FindAsync(id);
+            if (barril == null) return false;
+            _context.Barriles.Remove(barril);
             return await _context.SaveChangesAsync() > 0;
         }
 

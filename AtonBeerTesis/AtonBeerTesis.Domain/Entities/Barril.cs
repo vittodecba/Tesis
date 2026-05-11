@@ -13,7 +13,12 @@ namespace AtonBeerTesis.Domain.Entities
 
         public EstadoBarril Estado { get; set; } = EstadoBarril.Disponible;
 
+        public int? ClienteId { get; set; }
+        public Cliente? Cliente { get; set; }
+
         public DateTime FechaAdquisicion { get; set; }
+
+        public DateTime? UltimaActualizacion { get; set; }
 
         public string? Observaciones { get; set; }
 

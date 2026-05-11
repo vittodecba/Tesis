@@ -200,6 +200,11 @@ namespace AtonBeerTesis.Infrastructure.Data
                     .WithMany(f => f.Barriles)
                     .HasForeignKey(b => b.FormatoEnvaseId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(b => b.Cliente)
+                    .WithMany()
+                    .HasForeignKey(b => b.ClienteId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             // ── MOVIMIENTO BARRIL ─────────────────────────────────────────

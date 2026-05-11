@@ -55,6 +55,18 @@
         <option *ngFor="let f of formatos" [ngValue]="f.id">{{ f.nombre }}</option>
       </select>
     </div>
+
+    <div class="w-56">
+      <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Cliente</label>
+      <select
+        [(ngModel)]="filtroCliente"
+        (change)="aplicarFiltros()"
+        class="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-orange-200 outline-none text-sm cursor-pointer"
+      >
+        <option [ngValue]="0">Todos los clientes</option>
+        <option *ngFor="let c of clientes" [ngValue]="c.idCliente">{{ c.razonSocial }}</option>
+      </select>
+    </div>
   </div>
 
   <!-- TABLA -->
@@ -73,6 +85,7 @@
           <th class="px-6 py-4">Código</th>
           <th class="px-6 py-4">Formato</th>
           <th class="px-6 py-4 text-center">Estado</th>
+          <th class="px-6 py-4">Cliente asociado</th>
           <th class="px-6 py-4">Fecha Adquisición</th>
           <th class="px-6 py-4 text-right">Acciones</th>
         </tr>
@@ -80,7 +93,7 @@
 
       <tbody class="divide-y divide-gray-50">
         <tr
-          *ngFor="let b of filtrados"
+          *ngFor="let b of paginados"
           class="hover:bg-orange-50/30 transition-colors group"
         >
           <!-- Código -->
@@ -106,29 +119,80 @@
             </span>
           </td>
 
+          <!-- Cliente -->
+          <td class="px-6 py-4">
+            <span *ngIf="b.estadoTexto === 'Con Cliente' && b.clienteNombre"
+              class="text-sm font-semibold text-[#e67e22]">
+              {{ b.clienteNombre }}
+            </span>
+            <span *ngIf="b.estadoTexto !== 'Con Cliente'"
+              class="text-gray-300 text-xs tracking-widest">-------</span>
+            <span *ngIf="b.estadoTexto === 'Con Cliente' && !b.clienteNombre"
+              class="text-gray-400 text-xs italic">Sin asignar</span>
+          </td>
+
           <!-- Fecha -->
-          <td class="px-6 py-4 text-sm text-gray-500">
-            {{ b.fechaAdquisicion | date: 'dd/MM/yyyy' }}
+          <td class="px-6 py-4">
+            <div class="flex flex-col">
+              <span class="text-sm text-gray-500">{{ b.fechaAdquisicion | date: 'dd/MM/yyyy' }}</span>
+              <span *ngIf="b.ultimaActualizacion" class="text-[10px] text-gray-400 mt-0.5">
+                Últ. act: {{ b.ultimaActualizacion | date: 'dd/MM/yyyy HH:mm' }}
+              </span>
+            </div>
           </td>
 
           <!-- Acciones -->
           <td class="px-6 py-4 text-right">
-            <button
-              (click)="abrirEditar(b)"
-              class="p-2 text-[#4A2C2A] hover:bg-orange-100 rounded-lg transition shadow-sm border border-transparent hover:border-gray-200"
-              title="Editar observaciones"
-            >
-              <lucide-icon [img]="Pencil" [size]="18"></lucide-icon>
-            </button>
+            <div class="flex justify-end gap-2">
+              <button
+                (click)="abrirEditar(b)"
+                class="p-2 text-[#4A2C2A] hover:bg-orange-100 rounded-lg transition shadow-sm border border-transparent hover:border-gray-200"
+                title="Editar barril"
+              >
+                <lucide-icon [img]="Pencil" [size]="18"></lucide-icon>
+              </button>
+              <button
+                (click)="eliminar(b)"
+                class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition"
+                title="Eliminar barril"
+              >
+                <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- PAGINACIÓN -->
+    <div
+      *ngIf="filtrados.length > itemsPorPagina"
+      class="flex justify-between items-center px-6 py-3 bg-gray-50 border-t border-gray-100"
+    >
+      <button
+        (click)="paginaActual = paginaActual - 1"
+        [disabled]="paginaActual === 1"
+        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+      >
+        Anterior
+      </button>
+      <span class="text-sm text-gray-500 font-medium">
+        Página {{ paginaActual }} de {{ Math.ceil(filtrados.length / itemsPorPagina) }}
+      </span>
+      <button
+        (click)="paginaActual = paginaActual + 1"
+        [disabled]="paginaActual * itemsPorPagina >= filtrados.length"
+        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+      >
+        Siguiente
+      </button>
+    </div>
   </div>
 
   <!-- CONTADOR -->
   <p *ngIf="lista.length > 0" class="text-xs text-gray-400 mt-3 ml-1">
-    Mostrando {{ filtrados.length }} de {{ lista.length }} barril{{ lista.length !== 1 ? 'es' : '' }}
+    Mostrando {{ paginados.length }} de {{ filtrados.length }} barril{{ filtrados.length !== 1 ? 'es' : '' }}
+    <span *ngIf="filtrados.length !== lista.length"> (filtrado de {{ lista.length }} total)</span>
   </p>
 
 </div>
@@ -290,6 +354,20 @@
             Este estado solo cambia automáticamente
           </span>
         </div>
+      </div>
+
+      <!-- Cliente asociado -->
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+          Cliente asociado
+        </label>
+        <select
+          [(ngModel)]="clienteIdEditar"
+          class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium bg-white text-sm"
+        >
+          <option [ngValue]="null">— Sin cliente —</option>
+          <option *ngFor="let c of clientes" [ngValue]="c.idCliente">{{ c.razonSocial }}</option>
+        </select>
       </div>
 
       <!-- Fecha adquisicion editable -->
