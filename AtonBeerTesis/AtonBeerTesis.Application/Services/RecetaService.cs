@@ -51,7 +51,7 @@ namespace AtonBeerTesis.Application.Services
             {
                 var duplicado = dto.RecetaInsumos.GroupBy(i => i.InsumoId).FirstOrDefault(g => g.Count() > 1);
                 if (duplicado != null)
-                {
+                { 
                     throw new Exception($"El insumo con ID {duplicado.Key} está repetido en la receta. Por favor, elimine los duplicados.");
                 }
             }
