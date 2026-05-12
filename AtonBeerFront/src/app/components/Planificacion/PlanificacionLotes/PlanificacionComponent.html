@@ -73,7 +73,7 @@
               [class.table-success]="i.alcanza">
             <td>{{ i.nombre }}</td>
             <td>{{ i.necesario }} {{ i.unidad }}</td>
-            <td>{{ i.stock }} {{ i.unidad }}</td>
+            <td>{{ i.stock }} {{ i.unidadStock }}</td>
             <td>
               <span *ngIf="i.alcanza">✅ OK</span>
               <span *ngIf="!i.alcanza">❌ Insuficiente</span>

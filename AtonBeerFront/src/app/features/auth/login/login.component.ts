@@ -44,18 +44,15 @@ export class LoginComponent {
           timer: 1500,
           showConfirmButton: false,
         }).then(() => {
-          // --- CORREGIDO: Ahora sí te lleva al dashboard ---
           this.router.navigate(['/inicio']);
         });
       },
       error: (error) => {
         this.isLoading = false;
 
-        let errorMessage = 'Credenciales incorrectas';
+        let errorMessage = error.error?.message || 'Credenciales incorrectas';
 
-        if (error.status === 401) {
-          errorMessage = 'Email o contraseña incorrectos';
-        } else if (error.status === 0) {
+        if (error.status === 0) {
           errorMessage = 'No se pudo conectar con el servidor';
         }
 

@@ -30,6 +30,8 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .Include(l => l.Receta)
                 .Include(l => l.Fermentador)
                 .Include(l => l.RegistrosFermentacion)
+                .Include(l => l.Designaciones)
+                    .ThenInclude(d => d.FormatoEnvase)
                 .FirstOrDefaultAsync(l => l.Id == id);
         }
 
@@ -44,6 +46,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             return await _context.RecetaInsumos
                 .Include(ri => ri.Insumo)
                     .ThenInclude(i => i.unidadMedida)
+                    .Include(ri => ri.unidadMedida)
                 .Where(ri => ri.RecetaId == lote.RecetaId)
                 .ToListAsync();
         }
@@ -61,14 +64,14 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task<Lote?> GetActivoByFermentadorIdAsync(int fermentadorId)
         {
-            // Solo lotes EnProceso son considerados activos en el fermentador
+            // Retorna lotes EnProceso o Planificados (futuros) asignados al fermentador
             return await _context.Lotes
                 .Include(l => l.Receta)
                 .Include(l => l.Fermentador)
                 .Include(l => l.RegistrosFermentacion)
                 .FirstOrDefaultAsync(l =>
                     l.FermentadorId == fermentadorId &&
-                    l.Estado == EstadoLote.EnProceso);
+                    (l.Estado == EstadoLote.EnProceso || l.Estado == EstadoLote.Planificado));
         }
 
         public async Task<bool> ExisteCodigoAsync(string codigo)

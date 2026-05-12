@@ -4,11 +4,12 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { RouterModule } from '@angular/router';
 import {
   LucideAngularModule,
-  Search, Plus, Pencil, FileText, X, Filter, Beer, ChevronDown, Trash2, Save
+  Search, Plus, Copy, Pencil, FileText, X, Filter, Beer, ChevronDown, ChevronLeft, ChevronRight,Trash2, Save
 } from 'lucide-angular';
 import { RecetaService, Receta } from '../../../services/receta';
 import { InsumoService } from '../../../services/insumo.service';
-import { UnidadMedidaService } from '../../../services/unidadMedida'; // <--- IMPORTANTE
+import { UnidadMedidaService } from '../../../services/unidadMedida';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-receta-list',
@@ -20,15 +21,19 @@ import { UnidadMedidaService } from '../../../services/unidadMedida'; // <--- IM
 export class RecetaListComponent implements OnInit {
   Search = Search; Plus = Plus; Pencil = Pencil; 
   FileText = FileText; X = X; Filter = Filter; 
-  Beer = Beer; ChevronDown = ChevronDown; Trash2 = Trash2; Save = Save;
+  Beer = Beer; ChevronDown = ChevronDown; ChevronLeft = ChevronLeft; ChevronRight = ChevronRight; Trash2 = Trash2; Save = Save; Copy = Copy;
 
   recetas: Receta[] = [];
+  recetasFiltradas: any[] = [];
+  paginaActual: number = 1;
+  itemsPorPagina: number = 8;
   cargando = false;
   showModal = false; 
   isEditing = false; 
   recetaIdSeleccionada: number | null = null; 
   form: FormGroup;
-
+  mensajeError: string | null = null; 
+  pasos: any[] = [];
   filtroNombre: string = '';
   filtroEstilo: string = '';
   filtroEstado: string = 'Activa';   
@@ -40,13 +45,15 @@ export class RecetaListComponent implements OnInit {
   insumosElegidos: any[] = [];
   insumoIdSeleccionado: number = 0;
   unidadIdSeleccionada: number = 0; // <--- NUEVA VARIABLE
-  cantidadIngresada: number = 0;
+  cantidadIngresada: number = 0; 
+
 
   constructor(
     private recetaService: RecetaService, 
     private fb: FormBuilder, 
     private insumoService: InsumoService,
-    private unidadService: UnidadMedidaService // <--- INYECTADO
+    private unidadService: UnidadMedidaService, // <--- INYECTADO
+    private router : Router
   ) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required]],
@@ -110,12 +117,16 @@ export class RecetaListComponent implements OnInit {
       next: (data) => this.listaInsumos = data
     });
   }
-
   agregarInsumoALista() {
     if (this.insumoIdSeleccionado > 0 && this.cantidadIngresada > 0 && this.unidadIdSeleccionada > 0) {    
+      const insumoRepetido = this.insumosElegidos.find(i => i.insumoId == this.insumoIdSeleccionado)
+      if(insumoRepetido)
+        {
+          alert("Este insumo ya fue seleccionado en la lista")
+          return;
+        }
       const insumoBase = this.listaInsumos.find(i => i.id == this.insumoIdSeleccionado);    
       const unidadBase = this.listaUnidades.find(u => u.id == this.unidadIdSeleccionada);
-
       if (insumoBase && unidadBase) {
         this.insumosElegidos.push({
           insumoId: Number(this.insumoIdSeleccionado),
@@ -133,6 +144,9 @@ export class RecetaListComponent implements OnInit {
       alert('Por favor seleccione insumo, cantidad y unidad.');
     }
   }
+    insumoYaEnLista(): boolean {
+  return this.insumosElegidos.some(i => i.insumoId == this.insumoIdSeleccionado);
+   }
 
   quitarInsumo(index: number) {
     this.insumosElegidos.splice(index, 1);
@@ -165,18 +179,29 @@ export class RecetaListComponent implements OnInit {
       });
     }
   }
-
-  // --- RESTO DE TUS MÉTODOS (loadRecetas, openCreate, guardarReceta, etc.) ---
-  // IMPORTANTE: En guardarReceta(), asegúrate de enviar el unidadMedidaId:
+  get recetasPaginadas() {
+  const listaAVisualizar = this.recetasFiltradas || []; 
+  const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+  const fin = inicio + this.itemsPorPagina;
   
+  return listaAVisualizar.slice(inicio, fin);
+}
   guardarReceta() {
     if (this.form.invalid) return;
     this.cargando = true;
-
+    this.mensajeError = null;
     if (this.isEditing && this.recetaIdSeleccionada) {
       this.recetaService.update(this.recetaIdSeleccionada, this.form.value).subscribe({
         next: () => { this.closeModal(); this.loadRecetas(); },
-        error: () => this.cargando = false
+        error: (err) => {
+          this.cargando = false
+           console.error("Error completo:", err); 
+  let textoError = err.error?.message || err.error || 'Error inesperado';
+  if (typeof textoError === 'string' && textoError.includes('\n')) {
+    textoError = textoError.split('\n')[0];
+  }
+  this.mensajeError = textoError.replace('System.Exception: ', '').trim();
+        }
       });
     } else {
       const recetaParaEnviar = {
@@ -193,7 +218,14 @@ export class RecetaListComponent implements OnInit {
           this.closeModal();
           this.loadRecetas(); 
         },
-        error: () => { this.cargando = false; alert('Error al crear la receta.'); }
+        error: (err) => { this.cargando = false;
+          console.error("Error completo:", err);
+  let textoError = err.error?.message || err.error || 'Error inesperado';
+  if (typeof textoError === 'string' && textoError.includes('\n')) {
+    textoError = textoError.split('\n')[0];
+  }
+  this.mensajeError = textoError.replace('System.Exception: ', '').trim();
+         }
       });
     }
   }
@@ -204,6 +236,7 @@ export class RecetaListComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.recetas = data ?? [];
+          this.recetasFiltradas = this.recetas;
           this.cargando = false;
         },
         error: () => this.cargando = false
@@ -211,6 +244,7 @@ export class RecetaListComponent implements OnInit {
   }
 
   openCreate() {
+    this.mensajeError = null;
     this.isEditing = false;
     this.form.reset({ batchSizeLitros: 20, estado: 'Activa', estilo: '' });
     this.insumosElegidos = []; 
@@ -224,6 +258,7 @@ export class RecetaListComponent implements OnInit {
   aplicarFiltros() { this.loadRecetas(); }
   limpiarFiltros() { this.filtroNombre = ''; this.filtroEstilo = ''; this.filtroEstado = 'Activa'; this.aplicarFiltros(); }  
   openEdit(r: any) { 
+    this.mensajeError = null;
     this.isEditing = true;
     this.recetaIdSeleccionada = r.idReceta;
     this.form.patchValue({
@@ -239,4 +274,14 @@ export class RecetaListComponent implements OnInit {
       next: () => this.loadRecetas()
     });
   }
+  duplicarReceta(id: number) {
+  if (confirm('¿Deseas crear una copia de esta receta?')) {
+    this.recetaService.duplicarReceta(id).subscribe({
+      next: (nuevoId) => {        
+        this.router.navigate(['/recetas/detalle', nuevoId]);
+      },
+      error: (err) => alert('Error al duplicar la receta')
+    });
+  }
+}
 }

@@ -64,7 +64,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-50">
-          <tr *ngFor="let r of recetas" class="hover:bg-orange-50/50 transition-colors group">
+          <tr *ngFor="let r of recetasPaginadas" class="hover:bg-orange-50/50 transition-colors group">
             <td class="px-6 py-4 text-sm font-medium text-[#4A2C2A]">{{ r.nombre }}</td>
             <td class="px-6 py-4 text-sm text-gray-700 font-mono">REC-{{ r.idReceta }}</td>
             <td class="px-6 py-4">
@@ -84,14 +84,36 @@
             </td>
             <td class="px-6 py-4 text-right">
               <div class="flex justify-end gap-3">
+                <button (click)="duplicarReceta(r.idReceta)" 
+                  class="text-green-600 hover:text-green-700 transition"title="Duplicar Receta"><lucide-icon [img]="Copy" [size]="20"></lucide-icon>
+                 </button>
                 <button (click)="openEdit(r)" class="text-[#4A2C2A] hover:text-[#E67E22] transition"><lucide-icon [img]="Pencil" [size]="20"></lucide-icon></button>
                 <button [routerLink]="['/recetas/detalle', r.idReceta]" class="text-blue-800 hover:text-blue-900 transition"><lucide-icon [img]="FileText" [size]="20"></lucide-icon></button>
               </div>
             </td>
-          </tr>
+          </tr>          
         </tbody>
       </table>
     </div>
+<div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
+  <div class="flex flex-1 justify-between sm:hidden">
+    <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1" class="...">Anterior</button>
+    <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual * itemsPorPagina >= recetasFiltradas.length" class="...">Siguiente</button>
+  </div>
+  <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+    <p class="text-sm text-gray-700">
+      Página <span class="font-medium">{{paginaActual}}</span>
+    </p>
+    <div class="flex gap-2">    
+      <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1" class="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50">
+        <lucide-icon [img]="ChevronLeft" [size]="18"></lucide-icon>
+      </button>
+      <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual * itemsPorPagina >= recetasFiltradas.length" class="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50">
+        <lucide-icon [img]="ChevronRight" [size]="18"></lucide-icon>
+      </button>
+    </div>
+  </div>
+</div>
   </div>
 </div>
 
@@ -158,17 +180,20 @@
                 <select [(ngModel)]="unidadIdSeleccionada" [ngModelOptions]="{standalone: true}" class="form-select border rounded-l-lg p-2 text-sm">
                   <option value="0" disabled>...</option>
                   <option *ngFor="let u of listaUnidades" [value]="u.id">{{ u.abreviatura }}</option>
-                </select>
-                <button type="button" (click)="crearUnidad()" class="btn btn-outline-success" title="Nueva Unidad">+</button>
-                <button type="button" (click)="eliminarUnidadDeLista()" class="btn btn-outline-danger" title="Eliminar Unidad">🗑</button>
+                </select>                
               </div>
             </div>
 
             <div class="col-12 mt-2">
               <button type="button" (click)="agregarInsumoALista()" 
                 class="w-full py-2 bg-orange-100 text-[#E67E22] rounded-lg font-bold border border-orange-200 hover:bg-orange-200 transition"
+                [ngClass]="{
+    'bg-orange-100 text-[#E67E22] border-orange-200 hover:bg-orange-200': !insumoYaEnLista(),
+    'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed': insumoYaEnLista()
+  }"
                 [disabled]="insumoIdSeleccionado === 0 || cantidadIngresada <= 0 || unidadIdSeleccionada === 0">
-                <lucide-icon [img]="Plus" [size]="16" class="me-1"></lucide-icon> Añadir a la receta
+                <lucide-icon [img]="insumoYaEnLista() ? X : Plus" [size]="16"></lucide-icon>
+  {{ insumoYaEnLista() ? 'Insumo ya añadido' : 'Añadir a la receta' }}
               </button>
             </div>
           </div>
@@ -184,7 +209,14 @@
           </div>
         </div>
       </form>
-
+      <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
+  
+  <div *ngIf="mensajeError" class="w-full mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded shadow-sm text-sm animate-pulse">
+    <div class="flex items-center gap-2">
+      <span class="font-bold">⚠️ Error:</span>
+      <span>{{ mensajeError }}</span>
+    </div>
+  </div>
       <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
         <button (click)="closeModal()" class="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg transition">Cancelar</button>
         <button (click)="guardarReceta()" [disabled]="form.invalid" 

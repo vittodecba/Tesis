@@ -1,4 +1,6 @@
-﻿namespace AtonBeerTesis.Application // O el namespace que ya tenga tu archivo
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AtonBeerTesis.Application // O el namespace que ya tenga tu archivo
 {
     public class InsumoDto
     {
@@ -13,6 +15,8 @@
         //
         public int unidadMedidaId { get; set; }
         public string? Unidad { get; set; }//Este es para que el front vea el nombre
+        public string? UnidadStockAbreviatura { get; set; }
+        [Range(0, double.MaxValue, ErrorMessage = "La cantidad no puede ser negativa")]
         public decimal StockActual { get; set; } // <--- Faltaba este
 
         public string Observaciones { get; set; }

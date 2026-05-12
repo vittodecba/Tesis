@@ -187,14 +187,39 @@ export class PlanificacionListComponent implements OnInit {
     };
     this._planifService.actualizarPlanificacion(datos.loteId, datos).subscribe({
       next: () => {
+        Swal.fire({
+        title: '¡Éxito!',
+        text: 'Los cambios se guardaron correctamente.',
+        icon: 'success',
+        confirmButtonColor: '#8d4925'
+      });
         this.cerrarModal();
         this.cargarPlanificaciones();
       },
       error: (e) => {
-        console.error('Error al guardar', e);
-        alert(e.error?.message ?? 'Error al guardar los cambios');
-        this.guardando = false;
+          console.error('Error al guardar', e);
+      this.guardando = false;
+
+      // --- LÓGICA PARA EL MENSAJE AMENO DE STOCK ---
+      let mensajeDetalle = "No se pudieron guardar los cambios.";
+      
+      if (e.error && e.error.message) {
+        mensajeDetalle = e.error.message; // Aquí viene el "Stock insuficiente..." del Backend
+      } else if (typeof e.error === 'string') {
+        mensajeDetalle = e.error;
       }
+
+      Swal.fire({
+        title: 'Atención con el Stock',
+        text: mensajeDetalle,
+        icon: 'warning', // Ícono amarillo de advertencia, menos agresivo que el rojo
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#8d4925', // Tu color marrón
+        background: '#ffffff'
+      });
+  
+  this.guardando = false;
+}
     });
   }
 

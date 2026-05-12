@@ -54,8 +54,10 @@ export class RecetaService {
   update(id: number, receta: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, receta);
   }
-
-  // 🔥 MODIFICADO (solo agregado unidadMedidaId)
+  duplicarReceta(id: number): Observable<number> {
+  return this.http.post<number>(`${this.apiUrl}/${id}/duplicar`, {});
+}
+  //--- METODOS INSUMOS ---
   addInsumo(idReceta: number, datos: { 
     insumoId: number, 
     cantidad: number,
@@ -67,8 +69,12 @@ export class RecetaService {
   removeInsumo(idReceta: number, idInsumo: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${idReceta}/insumos/${idInsumo}`);
   }
+ 
+actualizarInsumo(recetaId: number, dto: any, suma : boolean): Observable<any> {
+  return this.http.put(`${this.apiUrl}/${recetaId}/insumos?suma=${suma}`, dto);
+}
   
-  // --- MÉTODOS PBI 92 (Pasos de Elaboración) ---
+  // --- MÉTODOS PASOS ELABORACION ---
   addPaso(idReceta: number, paso: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/${idReceta}/pasos`, paso);
   }

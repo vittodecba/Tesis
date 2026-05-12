@@ -10,7 +10,7 @@ export interface Lote {
   volumenLitros: number;
   fechaInicio?: Date;
   fechaFinEstimada?: Date;
-  estado: number;
+  estado: number | string;
   observaciones?: string;
   usuarioId?: number;
   fechaCreacion?: Date;

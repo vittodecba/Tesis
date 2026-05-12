@@ -2,7 +2,6 @@
 
 namespace AtonBeerTesis.Application.Dto
 {
-    // 1. DTO PARA LEER (GET) - Lo que devolvés al frontend
     public class UsuarioDto
     {
         public int Id { get; set; }
@@ -10,10 +9,10 @@ namespace AtonBeerTesis.Application.Dto
         public string Apellido { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public bool Activo { get; set; }
-        public string RolNombre { get; set; } = string.Empty; // Ej: "Gerente"
+        public int RolId { get; set; } // <--- FALTABA ESTO
+        public string RolNombre { get; set; } = string.Empty;
     }
 
-    // 2. DTO PARA CREAR (POST) - Lo que recibís en el Registro
     public class UsuarioCreateDto
     {
         [Required(ErrorMessage = "El nombre es obligatorio")]
@@ -37,7 +36,6 @@ namespace AtonBeerTesis.Application.Dto
         public int RolId { get; set; }
     }
 
-    // 3. DTO PARA ACTUALIZAR (PUT)
     public class UsuarioUpdateDto
     {
         public int Id { get; set; }

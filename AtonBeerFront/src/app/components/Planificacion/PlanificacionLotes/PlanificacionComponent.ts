@@ -6,6 +6,7 @@ import { Router, RouterModule } from '@angular/router';
 import { Receta, RecetaService } from '../../../services/receta';
 import {FermentadorService} from '../../../services/fermentador';
 import { PlanificacionService } from '../../../services/PlanificacionService';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-planificacion-form',
@@ -39,10 +40,13 @@ export class PlanificacionFormComponent implements OnInit {
     private _planifService: PlanificacionService,
     private _fermentadorService: FermentadorService,
     private _recetaService: RecetaService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    const user = this.authService.getCurrentUser();
+    if (user?.id) this.nuevaPlanif.usuarioId = user.id;
     this.cargarDatos();
   }
 
@@ -72,15 +76,25 @@ export class PlanificacionFormComponent implements OnInit {
     this._recetaService.getRecetaDetalle(this.nuevaPlanif.recetaId).subscribe({
       next: (receta: any) => {
         this.recetaSeleccionada = receta;
+        console.log("DATOS DE LA RECETA:", receta);
         this.previsualizacionInsumos = receta.recetaInsumos.map((i: any) => {
           const necesario = (i.cantidad / receta.batchSizeLitros) * this.nuevaPlanif.volumenLitros;
+    console.log(`Insumo: ${i.nombreInsumo}, Factor que llega:`, i.factor);
+    
+    // USAR EL FACTOR QUE VIENE DE LA BASE DE DATOS
+    // Si i.factor no llega, el cálculo se rompe.
+    const factor = i.factor !== undefined ? i.factor : (i.Factor !== undefined ? i.Factor : 1);
+    
+    const necesarioEnBase = necesario * factor;
+    const stockEnBase = i.stockActual;
           return {
-            nombre: i.nombreInsumo,
-            necesario: necesario.toFixed(2),
-            stock: i.stockActual,
-            unidad: i.unidadMedida,
-            alcanza: necesario <= i.stockActual
-          };
+        nombre: i.nombreInsumo,
+        necesario: necesario.toFixed(2),
+        stock: i.stockActual,
+        unidad: i.unidadMedida,           // Etiqueta de la receta (Gr)
+        unidadStock: i.unidadMedidaStock, // Etiqueta del insumo (Kg)
+        alcanza: necesarioEnBase <= stockEnBase
+    };
         });
       }
     });
@@ -108,7 +122,11 @@ export class PlanificacionFormComponent implements OnInit {
 
     this._planifService.crearPlanificacion(this.nuevaPlanif).subscribe({
       next: () => {
-        Swal.fire('¡Éxito!', 'Producción planificada correctamente', 'success');
+        Swal.fire({
+          title: '¡Lote creado!',
+          html: 'La producción fue planificada correctamente.<br><br><span style="font-size:0.9em">📋 <strong>Recordá hacer la designación de volumen</strong> en el detalle del lote antes de finalizarlo.</span>',
+          icon: 'success'
+        });
         this.router.navigate(['/planificacion/Listado']);
       },
       error: (err: any) => {

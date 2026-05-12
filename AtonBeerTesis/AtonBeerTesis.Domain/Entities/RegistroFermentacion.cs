@@ -12,7 +12,7 @@ namespace AtonBeerTesis.Domain.Entities
         public int LoteId { get; set; }
 
         [ForeignKey(nameof(LoteId))]
-        public LotePrueba Lote { get; set; } = null!;
+        public Lote Lote { get; set; } = null!;
 
         [Required]
         public DateTime Fecha { get; set; }

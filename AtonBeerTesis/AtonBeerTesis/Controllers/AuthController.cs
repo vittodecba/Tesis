@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Interfaces;
-using AtonBeerTesis.Application.Dto; // <--- Unificado en singular
+using AtonBeerTesis.Application.Dto;
 
 namespace AtonBeerTesis.Controllers
 {
@@ -29,6 +29,9 @@ namespace AtonBeerTesis.Controllers
 
             if (usuario == null || usuario.Contrasena != Dto.Contrasena)
                 return Unauthorized(new { message = "Credenciales inválidas" });
+
+            if (!usuario.Activo)
+                return Unauthorized(new { message = "Usuario inactivo. Contacte al administrador." });
 
             var token = _tokenService.GenerarTokenJWT(usuario);
 

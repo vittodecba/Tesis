@@ -3,6 +3,8 @@ using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Interfaces;
 using AtonBeerTesis.Application.Dtos;
 using AtonBeerTesis.Application.Dto;
+using System.Text.RegularExpressions;
+
 namespace AtonBeerTesis.Application.Services
 {
     public class UsuarioService : IUsuarioService
@@ -14,27 +16,23 @@ namespace AtonBeerTesis.Application.Services
             _usuarioRepository = usuarioRepository;
         }
 
-        // --- CAMBIO AQUÍ: Agregamos el parámetro 'mostrarInactivos' ---
         public async Task<List<UsuarioDto>> GetAllAsync(bool mostrarInactivos)
         {
-            // 1. Traemos todo de la base de datos
             var usuarios = await _usuarioRepository.GetAllAsync();
 
-            // 2. Si NO queremos ver inactivos, filtramos
             if (!mostrarInactivos)
             {
                 usuarios = usuarios.Where(u => u.Activo == true).ToList();
             }
 
-            // 3. Convertimos a DTO
             return usuarios.Select(u => new UsuarioDto
             {
                 Id = u.Id,
                 Nombre = u.Nombre,
                 Apellido = u.Apellido,
                 Email = u.Email,
-                
                 Activo = u.Activo,
+                RolId = u.RolId,
                 RolNombre = u.Rol != null ? u.Rol.Nombre : "Sin Rol"
             }).ToList();
         }
@@ -51,16 +49,29 @@ namespace AtonBeerTesis.Application.Services
                 Apellido = u.Apellido,
                 Email = u.Email,
                 Activo = u.Activo,
+                RolId = u.RolId,
                 RolNombre = u.Rol?.Nombre ?? "Sin Rol"
             };
         }
 
         public async Task<UsuarioDto> CreateAsync(UsuarioCreateDto dto)
         {
-            // --- VALIDACIONES ---
-            if (!dto.Email.Contains("@") || !dto.Email.Contains("."))
+            var email = dto.Email.ToLower().Trim();
+            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$");
+
+            if (!emailRegex.IsMatch(email))
             {
-                throw new Exception("El email no es válido (debe contener @ y .).");
+                throw new Exception("El formato del email no es válido.");
+            }
+
+            if (email.EndsWith(".con"))
+            {
+                throw new Exception("El email no puede terminar en '.con'. ¿Quisiste poner '.com'?");
+            }
+
+            if (dto.RolId <= 0)
+            {
+                throw new Exception("Debe seleccionar un rol válido para el usuario.");
             }
 
             if (dto.Password != dto.ConfirmarPassword)
@@ -68,18 +79,23 @@ namespace AtonBeerTesis.Application.Services
                 throw new Exception("Las contraseñas no coinciden.");
             }
 
-            // Validar existencia
-            var existente = await _usuarioRepository.GetByEmailAsync(dto.Email);
+            var existente = await _usuarioRepository.GetByEmailAsync(email);
             if (existente != null)
             {
                 throw new Exception("El email ya está registrado en el sistema.");
+            }
+
+            var todosLosUsuarios = await _usuarioRepository.GetAllAsync();
+            if (todosLosUsuarios.Any(u => u.Contrasena == dto.Password))
+            {
+                throw new Exception("Esa contraseña ya está siendo usada por otro usuario. Elegí una distinta.");
             }
 
             var nuevoUsuario = new Usuario
             {
                 Nombre = dto.Nombre,
                 Apellido = dto.Apellido,
-                Email = dto.Email,
+                Email = email,
                 Contrasena = dto.Password,
                 RolId = dto.RolId,
                 Activo = true
@@ -100,15 +116,33 @@ namespace AtonBeerTesis.Application.Services
             var usuario = await _usuarioRepository.GetByIdAsync(id);
             if (usuario == null) throw new Exception("Usuario no encontrado");
 
-            if (usuario.Email != dto.Email)
+            var email = dto.Email.ToLower().Trim();
+            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$");
+
+            if (!emailRegex.IsMatch(email))
             {
-                var emailOcupado = await _usuarioRepository.GetByEmailAsync(dto.Email);
+                throw new Exception("El formato del email no es válido.");
+            }
+
+            if (email.EndsWith(".con"))
+            {
+                throw new Exception("El email no puede terminar en '.con'. ¿Quisiste poner '.com'?");
+            }
+
+            if (dto.RolId <= 0)
+            {
+                throw new Exception("Debe seleccionar un rol válido.");
+            }
+
+            if (usuario.Email != email)
+            {
+                var emailOcupado = await _usuarioRepository.GetByEmailAsync(email);
                 if (emailOcupado != null) throw new Exception("El email ya está en uso.");
             }
 
             usuario.Nombre = dto.Nombre;
             usuario.Apellido = dto.Apellido;
-            usuario.Email = dto.Email;
+            usuario.Email = email;
             usuario.RolId = dto.RolId;
             usuario.Activo = dto.Activo;
 
@@ -123,6 +157,6 @@ namespace AtonBeerTesis.Application.Services
                 usuario.Activo = !usuario.Activo;
                 await _usuarioRepository.UpdateAsync(usuario);
             }
-        }     
+        }
     }
 }

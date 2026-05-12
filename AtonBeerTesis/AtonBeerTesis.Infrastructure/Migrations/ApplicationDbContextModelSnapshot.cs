@@ -190,6 +190,28 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.ToTable("Fermentadores", (string)null);
                 });
 
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.FormatoEnvase", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("CapacidadLitros")
+                        .HasPrecision(10, 3)
+                        .HasColumnType("decimal(10,3)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FormatosEnvase", (string)null);
+                });
+
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Lote", b =>
                 {
                     b.Property<int>("Id")
@@ -252,7 +274,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.ToTable("Lotes", (string)null);
                 });
 
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.LotePrueba", b =>
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.LoteDesignacion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -260,59 +282,23 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Codigo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("DiasEstimadosFermentacion")
+                    b.Property<int>("FormatoEnvaseId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Estilo")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("FechaElaboracion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FechaFinReal")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("FermentadorId")
+                    b.Property<int>("LoteId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Inoculo")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("Observaciones")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int?>("PlanificacionProduccionId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("RecetaId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Responsable")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<decimal>("VolumenAsignado")
+                        .HasPrecision(10, 3)
+                        .HasColumnType("decimal(10,3)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FermentadorId");
+                    b.HasIndex("FormatoEnvaseId");
 
-                    b.HasIndex("PlanificacionProduccionId");
+                    b.HasIndex("LoteId");
 
-                    b.HasIndex("RecetaId");
-
-                    b.ToTable("LotePrueba");
+                    b.ToTable("LoteDesignaciones", (string)null);
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.MovimientoStock", b =>
@@ -330,14 +316,14 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Lote")
+                    b.Property<int?>("LoteId")
                         .HasColumnType("int");
 
                     b.Property<string>("MotivoMovimiento")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProductoId")
+                    b.Property<int>("ProductoStockId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("StockPrevio")
@@ -354,7 +340,9 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MovimientosStock");
+                    b.HasIndex("ProductoStockId");
+
+                    b.ToTable("MovimientosStock", (string)null);
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.PasosElaboracion", b =>
@@ -468,14 +456,11 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FermentadorId");
+
                     b.HasIndex("FermentadorId1");
 
                     b.HasIndex("LoteId");
-
-                    b.HasIndex("FermentadorId", "FechaInicio")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Fermentador_Fecha")
-                        .HasFilter("[FermentadorId] IS NOT NULL");
 
                     b.ToTable("PlanificacionProduccion", (string)null);
                 });
@@ -511,6 +496,33 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.HasKey("id");
 
                     b.ToTable("ProductosPrueba");
+                });
+
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.ProductoStock", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Estilo")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("FormatoEnvaseId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("StockActual")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FormatoEnvaseId");
+
+                    b.ToTable("ProductosStock", (string)null);
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Receta", b =>
@@ -613,9 +625,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Property<int>("LoteId")
                         .HasColumnType("int");
 
-                    b.Property<int>("LoteId1")
-                        .HasColumnType("int");
-
                     b.Property<string>("Observaciones")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -637,8 +646,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                         .HasColumnType("decimal(5,2)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("LoteId1");
 
                     b.HasIndex("LoteId", "DiaFermentacion")
                         .IsUnique()
@@ -724,6 +731,9 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Property<int>("RolId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("RolId1")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("TokenExpiracion")
                         .HasColumnType("datetime2");
 
@@ -733,6 +743,8 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RolId");
+
+                    b.HasIndex("RolId1");
 
                     b.ToTable("Usuarios", (string)null);
                 });
@@ -751,6 +763,9 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
+
+                    b.Property<double>("Factor")
+                        .HasColumnType("float");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -852,27 +867,34 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Navigation("Receta");
                 });
 
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.LotePrueba", b =>
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.LoteDesignacion", b =>
                 {
-                    b.HasOne("AtonBeerTesis.Domain.Entities.Fermentador", "Fermentador")
-                        .WithMany()
-                        .HasForeignKey("FermentadorId")
+                    b.HasOne("AtonBeerTesis.Domain.Entities.FormatoEnvase", "FormatoEnvase")
+                        .WithMany("Designaciones")
+                        .HasForeignKey("FormatoEnvaseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AtonBeerTesis.Domain.Entities.Lote", "Lote")
+                        .WithMany("Designaciones")
+                        .HasForeignKey("LoteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AtonBeerTesis.Domain.Entities.PlanificacionProduccion", "PlanificacionProduccion")
-                        .WithMany()
-                        .HasForeignKey("PlanificacionProduccionId");
+                    b.Navigation("FormatoEnvase");
 
-                    b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
-                        .WithMany()
-                        .HasForeignKey("RecetaId");
+                    b.Navigation("Lote");
+                });
 
-                    b.Navigation("Fermentador");
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.MovimientoStock", b =>
+                {
+                    b.HasOne("AtonBeerTesis.Domain.Entities.ProductoStock", "ProductoStock")
+                        .WithMany("Movimientos")
+                        .HasForeignKey("ProductoStockId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("PlanificacionProduccion");
-
-                    b.Navigation("Receta");
+                    b.Navigation("ProductoStock");
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.PasosElaboracion", b =>
@@ -927,6 +949,17 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Navigation("Lote");
                 });
 
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.ProductoStock", b =>
+                {
+                    b.HasOne("AtonBeerTesis.Domain.Entities.FormatoEnvase", "FormatoEnvase")
+                        .WithMany("Productos")
+                        .HasForeignKey("FormatoEnvaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FormatoEnvase");
+                });
+
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.RecetaInsumo", b =>
                 {
                     b.HasOne("AtonBeerTesis.Domain.Insumo", "Insumo")
@@ -956,15 +989,9 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.RegistroFermentacion", b =>
                 {
-                    b.HasOne("AtonBeerTesis.Domain.Entities.LotePrueba", "Lote")
+                    b.HasOne("AtonBeerTesis.Domain.Entities.Lote", "Lote")
                         .WithMany("RegistrosFermentacion")
                         .HasForeignKey("LoteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AtonBeerTesis.Domain.Entities.Lote", null)
-                        .WithMany("RegistrosFermentacion")
-                        .HasForeignKey("LoteId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -974,10 +1001,14 @@ namespace AtonBeerTesis.Infrastructure.Migrations
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Usuario", b =>
                 {
                     b.HasOne("AtonBeerTesis.Domain.Entities.Rol", "Rol")
-                        .WithMany("Usuarios")
+                        .WithMany()
                         .HasForeignKey("RolId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("AtonBeerTesis.Domain.Entities.Rol", null)
+                        .WithMany("Usuarios")
+                        .HasForeignKey("RolId1");
 
                     b.Navigation("Rol");
                 });
@@ -1006,14 +1037,23 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Navigation("Planificaciones");
                 });
 
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.FormatoEnvase", b =>
+                {
+                    b.Navigation("Designaciones");
+
+                    b.Navigation("Productos");
+                });
+
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Lote", b =>
                 {
+                    b.Navigation("Designaciones");
+
                     b.Navigation("RegistrosFermentacion");
                 });
 
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.LotePrueba", b =>
+            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.ProductoStock", b =>
                 {
-                    b.Navigation("RegistrosFermentacion");
+                    b.Navigation("Movimientos");
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Pedido", b =>

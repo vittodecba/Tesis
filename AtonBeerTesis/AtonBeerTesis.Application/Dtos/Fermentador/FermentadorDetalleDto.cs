@@ -6,7 +6,10 @@
     public string Estado { get; set; }
     public string Observaciones { get; set; }
 
-    // Estos campos se llenan solo si hay una planificación "En Proceso"
+    // Estos campos se llenan solo si hay una planificación activa (Planificado o EnProceso)
     public int? LoteId { get; set; }
     public string? EstiloNombre { get; set; }
+    public string? CodigoLote { get; set; }
+    public int? VolumenLitrosLote { get; set; }
+    public string? EstadoLote { get; set; }
 }

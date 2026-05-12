@@ -18,6 +18,7 @@ namespace AtonBeerTesis.Api.Controllers
         {
             _context = context;
         }
+        //--GESTION DE INSUMOS--
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<InsumoDto>>> GetInsumos()
@@ -52,56 +53,90 @@ namespace AtonBeerTesis.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CrearInsumo([FromBody] InsumoDto insumoDto)
         {
-            // ... validaciones de null y existencia ...
-
+            //Aca busco si existe un insumos con el mismo nombre
+            var existeInsumo = await _context.Insumos.AnyAsync(i => i.NombreInsumo.ToLower() == insumoDto.NombreInsumo.ToLower() && i.Activo);
+            //Lo valido
+            if (existeInsumo)
+            {
+                return BadRequest("Ya existe un insumo registrado con ese nombre.");
+            }
+            //Validar que no se pueda ingresar valores negativos en la cantidad del insumo
+            if (insumoDto.StockActual < 0)
+            {
+                return BadRequest("La cantidad inicial no puede ser negativa.");
+            }
+            var unidad = await _context.unidadMedida.FindAsync(insumoDto.unidadMedidaId);
+            decimal factor = (decimal)(unidad?.Factor ?? 1.0);
+            //defino los ids de las unidades base 
+            int idKilogramos = 1; // ID para kilogramos
+            int idLitros = 2; // ID para litros
             var nuevoInsumo = new Insumo
             {
                 NombreInsumo = insumoDto.NombreInsumo,
                 Codigo = "INS-" + (await _context.Insumos.CountAsync() + 1).ToString("000"),
                 TipoInsumoId = insumoDto.TipoInsumoId,
-
-                // FORZAMOS EL ID DIRECTAMENTE
-                unidadMedidaId = insumoDto.unidadMedidaId,
-
-                StockActual = insumoDto.StockActual,
+                //Acá aplico la lógica para convertir a la unidad base (Kg o Lt) según corresponda, usando el factor de conversión
+                unidadMedidaId = (unidad.Abreviatura.ToLower() == "gr" || unidad.Abreviatura.ToLower() == "mg") ? idKilogramos :
+                                  (unidad.Abreviatura.ToLower() == "ml" || unidad.Abreviatura.ToLower() == "cl") ? idLitros :
+                                  insumoDto.unidadMedidaId, // Si no es ni peso ni volumen, se deja la unidad original
+                StockActual = insumoDto.StockActual * factor,
                 UltimaActualizacion = DateTime.Now,
                 Observaciones = insumoDto.Observaciones,
                 Activo = true
             };
-
-            _context.Insumos.Add(nuevoInsumo);
-
-            // ESTO ES LO NUEVO: Forzamos a EF a que reconozca que el ID ha cambiado
+            _context.Insumos.Add(nuevoInsumo);            
             _context.Entry(nuevoInsumo).Property(x => x.unidadMedidaId).IsModified = true;
-
             await _context.SaveChangesAsync();
             return Ok(new { message = "Insumo creado con éxito" });
         }
+
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarInsumo(int id, [FromBody] InsumoDto insumoDto)
+        public async Task<IActionResult> ActualizarInsumo(int id, [FromBody] InsumoDto insumoDto, [FromQuery] bool Ajuste = false)
         {
+            //Tambien se busca si hay insumos iguales, en la edición
+            var existeInsumo = await _context.Insumos.AnyAsync(i => i.NombreInsumo.ToLower() == insumoDto.NombreInsumo.ToLower() && i.Id != id && i.Activo);
+            if (existeInsumo)
+            {
+                return BadRequest("Ya existe otro insumo con ese nombre.");
+            }
+
+            //Y también aplico la validación del negativo al editar un insumo
+            if (insumoDto.StockActual < 0)
+            {
+                return BadRequest("El stock no puede ser negativo.");
+            }
             var insumo = await _context.Insumos.FindAsync(id);
             if (insumo == null) return NotFound();
-
+            var unidad = await _context.unidadMedida.FindAsync(insumoDto.unidadMedidaId);
+            decimal factor = (decimal)(unidad?.Factor ?? 1.0);
             bool existe = await _context.Insumos.AnyAsync(x =>
                 x.NombreInsumo == insumoDto.NombreInsumo &&
                 x.TipoInsumoId == insumoDto.TipoInsumoId &&
                 x.Id != id);
 
             if (existe) return BadRequest($"Ya existe otro insumo con ese nombre y tipo.");
-
-            // Actualizamos los valores
+            decimal cantidadNormalizada = insumoDto.StockActual * factor;
+            //Volvemos a aplicar la logica de conversión a la unidad base (Kg o Lt) según corresponda, usando el factor de conversión, al editar también
+            var IdKilogramos = 1; // ID para kilogramos
+            var IdLitros = 2; // ID para litros
+            // Acá se actualizan los valores
             insumo.NombreInsumo = insumoDto.NombreInsumo;
             insumo.TipoInsumoId = insumoDto.TipoInsumoId;
-
-            // CORRECCIÓN: Se corrigieron los errores CS1061 y CS0117
-            // Usamos la propiedad del modelo real: UnidadMedidaId
-            insumo.unidadMedidaId = insumoDto.unidadMedidaId;
-
-            insumo.StockActual = insumoDto.StockActual;
+            // Acá se actualiza la unidad de medida, aplicando la lógica para convertir a la unidad base (Kg o Lt) según corresponda, usando el factor de conversión
+            insumo.unidadMedidaId = (unidad.Abreviatura.ToLower() == "gr" || unidad.Abreviatura.ToLower() == "mg") ? IdKilogramos :
+                                    (unidad.Abreviatura.ToLower() == "ml" || unidad.Abreviatura.ToLower() == "cl") ? IdLitros :
+                                    insumoDto.unidadMedidaId; // Si no es ni peso ni volumen, se deja la unidad original
             insumo.Observaciones = insumoDto.Observaciones;
+            if (Ajuste)
+            {
+                insumo.StockActual += cantidadNormalizada;
+            }
+            else
+            {
+                insumo.StockActual = cantidadNormalizada;
+            }
             insumo.UltimaActualizacion = DateTime.Now;
-
             await _context.SaveChangesAsync();
             return Ok(new { message = "Insumo actualizado con éxito" });
         }
@@ -147,6 +182,8 @@ namespace AtonBeerTesis.Api.Controllers
 
             return Ok(await query.ToListAsync());
         }
+
+
         // --- GESTIÓN DE TIPOS DE INSUMO  ---
 
         [HttpPost("tipos")]
