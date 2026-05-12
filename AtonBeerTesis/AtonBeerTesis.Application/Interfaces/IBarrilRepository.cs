@@ -10,5 +10,8 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<bool> UpdateAsync(Barril barril);
         Task<bool> EliminarAsync(int id);
         Task<bool> ExisteCodigoAsync(string codigo, int? excludeId = null);
+        Task<List<Barril>> GetDisponiblesAsync(int formatoEnvaseId, int cantidad);
+        Task MarcarComoLlenosAsync(List<int> barrilIds);
+        Task<Dictionary<int, decimal>> ObtenerFormatosRetornablesAsync();
     }
 }

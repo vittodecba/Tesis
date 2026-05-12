@@ -13,19 +13,22 @@ namespace AtonBeerTesis.Application.Services
         private readonly IPlanificacionRepository _planificacionRepository;
         private readonly IRepository<ProductoStock> _productoStockRepository;
         private readonly IRepository<MovimientoStock> _movimientoStockRepository;
+        private readonly IBarrilRepository _barrilRepository;
 
         public LoteService(
             ILoteRepository repository,
             IFermentadorRepository fermentadorRepository,
             IPlanificacionRepository planificacionRepository,
             IRepository<ProductoStock> productoStockRepository,
-            IRepository<MovimientoStock> movimientoStockRepository)
+            IRepository<MovimientoStock> movimientoStockRepository,
+            IBarrilRepository barrilRepository)
         {
             _repository = repository;
             _fermentadorRepository = fermentadorRepository;
             _planificacionRepository = planificacionRepository;
             _productoStockRepository = productoStockRepository;
             _movimientoStockRepository = movimientoStockRepository;
+            _barrilRepository = barrilRepository;
         }
 
         public async Task<List<LoteDto>> GetAllAsync()
@@ -249,6 +252,29 @@ namespace AtonBeerTesis.Application.Services
                 var estiloLote = lote.Estilo ?? lote.Receta?.Estilo ?? string.Empty;
                 var todosLosProductos = await _productoStockRepository.FindAllAsync();
 
+                // 4. PRE-VALIDACIÓN DE BARRILES
+                // formatosRetornables = { formatoId -> capacidadLitros }, query directa sin tracking
+                var formatosRetornables = await _barrilRepository.ObtenerFormatosRetornablesAsync();
+
+                var barrilesReservados = new Dictionary<int, List<Barril>>();
+                foreach (var des in lote.Designaciones)
+                {
+                    if (!formatosRetornables.TryGetValue(des.FormatoEnvaseId, out var capacidad))
+                        continue; // formato no retornable, sin barriles físicos
+
+                    int unidadesRequeridas = (int)(des.VolumenAsignado / capacidad);
+                    var disponibles = await _barrilRepository.GetDisponiblesAsync(des.FormatoEnvaseId, unidadesRequeridas);
+
+                    if (disponibles.Count < unidadesRequeridas)
+                        throw new InvalidOperationException(
+                            $"No hay barriles suficientes para el formato {des.FormatoEnvaseId}: " +
+                            $"se necesitan {unidadesRequeridas} y solo hay {disponibles.Count} disponible(s). " +
+                            "Registrá más barriles en el módulo de Barriles antes de finalizar.");
+
+                    barrilesReservados[des.FormatoEnvaseId] = disponibles;
+                }
+
+
                 foreach (var designacion in lote.Designaciones)
                 {
                     var formato = designacion.FormatoEnvase;
@@ -290,6 +316,14 @@ namespace AtonBeerTesis.Application.Services
                         Fecha = DateTime.Now
                     });
                 }
+
+                // 6. LLENAR BARRILES — ExecuteUpdateAsync para bypass del change tracker
+                var idsALlenar = barrilesReservados.Values
+                    .SelectMany(lista => lista.Select(b => b.Id))
+                    .ToList();
+
+                if (idsALlenar.Any())
+                    await _barrilRepository.MarcarComoLlenosAsync(idsALlenar);
             }
 
             return true;
