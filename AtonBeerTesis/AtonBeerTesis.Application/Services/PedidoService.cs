@@ -19,37 +19,30 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task<int> RegistrarPedidoAsync(PedidoCreacionDTO pedidoDto)
         {
-            // 1. Creamos la cabecera del pedido
             var nuevoPedido = new Pedido
             {
                 ClienteId = pedidoDto.IdCliente,
                 Fecha = DateTime.Now,
                 EstadoId = 1, // "Pendiente"
-                Total = 0,    // Empezamos en cero para calcularlo abajo
+                Total = 0,
                 Detalles = new List<DetallePedido>()
             };
 
-            // 2. Procesamos cada detalle enviado desde el DTO
             foreach (var item in pedidoDto.Detalles)
             {
                 var detalle = new DetallePedido
                 {
-                    ProductoId = item.IdProducto,
+                    ProductoStockId = item.ProductoStockId,
                     Cantidad = item.Cantidad,
-                    PrecioUnitario = item.Precio, // Usamos el precio que viene del DTO
+                    PrecioUnitario = item.Precio,
                     Pedido = nuevoPedido
                 };
 
-                // Sumamos al total del pedido: (Cantidad * Precio)
                 nuevoPedido.Total += (item.Cantidad * item.Precio);
-
                 nuevoPedido.Detalles.Add(detalle);
             }
 
-            // 3. Guardamos el pedido completo (Cabecera + Detalles) en la base de datos
             var pedidoGuardado = await _pedidoRepository.AddAsync(nuevoPedido);
-
-            // 4. Devolvemos el ID generado
             return pedidoGuardado.Id;
         }
     }

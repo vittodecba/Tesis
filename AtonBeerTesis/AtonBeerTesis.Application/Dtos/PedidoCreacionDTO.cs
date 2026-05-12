@@ -1,4 +1,6 @@
-﻿namespace AtonBeerTesis.Application.Dtos
+﻿using System.Collections.Generic;
+
+namespace AtonBeerTesis.Application.Dtos
 {
     public class PedidoCreacionDTO
     {
@@ -8,8 +10,8 @@
 
     public class DetallePedidoDTO
     {
-        public int IdProducto { get; set; }
+        public int ProductoStockId { get; set; }
         public int Cantidad { get; set; }
-        public decimal Precio { get; set; } 
+        public decimal Precio { get; set; }
     }
 }
