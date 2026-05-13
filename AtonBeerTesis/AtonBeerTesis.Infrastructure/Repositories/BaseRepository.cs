@@ -1,12 +1,11 @@
-﻿using AtonBeerTesis.Application.Interfaces; // Para ver IRepository
-using AtonBeerTesis.Infrastructure.Data;    // Para ver ApplicationDbContext
+﻿using AtonBeerTesis.Application.Interfaces;
+using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using AtonBeerTesis.Domain.Interfaces;
 
 namespace AtonBeerTesis.Infrastructure.Repositories
 {
-    // Le cambié el nombre de "BaseRepository" a "Repository" para que coincida con tu archivo
     public class BaseRepository<TEntity> : IRepository<TEntity> where TEntity : class
     {
         protected readonly ApplicationDbContext _context;
@@ -23,14 +22,13 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             _dbSet.Add(entity);
             _context.SaveChanges();
 
-            // Intenta devolver el ID. NOTA: Tus tablas deben tener una propiedad llamada "Id"
             try
             {
                 return _context.Entry(entity).Property("Id").CurrentValue;
             }
             catch
             {
-                return null; // Si no encuentra "Id", devuelve null para no romper
+                return null;
             }
         }
 
@@ -79,9 +77,29 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             return await _dbSet.FindAsync(keyValues);
         }
 
+        public async Task<TEntity> FindOneAsync(object id, params string[] includeProperties)
+        {
+            IQueryable<TEntity> query = _dbSet;
+            foreach (var property in includeProperties)
+            {
+                query = query.Include(property);
+            }
+            return await query.FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id));
+        }
+
         public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
-            return await _context.Set<TEntity>().ToListAsync();
+            return await _dbSet.ToListAsync();
+        }
+
+        public async Task<IEnumerable<TEntity>> GetAllAsync(params string[] includeProperties)
+        {
+            IQueryable<TEntity> query = _dbSet;
+            foreach (var property in includeProperties)
+            {
+                query = query.Include(property);
+            }
+            return await query.ToListAsync();
         }
 
         public void Remove(params object[] keyValues)
@@ -99,7 +117,6 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             var foundEntity = FindOne(id);
             if (foundEntity != null)
             {
-                // Copia los valores nuevos sobre la entidad vieja
                 _context.Entry(foundEntity).CurrentValues.SetValues(entity);
                 _context.SaveChanges();
             }

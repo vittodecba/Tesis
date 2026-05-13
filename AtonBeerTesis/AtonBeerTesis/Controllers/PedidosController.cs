@@ -1,5 +1,5 @@
 ﻿using AtonBeerTesis.Application.Dtos;
-using AtonBeerTesis.Application.DTOs; // Verificá que este sea el namespace de tus DTOs
+using AtonBeerTesis.Application.DTOs;
 using AtonBeerTesis.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,13 +11,25 @@ namespace AtonBeerTesis.Controllers
     {
         private readonly IPedidoService _pedidoService;
 
-        // Inyectamos el servicio que creamos antes
         public PedidosController(IPedidoService pedidoService)
         {
             _pedidoService = pedidoService;
         }
 
-        // POST api/Pedidos
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                var pedidos = await _pedidoService.ObtenerTodosAsync();
+                return Ok(pedidos);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = "Error al obtener los pedidos", error = ex.Message });
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] PedidoCreacionDTO pedidoDto)
         {

@@ -17,8 +17,9 @@ namespace AtonBeerTesis.Domain.Interfaces
         Task<List<TEntity>> FindAllAsync();
         TEntity FindOne(params object[] keyValues);
         Task<TEntity> FindOneAsync(params object[] keyValues);
+        Task<TEntity> FindOneAsync(object id, params string[] includeProperties);
         void Remove(params object[] keyValues);
         void Update(object id, TEntity entity);
-        Task<IEnumerable<TEntity>> GetAllAsync();
+        Task<IEnumerable<TEntity>> GetAllAsync(params string[] includeProperties);
     }
 }

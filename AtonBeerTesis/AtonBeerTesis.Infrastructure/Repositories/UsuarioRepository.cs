@@ -6,11 +6,11 @@ using System.Linq.Expressions;
 
 namespace AtonBeerTesis.Infrastructure.Repositories
 {
-    public class UsuarioRepository : IUsuarioRepository
+    public class UsuarioRepository : IUsuarioRepository, IRepository<Usuario>
     {
-        private readonly ApplicationDbContext _context; // EL NUEVO
+        private readonly ApplicationDbContext _context;
 
-        public UsuarioRepository(ApplicationDbContext context) // EL NUEVO
+        public UsuarioRepository(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -33,7 +33,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             return await _context.usuarios
                 .Include(u => u.Rol)
-                .FirstOrDefaultAsync(u => u.Email == email); // Quitamos AsNoTracking
+                .FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task AddAsync(Usuario usuario)
@@ -50,57 +50,80 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public object Add(Usuario entity)
         {
-            throw new NotImplementedException();
+            _context.usuarios.Add(entity);
+            _context.SaveChanges();
+            return entity.Id;
         }
 
-        Task<object> IRepository<Usuario>.AddAsync(Usuario entity)
+        async Task<object> IRepository<Usuario>.AddAsync(Usuario entity)
         {
-            throw new NotImplementedException();
+            await _context.usuarios.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return entity.Id;
         }
 
         public long Count(Expression<Func<Usuario, bool>> filter)
         {
-            throw new NotImplementedException();
+            return _context.usuarios.Count(filter);
         }
 
-        public Task<long> CountAsync(Expression<Func<Usuario, bool>> filter)
+        public async Task<long> CountAsync(Expression<Func<Usuario, bool>> filter)
         {
-            throw new NotImplementedException();
+            return await _context.usuarios.CountAsync(filter);
         }
 
         public List<Usuario> FindAll()
         {
-            throw new NotImplementedException();
+            return _context.usuarios.ToList();
         }
 
-        public Task<List<Usuario>> FindAllAsync()
+        public async Task<List<Usuario>> FindAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.usuarios.ToListAsync();
         }
 
         public Usuario FindOne(params object[] keyValues)
         {
-            throw new NotImplementedException();
+            return _context.usuarios.Find(keyValues);
         }
 
-        public Task<Usuario> FindOneAsync(params object[] keyValues)
+        public async Task<Usuario> FindOneAsync(params object[] keyValues)
         {
-            throw new NotImplementedException();
+            return await _context.usuarios.FindAsync(keyValues);
+        }
+
+        public async Task<Usuario> FindOneAsync(object id, params string[] includeProperties)
+        {
+            IQueryable<Usuario> query = _context.usuarios;
+            foreach (var prop in includeProperties) query = query.Include(prop);
+            return await query.FirstOrDefaultAsync(u => u.Id == (int)id);
         }
 
         public void Remove(params object[] keyValues)
         {
-            throw new NotImplementedException();
+            var entity = _context.usuarios.Find(keyValues);
+            if (entity != null)
+            {
+                _context.usuarios.Remove(entity);
+                _context.SaveChanges();
+            }
         }
 
         public void Update(object id, Usuario entity)
         {
-            throw new NotImplementedException();
+            var existing = _context.usuarios.Find(id);
+            if (existing != null)
+            {
+                _context.Entry(existing).CurrentValues.SetValues(entity);
+                _context.SaveChanges();
+            }
         }
 
-        Task<IEnumerable<Usuario>> IRepository<Usuario>.GetAllAsync()
+        public async Task<IEnumerable<Usuario>> GetAllAsync(params string[] includeProperties)
         {
-            throw new NotImplementedException();
+            IQueryable<Usuario> query = _context.usuarios;
+            foreach (var prop in includeProperties) query = query.Include(prop);
+            return await query.ToListAsync();
         }
     }
 }

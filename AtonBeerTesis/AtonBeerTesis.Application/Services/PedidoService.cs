@@ -17,29 +17,38 @@ namespace AtonBeerTesis.Application.Services
             _pedidoRepository = pedidoRepository;
         }
 
+        public async Task<IEnumerable<object>> ObtenerTodosAsync()
+        {
+            var pedidos = await _pedidoRepository.GetAllAsync();
+            return pedidos.Select(p => new
+            {
+                idPedido = p.Id,
+                clienteNombre = p.Cliente?.RazonSocial ?? "Desconocido",
+                totalPedido = p.Total,
+                fechaPedido = p.Fecha
+            });
+        }
+
         public async Task<int> RegistrarPedidoAsync(PedidoCreacionDTO pedidoDto)
         {
             var nuevoPedido = new Pedido
             {
                 ClienteId = pedidoDto.IdCliente,
                 Fecha = DateTime.Now,
-                EstadoId = 1, // "Pendiente"
-                Total = 0,
+                EstadoId = 1,
+                Total = pedidoDto.TotalPedido,
                 Detalles = new List<DetallePedido>()
             };
 
             foreach (var item in pedidoDto.Detalles)
             {
-                var detalle = new DetallePedido
+                nuevoPedido.Detalles.Add(new DetallePedido
                 {
                     ProductoStockId = item.ProductoStockId,
                     Cantidad = item.Cantidad,
                     PrecioUnitario = item.Precio,
                     Pedido = nuevoPedido
-                };
-
-                nuevoPedido.Total += (item.Cantidad * item.Precio);
-                nuevoPedido.Detalles.Add(detalle);
+                });
             }
 
             var pedidoGuardado = await _pedidoRepository.AddAsync(nuevoPedido);

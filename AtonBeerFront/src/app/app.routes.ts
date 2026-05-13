@@ -18,6 +18,7 @@ import { LoteListadoComponent } from './components/lote-listado/lote-listado';
 import { FermentadorComponent } from './components/fermentador/fermentador';
 import { PlanificacionListComponent } from './components/Planificacion/PlanificacionListado/PlanListado';
 import { PlanificacionFormComponent } from './components/Planificacion/PlanificacionLotes/PlanificacionComponent';
+import { RegistrarPedidoComponent } from './components/registrar-pedido/registrar-pedido';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -103,8 +104,12 @@ export const routes: Routes = [
         component: LoteDetalleComponent,
         data: { title: 'Detalle de Lote', subtitle: 'Información completa del lote' },
       },
+      {
+        path: 'pedidos/registrar',
+        component: RegistrarPedidoComponent,
+        data: { title: 'Pedidos', subtitle: 'Administración y registro de pedidos' },
+      },
     ],
   },
-
   { path: '**', redirectTo: 'login' },
 ];

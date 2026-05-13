@@ -1,0 +1,145 @@
+<div class="p-6 min-h-screen bg-orange-50/30 text-start font-sans">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+      <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Pedidos</h2>
+      <p class="text-gray-600 font-medium">Administración y registro de ventas.</p>
+    </div>
+    <button class="flex items-center gap-2 px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white shadow-lg border-0 cursor-pointer" (click)="openCreate()">
+      <lucide-icon [img]="Plus" [size]="18"></lucide-icon> Nuevo Pedido
+    </button>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-6 mb-8">
+    <table class="w-full text-left">
+      <thead class="bg-gray-50 border-b border-gray-100">
+        <tr>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">ID</th>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Cliente</th>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Total (ARS)</th>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ped of pedidos" class="border-b border-gray-50 hover:bg-gray-50/50">
+          <td class="px-6 py-4 font-bold text-[#4A2C2A]">#{{ ped.idPedido || ped.id }}</td>
+          <td class="px-6 py-4 text-gray-700 font-medium">{{ ped.clienteNombre || ped.razonSocial || 'ID: ' + ped.clienteId }}</td>
+          <td class="px-6 py-4 font-bold text-[#E67E22]">${{ (ped.totalPedido || ped.total) | number:'1.2-2' }}</td>
+          <td class="px-6 py-4 text-right">
+            <button class="text-[#4A2C2A] font-bold bg-transparent border-0 cursor-pointer hover:underline uppercase text-[10px]">Ver</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-start">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl overflow-hidden max-h-[95vh] flex flex-col border border-gray-200">
+      <div class="bg-[#4A2C2A] p-5 flex justify-between items-center text-white">
+        <div class="flex items-center gap-3">
+          <lucide-icon [img]="Receipt" [size]="24" class="text-orange-400"></lucide-icon>
+          <h5 class="font-bold text-xl">Registrar Nuevo Pedido</h5>
+        </div>
+        <button (click)="closeModal()" class="bg-transparent text-white/80 hover:text-white text-2xl border-0 cursor-pointer">✕</button>
+      </div>
+
+      <form [formGroup]="pedidoForm" (ngSubmit)="guardarPedido()" class="flex flex-col flex-1 overflow-hidden">
+        <div class="p-8 overflow-y-auto bg-white flex-1">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="space-y-2">
+              <label class="block text-sm font-bold text-gray-700">Cliente *</label>
+              <select formControlName="clienteId" (change)="recalcularTotalFinal()" class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none bg-gray-50">
+                <option value="">Seleccione un cliente...</option>
+                <option *ngFor="let c of clientes" [value]="c.idCliente">
+                  {{ c.razonSocial || c.nombre }} {{ (c.tipoCliente === 'Franquicia' || c.esFranquicia) ? '(Franquicia -10%)' : '' }}
+                </option>
+              </select>
+            </div>
+            <div class="space-y-2">
+              <label class="block text-sm font-bold text-gray-700">Observaciones</label>
+              <input type="text" formControlName="observaciones" class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none bg-gray-50" />
+            </div>
+          </div>
+
+          <div class="pt-6 border-t border-gray-100">
+            <div class="flex justify-between items-center mb-6">
+              <h6 class="text-[#4A2C2A] font-extrabold text-lg">Productos del Pedido</h6>
+              <button type="button" (click)="agregarDetalle()" class="px-4 py-2 bg-orange-50 text-[#E67E22] rounded-xl text-sm font-bold border-2 border-orange-100 cursor-pointer">+ Añadir Producto</button>
+            </div>
+
+            <div formArrayName="detalles" class="space-y-4">
+              <div *ngFor="let d of detalles.controls; let i = index" [formGroupName]="i" class="grid grid-cols-12 gap-3 items-end bg-gray-50/50 p-5 rounded-2xl border border-gray-200">
+                <div class="col-span-2">
+                  <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Envase</label>
+                  <select formControlName="tempFormato" class="w-full border rounded-lg p-2 text-sm bg-white outline-none">
+                    <option value="">Formato...</option>
+                    <option *ngFor="let f of getFormatosUnicos()" [value]="f">{{ f }}</option>
+                  </select>
+                </div>
+                <div class="col-span-2">
+                  <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Capacidad</label>
+                  <select formControlName="tempCapacidad" class="w-full border rounded-lg p-2 text-sm bg-white outline-none" [disabled]="!d.get('tempFormato')?.value">
+                    <option value="">Litros...</option>
+                    <option *ngFor="let cap of getCapacidadesPorFormato(d.get('tempFormato')?.value)" [value]="cap">{{ cap }}L</option>
+                  </select>
+                </div>
+                <div class="col-span-2">
+                  <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Estilo</label>
+                  <select formControlName="productoStockId" class="w-full border rounded-lg p-2 text-sm bg-white font-bold text-[#4A2C2A]" [disabled]="!d.get('tempCapacidad')?.value">
+                    <option value="">Estilo...</option>
+                    <option *ngFor="let prod of getEstilosDisponibles(d.get('tempFormato')?.value, d.get('tempCapacidad')?.value, i)" [value]="prod.id">{{ prod.estilo }}</option>
+                  </select>
+                  <span class="text-[10px] mt-1 block font-medium" *ngIf="d.get('productoStockId')?.value">
+                    Stock: <strong class="text-orange-600">{{ obtenerProducto(d.get('productoStockId')?.value)?.stockActual }} u.</strong>
+                  </span>
+                </div>
+                <div class="col-span-1">
+                  <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 text-center">Cant.</label>
+                  <input type="number" formControlName="cantidad" min="1" class="w-full border rounded-lg p-2 text-sm text-center font-bold" />
+                </div>
+                <div class="col-span-2">
+                  <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 tracking-tighter">PRECIO UNIT. (ARS)</label>
+                  <div class="flex items-center border rounded-lg bg-white overflow-hidden">
+                    <span class="bg-gray-100 px-2 py-2 text-gray-500 font-bold text-xs border-r">$</span>
+                    <input type="number" formControlName="precioUnitario" min="0" class="w-full border-0 p-2 text-sm font-bold text-gray-700 outline-none" />
+                  </div>
+                </div>
+                <div class="col-span-2">
+                  <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 tracking-tighter">SUBTOTAL (ARS)</label>
+                  <div class="flex items-center border rounded-lg bg-white overflow-hidden">
+                    <span class="bg-gray-100 px-2 py-2 text-gray-500 font-bold text-xs border-r">$</span>
+                    <input type="number" formControlName="subtotal" min="0" class="w-full border-0 p-2 text-sm font-bold text-[#4A2C2A] outline-none" />
+                  </div>
+                </div>
+                <div class="col-span-1 flex justify-center pb-1">
+                  <button type="button" (click)="eliminarDetalle(i)" *ngIf="detalles.length > 1" class="text-gray-300 hover:text-red-500 bg-transparent border-0 cursor-pointer">
+                    <lucide-icon [img]="Trash2" [size]="20"></lucide-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-6 border-t bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div class="flex gap-10">
+            <div class="flex flex-col">
+              <span class="text-gray-400 uppercase font-black text-[10px] tracking-widest">Volumen Total</span>
+              <span class="text-2xl font-black text-[#4A2C2A]">{{ totalLitros | number:'1.2-2' }} L</span>
+            </div>
+            <div class="flex flex-col border-l pl-10 border-gray-200">
+              <span class="text-gray-400 uppercase font-black text-[10px] tracking-widest">Precio Final (ARS)</span>
+              <div class="flex items-center gap-1">
+                <span class="text-2xl font-black text-[#E67E22]">$</span>
+                <input type="number" formControlName="totalPedido" min="0" class="text-2xl font-black text-[#E67E22] border-b-2 border-dashed border-orange-300 bg-transparent outline-none w-40" />
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <button type="button" (click)="closeModal()" class="px-6 py-3 text-gray-500 font-bold border-0 bg-transparent cursor-pointer uppercase text-xs">Cancelar</button>
+            <button type="submit" [disabled]="pedidoForm.invalid" class="px-10 py-3 rounded-xl bg-[#4A2C2A] text-white font-black border-0 cursor-pointer shadow-lg uppercase text-xs">Confirmar Pedido</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

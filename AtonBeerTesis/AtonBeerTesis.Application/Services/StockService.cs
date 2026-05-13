@@ -23,7 +23,7 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task<IEnumerable<ProductoStock>> ObtenerTodosAsync()
         {
-            return await _productoStockRepository.GetAllAsync();
+            return await _productoStockRepository.GetAllAsync("FormatoEnvase");
         }
 
         public async Task<IEnumerable<MovimientoDetalladoDto>> ObtenerMovimientosAsync()
@@ -36,11 +36,10 @@ namespace AtonBeerTesis.Application.Services
             if (dto.Cantidad <= 0)
                 throw new Exception("La cantidad debe ser mayor a 0");
 
-            var producto = await _productoStockRepository.FindOneAsync(dto.ProductoStockId)
+            var producto = await _productoStockRepository.FindOneAsync(dto.ProductoStockId, "FormatoEnvase")
                 ?? throw new Exception("Producto de stock no encontrado");
 
             var formato = producto.FormatoEnvase;
-
             var stockPrevio = producto.StockActual;
             producto.StockActual += dto.Cantidad;
 
@@ -67,10 +66,10 @@ namespace AtonBeerTesis.Application.Services
                 TipoMovimiento = movimiento.TipoMovimiento,
                 MotivoMovimiento = movimiento.MotivoMovimiento,
                 Cantidad = movimiento.Cantidad,
-                StockPrevio = movimiento.StockPrevio,
-                StockResultante = movimiento.StockResultante,
+                StockPrevio = stockPrevio,
+                StockResultante = producto.StockActual,
                 Estilo = producto.Estilo,
-                FormatoNombre = formato?.Nombre ?? "",
+                FormatoNombre = formato?.Nombre ?? "Sin Formato",
                 CapacidadLitros = formato?.CapacidadLitros ?? 0,
                 LoteId = null
             };
@@ -81,7 +80,7 @@ namespace AtonBeerTesis.Application.Services
             if (dto.NuevaCantidad < 0)
                 throw new Exception("El stock no puede ser negativo.");
 
-            var producto = await _productoStockRepository.FindOneAsync(productoStockId)
+            var producto = await _productoStockRepository.FindOneAsync(productoStockId, "FormatoEnvase")
                 ?? throw new Exception("Producto de stock no encontrado.");
 
             var formato = producto.FormatoEnvase;
@@ -114,7 +113,7 @@ namespace AtonBeerTesis.Application.Services
                 StockPrevio = stockPrevio,
                 StockResultante = producto.StockActual,
                 Estilo = producto.Estilo,
-                FormatoNombre = formato?.Nombre ?? "",
+                FormatoNombre = formato?.Nombre ?? "Sin Formato",
                 CapacidadLitros = formato?.CapacidadLitros ?? 0,
                 LoteId = null
             };
@@ -125,7 +124,7 @@ namespace AtonBeerTesis.Application.Services
             if (dto.Cantidad <= 0)
                 throw new Exception("La cantidad debe ser mayor a 0.");
 
-            var producto = await _productoStockRepository.FindOneAsync(dto.ProductoStockId)
+            var producto = await _productoStockRepository.FindOneAsync(dto.ProductoStockId, "FormatoEnvase")
                 ?? throw new Exception("Producto de stock no encontrado.");
 
             if (producto.StockActual < dto.Cantidad)
@@ -161,7 +160,7 @@ namespace AtonBeerTesis.Application.Services
                 StockPrevio = stockPrevio,
                 StockResultante = producto.StockActual,
                 Estilo = producto.Estilo,
-                FormatoNombre = formato?.Nombre ?? "",
+                FormatoNombre = formato?.Nombre ?? "Sin Formato",
                 CapacidadLitros = formato?.CapacidadLitros ?? 0,
                 LoteId = null
             };

@@ -1,14 +1,12 @@
 ﻿using AtonBeerTesis.Application.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AtonBeerTesis.Application.DTOs;
 
 namespace AtonBeerTesis.Application.Interfaces
 {
     public interface IPedidoService
     {
+        Task<IEnumerable<object>> ObtenerTodosAsync();
+
         Task<int> RegistrarPedidoAsync(PedidoCreacionDTO pedidoDto);
     }
 }

@@ -1,16 +1,13 @@
-﻿using System;
+﻿using AtonBeerTesis.Application.Interfaces;
+using AtonBeerTesis.Domain.Entities;
+using AtonBeerTesis.Infrastructure.Data;
+using AtonBeerTesis.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace AtonBeerTesis.Infrastructure.Repositories
 {
-    using AtonBeerTesis.Application.Interfaces;
-    using AtonBeerTesis.Domain.Entities;
-    using AtonBeerTesis.Infrastructure.Data;
-    using Microsoft.EntityFrameworkCore;
-
     public class PedidoRepository : IPedidoRepository
     {
         private readonly ApplicationDbContext _context;
@@ -20,9 +17,16 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<IEnumerable<Pedido>> GetAllAsync()
+        {
+            return await _context.Pedidos
+                .Include(p => p.Cliente)
+                .ToListAsync();
+        }
+
         public async Task<Pedido> AddAsync(Pedido pedido)
         {
-            await _context.Pedidos.AddAsync(pedido);
+            _context.Pedidos.Add(pedido);
             await _context.SaveChangesAsync();
             return pedido;
         }

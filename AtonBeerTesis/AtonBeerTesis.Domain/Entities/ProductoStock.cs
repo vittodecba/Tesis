@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace AtonBeerTesis.Domain.Entities
 {
     public class ProductoStock
@@ -7,6 +9,7 @@ namespace AtonBeerTesis.Domain.Entities
         public FormatoEnvase FormatoEnvase { get; set; } = null!;
         public string Estilo { get; set; } = string.Empty;
         public decimal StockActual { get; set; }
+        [JsonIgnore]
         public ICollection<MovimientoStock> Movimientos { get; set; } = new List<MovimientoStock>();
     }
 }
