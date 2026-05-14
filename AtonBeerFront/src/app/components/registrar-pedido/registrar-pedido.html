@@ -1,8 +1,8 @@
-<div class="p-6 min-h-screen bg-orange-50/30 text-start font-sans">
+<div class="p-6 min-h-screen bg-orange-50/30 text-start font-sans relative">
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
     <div>
       <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Pedidos</h2>
-      <p class="text-gray-600 font-medium">Administración y registro de ventas.</p>
+      <p class="text-gray-600 font-medium">Administración y registro de pedidos.</p>
     </div>
     <button class="flex items-center gap-2 px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white shadow-lg border-0 cursor-pointer" (click)="openCreate()">
       <lucide-icon [img]="Plus" [size]="18"></lucide-icon> Nuevo Pedido
@@ -94,20 +94,20 @@
                 </div>
                 <div class="col-span-1">
                   <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 text-center">Cant.</label>
-                  <input type="number" formControlName="cantidad" min="1" class="w-full border rounded-lg p-2 text-sm text-center font-bold" />
+                  <input type="number" formControlName="cantidad" min="1" (keydown)="prevenirNegativos($event)" class="w-full border rounded-lg p-2 text-sm text-center font-bold" />
                 </div>
                 <div class="col-span-2">
                   <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 tracking-tighter">PRECIO UNIT. (ARS)</label>
                   <div class="flex items-center border rounded-lg bg-white overflow-hidden">
                     <span class="bg-gray-100 px-2 py-2 text-gray-500 font-bold text-xs border-r">$</span>
-                    <input type="number" formControlName="precioUnitario" min="0" class="w-full border-0 p-2 text-sm font-bold text-gray-700 outline-none" />
+                    <input type="number" formControlName="precioUnitario" min="0" (keydown)="prevenirNegativos($event)" class="w-full border-0 p-2 text-sm font-bold text-gray-700 outline-none" />
                   </div>
                 </div>
                 <div class="col-span-2">
                   <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 tracking-tighter">SUBTOTAL (ARS)</label>
                   <div class="flex items-center border rounded-lg bg-white overflow-hidden">
                     <span class="bg-gray-100 px-2 py-2 text-gray-500 font-bold text-xs border-r">$</span>
-                    <input type="number" formControlName="subtotal" min="0" class="w-full border-0 p-2 text-sm font-bold text-[#4A2C2A] outline-none" />
+                    <input type="number" formControlName="subtotal" min="0" (keydown)="prevenirNegativos($event)" class="w-full border-0 p-2 text-sm font-bold text-[#4A2C2A] outline-none" />
                   </div>
                 </div>
                 <div class="col-span-1 flex justify-center pb-1">
@@ -130,7 +130,7 @@
               <span class="text-gray-400 uppercase font-black text-[10px] tracking-widest">Precio Final (ARS)</span>
               <div class="flex items-center gap-1">
                 <span class="text-2xl font-black text-[#E67E22]">$</span>
-                <input type="number" formControlName="totalPedido" min="0" class="text-2xl font-black text-[#E67E22] border-b-2 border-dashed border-orange-300 bg-transparent outline-none w-40" />
+                <input type="number" formControlName="totalPedido" min="0" (keydown)="prevenirNegativos($event)" class="text-2xl font-black text-[#E67E22] border-b-2 border-dashed border-orange-300 bg-transparent outline-none w-40" />
               </div>
             </div>
           </div>
@@ -141,5 +141,11 @@
         </div>
       </form>
     </div>
+  </div>
+
+  <div *ngIf="toast.show" 
+       class="fixed bottom-5 right-5 z-[60] px-6 py-4 rounded-xl text-white font-bold shadow-2xl transition-all duration-300 transform"
+       [ngClass]="toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'">
+    {{ toast.message }}
   </div>
 </div>
