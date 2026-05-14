@@ -63,8 +63,10 @@ namespace AtonBeerTesis.Application.Services
 
             var formato = new FormatoEnvase
             {
-                Nombre = dto.Nombre.Trim(),
-                CapacidadLitros = dto.CapacidadLitros
+                Nombre          = dto.Nombre.Trim(),
+                CapacidadLitros = dto.CapacidadLitros,
+                EsRetornable    = dto.Nombre.Trim()
+                                      .Contains("barril", StringComparison.OrdinalIgnoreCase)
             };
             await _formatoRepository.AddAsync(formato);
 
