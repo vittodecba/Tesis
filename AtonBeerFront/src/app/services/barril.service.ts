@@ -17,6 +17,26 @@ export interface BarrilDto {
   observaciones: string | null;
 }
 
+export interface MovimientoItemDto {
+  fecha: string;
+  estadoAnterior: string;
+  estadoNuevo: string;
+  motivo: string;
+  origenDestino: string | null;
+  loteId: number | null;
+}
+
+export interface BarrilDetalleDto {
+  id: number;
+  codigo: string;
+  formato: string;
+  capacidad: number;
+  estado: string;
+  ubicacionActual: string | null;
+  observaciones: string | null;
+  movimientos: MovimientoItemDto[];
+}
+
 export interface ClienteSimpleDto {
   idCliente: number;
   razonSocial: string;
@@ -55,6 +75,10 @@ export class BarrilService {
     return this.http.get<BarrilDto[]>(this.apiBarril);
   }
 
+  getDetalleBarril(id: number): Observable<BarrilDetalleDto> {
+    return this.http.get<BarrilDetalleDto>(`${this.apiBarril}/${id}`);
+  }
+
   crearBarril(dto: CreateBarrilDto): Observable<BarrilDto> {
     return this.http.post<BarrilDto>(this.apiBarril, dto);
   }
@@ -74,4 +98,12 @@ export class BarrilService {
   getFormatosRetornables(): Observable<FormatoRetornableDto[]> {
     return this.http.get<FormatoRetornableDto[]>(this.apiFormato);
   }
+
+  getBarrilById(id: number) {
+  return this.http.get<any>(`http://localhost:5190/api/Barril/${id}`);
+}
+
+updateObservaciones(barril: any) {
+  return this.http.put<any>(`http://localhost:5190/api/Barril`, barril);
+}
 }

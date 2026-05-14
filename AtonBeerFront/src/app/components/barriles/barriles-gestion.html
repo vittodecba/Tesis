@@ -151,12 +151,21 @@
               >
                 <lucide-icon [img]="Pencil" [size]="18"></lucide-icon>
               </button>
+
               <button
                 (click)="eliminar(b)"
                 class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition"
                 title="Eliminar barril"
               >
                 <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+              </button>
+
+              <button
+                [routerLink]="['/barriles', b.id]"
+                class="p-2 text-blue-900 hover:bg-blue-50 rounded-lg transition shadow-sm border border-transparent hover:border-gray-200"
+                title="Ver detalle"
+              >
+                <lucide-icon [img]="FileText" [size]="18"></lucide-icon>
               </button>
             </div>
           </td>

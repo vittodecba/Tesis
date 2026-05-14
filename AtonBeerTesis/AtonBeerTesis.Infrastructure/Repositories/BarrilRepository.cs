@@ -84,5 +84,14 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 b.Codigo.ToLower() == codigo.ToLower() &&
                 (!excludeId.HasValue || b.Id != excludeId.Value));
         }
+
+        public async Task<Barril?> ObtenerDetalleAsync(int id)
+        {
+            return await _context.Barriles
+                .Include(b => b.FormatoEnvase)
+                .Include(b => b.Cliente)
+                .Include(b => b.Movimientos.OrderByDescending(m => m.Fecha))
+                .FirstOrDefaultAsync(b => b.Id == id);
+        }
     }
 }

@@ -13,5 +13,6 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<List<Barril>> GetDisponiblesAsync(int formatoEnvaseId, int cantidad);
         Task MarcarComoLlenosAsync(List<int> barrilIds);
         Task<Dictionary<int, decimal>> ObtenerFormatosRetornablesAsync();
+        Task<Barril?> ObtenerDetalleAsync(int id);
     }
 }

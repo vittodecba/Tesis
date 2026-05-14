@@ -22,6 +22,15 @@ namespace AtonBeerTesis.WebApi.Controllers
             return Ok(lista);
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<BarrilDetalleDto>> GetDetalle(int id)
+        {
+            var detalle = await _service.GetDetalleAsync(id);
+            if (detalle == null)
+                return NotFound($"No se encontró el barril con ID {id}.");
+            return Ok(detalle);
+        }
+
         [HttpPost]
         public async Task<ActionResult<BarrilDto>> Create([FromBody] CreateBarrilDto dto)
         {

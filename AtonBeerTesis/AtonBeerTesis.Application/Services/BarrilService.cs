@@ -11,6 +11,7 @@ namespace AtonBeerTesis.Application.Services
         Task<BarrilDto> CreateAsync(CreateBarrilDto dto);
         Task<bool> UpdateAsync(int id, UpdateBarrilDto dto);
         Task<bool> EliminarAsync(int id);
+        Task<BarrilDetalleDto?> GetDetalleAsync(int id);
     }
 
     public class BarrilService : IBarrilService
@@ -134,6 +135,34 @@ namespace AtonBeerTesis.Application.Services
             EstadoBarril.EnLavado      => "En Lavado",
             EstadoBarril.Mantenimiento => "Mantenimiento",
             _                          => "Desconocido"
+        };
+
+        public async Task<BarrilDetalleDto?> GetDetalleAsync(int id)
+        {
+            var barril = await _repository.ObtenerDetalleAsync(id);
+            if (barril == null) return null;
+
+            return MapToDetalleDto(barril);
+        }
+
+        private static BarrilDetalleDto MapToDetalleDto(Barril b) => new()
+        {
+            Id = b.Id,
+            Codigo = b.Codigo,
+            Formato = b.FormatoEnvase?.Nombre ?? string.Empty,
+            Capacidad = (double)(b.FormatoEnvase?.CapacidadLitros ?? 0m),
+            Estado = ObtenerTextoEstado(b.Estado),
+            UbicacionActual = b.Cliente?.RazonSocial ?? "Fábrica",
+            Observaciones = b.Observaciones,
+            Movimientos = b.Movimientos.Select(m => new MovimientoItemDto
+            {
+                Fecha = m.Fecha,
+                EstadoAnterior = ObtenerTextoEstado(m.EstadoAnterior),
+                EstadoNuevo = ObtenerTextoEstado(m.EstadoNuevo),
+                Motivo = m.Motivo,
+                OrigenDestino = m.ClienteNombre,
+                LoteId = m.LoteId
+            }).ToList()
         };
     }
 }

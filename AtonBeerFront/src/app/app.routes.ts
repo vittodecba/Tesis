@@ -19,6 +19,7 @@ import { FermentadorComponent } from './components/fermentador/fermentador';
 import { PlanificacionListComponent } from './components/Planificacion/PlanificacionListado/PlanListado';
 import { PlanificacionFormComponent } from './components/Planificacion/PlanificacionLotes/PlanificacionComponent';
 import { BarrilesGestion } from './components/barriles/barriles-gestion';
+import { BarrilDetalleComponent } from './components/barriles/barril-detalle/barril-detalle';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -108,6 +109,11 @@ export const routes: Routes = [
         path: 'barriles',
         component: BarrilesGestion,
         data: { title: 'Barriles', subtitle: 'Seguimiento de activos retornables' },
+      },
+      {
+        path: 'barriles/:id',
+        component: BarrilDetalleComponent,
+        data: { title: 'Detalle de Barril', subtitle: 'Información y movimientos' },
       },
     ],
   },
