@@ -163,6 +163,11 @@ namespace AtonBeerTesis.Infrastructure.Data
                     .WithMany(f => f.Productos)
                     .HasForeignKey(p => p.FormatoEnvaseId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(p => p.Receta)
+                    .WithMany()
+                    .HasForeignKey(p => p.RecetaId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             // ── LOTE DESIGNACION ──────────────────────────────────────────

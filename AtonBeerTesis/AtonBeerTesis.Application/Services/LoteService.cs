@@ -284,16 +284,17 @@ namespace AtonBeerTesis.Application.Services
 
                     var productoStock = todosLosProductos.FirstOrDefault(p =>
                         p.FormatoEnvaseId == designacion.FormatoEnvaseId &&
-                        p.Estilo.Equals(estiloLote, StringComparison.OrdinalIgnoreCase));
+                        p.Estilo.Equals(estiloLote, StringComparison.OrdinalIgnoreCase) &&
+                        p.RecetaId == lote.RecetaId);
 
-                    // Si no existe, lo creamos on-the-fly (puede ocurrir si el formato
-                    // fue creado antes que la receta con este estilo)
+                    // Si no existe, lo creamos on-the-fly
                     if (productoStock == null && !string.IsNullOrWhiteSpace(estiloLote))
                     {
                         productoStock = new ProductoStock
                         {
                             FormatoEnvaseId = designacion.FormatoEnvaseId,
                             Estilo = estiloLote,
+                            RecetaId = lote.RecetaId,
                             StockActual = 0
                         };
                         await _productoStockRepository.AddAsync(productoStock);

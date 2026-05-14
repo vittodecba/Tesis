@@ -315,7 +315,8 @@ namespace AtonBeerTesis.Application.Services
 
                             var productoStock = todosLosProductos.FirstOrDefault(p =>
                                 p.FormatoEnvaseId == designacion.FormatoEnvaseId &&
-                                p.Estilo.Equals(estiloLote, StringComparison.OrdinalIgnoreCase));
+                                p.Estilo.Equals(estiloLote, StringComparison.OrdinalIgnoreCase) &&
+                                p.RecetaId == loteConDesignaciones.RecetaId);
 
                             if (productoStock == null && !string.IsNullOrWhiteSpace(estiloLote))
                             {
@@ -323,6 +324,7 @@ namespace AtonBeerTesis.Application.Services
                                 {
                                     FormatoEnvaseId = designacion.FormatoEnvaseId,
                                     Estilo = estiloLote,
+                                    RecetaId = loteConDesignaciones.RecetaId,
                                     StockActual = 0
                                 };
                                 await _productoStockRepository.AddAsync(productoStock);
