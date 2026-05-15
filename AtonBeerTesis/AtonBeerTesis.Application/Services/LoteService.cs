@@ -324,7 +324,7 @@ namespace AtonBeerTesis.Application.Services
                     .ToList();
 
                 if (idsALlenar.Any())
-                    await _barrilRepository.MarcarComoLlenosAsync(idsALlenar);
+                    await _barrilRepository.MarcarComoLlenosAsync(idsALlenar, lote.Id);
             }
 
             return true;

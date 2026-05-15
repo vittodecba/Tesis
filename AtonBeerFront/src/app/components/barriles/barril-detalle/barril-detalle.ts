@@ -48,23 +48,21 @@ export class BarrilDetalleComponent implements OnInit {
   }
 
   guardarCambios() {
-  this.guardando = true;
-  
-  // Creamos el body con todos los campos y la obs nueva
-  const body = { ...this.barril, observaciones: this.tempObs };
+    this.guardando = true;
+    const body = { ...this.barril, observaciones: this.tempObs };
 
-  this._service.updateObservaciones(body).subscribe({
-    next: () => {
-      this.barril.observaciones = this.tempObs;
-      this.editandoObs = false;
-      this.guardando = false;
-    },
-    error: (err) => {
-      console.error('Error detallado:', err);
-      alert('Error al guardar. Revisá la consola (F12) para ver qué campo falta.');
-      this.guardando = false;
-    }
-  });
-}
+    this._service.updateObservaciones(body).subscribe({
+      next: () => {
+        this.barril.observaciones = this.tempObs;
+        this.editandoObs = false;
+        this.guardando = false;
+      },
+      error: (err) => {
+        console.error('Error detallado:', err);
+        this.guardando = false;
+      }
+    });
+  }
+
   volver() { window.history.back(); }
 }

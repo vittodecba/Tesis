@@ -62,6 +62,7 @@ namespace AtonBeerTesis.WebApi.Controllers
         }
 
         [HttpPatch("{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateBarrilDto dto)
         {
             try
@@ -69,6 +70,23 @@ namespace AtonBeerTesis.WebApi.Controllers
                 var resultado = await _service.UpdateAsync(id, dto);
                 if (!resultado)
                     return NotFound($"No se encontró el barril con ID {id}.");
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("{id}/observaciones")]
+        public async Task<IActionResult> ActualizarObservaciones(int id, [FromBody] BarrilDetalleDto dto)
+        {
+            try
+            {
+                var updateDto = new UpdateBarrilDto { Observaciones = dto.Observaciones };
+                var resultado = await _service.UpdateAsync(id, updateDto);
+                if (!resultado)
+                    return NotFound();
                 return NoContent();
             }
             catch (Exception ex)

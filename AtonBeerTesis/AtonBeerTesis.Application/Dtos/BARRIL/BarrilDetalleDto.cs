@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AtonBeerTesis.Application.Dtos.BARRIL
 {
@@ -13,8 +10,11 @@ namespace AtonBeerTesis.Application.Dtos.BARRIL
         public string Formato { get; set; } = string.Empty;
         public double Capacidad { get; set; }
         public string Estado { get; set; } = string.Empty;
-        public string? UbicacionActual { get; set; } 
+        public string? UbicacionActual { get; set; }
         public string? Observaciones { get; set; }
+        public int? LoteId { get; set; }
+        public string? Estilo { get; set; }
+        public string? Receta { get; set; }
         public List<MovimientoItemDto> Movimientos { get; set; } = new();
     }
 

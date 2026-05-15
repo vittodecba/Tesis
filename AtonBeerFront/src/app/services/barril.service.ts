@@ -100,10 +100,10 @@ export class BarrilService {
   }
 
   getBarrilById(id: number) {
-  return this.http.get<any>(`http://localhost:5190/api/Barril/${id}`);
-}
+    return this.http.get<any>(`${this.apiBarril}/${id}`);
+  }
 
-updateObservaciones(barril: any) {
-  return this.http.put<any>(`http://localhost:5190/api/Barril`, barril);
-}
+  updateObservaciones(barril: any) {
+    return this.http.put<any>(`${this.apiBarril}/${barril.id}/observaciones`, barril);
+  }
 }

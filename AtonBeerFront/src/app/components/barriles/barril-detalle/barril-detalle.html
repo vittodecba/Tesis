@@ -25,14 +25,18 @@
             <p class="text-2xl font-black text-[#e67e22]">{{ barril.codigo }}</p>
           </div>
 
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="text-[10px] font-bold text-gray-400 uppercase">Formato</label>
-              <p class="font-bold text-[#4A2C2A]">{{ barril.formato }}</p>
-            </div>
-            <div>
-              <label class="text-[10px] font-bold text-gray-400 uppercase">Capacidad</label>
-              <p class="font-bold text-[#4A2C2A]">{{ barril.capacidad }} Lts</p>
+          <div>
+            <label class="text-[10px] font-bold text-gray-400 uppercase">Capacidad</label>
+            <p class="font-bold text-[#4A2C2A]">{{ barril.capacidad }} Lts</p>
+          </div>
+
+          <div *ngIf="barril.estado === 'Lleno'" class="p-4 bg-orange-50 border border-orange-100 rounded-xl animate-in slide-in-from-top-2 duration-300">
+            <label class="text-[10px] font-bold text-orange-400 uppercase">Contenido del Barril</label>
+            <p class="font-black text-[#4A2C2A] text-lg">{{ barril.estilo || 'Sin Estilo' }}</p>
+            <p class="text-xs font-medium text-gray-600">{{ barril.receta || 'Receta no especificada' }}</p>
+            <div class="mt-2 pt-2 border-t border-orange-200/50">
+              <span class="text-[10px] font-bold text-gray-400 uppercase">Lote Asociado: </span>
+              <span class="text-[10px] font-black text-[#4A2C2A]">#{{ barril.loteId || 'N/A' }}</span>
             </div>
           </div>
 
