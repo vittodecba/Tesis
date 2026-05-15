@@ -32,6 +32,8 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<FormatoEnvase> FormatosEnvase { get; set; }
         public DbSet<ProductoStock> ProductosStock { get; set; }
         public DbSet<LoteDesignacion> LoteDesignaciones { get; set; }
+        public DbSet<Barril> Barriles { get; set; }
+        public DbSet<MovimientoBarril> MovimientosBarril { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -164,6 +166,11 @@ namespace AtonBeerTesis.Infrastructure.Data
                     .WithMany(f => f.Productos)
                     .HasForeignKey(p => p.FormatoEnvaseId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(p => p.Receta)
+                    .WithMany()
+                    .HasForeignKey(p => p.RecetaId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             // ── LOTE DESIGNACION ──────────────────────────────────────────
@@ -187,6 +194,37 @@ namespace AtonBeerTesis.Infrastructure.Data
             modelBuilder.Entity<Rol>(entity =>
             {
                 entity.Property(r => r.Descripcion).HasMaxLength(200);
+            });
+
+            // ── BARRIL ────────────────────────────────────────────────────
+            modelBuilder.Entity<Barril>(entity =>
+            {
+                entity.ToTable("Barriles");
+                entity.HasKey(b => b.Id);
+                entity.Property(b => b.Codigo).HasMaxLength(50).IsRequired();
+                entity.HasIndex(b => b.Codigo).IsUnique().HasDatabaseName("IX_Barriles_Codigo");
+
+                entity.HasOne(b => b.FormatoEnvase)
+                    .WithMany(f => f.Barriles)
+                    .HasForeignKey(b => b.FormatoEnvaseId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(b => b.Cliente)
+                    .WithMany()
+                    .HasForeignKey(b => b.ClienteId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // ── MOVIMIENTO BARRIL ─────────────────────────────────────────
+            modelBuilder.Entity<MovimientoBarril>(entity =>
+            {
+                entity.ToTable("MovimientosBarril");
+                entity.HasKey(m => m.Id);
+
+                entity.HasOne(m => m.Barril)
+                    .WithMany(b => b.Movimientos)
+                    .HasForeignKey(m => m.BarrilId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

@@ -5,6 +5,8 @@ import { Observable } from 'rxjs';
 export interface ProductoStockDto {
   id: number;
   estilo: string;
+  recetaId: number | null;
+  recetaNombre: string | null;
   stockActual: number;
 }
 

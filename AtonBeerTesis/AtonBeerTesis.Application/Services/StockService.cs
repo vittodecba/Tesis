@@ -10,15 +10,18 @@ namespace AtonBeerTesis.Application.Services
         private readonly IRepository<ProductoStock> _productoStockRepository;
         private readonly IMovimientoStockRepository _movimientoStockRepository;
         private readonly IRepository<MovimientoStock> _movimientoStockWriteRepository;
+        private readonly IBarrilRepository _barrilRepository;
 
         public StockService(
             IRepository<ProductoStock> productoStockRepository,
             IMovimientoStockRepository movimientoStockRepository,
-            IRepository<MovimientoStock> movimientoStockWriteRepository)
+            IRepository<MovimientoStock> movimientoStockWriteRepository,
+            IBarrilRepository barrilRepository)
         {
             _productoStockRepository = productoStockRepository;
             _movimientoStockRepository = movimientoStockRepository;
             _movimientoStockWriteRepository = movimientoStockWriteRepository;
+            _barrilRepository = barrilRepository;
         }
 
         public async Task<IEnumerable<ProductoStock>> ObtenerTodosAsync()
@@ -39,6 +42,24 @@ namespace AtonBeerTesis.Application.Services
             var producto = await _productoStockRepository.FindOneAsync(dto.ProductoStockId, "FormatoEnvase")
                 ?? throw new Exception("Producto de stock no encontrado");
 
+            // Validar barriles si el formato es retornable
+            var formatosRetornables = await _barrilRepository.ObtenerFormatosRetornablesAsync();
+            List<int>? idsALlenar = null;
+            if (formatosRetornables.TryGetValue(producto.FormatoEnvaseId, out _))
+            {
+                int unidades = (int)dto.Cantidad;
+                var disponibles = await _barrilRepository.GetDisponiblesAsync(
+                    producto.FormatoEnvaseId, unidades);
+
+                if (disponibles.Count < unidades)
+                    throw new Exception(
+                        $"No hay barriles suficientes: se necesitan {unidades} barril(es) " +
+                        $"disponibles del formato y solo hay {disponibles.Count}. " +
+                        "Registrá los barriles en el módulo de Barriles.");
+
+                idsALlenar = disponibles.Select(b => b.Id).ToList();
+            }
+
             var formato = producto.FormatoEnvase;
             var stockPrevio = producto.StockActual;
             producto.StockActual += dto.Cantidad;
@@ -58,6 +79,10 @@ namespace AtonBeerTesis.Application.Services
             };
 
             await _movimientoStockWriteRepository.AddAsync(movimiento);
+
+            // Marcar barriles como Llenos después de confirmar el stock
+            if (idsALlenar != null)
+                await _barrilRepository.MarcarComoLlenosAsync(idsALlenar);
 
             return new MovimientoDetalladoDto
             {

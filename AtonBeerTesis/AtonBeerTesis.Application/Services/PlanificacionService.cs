@@ -17,19 +17,22 @@ namespace AtonBeerTesis.Application.Services
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IRepository<ProductoStock> _productoStockRepository;
         private readonly IRepository<MovimientoStock> _movimientoStockRepository;
+        private readonly IBarrilRepository _barrilRepository;
 
         public PlanificacionService(
             IPlanificacionRepository repository,
             ILoteRepository loteRepository,
             IUsuarioRepository usuarioRepository,
             IRepository<ProductoStock> productoStockRepository,
-            IRepository<MovimientoStock> movimientoStockRepository)
+            IRepository<MovimientoStock> movimientoStockRepository,
+            IBarrilRepository barrilRepository)
         {
             _repository = repository;
             _loteRepository = loteRepository;
             _usuarioRepository = usuarioRepository;
             _productoStockRepository = productoStockRepository;
             _movimientoStockRepository = movimientoStockRepository;
+            _barrilRepository = barrilRepository;
         }
 
         public async Task<PlanificacionProduccionDto> PLanificarProduccion(PlanificacionProduccionDto dto)
@@ -288,6 +291,21 @@ namespace AtonBeerTesis.Application.Services
                         var estiloLote = loteConDesignaciones.Estilo ?? loteConDesignaciones.Receta?.Estilo ?? string.Empty;
                         var todosLosProductos = await _productoStockRepository.FindAllAsync();
 
+                        // PRE-VALIDACIÓN DE BARRILES
+                        var formatosRetornables = await _barrilRepository.ObtenerFormatosRetornablesAsync();
+                        var barrilesReservados = new Dictionary<int, List<Domain.Entities.Barril>>();
+                        foreach (var des in loteConDesignaciones.Designaciones)
+                        {
+                            if (!formatosRetornables.TryGetValue(des.FormatoEnvaseId, out var capacidad)) continue;
+                            int unidadesReq = (int)(des.VolumenAsignado / capacidad);
+                            var disponibles = await _barrilRepository.GetDisponiblesAsync(des.FormatoEnvaseId, unidadesReq);
+                            if (disponibles.Count < unidadesReq)
+                                throw new InvalidOperationException(
+                                    $"No hay barriles suficientes para el formato {des.FormatoEnvaseId}: " +
+                                    $"se necesitan {unidadesReq} y solo hay {disponibles.Count} disponible(s).");
+                            barrilesReservados[des.FormatoEnvaseId] = disponibles;
+                        }
+
                         foreach (var designacion in loteConDesignaciones.Designaciones)
                         {
                             var formato = designacion.FormatoEnvase;
@@ -297,7 +315,8 @@ namespace AtonBeerTesis.Application.Services
 
                             var productoStock = todosLosProductos.FirstOrDefault(p =>
                                 p.FormatoEnvaseId == designacion.FormatoEnvaseId &&
-                                p.Estilo.Equals(estiloLote, StringComparison.OrdinalIgnoreCase));
+                                p.Estilo.Equals(estiloLote, StringComparison.OrdinalIgnoreCase) &&
+                                p.RecetaId == loteConDesignaciones.RecetaId);
 
                             if (productoStock == null && !string.IsNullOrWhiteSpace(estiloLote))
                             {
@@ -305,6 +324,7 @@ namespace AtonBeerTesis.Application.Services
                                 {
                                     FormatoEnvaseId = designacion.FormatoEnvaseId,
                                     Estilo = estiloLote,
+                                    RecetaId = loteConDesignaciones.RecetaId,
                                     StockActual = 0
                                 };
                                 await _productoStockRepository.AddAsync(productoStock);
@@ -326,6 +346,13 @@ namespace AtonBeerTesis.Application.Services
                                 Fecha = DateTime.Now
                             });
                         }
+
+                        // LLENAR BARRILES con SQL directo
+                        var idsALlenar = barrilesReservados.Values
+                            .SelectMany(lista => lista.Select(b => b.Id))
+                            .ToList();
+                        if (idsALlenar.Any())
+                            await _barrilRepository.MarcarComoLlenosAsync(idsALlenar);
                     }
                 }
             }

@@ -4,6 +4,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StockService, FormatoEnvaseDto, MovimientoDetalladoDto, ProductoStockDto } from '../../services/stock.service';
 
+interface GrupoEstilo {
+  estilo: string;
+  total: number;
+  items: ProductoStockDto[];
+}
+
 @Component({
   selector: 'app-stock-gestion',
   standalone: true,
@@ -76,6 +82,24 @@ export class StockGestion implements OnInit {
 
   getTotalStock(formato: FormatoEnvaseDto): number {
     return formato.productos.reduce((sum, p) => sum + p.stockActual, 0);
+  }
+
+  agruparPorEstilo(productos: ProductoStockDto[]): GrupoEstilo[] {
+    const mapa = new Map<string, ProductoStockDto[]>();
+    for (const p of productos) {
+      if (!mapa.has(p.estilo)) mapa.set(p.estilo, []);
+      mapa.get(p.estilo)!.push(p);
+    }
+    return Array.from(mapa.entries()).map(([estilo, items]) => ({
+      estilo,
+      total: items.reduce((s, p) => s + p.stockActual, 0),
+      items
+    }));
+  }
+
+  // Un grupo es "simple" si tiene un solo item sin receta → botones van en la fila padre
+  esGrupoSimple(grupo: GrupoEstilo): boolean {
+    return grupo.items.length === 1 && !grupo.items[0].recetaNombre;
   }
 
   // ── Crear Formato ─────────────────────────────────────────────────────

@@ -1,0 +1,418 @@
+<div class="p-6 min-h-screen bg-orange-50/30">
+
+  <!-- HEADER -->
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Barriles</h2>
+      <p class="text-gray-600">Seguimiento de activos retornables y su ciclo de vida.</p>
+    </div>
+    <button
+      (click)="abrirCrear()"
+      class="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-transform active:scale-95 bg-gradient-to-r from-[#412725] to-[#e67e22]"
+    >
+      <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
+      Nuevo Barril
+    </button>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 flex gap-4 flex-wrap">
+    <div class="flex-1 min-w-[160px]">
+      <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Buscar código</label>
+      <input
+        type="text"
+        [(ngModel)]="filtroCodigo"
+        (input)="aplicarFiltros()"
+        placeholder="Ej: 0001"
+        class="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-orange-200 outline-none text-sm"
+      />
+    </div>
+
+    <div class="w-56">
+      <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Estado</label>
+      <select
+        [(ngModel)]="filtroEstado"
+        (change)="aplicarFiltros()"
+        class="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-orange-200 outline-none text-sm cursor-pointer"
+      >
+        <option value="Todos">Todos los estados</option>
+        <option value="Disponible">Disponible</option>
+        <option value="Lleno">Lleno</option>
+        <option value="Con Cliente">Con Cliente</option>
+        <option value="Sucio">Sucio</option>
+        <option value="En Lavado">En Lavado</option>
+      </select>
+    </div>
+
+    <div class="w-56">
+      <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Formato</label>
+      <select
+        [(ngModel)]="filtroFormato"
+        (change)="aplicarFiltros()"
+        class="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-orange-200 outline-none text-sm cursor-pointer"
+      >
+        <option [ngValue]="0">Todos los formatos</option>
+        <option *ngFor="let f of formatos" [ngValue]="f.id">{{ f.nombre }}</option>
+      </select>
+    </div>
+
+    <div class="w-56">
+      <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Cliente</label>
+      <select
+        [(ngModel)]="filtroCliente"
+        (change)="aplicarFiltros()"
+        class="w-full bg-gray-50 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-orange-200 outline-none text-sm cursor-pointer"
+      >
+        <option [ngValue]="0">Todos los clientes</option>
+        <option *ngFor="let c of clientes" [ngValue]="c.idCliente">{{ c.razonSocial }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- TABLA -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+    <!-- empty state -->
+    <div *ngIf="filtrados.length === 0" class="flex flex-col items-center justify-center py-16 text-gray-400">
+      <lucide-icon [img]="Barrel" [size]="48" class="mb-3 opacity-30"></lucide-icon>
+      <p class="font-semibold text-sm">No hay barriles registrados</p>
+      <p class="text-xs mt-1">Creá el primer barril con el botón "Nuevo Barril"</p>
+    </div>
+
+    <table *ngIf="filtrados.length > 0" class="w-full text-left">
+      <thead class="bg-gray-50 border-b border-gray-100 text-gray-400 text-xs uppercase font-bold">
+        <tr>
+          <th class="px-6 py-4">Código</th>
+          <th class="px-6 py-4">Formato</th>
+          <th class="px-6 py-4 text-center">Estado</th>
+          <th class="px-6 py-4">Cliente asociado</th>
+          <th class="px-6 py-4">Fecha Adquisición</th>
+          <th class="px-6 py-4 text-right">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-gray-50">
+        <tr
+          *ngFor="let b of paginados"
+          class="hover:bg-orange-50/30 transition-colors group"
+        >
+          <!-- Código -->
+          <td class="px-6 py-4">
+            <span class="font-black text-[#4A2C2A] tracking-wider text-sm">{{ b.codigo }}</span>
+          </td>
+
+          <!-- Formato -->
+          <td class="px-6 py-4">
+            <div class="flex flex-col">
+              <span class="text-sm font-medium text-gray-800">{{ b.nombreFormato }}</span>
+              <span class="text-[11px] text-gray-400">{{ formatearCapacidad(b.capacidadLitros) }}</span>
+            </div>
+          </td>
+
+          <!-- Estado -->
+          <td class="px-6 py-4 text-center">
+            <span
+              class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
+              [ngClass]="claseEstado(b.estadoTexto)"
+            >
+              {{ b.estadoTexto }}
+            </span>
+          </td>
+
+          <!-- Cliente -->
+          <td class="px-6 py-4">
+            <span *ngIf="b.estadoTexto === 'Con Cliente' && b.clienteNombre"
+              class="text-sm font-semibold text-[#e67e22]">
+              {{ b.clienteNombre }}
+            </span>
+            <span *ngIf="b.estadoTexto !== 'Con Cliente'"
+              class="text-gray-300 text-xs tracking-widest">-------</span>
+            <span *ngIf="b.estadoTexto === 'Con Cliente' && !b.clienteNombre"
+              class="text-gray-400 text-xs italic">Sin asignar</span>
+          </td>
+
+          <!-- Fecha -->
+          <td class="px-6 py-4">
+            <div class="flex flex-col">
+              <span class="text-sm text-gray-500">{{ b.fechaAdquisicion | date: 'dd/MM/yyyy' }}</span>
+              <span *ngIf="b.ultimaActualizacion" class="text-[10px] text-gray-400 mt-0.5">
+                Últ. act: {{ b.ultimaActualizacion | date: 'dd/MM/yyyy HH:mm' }}
+              </span>
+            </div>
+          </td>
+
+          <!-- Acciones -->
+          <td class="px-6 py-4 text-right">
+            <div class="flex justify-end gap-2">
+              <button
+                (click)="abrirEditar(b)"
+                class="p-2 text-[#4A2C2A] hover:bg-orange-100 rounded-lg transition shadow-sm border border-transparent hover:border-gray-200"
+                title="Editar barril"
+              >
+                <lucide-icon [img]="Pencil" [size]="18"></lucide-icon>
+              </button>
+              <button
+                (click)="eliminar(b)"
+                class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition"
+                title="Eliminar barril"
+              >
+                <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- PAGINACIÓN -->
+    <div
+      *ngIf="filtrados.length > itemsPorPagina"
+      class="flex justify-between items-center px-6 py-3 bg-gray-50 border-t border-gray-100"
+    >
+      <button
+        (click)="paginaActual = paginaActual - 1"
+        [disabled]="paginaActual === 1"
+        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+      >
+        Anterior
+      </button>
+      <span class="text-sm text-gray-500 font-medium">
+        Página {{ paginaActual }} de {{ Math.ceil(filtrados.length / itemsPorPagina) }}
+      </span>
+      <button
+        (click)="paginaActual = paginaActual + 1"
+        [disabled]="paginaActual * itemsPorPagina >= filtrados.length"
+        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+      >
+        Siguiente
+      </button>
+    </div>
+  </div>
+
+  <!-- CONTADOR -->
+  <p *ngIf="lista.length > 0" class="text-xs text-gray-400 mt-3 ml-1">
+    Mostrando {{ paginados.length }} de {{ filtrados.length }} barril{{ filtrados.length !== 1 ? 'es' : '' }}
+    <span *ngIf="filtrados.length !== lista.length"> (filtrado de {{ lista.length }} total)</span>
+  </p>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     MODAL CREAR
+═══════════════════════════════════════════════════════ -->
+<div
+  *ngIf="mostrarModalCrear"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+>
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+
+    <div class="bg-[#412725] p-5 text-white flex justify-between items-center font-bold uppercase tracking-tight">
+      <span>Nuevo Barril</span>
+      <button (click)="cerrarCrear()" class="text-xl hover:text-orange-300">✕</button>
+    </div>
+
+    <div class="p-6 space-y-5">
+
+      <!-- Código -->
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+          Código físico <span class="text-red-400">*</span>
+        </label>
+        <input
+          [(ngModel)]="nuevoBarril.codigo"
+          placeholder="Ej: 0001"
+          class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 transition-all font-medium uppercase"
+        />
+      </div>
+
+      <!-- Formato -->
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+          Formato de envase <span class="text-red-400">*</span>
+        </label>
+        <select
+          [(ngModel)]="nuevoBarril.formatoEnvaseId"
+          class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium bg-white"
+        >
+          <option [value]="0" disabled>— Seleccioná un formato —</option>
+          <option *ngFor="let f of formatos" [value]="f.id">
+            {{ f.nombre }} ({{ formatearCapacidad(f.capacidadLitros) }})
+          </option>
+        </select>
+        <p *ngIf="formatos.length === 0" class="text-[11px] text-orange-500 mt-1 ml-1">
+          No hay formatos retornables configurados. Activá "Es Retornable" en un formato de envase.
+        </p>
+      </div>
+
+      <!-- Fecha adquisición -->
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+          Fecha de adquisición
+        </label>
+        <input
+          type="date"
+          [(ngModel)]="nuevoBarril.fechaAdquisicion"
+          class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium"
+        />
+      </div>
+
+      <!-- Observaciones -->
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+          Observaciones
+        </label>
+        <textarea
+          [(ngModel)]="nuevoBarril.observaciones"
+          placeholder="Notas opcionales..."
+          class="w-full border border-gray-200 rounded-xl p-3 h-20 resize-none outline-none focus:ring-2 focus:ring-orange-300 font-medium text-sm"
+        ></textarea>
+      </div>
+
+      <!-- Error -->
+      <p *ngIf="error" class="text-sm text-red-500 font-semibold">{{ error }}</p>
+
+      <!-- Botones -->
+      <div class="flex justify-end items-center gap-4 pt-4 border-t border-gray-100">
+        <button
+          (click)="cerrarCrear()"
+          class="text-gray-400 font-bold hover:text-gray-600 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="guardarNuevo()"
+          [disabled]="guardando"
+          class="px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95 uppercase text-sm tracking-wide bg-gradient-to-r from-[#412725] to-[#e67e22] disabled:opacity-60"
+        >
+          {{ guardando ? 'Guardando...' : 'Guardar Barril' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     MODAL EDITAR
+═══════════════════════════════════════════════════════ -->
+<div
+  *ngIf="mostrarModalEditar && barrilEditando"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+>
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+
+    <div class="bg-[#412725] p-5 text-white flex justify-between items-center font-bold uppercase tracking-tight">
+      <span>Editar Barril — {{ barrilEditando.codigo }}</span>
+      <button (click)="cerrarEditar()" class="text-xl hover:text-orange-300">✕</button>
+    </div>
+
+    <div class="p-6 space-y-5">
+
+      <!-- Info readonly: Código y Formato -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Código</label>
+          <div class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 text-sm font-black text-[#4A2C2A] tracking-wider">
+            {{ barrilEditando.codigo }}
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Formato</label>
+          <div class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 text-sm text-gray-600 font-medium truncate">
+            {{ barrilEditando.nombreFormato }} ({{ formatearCapacidad(barrilEditando.capacidadLitros) }})
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado: badge actual + cambio si hay opciones -->
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Estado</label>
+        <div class="flex items-center gap-3">
+          <!-- Badge estado actual -->
+          <span
+            class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0"
+            [ngClass]="claseEstado(barrilEditando.estadoTexto)"
+          >
+            {{ barrilEditando.estadoTexto }}
+          </span>
+
+          <!-- Flecha + select solo si hay transiciones disponibles -->
+          <ng-container *ngIf="opcionesEstado.length > 0">
+            <span class="text-gray-300 font-bold">→</span>
+            <select
+              [(ngModel)]="estadoEditar"
+              class="flex-1 border border-gray-200 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-orange-300 font-medium bg-white text-sm"
+            >
+              <option [ngValue]="null">— Sin cambio —</option>
+              <option *ngFor="let op of opcionesEstado" [ngValue]="op.valor">
+                {{ op.texto }}
+              </option>
+            </select>
+          </ng-container>
+
+          <!-- Mensaje si no hay cambio posible -->
+          <span *ngIf="opcionesEstado.length === 0" class="text-[11px] text-gray-400 italic">
+            Este estado solo cambia automáticamente
+          </span>
+        </div>
+      </div>
+
+      <!-- Cliente asociado -->
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+          Cliente asociado
+        </label>
+        <select
+          [(ngModel)]="clienteIdEditar"
+          class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium bg-white text-sm"
+        >
+          <option [ngValue]="null">— Sin cliente —</option>
+          <option *ngFor="let c of clientes" [ngValue]="c.idCliente">{{ c.razonSocial }}</option>
+        </select>
+      </div>
+
+      <!-- Fecha adquisicion editable -->
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+          Fecha de adquisición
+        </label>
+        <input
+          type="date"
+          [(ngModel)]="fechaAdquisicionEditar"
+          class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium"
+        />
+      </div>
+
+      <!-- Observaciones editable -->
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+          Observaciones
+        </label>
+        <textarea
+          [(ngModel)]="observacionesEditar"
+          placeholder="Notas opcionales..."
+          class="w-full border border-gray-200 rounded-xl p-3 h-24 resize-none outline-none focus:ring-2 focus:ring-orange-300 font-medium text-sm"
+        ></textarea>
+      </div>
+
+      <!-- Error -->
+      <p *ngIf="error" class="text-sm text-red-500 font-semibold">{{ error }}</p>
+
+      <!-- Botones -->
+      <div class="flex justify-end items-center gap-4 pt-4 border-t border-gray-100">
+        <button
+          (click)="cerrarEditar()"
+          class="text-gray-400 font-bold hover:text-gray-600 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="guardarEdicion()"
+          [disabled]="guardando"
+          class="px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95 uppercase text-sm tracking-wide bg-gradient-to-r from-[#412725] to-[#e67e22] disabled:opacity-60"
+        >
+          {{ guardando ? 'Guardando...' : 'Actualizar Cambios' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

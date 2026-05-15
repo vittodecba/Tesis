@@ -28,21 +28,28 @@ namespace AtonBeerTesis.Application.Services
         {
             var formatos = await _formatoRepository.FindAllAsync();
             var productosStock = await _productoStockRepository.FindAllAsync();
+            var recetas = (await _recetaRepository.GetAllAsync())
+                          .ToDictionary(r => r.IdReceta, r => r.Nombre);
 
             return formatos.Select(f => new FormatoEnvaseDto
             {
                 Id = f.Id,
                 Nombre = f.Nombre,
                 CapacidadLitros = f.CapacidadLitros,
+                EsRetornable = f.EsRetornable,
                 Productos = productosStock
                     .Where(p => p.FormatoEnvaseId == f.Id)
                     .Select(p => new ProductoStockDto
                     {
                         Id = p.Id,
                         Estilo = p.Estilo,
+                        RecetaId = p.RecetaId,
+                        RecetaNombre = p.RecetaId.HasValue && recetas.TryGetValue(p.RecetaId.Value, out var nombre)
+                                       ? nombre : null,
                         StockActual = p.StockActual
                     })
                     .OrderBy(p => p.Estilo)
+                    .ThenBy(p => p.RecetaNombre)
                     .ToList()
             });
         }
@@ -62,8 +69,10 @@ namespace AtonBeerTesis.Application.Services
 
             var formato = new FormatoEnvase
             {
-                Nombre = dto.Nombre.Trim(),
-                CapacidadLitros = dto.CapacidadLitros
+                Nombre          = dto.Nombre.Trim(),
+                CapacidadLitros = dto.CapacidadLitros,
+                EsRetornable    = dto.Nombre.Trim()
+                                      .Contains("barril", StringComparison.OrdinalIgnoreCase)
             };
             await _formatoRepository.AddAsync(formato);
 

@@ -19,6 +19,7 @@ import { FermentadorComponent } from './components/fermentador/fermentador';
 import { PlanificacionListComponent } from './components/Planificacion/PlanificacionListado/PlanListado';
 import { PlanificacionFormComponent } from './components/Planificacion/PlanificacionLotes/PlanificacionComponent';
 import { RegistrarPedidoComponent } from './components/registrar-pedido/registrar-pedido';
+import { BarrilesGestion } from './components/barriles/barriles-gestion';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -105,10 +106,15 @@ export const routes: Routes = [
         data: { title: 'Detalle de Lote', subtitle: 'Información completa del lote' },
       },
       {
-        path: 'pedidos/registrar',
-        component: RegistrarPedidoComponent,
-        data: { title: 'Pedidos', subtitle: 'Administración y registro de pedidos' },
-      },
+          path: 'pedidos/registrar',
+          component: RegistrarPedidoComponent,
+          data: { title: 'Pedidos', subtitle: 'Administración y registro de pedidos' }
+        },
+        {
+          path: 'barriles',
+          component: BarrilesGestion,
+          data: { title: 'Barriles', subtitle: 'Seguimiento de activos retornables' }
+        }
     ],
   },
   { path: '**', redirectTo: 'login' },

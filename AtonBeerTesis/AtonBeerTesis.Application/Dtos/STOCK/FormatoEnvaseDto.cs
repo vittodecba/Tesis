@@ -5,6 +5,7 @@ namespace AtonBeerTesis.Application.Dtos.STOCK
         public int Id { get; set; }
         public string Nombre { get; set; } = string.Empty;
         public decimal CapacidadLitros { get; set; }
+        public bool EsRetornable { get; set; }
         public List<ProductoStockDto> Productos { get; set; } = new();
     }
 
