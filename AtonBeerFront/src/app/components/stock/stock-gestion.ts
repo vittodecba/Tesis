@@ -72,7 +72,11 @@ export class StockGestion implements OnInit {
     return this.formatos.filter(
       (f) =>
         f.nombre.toLowerCase().includes(term) ||
-        f.productos.some((p) => p.estilo.toLowerCase().includes(term)),
+        f.productos.some(
+        (p) =>
+          p.estilo.toLowerCase().includes(term) ||
+          (p.recetaNombre?.toLowerCase().includes(term) ?? false),
+      ),
     );
   }
 
