@@ -25,19 +25,17 @@ export class StockGestion implements OnInit {
   formatos: FormatoEnvaseDto[] = [];
   movimientos: MovimientoDetalladoDto[] = [];
 
-  // Modal crear formato
   modalFormatoOpen = false;
   nuevoNombre = '';
   nuevoCapacidad: number | null = null;
   unidadCapacidad: 'L' | 'ml' = 'L';
+  nuevoEsRetornable = false;
   creandoFormato = false;
   errorFormato = '';
 
-  // Modal eliminar
   deleteModalOpen = false;
   formatoAEliminar: FormatoEnvaseDto | null = null;
 
-  // Modal ingreso manual
   ingresoModalOpen = false;
   ingresoProducto: { id: number; estilo: string; formatoNombre: string } | null = null;
   ingresoCantidad: number | null = null;
@@ -97,17 +95,15 @@ export class StockGestion implements OnInit {
     }));
   }
 
-  // Un grupo es "simple" si tiene un solo item sin receta → botones van en la fila padre
   esGrupoSimple(grupo: GrupoEstilo): boolean {
     return grupo.items.length === 1 && !grupo.items[0].recetaNombre;
   }
-
-  // ── Crear Formato ─────────────────────────────────────────────────────
 
   openCrearFormato() {
     this.nuevoNombre = '';
     this.nuevoCapacidad = null;
     this.unidadCapacidad = 'L';
+    this.nuevoEsRetornable = false;
     this.errorFormato = '';
     this.modalFormatoOpen = true;
   }
@@ -127,7 +123,11 @@ export class StockGestion implements OnInit {
     this.creandoFormato = true;
     this.errorFormato = '';
     this.stockService
-      .crearFormatoEnvase({ nombre: this.nuevoNombre.trim(), capacidadLitros: capacidadEnLitros })
+      .crearFormatoEnvase({ 
+        nombre: this.nuevoNombre.trim(), 
+        capacidadLitros: capacidadEnLitros, 
+        esRetornable: this.nuevoEsRetornable 
+      })
       .subscribe({
         next: () => {
           this.modalFormatoOpen = false;
@@ -140,8 +140,6 @@ export class StockGestion implements OnInit {
         },
       });
   }
-
-  // ── Eliminar Formato ──────────────────────────────────────────────────
 
   confirmarEliminar(formato: FormatoEnvaseDto) {
     this.formatoAEliminar = formato;
@@ -163,8 +161,6 @@ export class StockGestion implements OnInit {
       },
     });
   }
-
-  // ── Corrección de stock ───────────────────────────────────────────────
 
   correccionProducto: { id: number; estilo: string; formatoNombre: string; stockActual: number } | null = null;
   correccionNuevaCantidad: number | null = null;
@@ -198,8 +194,6 @@ export class StockGestion implements OnInit {
       },
     });
   }
-
-  // ── Egreso Manual ─────────────────────────────────────────────────────
 
   egresoProducto: { id: number; estilo: string; formatoNombre: string; stockActual: number } | null = null;
   egresoCantidad: number | null = null;
@@ -239,8 +233,6 @@ export class StockGestion implements OnInit {
       },
     });
   }
-
-  // ── Ingreso Manual ────────────────────────────────────────────────────
 
   abrirIngreso(prod: ProductoStockDto, formatoNombre: string) {
     this.ingresoProducto = { id: prod.id, estilo: prod.estilo, formatoNombre };

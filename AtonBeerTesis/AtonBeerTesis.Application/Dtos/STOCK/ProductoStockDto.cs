@@ -6,6 +6,9 @@ namespace AtonBeerTesis.Application.Dtos.STOCK
         public string Estilo { get; set; } = string.Empty;
         public int? RecetaId { get; set; }
         public string? RecetaNombre { get; set; }
+        public string FormatoEnvaseNombre { get; set; } = string.Empty;
+        public decimal CapacidadLitros { get; set; }
+        public bool EsRetornable { get; set; }
         public decimal StockActual { get; set; }
     }
 }

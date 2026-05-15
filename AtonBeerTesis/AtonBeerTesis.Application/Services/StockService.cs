@@ -24,9 +24,21 @@ namespace AtonBeerTesis.Application.Services
             _barrilRepository = barrilRepository;
         }
 
-        public async Task<IEnumerable<ProductoStock>> ObtenerTodosAsync()
+        public async Task<IEnumerable<ProductoStockDto>> ObtenerTodosAsync()
         {
-            return await _productoStockRepository.GetAllAsync("FormatoEnvase");
+            var productos = await _productoStockRepository.GetAllAsync("FormatoEnvase", "Receta");
+
+            return productos.Select(p => new ProductoStockDto
+            {
+                Id = p.Id,
+                Estilo = p.Estilo,
+                RecetaId = p.RecetaId,
+                RecetaNombre = p.Receta?.Nombre,
+                FormatoEnvaseNombre = p.FormatoEnvase?.Nombre ?? "Sin Formato",
+                CapacidadLitros = p.FormatoEnvase?.CapacidadLitros ?? 0,
+                EsRetornable = p.FormatoEnvase?.EsRetornable ?? false,
+                StockActual = p.StockActual
+            });
         }
 
         public async Task<IEnumerable<MovimientoDetalladoDto>> ObtenerMovimientosAsync()
