@@ -87,38 +87,84 @@
               </tr>
             </thead>
             <tbody>
-              <tr
-                *ngFor="let prod of formato.productos"
-                class="border-t border-gray-100 hover:bg-white transition-colors">
-                <td class="px-6 py-3 font-medium text-gray-700">{{ prod.estilo }}</td>
-                <td class="px-6 py-3 text-right">
-                  <span
-                    [class.text-green-600]="prod.stockActual > 0"
-                    [class.text-gray-400]="prod.stockActual === 0"
-                    class="font-semibold">
-                    {{ prod.stockActual }}
-                  </span>
-                </td>
-                <td class="px-6 py-3 text-right">
-                  <div class="flex justify-end gap-3">
-                    <button
-                      (click)="abrirIngreso(prod, formato.nombre); $event.stopPropagation()"
-                      class="text-xs font-medium text-amber-600 hover:text-amber-800 transition-colors">
-                      + Agregar
-                    </button>
-                    <button
-                      (click)="abrirCorreccion(prod, formato.nombre); $event.stopPropagation()"
-                      class="text-xs font-medium text-blue-500 hover:text-blue-700 transition-colors">
-                      Editar
-                    </button>
-                    <button
-                      (click)="abrirEgreso(prod, formato.nombre); $event.stopPropagation()"
-                      class="text-xs font-medium text-red-400 hover:text-red-600 transition-colors">
-                      - Retirar
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              <ng-container *ngFor="let grupo of agruparPorEstilo(formato.productos)">
+
+                <!-- Fila de estilo (cabecera del grupo) -->
+                <tr class="border-t border-gray-100 hover:bg-white transition-colors"
+                    [class.bg-amber-50/40]="!esGrupoSimple(grupo)">
+                  <td class="px-6 py-3">
+                    <span class="font-semibold text-gray-800">{{ grupo.estilo }}</span>
+                  </td>
+                  <td class="px-6 py-3 text-right">
+                    <span
+                      [class.text-green-600]="grupo.total > 0"
+                      [class.text-gray-400]="grupo.total === 0"
+                      class="font-bold">
+                      {{ grupo.total }}
+                    </span>
+                  </td>
+                  <!-- Botones solo si es grupo simple (1 item sin receta) -->
+                  <td class="px-6 py-3 text-right">
+                    <div *ngIf="esGrupoSimple(grupo)" class="flex justify-end gap-3">
+                      <button
+                        (click)="abrirIngreso(grupo.items[0], formato.nombre); $event.stopPropagation()"
+                        class="text-xs font-medium text-amber-600 hover:text-amber-800 transition-colors">
+                        + Agregar
+                      </button>
+                      <button
+                        (click)="abrirCorreccion(grupo.items[0], formato.nombre); $event.stopPropagation()"
+                        class="text-xs font-medium text-blue-500 hover:text-blue-700 transition-colors">
+                        Editar
+                      </button>
+                      <button
+                        (click)="abrirEgreso(grupo.items[0], formato.nombre); $event.stopPropagation()"
+                        class="text-xs font-medium text-red-400 hover:text-red-600 transition-colors">
+                        - Retirar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Sub-filas por receta (solo si el grupo tiene receta o múltiples items) -->
+                <ng-container *ngIf="!esGrupoSimple(grupo)">
+                  <tr *ngFor="let prod of grupo.items"
+                      class="border-t border-gray-50 hover:bg-white transition-colors bg-white">
+                    <td class="pl-12 pr-6 py-2">
+                      <span class="text-sm text-amber-700 font-medium">
+                        {{ prod.recetaNombre || '(sin receta)' }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-2 text-right">
+                      <span
+                        [class.text-green-600]="prod.stockActual > 0"
+                        [class.text-gray-400]="prod.stockActual === 0"
+                        class="text-sm font-semibold">
+                        {{ prod.stockActual }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-2 text-right">
+                      <div class="flex justify-end gap-3">
+                        <button
+                          (click)="abrirIngreso(prod, formato.nombre); $event.stopPropagation()"
+                          class="text-xs font-medium text-amber-600 hover:text-amber-800 transition-colors">
+                          + Agregar
+                        </button>
+                        <button
+                          (click)="abrirCorreccion(prod, formato.nombre); $event.stopPropagation()"
+                          class="text-xs font-medium text-blue-500 hover:text-blue-700 transition-colors">
+                          Editar
+                        </button>
+                        <button
+                          (click)="abrirEgreso(prod, formato.nombre); $event.stopPropagation()"
+                          class="text-xs font-medium text-red-400 hover:text-red-600 transition-colors">
+                          - Retirar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
+
+              </ng-container>
             </tbody>
           </table>
         </div>
