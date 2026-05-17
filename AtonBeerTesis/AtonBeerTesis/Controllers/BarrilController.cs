@@ -94,5 +94,24 @@ namespace AtonBeerTesis.WebApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost("registrar-movimiento")]
+        public async Task<IActionResult> RegistrarMovimiento([FromBody] RegistrarMovimientoDto dto)
+        {
+            var resultado = await _service.RegistrarMovimientoAsync(dto);
+
+            if (!resultado)
+                return NotFound(new { mensaje = "Barril no encontrado." });
+
+            return Ok(new { mensaje = "Movimiento registrado con éxito." });
+        }
+
+        [HttpDelete("{id}/ultimo-movimiento")]
+        public async Task<IActionResult> EliminarUltimoMovimiento(int id)
+        {
+            var resultado = await _service.EliminarUltimoMovimientoAsync(id);
+            if (!resultado) return NotFound("No se encontró el barril o no tiene movimientos para eliminar.");
+            return Ok();
+        }
     }
 }

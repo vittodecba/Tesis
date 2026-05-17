@@ -64,6 +64,13 @@ export interface FormatoRetornableDto {
   esRetornable: boolean;
 }
 
+export interface RegistrarMovimientoDto {
+  barrilId: number;
+  tipoMovimiento: number;
+  clienteId?: number;
+  observaciones?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class BarrilService {
   private readonly apiBarril = 'http://localhost:5190/api/Barril';
@@ -106,4 +113,13 @@ export class BarrilService {
   updateObservaciones(barril: any) {
     return this.http.put<any>(`${this.apiBarril}/${barril.id}/observaciones`, barril);
   }
+
+  registrarMovimiento(dto: RegistrarMovimientoDto): Observable<any> {
+  return this.http.post(`${this.apiBarril}/registrar-movimiento`, dto);
+}
+
+eliminarUltimoMovimiento(barrilId: number): Observable<any> {
+  return this.http.delete(`${this.apiBarril}/${barrilId}/ultimo-movimiento`);
+}
+
 }

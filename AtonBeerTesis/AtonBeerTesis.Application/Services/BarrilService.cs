@@ -13,6 +13,8 @@ namespace AtonBeerTesis.Application.Services
         Task<bool> UpdateAsync(int id, UpdateBarrilDto dto);
         Task<bool> EliminarAsync(int id);
         Task<BarrilDetalleDto?> GetDetalleAsync(int id);
+        Task<bool> RegistrarMovimientoAsync(RegistrarMovimientoDto dto);
+        Task<bool> EliminarUltimoMovimientoAsync(int barrilId);
     }
 
     public class BarrilService : IBarrilService
@@ -134,6 +136,7 @@ namespace AtonBeerTesis.Application.Services
                     EstadoNuevo = ObtenerTextoEstado(m.EstadoNuevo),
                     Motivo = m.Motivo,
                     OrigenDestino = m.ClienteNombre,
+                    ClienteNombre = m.ClienteNombre,
                     LoteId = m.LoteId
                 }).ToList()
             };
@@ -165,5 +168,78 @@ namespace AtonBeerTesis.Application.Services
             EstadoBarril.Mantenimiento => "Mantenimiento",
             _ => "Desconocido"
         };
+
+        public async Task<bool> RegistrarMovimientoAsync(RegistrarMovimientoDto dto)
+        {
+            var barril = await _repository.GetByIdAsync(dto.BarrilId);
+            if (barril == null) return false;
+
+            var tipo = (TipoMovimientoBarril)dto.TipoMovimiento;
+            var estadoAnterior = barril.Estado;
+            var estadoNuevo = barril.Estado;
+
+            switch (tipo)
+            {
+                case TipoMovimientoBarril.DespachoCliente:
+                    estadoNuevo = EstadoBarril.ConCliente;
+                    barril.ClienteId = dto.ClienteId;
+                    break;
+                case TipoMovimientoBarril.DevolucionCliente:
+                    estadoNuevo = EstadoBarril.Sucio;
+                    barril.ClienteId = null;
+                    barril.LoteActualId = null;
+                    break;
+                case TipoMovimientoBarril.IngresoLavadero:
+                    estadoNuevo = EstadoBarril.EnLavado;
+                    break;
+                case TipoMovimientoBarril.FinLavado:
+                    estadoNuevo = EstadoBarril.Disponible;
+                    break;
+                case TipoMovimientoBarril.EnvioMantenimiento:
+                    estadoNuevo = EstadoBarril.Mantenimiento;
+                    break;
+                case TipoMovimientoBarril.RetornoMantenimiento:
+                    estadoNuevo = EstadoBarril.Disponible;
+                    break;
+            }
+
+            var movimiento = new MovimientoBarril
+            {
+                BarrilId = dto.BarrilId,
+                Fecha = DateTime.Now,
+                EstadoAnterior = estadoAnterior,
+                EstadoNuevo = estadoNuevo,
+                Motivo = tipo.ToString(),
+                ClienteNombre = dto.ClienteNombre,
+                LoteId = barril.LoteActualId
+            };
+
+            barril.Estado = estadoNuevo;
+            barril.Movimientos.Add(movimiento);
+            barril.UltimaActualizacion = DateTime.Now;
+
+            await _repository.UpdateAsync(barril);
+
+            return true;
+        }
+
+        public async Task<bool> EliminarUltimoMovimientoAsync(int barrilId)
+        {
+            var barril = await _repository.ObtenerDetalleAsync(barrilId);
+            if (barril == null || barril.Movimientos == null || !barril.Movimientos.Any()) return false;
+
+            var ultimoMovimiento = barril.Movimientos.OrderByDescending(m => m.Fecha).First();
+
+            barril.Estado = ultimoMovimiento.EstadoAnterior;
+            if (barril.Estado != EstadoBarril.ConCliente)
+            {
+                barril.ClienteId = null;
+            }
+
+            barril.Movimientos.Remove(ultimoMovimiento);
+            barril.UltimaActualizacion = DateTime.Now;
+
+            return await _repository.UpdateAsync(barril);
+        }
     }
 }
