@@ -4,6 +4,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StockService, FormatoEnvaseDto, MovimientoDetalladoDto, ProductoStockDto } from '../../services/stock.service';
 
+interface GrupoEstilo {
+  estilo: string;
+  total: number;
+  items: ProductoStockDto[];
+}
+
 @Component({
   selector: 'app-stock-gestion',
   standalone: true,
@@ -19,19 +25,17 @@ export class StockGestion implements OnInit {
   formatos: FormatoEnvaseDto[] = [];
   movimientos: MovimientoDetalladoDto[] = [];
 
-  // Modal crear formato
   modalFormatoOpen = false;
   nuevoNombre = '';
   nuevoCapacidad: number | null = null;
   unidadCapacidad: 'L' | 'ml' = 'L';
+  nuevoEsRetornable = false;
   creandoFormato = false;
   errorFormato = '';
 
-  // Modal eliminar
   deleteModalOpen = false;
   formatoAEliminar: FormatoEnvaseDto | null = null;
 
-  // Modal ingreso manual
   ingresoModalOpen = false;
   ingresoProducto: { id: number; estilo: string; formatoNombre: string } | null = null;
   ingresoCantidad: number | null = null;
@@ -78,12 +82,28 @@ export class StockGestion implements OnInit {
     return formato.productos.reduce((sum, p) => sum + p.stockActual, 0);
   }
 
-  // ── Crear Formato ─────────────────────────────────────────────────────
+  agruparPorEstilo(productos: ProductoStockDto[]): GrupoEstilo[] {
+    const mapa = new Map<string, ProductoStockDto[]>();
+    for (const p of productos) {
+      if (!mapa.has(p.estilo)) mapa.set(p.estilo, []);
+      mapa.get(p.estilo)!.push(p);
+    }
+    return Array.from(mapa.entries()).map(([estilo, items]) => ({
+      estilo,
+      total: items.reduce((s, p) => s + p.stockActual, 0),
+      items
+    }));
+  }
+
+  esGrupoSimple(grupo: GrupoEstilo): boolean {
+    return grupo.items.length === 1 && !grupo.items[0].recetaNombre;
+  }
 
   openCrearFormato() {
     this.nuevoNombre = '';
     this.nuevoCapacidad = null;
     this.unidadCapacidad = 'L';
+    this.nuevoEsRetornable = false;
     this.errorFormato = '';
     this.modalFormatoOpen = true;
   }
@@ -103,7 +123,11 @@ export class StockGestion implements OnInit {
     this.creandoFormato = true;
     this.errorFormato = '';
     this.stockService
-      .crearFormatoEnvase({ nombre: this.nuevoNombre.trim(), capacidadLitros: capacidadEnLitros })
+      .crearFormatoEnvase({ 
+        nombre: this.nuevoNombre.trim(), 
+        capacidadLitros: capacidadEnLitros, 
+        esRetornable: this.nuevoEsRetornable 
+      })
       .subscribe({
         next: () => {
           this.modalFormatoOpen = false;
@@ -116,8 +140,6 @@ export class StockGestion implements OnInit {
         },
       });
   }
-
-  // ── Eliminar Formato ──────────────────────────────────────────────────
 
   confirmarEliminar(formato: FormatoEnvaseDto) {
     this.formatoAEliminar = formato;
@@ -139,8 +161,6 @@ export class StockGestion implements OnInit {
       },
     });
   }
-
-  // ── Corrección de stock ───────────────────────────────────────────────
 
   correccionProducto: { id: number; estilo: string; formatoNombre: string; stockActual: number } | null = null;
   correccionNuevaCantidad: number | null = null;
@@ -174,8 +194,6 @@ export class StockGestion implements OnInit {
       },
     });
   }
-
-  // ── Egreso Manual ─────────────────────────────────────────────────────
 
   egresoProducto: { id: number; estilo: string; formatoNombre: string; stockActual: number } | null = null;
   egresoCantidad: number | null = null;
@@ -215,8 +233,6 @@ export class StockGestion implements OnInit {
       },
     });
   }
-
-  // ── Ingreso Manual ────────────────────────────────────────────────────
 
   abrirIngreso(prod: ProductoStockDto, formatoNombre: string) {
     this.ingresoProducto = { id: prod.id, estilo: prod.estilo, formatoNombre };

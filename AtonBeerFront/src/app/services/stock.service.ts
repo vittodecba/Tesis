@@ -5,6 +5,11 @@ import { Observable } from 'rxjs';
 export interface ProductoStockDto {
   id: number;
   estilo: string;
+  recetaId: number | null;
+  recetaNombre: string | null;
+  formatoEnvaseNombre: string;
+  capacidadLitros: number;
+  esRetornable: boolean;
   stockActual: number;
 }
 
@@ -12,6 +17,7 @@ export interface FormatoEnvaseDto {
   id: number;
   nombre: string;
   capacidadLitros: number;
+  esRetornable: boolean;
   productos: ProductoStockDto[];
 }
 
@@ -59,21 +65,21 @@ export class StockService {
 
   constructor(private http: HttpClient) {}
 
-  // ── Formatos de Envase ──────────────────────────────────────────────────
+  getProductos(): Observable<ProductoStockDto[]> {
+    return this.http.get<ProductoStockDto[]>(`${this.apiStock}/productos`);
+  }
 
   getFormatosEnvase(): Observable<FormatoEnvaseDto[]> {
     return this.http.get<FormatoEnvaseDto[]>(this.apiFormato);
   }
 
-  crearFormatoEnvase(dto: { nombre: string; capacidadLitros: number }): Observable<FormatoEnvaseDto> {
+  crearFormatoEnvase(dto: { nombre: string; capacidadLitros: number; esRetornable: boolean }): Observable<FormatoEnvaseDto> {
     return this.http.post<FormatoEnvaseDto>(this.apiFormato, dto);
   }
 
   eliminarFormatoEnvase(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiFormato}/${id}`);
   }
-
-  // ── Designaciones de Lote ───────────────────────────────────────────────
 
   getDesignacionesByLote(loteId: number): Observable<LoteDesignacionDto[]> {
     return this.http.get<LoteDesignacionDto[]>(`${this.apiLote}/${loteId}/designaciones`);
@@ -86,8 +92,6 @@ export class StockService {
   deleteDesignacion(loteId: number, desId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiLote}/${loteId}/designaciones/${desId}`);
   }
-
-  // ── Historial de movimientos ────────────────────────────────────────────
 
   getMovimientos(): Observable<MovimientoDetalladoDto[]> {
     return this.http.get<MovimientoDetalladoDto[]>(`${this.apiStock}/movimientos`);

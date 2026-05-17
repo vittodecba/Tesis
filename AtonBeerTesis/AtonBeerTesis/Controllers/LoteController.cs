@@ -62,9 +62,27 @@ namespace AtonBeerTesis.WebApi.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateLoteDto dto)
         {
+            // Si el estado cambia a Finalizado o Descartado, usar el flujo completo
+            if (!string.IsNullOrWhiteSpace(dto.Estado) &&
+                (dto.Estado == "Finalizado" || dto.Estado == "Descartado"))
+            {
+                var estadoFinal = dto.Estado == "Finalizado"
+                    ? EstadoLote.Finalizado
+                    : EstadoLote.Descartado;
+                try
+                {
+                    var okF = await _service.FinalizarAsync(id, estadoFinal);
+                    if (!okF) return NotFound();
+                    return Ok(new { mensaje = "Lote finalizado correctamente." });
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+
             var ok = await _service.UpdateAsync(id, dto);
             if (!ok) return NotFound();
-
             return NoContent();
         }
 

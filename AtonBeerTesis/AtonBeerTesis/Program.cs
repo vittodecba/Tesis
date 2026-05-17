@@ -90,6 +90,9 @@ namespace AtonBeerTesis
             //--- PEDIDOS (NUEVO) ---
             builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
             builder.Services.AddScoped<IPedidoService, PedidoService>();
+            // --- BARRILES ---
+            builder.Services.AddScoped<IBarrilRepository, BarrilRepository>();
+            builder.Services.AddScoped<IBarrilService, BarrilService>();
 
             var app = builder.Build();
 

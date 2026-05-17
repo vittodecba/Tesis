@@ -1,8 +1,8 @@
-<div class="p-6 min-h-screen bg-orange-50/30 text-start font-sans">
+<div class="p-6 min-h-screen bg-orange-50/30 text-start font-sans relative">
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
     <div>
       <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Pedidos</h2>
-      <p class="text-gray-600 font-medium">Administración y registro de ventas.</p>
+      <p class="text-gray-600 font-medium">Administración y registro de pedidos.</p>
     </div>
     <button class="flex items-center gap-2 px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white shadow-lg border-0 cursor-pointer" (click)="openCreate()">
       <lucide-icon [img]="Plus" [size]="18"></lucide-icon> Nuevo Pedido
@@ -68,48 +68,67 @@
 
             <div formArrayName="detalles" class="space-y-4">
               <div *ngFor="let d of detalles.controls; let i = index" [formGroupName]="i" class="grid grid-cols-12 gap-3 items-end bg-gray-50/50 p-5 rounded-2xl border border-gray-200">
-                <div class="col-span-2">
+                
+                <div class="col-span-1">
                   <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Envase</label>
                   <select formControlName="tempFormato" class="w-full border rounded-lg p-2 text-sm bg-white outline-none">
                     <option value="">Formato...</option>
                     <option *ngFor="let f of getFormatosUnicos()" [value]="f">{{ f }}</option>
                   </select>
                 </div>
-                <div class="col-span-2">
-                  <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Capacidad</label>
+
+                <div class="col-span-1">
+                  <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Litros</label>
                   <select formControlName="tempCapacidad" class="w-full border rounded-lg p-2 text-sm bg-white outline-none" [disabled]="!d.get('tempFormato')?.value">
-                    <option value="">Litros...</option>
+                    <option value="">L...</option>
                     <option *ngFor="let cap of getCapacidadesPorFormato(d.get('tempFormato')?.value)" [value]="cap">{{ cap }}L</option>
                   </select>
                 </div>
+
                 <div class="col-span-2">
                   <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Estilo</label>
-                  <select formControlName="productoStockId" class="w-full border rounded-lg p-2 text-sm bg-white font-bold text-[#4A2C2A]" [disabled]="!d.get('tempCapacidad')?.value">
+                  <select formControlName="tempEstilo" class="w-full border rounded-lg p-2 text-sm bg-white font-bold text-[#4A2C2A]" [disabled]="!d.get('tempCapacidad')?.value">
                     <option value="">Estilo...</option>
-                    <option *ngFor="let prod of getEstilosDisponibles(d.get('tempFormato')?.value, d.get('tempCapacidad')?.value, i)" [value]="prod.id">{{ prod.estilo }}</option>
+                    <option *ngFor="let estilo of getEstilosUnicos(d.get('tempFormato')?.value, d.get('tempCapacidad')?.value)" [value]="estilo">
+                      {{ estilo }}
+                    </option>
+                  </select>
+                </div>
+
+                <div class="col-span-2">
+                  <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 text-orange-600">Receta</label>
+                  <select formControlName="productoStockId" class="w-full border-2 border-orange-200 rounded-lg p-2 text-sm bg-white font-bold text-[#4A2C2A]" [disabled]="!d.get('tempEstilo')?.value">
+                    <option value="">Receta...</option>
+                    <option *ngFor="let prod of getRecetasPorEstilo(d.get('tempFormato')?.value, d.get('tempCapacidad')?.value, d.get('tempEstilo')?.value, i)" [value]="prod.id">
+                      {{ prod.recetaNombre || 'Sin receta específica' }}
+                    </option>
                   </select>
                   <span class="text-[10px] mt-1 block font-medium" *ngIf="d.get('productoStockId')?.value">
                     Stock: <strong class="text-orange-600">{{ obtenerProducto(d.get('productoStockId')?.value)?.stockActual }} u.</strong>
                   </span>
                 </div>
+
                 <div class="col-span-1">
                   <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 text-center">Cant.</label>
-                  <input type="number" formControlName="cantidad" min="1" class="w-full border rounded-lg p-2 text-sm text-center font-bold" />
+                  <input type="number" formControlName="cantidad" min="1" (keydown)="prevenirNegativos($event)" class="w-full border rounded-lg p-2 text-sm text-center font-bold" />
                 </div>
+
                 <div class="col-span-2">
-                  <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 tracking-tighter">PRECIO UNIT. (ARS)</label>
+                  <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 tracking-tighter">PRECIO UNIT.</label>
                   <div class="flex items-center border rounded-lg bg-white overflow-hidden">
                     <span class="bg-gray-100 px-2 py-2 text-gray-500 font-bold text-xs border-r">$</span>
-                    <input type="number" formControlName="precioUnitario" min="0" class="w-full border-0 p-2 text-sm font-bold text-gray-700 outline-none" />
+                    <input type="number" formControlName="precioUnitario" min="0" (keydown)="prevenirNegativos($event)" class="w-full border-0 p-2 text-sm font-bold text-gray-700 outline-none" />
                   </div>
                 </div>
+
                 <div class="col-span-2">
-                  <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 tracking-tighter">SUBTOTAL (ARS)</label>
+                  <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 tracking-tighter">SUBTOTAL</label>
                   <div class="flex items-center border rounded-lg bg-white overflow-hidden">
                     <span class="bg-gray-100 px-2 py-2 text-gray-500 font-bold text-xs border-r">$</span>
-                    <input type="number" formControlName="subtotal" min="0" class="w-full border-0 p-2 text-sm font-bold text-[#4A2C2A] outline-none" />
+                    <input type="number" formControlName="subtotal" min="0" (keydown)="prevenirNegativos($event)" class="w-full border-0 p-2 text-sm font-bold text-[#4A2C2A] outline-none" />
                   </div>
                 </div>
+
                 <div class="col-span-1 flex justify-center pb-1">
                   <button type="button" (click)="eliminarDetalle(i)" *ngIf="detalles.length > 1" class="text-gray-300 hover:text-red-500 bg-transparent border-0 cursor-pointer">
                     <lucide-icon [img]="Trash2" [size]="20"></lucide-icon>
@@ -130,7 +149,7 @@
               <span class="text-gray-400 uppercase font-black text-[10px] tracking-widest">Precio Final (ARS)</span>
               <div class="flex items-center gap-1">
                 <span class="text-2xl font-black text-[#E67E22]">$</span>
-                <input type="number" formControlName="totalPedido" min="0" class="text-2xl font-black text-[#E67E22] border-b-2 border-dashed border-orange-300 bg-transparent outline-none w-40" />
+                <input type="number" formControlName="totalPedido" min="0" (keydown)="prevenirNegativos($event)" class="text-2xl font-black text-[#E67E22] border-b-2 border-dashed border-orange-300 bg-transparent outline-none w-40" />
               </div>
             </div>
           </div>
@@ -141,5 +160,11 @@
         </div>
       </form>
     </div>
+  </div>
+
+  <div *ngIf="toast.show" 
+       class="fixed bottom-5 right-5 z-[60] px-6 py-4 rounded-xl text-white font-bold shadow-2xl transition-all duration-300 transform"
+       [ngClass]="toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'">
+    {{ toast.message }}
   </div>
 </div>

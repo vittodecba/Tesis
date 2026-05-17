@@ -15,6 +15,8 @@ export class RegistrarPedidoComponent implements OnInit {
   readonly Plus = Plus;
   readonly Trash2 = Trash2;
 
+  toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
+
   showModal = false;
   pedidoForm: FormGroup;
   clientes: any[] = [];
@@ -36,6 +38,21 @@ export class RegistrarPedidoComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarDatos();
+  }
+
+  prevenirNegativos(event: KeyboardEvent) {
+    if (event.key === '-' || event.key === 'e') {
+      event.preventDefault();
+    }
+  }
+
+  mostrarToast(mensaje: string, tipo: 'success' | 'error') {
+    this.toast = { show: true, message: mensaje, type: tipo };
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.toast.show = false;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 
   cargarDatos(): void {
@@ -61,6 +78,7 @@ export class RegistrarPedidoComponent implements OnInit {
     const detalle = this.fb.group({
       tempFormato: ['', Validators.required],
       tempCapacidad: ['', Validators.required],
+      tempEstilo: ['', Validators.required], 
       productoStockId: ['', Validators.required],
       cantidad: [1, [Validators.required, Validators.min(1)]],
       precioUnitario: [0, [Validators.required, Validators.min(0)]],
@@ -106,23 +124,23 @@ export class RegistrarPedidoComponent implements OnInit {
   }
 
   getFormatosUnicos() {
-    return [...new Set(this.productos.map(p => p.formatoEnvase?.nombre || p.formato))];
+    return [...new Set(this.productos.map(p => p.formatoEnvaseNombre))];
   }
 
   getCapacidadesPorFormato(nombreFormato: string) {
-    const filtrados = this.productos.filter(p => (p.formatoEnvase?.nombre || p.formato) === nombreFormato);
-    return [...new Set(filtrados.map(p => p.formatoEnvase?.capacidadLitros || p.capacidad))].sort((a, b) => Number(b) - Number(a));
+    const filtrados = this.productos.filter(p => p.formatoEnvaseNombre === nombreFormato);
+    return [...new Set(filtrados.map(p => p.capacidadLitros))].sort((a, b) => Number(b) - Number(a));
   }
 
   getEstilosDisponibles(nombreFormato: string, capacidad: number, indexActual: number) {
     const seleccionadosIds = this.detalles.controls
       .filter((_, i) => i !== indexActual)
-      .map(c => c.get('productoStockId')?.value);
+      .map(c => Number(c.get('productoStockId')?.value));
     
     return this.productos.filter(p => 
-      (p.formatoEnvase?.nombre || p.formato) === nombreFormato && 
-      (p.formatoEnvase?.capacidadLitros || p.capacidad) == capacidad &&
-      !seleccionadosIds.includes(p.id)
+      p.formatoEnvaseNombre === nombreFormato && 
+      p.capacidadLitros == capacidad &&
+      !seleccionadosIds.includes(Number(p.id))
     );
   }
 
@@ -133,7 +151,7 @@ export class RegistrarPedidoComponent implements OnInit {
   get totalLitros(): number {
     return this.detalles.controls.reduce((acc, c) => {
       const p = this.obtenerProducto(c.get('productoStockId')?.value);
-      return acc + ((c.get('cantidad')?.value || 0) * (p?.formatoEnvase?.capacidadLitros || p?.capacidad || 0));
+      return acc + ((c.get('cantidad')?.value || 0) * (p?.capacidadLitros || 0));
     }, 0);
   }
 
@@ -167,14 +185,38 @@ export class RegistrarPedidoComponent implements OnInit {
 
     this.pedidoService.crearPedido(body).subscribe({
       next: () => {
-        alert('¡Pedido registrado con éxito!');
+        this.mostrarToast('¡Pedido registrado con éxito!', 'success');
         this.cargarDatos();
         this.closeModal();
       },
       error: (err) => {
         const msg = err.error?.errors ? JSON.stringify(err.error.errors) : 'Error en los datos del pedido.';
-        alert('No se pudo registrar: ' + msg);
+        this.mostrarToast('No se pudo registrar: ' + msg, 'error');
       }
+
+      
     });
+
+    
+  }
+  getEstilosUnicos(nombreFormato: string, capacidad: number) {
+    const filtrados = this.productos.filter(p => 
+      p.formatoEnvaseNombre === nombreFormato && 
+      p.capacidadLitros == capacidad
+    );
+    return [...new Set(filtrados.map(p => p.estilo))];
+  }
+
+  getRecetasPorEstilo(nombreFormato: string, capacidad: number, estilo: string, indexActual: number) {
+    const seleccionadosIds = this.detalles.controls
+      .filter((_, i) => i !== indexActual)
+      .map(c => Number(c.get('productoStockId')?.value));
+    
+    return this.productos.filter(p => 
+      p.formatoEnvaseNombre === nombreFormato && 
+      p.capacidadLitros == capacidad &&
+      p.estilo === estilo &&
+      !seleccionadosIds.includes(Number(p.id))
+    );
   }
 }
