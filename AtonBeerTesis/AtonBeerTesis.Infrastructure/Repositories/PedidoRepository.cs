@@ -30,5 +30,19 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return pedido;
         }
+
+        public async Task<Pedido?> GetByIdAsync(int id)
+        {
+            return await _context.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.Detalles)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task UpdateAsync(Pedido pedido)
+        {
+            _context.Pedidos.Update(pedido);
+            await _context.SaveChangesAsync();
+        }
     }
 }

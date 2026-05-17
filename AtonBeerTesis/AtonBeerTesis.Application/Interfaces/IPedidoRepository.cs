@@ -8,5 +8,7 @@ namespace AtonBeerTesis.Application.Interfaces
     {
         Task<IEnumerable<Pedido>> GetAllAsync();
         Task<Pedido> AddAsync(Pedido pedido);
+        Task<Pedido?> GetByIdAsync(int id);
+        Task UpdateAsync(Pedido pedido);
     }
 }

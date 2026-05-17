@@ -57,5 +57,26 @@ namespace AtonBeerTesis.Controllers
                 });
             }
         }
+        [HttpPut]
+        public async Task<IActionResult> Put(int id,[FromBody] PedidoEdicionDTO pedidoDto)
+        {
+            try
+            {
+                if (id != pedidoDto.Id)
+                {
+                    return BadRequest(new { mensaje = "El ID del pedido no coincide con el ID proporcionado." });
+                }
+                var resultado = await _pedidoService.ActualizarPedidoAsync(pedidoDto);
+                if (!resultado)
+                {
+                  return NotFound(new { mensaje = $"No se encontró el pedido con ID {id} para actualizar." });
+                }            
+               return Ok(new { mensaje = "¡Pedido actualizado con éxito en Aton Beer!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
     }
 }

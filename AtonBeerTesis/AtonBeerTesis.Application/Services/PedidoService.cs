@@ -17,6 +17,42 @@ namespace AtonBeerTesis.Application.Services
             _pedidoRepository = pedidoRepository;
         }
 
+        public async Task<bool> ActualizarPedidoAsync(PedidoEdicionDTO pedidoDto)
+        {
+            var pedidoExistente = await _pedidoRepository.GetByIdAsync(pedidoDto.Id);
+            if (pedidoExistente == null)
+            {
+                throw new Exception($"No se encontró el pedido con ID {pedidoDto.Id}");
+            }
+
+            //Validacion de que solo se puedan actualizar pedidos que ya han sido entregados
+            //imaginando que el 1 = pendiente y el 2 = entregado
+            if (pedidoExistente.EstadoId != 1)
+            {
+                throw new Exception("Solo se pueden actualizar pedidos que no hayan sido entregados'");
+            }
+
+            pedidoExistente.ClienteId = pedidoDto.IdCliente;
+            pedidoExistente.Fecha = pedidoDto.Fecha;
+            pedidoExistente.Detalles.Clear();
+            decimal nuevoTotal = 0;
+            foreach(var item in pedidoDto.Detalles)
+            {
+                var detallePedido = new DetallePedido
+                {
+                    ProductoStockId = item.ProductoStockId,
+                    Cantidad = item.Cantidad,
+                    PrecioUnitario = item.Precio,
+                    PedidoId = pedidoExistente.Id
+                };
+                nuevoTotal += (item.Cantidad * item.Precio);
+                pedidoExistente.Detalles.Add(detallePedido);
+            }
+            pedidoExistente.Total = nuevoTotal;
+            await _pedidoRepository.UpdateAsync(pedidoExistente);
+            return true;
+        }
+
         public async Task<IEnumerable<object>> ObtenerTodosAsync()
         {
             var pedidos = await _pedidoRepository.GetAllAsync();
