@@ -20,6 +20,8 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 from m in _context.MovimientosStock
                 join p in _context.ProductosStock on m.ProductoStockId equals p.Id
                 join f in _context.FormatosEnvase on p.FormatoEnvaseId equals f.Id
+                join r in _context.Recetas on p.RecetaId equals r.IdReceta into rJoin
+                from r in rJoin.DefaultIfEmpty()   // LEFT JOIN
                 orderby m.Fecha descending
                 select new MovimientoDetalladoDto
                 {
@@ -31,6 +33,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                     StockPrevio = m.StockPrevio,
                     StockResultante = m.StockResultante,
                     Estilo = p.Estilo,
+                    RecetaNombre = r != null ? r.Nombre : null,
                     FormatoNombre = f.Nombre,
                     CapacidadLitros = f.CapacidadLitros,
                     LoteId = m.LoteId

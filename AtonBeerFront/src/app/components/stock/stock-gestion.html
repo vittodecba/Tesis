@@ -37,7 +37,7 @@
   <div class="mb-4">
     <input
       [(ngModel)]="searchTerm"
-      placeholder="Buscar por formato o estilo..."
+      placeholder="Buscar por formato, estilo o receta..."
       class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-amber-500 focus:outline-none" />
   </div>
 
@@ -211,6 +211,7 @@
             </td>
             <td class="px-4 py-3">
               <p class="font-medium text-gray-800">{{ mov.estilo }}</p>
+              <p *ngIf="mov.recetaNombre" class="text-xs text-amber-600 font-medium">{{ mov.recetaNombre }}</p>
               <p class="text-xs text-gray-400">{{ mov.formatoNombre }} · {{ fmtCapacidad(mov.capacidadLitros) }}</p>
             </td>
             <td class="px-4 py-3 text-right font-semibold"
