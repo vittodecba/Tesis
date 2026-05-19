@@ -137,6 +137,7 @@ namespace AtonBeerTesis.Application.Services
                     Motivo = m.Motivo,
                     OrigenDestino = m.ClienteNombre,
                     ClienteNombre = m.ClienteNombre,
+                    Observaciones = m.Observaciones,
                     LoteId = m.LoteId
                 }).ToList()
             };
@@ -211,6 +212,7 @@ namespace AtonBeerTesis.Application.Services
                 EstadoNuevo = estadoNuevo,
                 Motivo = tipo.ToString(),
                 ClienteNombre = dto.ClienteNombre,
+                Observaciones = dto.Observaciones, 
                 LoteId = barril.LoteActualId
             };
 

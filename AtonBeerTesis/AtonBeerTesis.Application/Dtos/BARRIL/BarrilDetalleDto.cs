@@ -27,5 +27,6 @@ namespace AtonBeerTesis.Application.Dtos.BARRIL
         public string? OrigenDestino { get; set; }
         public string? ClienteNombre { get; set; }
         public int? LoteId { get; set; }
+        public string? Observaciones { get; set; }
     }
 }

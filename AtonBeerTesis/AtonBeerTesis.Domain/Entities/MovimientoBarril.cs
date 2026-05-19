@@ -20,5 +20,6 @@ namespace AtonBeerTesis.Domain.Entities
         public string? ClienteNombre { get; set; }
 
         public int? LoteId { get; set; }
+        public string? Observaciones { get; set; }
     }
 }
