@@ -37,6 +37,7 @@ namespace AtonBeerTesis.Application.Services
                 Fecha = DateTime.Now,
                 EstadoId = 1,
                 Total = pedidoDto.TotalPedido,
+                FechaEntregaProgramada = pedidoDto.FechaEntregaProgramada,
                 Detalles = new List<DetallePedido>()
             };
 

@@ -22,6 +22,7 @@ export class RegistrarPedidoComponent implements OnInit {
   clientes: any[] = [];
   productos: any[] = [];
   pedidos: any[] = [];
+  fechaMinima: string = '';
 
   constructor(
     private fb: FormBuilder, 
@@ -30,6 +31,7 @@ export class RegistrarPedidoComponent implements OnInit {
   ) {
     this.pedidoForm = this.fb.group({
       clienteId: ['', Validators.required],
+      fechaEntregaProgramada: ['', Validators.required],
       observaciones: [''],
       totalPedido: [0, [Validators.required, Validators.min(0)]],
       detalles: this.fb.array([])
@@ -38,6 +40,11 @@ export class RegistrarPedidoComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarDatos();
+    
+    const hoy = new Date();
+    const manana = new Date(hoy);
+    manana.setDate(hoy.getDate() + 1);
+    this.fechaMinima = manana.toISOString().split('T')[0];
   }
 
   prevenirNegativos(event: KeyboardEvent) {
@@ -157,7 +164,7 @@ export class RegistrarPedidoComponent implements OnInit {
 
   openCreate(): void {
     this.cargarDatos();
-    this.pedidoForm.reset({ totalPedido: 0, clienteId: '' });
+    this.pedidoForm.reset({ totalPedido: 0, clienteId: '', fechaEntregaProgramada: '' });
     while (this.detalles.length !== 0) this.detalles.removeAt(0);
     this.agregarDetalle();
     this.showModal = true;
@@ -174,6 +181,7 @@ export class RegistrarPedidoComponent implements OnInit {
     const v = this.pedidoForm.value;
     const body = {
       idCliente: Number(v.clienteId),
+      fechaEntregaProgramada: v.fechaEntregaProgramada,
       observaciones: v.observaciones || "",
       totalPedido: Number(v.totalPedido),
       detalles: v.detalles.map((d: any) => ({
@@ -193,12 +201,9 @@ export class RegistrarPedidoComponent implements OnInit {
         const msg = err.error?.errors ? JSON.stringify(err.error.errors) : 'Error en los datos del pedido.';
         this.mostrarToast('No se pudo registrar: ' + msg, 'error');
       }
-
-      
     });
-
-    
   }
+
   getEstilosUnicos(nombreFormato: string, capacidad: number) {
     const filtrados = this.productos.filter(p => 
       p.formatoEnvaseNombre === nombreFormato && 

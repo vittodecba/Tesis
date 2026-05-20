@@ -10,14 +10,13 @@ namespace AtonBeerTesis.Domain.Entities
         public DateTime Fecha { get; set; }
         public decimal Total { get; set; }
 
-        // Relación con Cliente
         public int ClienteId { get; set; }
         public virtual Cliente Cliente { get; set; }
 
-        // Relación con Estado
         public int EstadoId { get; set; }
         public virtual EstadoPedido Estado { get; set; }
 
         public virtual ICollection<DetallePedido> Detalles { get; set; }
+        public DateTime? FechaEntregaProgramada { get; set; }
     }
 }
