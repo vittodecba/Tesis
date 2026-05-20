@@ -34,6 +34,7 @@ export interface BarrilDetalleDto {
   estado: string;
   ubicacionActual: string | null;
   observaciones: string | null;
+  fechaAdquisicion: string;
   movimientos: MovimientoItemDto[];
 }
 

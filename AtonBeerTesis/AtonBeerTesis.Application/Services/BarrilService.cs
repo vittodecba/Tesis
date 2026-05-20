@@ -129,6 +129,7 @@ namespace AtonBeerTesis.Application.Services
                 LoteId = barril.LoteActualId,
                 Estilo = barril.LoteActual?.Receta?.Estilo,
                 Receta = barril.LoteActual?.Receta?.Nombre,
+                FechaAdquisicion = barril.FechaAdquisicion,
                 Movimientos = barril.Movimientos.Select(m => new MovimientoItemDto
                 {
                     Fecha = m.Fecha,

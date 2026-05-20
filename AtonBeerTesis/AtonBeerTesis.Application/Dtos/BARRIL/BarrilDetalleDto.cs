@@ -15,6 +15,7 @@ namespace AtonBeerTesis.Application.Dtos.BARRIL
         public int? LoteId { get; set; }
         public string? Estilo { get; set; }
         public string? Receta { get; set; }
+        public DateTime FechaAdquisicion { get; set; }
         public List<MovimientoItemDto> Movimientos { get; set; } = new();
     }
 
