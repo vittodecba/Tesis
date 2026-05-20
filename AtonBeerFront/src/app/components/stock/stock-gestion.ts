@@ -101,11 +101,6 @@ export class StockGestion implements OnInit {
     }));
   }
 
-  // Un grupo es "simple" si tiene un solo item sin receta → botones van en la fila padre
-  esGrupoSimple(grupo: GrupoEstilo): boolean {
-    return grupo.items.length === 1 && !grupo.items[0].recetaNombre;
-  }
-
   // ── Crear Formato ─────────────────────────────────────────────────────
 
   openCrearFormato() {

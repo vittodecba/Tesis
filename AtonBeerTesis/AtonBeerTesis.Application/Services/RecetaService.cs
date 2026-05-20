@@ -74,9 +74,9 @@ namespace AtonBeerTesis.Application.Services
 
             await _recetaRepository.AddAsync(receta);
 
-            // Sincronizar nuevo estilo con todos los formatos de envase existentes
+            // Sincronizar nueva receta con todos los formatos de envase existentes
             if (!string.IsNullOrWhiteSpace(receta.Estilo))
-                await _formatoEnvaseService.AgregarEstiloATodosLosFormatosAsync(receta.Estilo);
+                await _formatoEnvaseService.AgregarEstiloATodosLosFormatosAsync(receta.Estilo, receta.IdReceta);
 
             return receta.IdReceta;
         }
@@ -263,6 +263,11 @@ namespace AtonBeerTesis.Application.Services
 
             // 5. Guardamos la nueva receta en la base de datos
             await _recetaRepository.AddAsync(nuevaReceta);
+
+            // Sincronizar la receta duplicada con todos los formatos de envase
+            if (!string.IsNullOrWhiteSpace(nuevaReceta.Estilo))
+                await _formatoEnvaseService.AgregarEstiloATodosLosFormatosAsync(nuevaReceta.Estilo, nuevaReceta.IdReceta);
+
             return nuevaReceta.IdReceta;
         }
 
