@@ -9,6 +9,7 @@ namespace AtonBeerTesis.Domain.Entities
         public int Id { get; set; }
         public DateTime Fecha { get; set; }
         public decimal Total { get; set; }
+        public string? Observaciones { get; set; }
 
         // Relación con Cliente
         public int ClienteId { get; set; }

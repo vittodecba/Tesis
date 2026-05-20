@@ -10,5 +10,7 @@ namespace AtonBeerTesis.Application.Dtos.STOCK
         public decimal CapacidadLitros { get; set; }
         public bool EsRetornable { get; set; }
         public decimal StockActual { get; set; }
+        ///CHEQUEAR
+        public decimal StockDisponible { get; set; }//PAra poder hacer los calculos y que me muestre la realidad en el pedido
     }
 }

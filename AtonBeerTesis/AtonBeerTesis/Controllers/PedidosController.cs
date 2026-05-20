@@ -30,6 +30,24 @@ namespace AtonBeerTesis.Controllers
             }
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPorId(int id)
+        {
+            try
+            {
+                var pedidoDto = await _pedidoService.ObtenerPorIdAsync(id);
+                if (pedidoDto == null)
+                {
+                    return NotFound(new { mensaje = $"No se encontró el pedido con ID {id}." });
+                }
+                return Ok(pedidoDto);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = "Error al obtener el detalle del pedido", error = ex.Message });
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] PedidoCreacionDTO pedidoDto)
         {
@@ -58,7 +76,7 @@ namespace AtonBeerTesis.Controllers
             }
         }
         [HttpPut]
-        public async Task<IActionResult> Put(int id,[FromBody] PedidoEdicionDTO pedidoDto)
+        public async Task<IActionResult> Put(int id, [FromBody] PedidoEdicionDTO pedidoDto)
         {
             try
             {
@@ -69,9 +87,40 @@ namespace AtonBeerTesis.Controllers
                 var resultado = await _pedidoService.ActualizarPedidoAsync(pedidoDto);
                 if (!resultado)
                 {
-                  return NotFound(new { mensaje = $"No se encontró el pedido con ID {id} para actualizar." });
-                }            
-               return Ok(new { mensaje = "¡Pedido actualizado con éxito en Aton Beer!" });
+                    return NotFound(new { mensaje = $"No se encontró el pedido con ID {id} para actualizar." });
+                }
+                return Ok(new { mensaje = "¡Pedido actualizado con éxito en Aton Beer!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+        [HttpPatch("{id}/cancelar")]
+        public async Task<IActionResult> Cancelar(int id)
+        {
+            try
+            {
+                var resultado = await _pedidoService.CancelarPedidoAsync(id);
+                if (!resultado) return NotFound(new { mensaje = $"No se encontró el pedido con ID {id}." });
+
+                return Ok(new { mensaje = "Pedido cancelado correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
+        [HttpPatch("{id}/entregar")]
+        public async Task<IActionResult> Entregar(int id)
+        {
+            try
+            {
+                var resultado = await _pedidoService.EntregarPedidoAsync(id);
+                if (!resultado) return NotFound(new { mensaje = $"No se encontró el pedido con ID {id}." });
+
+                return Ok(new { mensaje = "Pedido marcado como entregado correctamente." });
             }
             catch (Exception ex)
             {

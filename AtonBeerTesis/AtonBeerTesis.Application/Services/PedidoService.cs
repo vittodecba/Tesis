@@ -1,6 +1,7 @@
 ﻿using AtonBeerTesis.Application.Dtos;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,13 +31,18 @@ namespace AtonBeerTesis.Application.Services
             if (pedidoExistente.EstadoId != 1)
             {
                 throw new Exception("Solo se pueden actualizar pedidos que no hayan sido entregados'");
-            }
+            }           
 
             pedidoExistente.ClienteId = pedidoDto.IdCliente;
-            pedidoExistente.Fecha = pedidoDto.Fecha;
-            pedidoExistente.Detalles.Clear();
+            pedidoExistente.Observaciones = pedidoDto.Observaciones;
+            var borrarPedido = pedidoExistente.Detalles.ToList();
+
+            foreach (var detalleViejo in borrarPedido)
+            {
+                pedidoExistente.Detalles.Remove(detalleViejo);
+            }
             decimal nuevoTotal = 0;
-            foreach(var item in pedidoDto.Detalles)
+            foreach (var item in pedidoDto.Detalles)
             {
                 var detallePedido = new DetallePedido
                 {
@@ -59,20 +65,48 @@ namespace AtonBeerTesis.Application.Services
             return pedidos.Select(p => new
             {
                 idPedido = p.Id,
+                idCliente = p.ClienteId,
                 clienteNombre = p.Cliente?.RazonSocial ?? "Desconocido",
                 totalPedido = p.Total,
-                fechaPedido = p.Fecha
+                fechaPedido = p.Fecha,
+                estadoPedido = p.Estado?.Nombre ?? "Sin Estado"
             });
         }
-
-        public async Task<int> RegistrarPedidoAsync(PedidoCreacionDTO pedidoDto)
+        public async Task<PedidoEdicionDTO> ObtenerPorIdAsync(int id)
         {
+            var pedido = await _pedidoRepository.GetByIdAsync(id);
+            if (pedido == null) return null;
+
+            return new PedidoEdicionDTO
+            {
+                Id = pedido.Id,
+                IdCliente = pedido.ClienteId,
+                RazonSocial = pedido.Cliente?.RazonSocial ?? "Empresa #" + pedido.ClienteId,
+                Fecha = pedido.Fecha,
+                Observaciones = pedido.Observaciones ?? "",
+                EstadoPedido = pedido.Estado?.Nombre ?? "Sin Estado",
+                Detalles = pedido.Detalles.Select(d => new PedidoDetalleDTO
+                {
+                    ProductoStockId = d.ProductoStockId,
+                    Cantidad = d.Cantidad,
+                    Precio = d.PrecioUnitario,
+                    ProductoNombre =
+                    $"{d.ProductoStock?.Receta?.Nombre ?? "Sin receta específica"} - " +
+                    $"{d.ProductoStock?.Estilo ?? "Sin estilo"} - " +
+                    $"{d.ProductoStock?.FormatoEnvase?.Nombre ?? "Sin formato"} "+
+                    $"{d.ProductoStock?.FormatoEnvase?.CapacidadLitros:0.##} L"
+                }).ToList()
+            };
+        }
+        public async Task<int> RegistrarPedidoAsync(PedidoCreacionDTO pedidoDto)
+        {            
             var nuevoPedido = new Pedido
             {
                 ClienteId = pedidoDto.IdCliente,
                 Fecha = DateTime.Now,
                 EstadoId = 1,
                 Total = pedidoDto.TotalPedido,
+                Observaciones = pedidoDto.Observaciones,
                 Detalles = new List<DetallePedido>()
             };
 
@@ -89,6 +123,115 @@ namespace AtonBeerTesis.Application.Services
 
             var pedidoGuardado = await _pedidoRepository.AddAsync(nuevoPedido);
             return pedidoGuardado.Id;
+        }
+        public async Task<bool> CancelarPedidoAsync(int id)
+        {
+            var pedido = await _pedidoRepository.GetByIdAsync(id);
+            if (pedido == null) return false;
+
+            if (pedido.EstadoId != 1)
+            {
+                throw new Exception("Solo se pueden cancelar pedidos pendientes.");
+            }
+
+            pedido.EstadoId = 4;
+            await _pedidoRepository.UpdateAsync(pedido);
+            return true;
+        }
+
+        public async Task<bool> EntregarPedidoAsync(int id)
+        {
+            var pedido = await _pedidoRepository.GetByIdAsync(id);
+            if (pedido == null) return false;
+
+            if (pedido.EstadoId != 1)
+                throw new Exception("Solo se pueden entregar pedidos pendientes.");
+
+            var detallesAgrupados = pedido.Detalles
+                .GroupBy(d => d.ProductoStockId)
+                .Select(g => new
+                {
+                    ProductoStockId = g.Key,
+                    Cantidad = g.Sum(x => x.Cantidad)
+                })
+                .ToList();
+
+            foreach (var item in detallesAgrupados)
+            {
+                var productoStock = await _pedidoRepository.GetProductoStockByIdAsync(item.ProductoStockId);
+
+                if (productoStock == null)
+                    throw new Exception($"No existe el producto de stock con ID {item.ProductoStockId}.");
+
+                if (productoStock.StockActual < item.Cantidad)
+                {
+                    throw new Exception(
+                        $"Stock insuficiente para entregar {productoStock.Estilo}. Stock actual: {productoStock.StockActual} u. Solicitado: {item.Cantidad} u."
+                    );
+                }
+            }
+
+            foreach (var item in detallesAgrupados)
+            {
+                var productoStock = await _pedidoRepository.GetProductoStockByIdAsync(item.ProductoStockId)!;
+
+                var stockPrevio = productoStock.StockActual;
+                productoStock.StockActual -= item.Cantidad;
+
+                await _pedidoRepository.AgregarMovimientoStockAsync(new MovimientoStock
+                {
+                    ProductoStockId = productoStock.Id,
+                    LoteId = null,
+                    Cantidad = item.Cantidad,
+                    TipoMovimiento = "Egreso",
+                    MotivoMovimiento = $"Entrega de pedido #{pedido.Id}",
+                    StockPrevio = stockPrevio,
+                    StockResultante = productoStock.StockActual,
+                    Fecha = DateTime.Now
+                });
+            }
+
+            pedido.EstadoId = 2;
+            await _pedidoRepository.UpdateAsync(pedido);
+            return true;
+        }
+
+        //Metodo para validar que el stock del producto sea suficiente para el pedido.
+        private async Task ValidarStockDisponibleAsync(IEnumerable<PedidoDetalleDTO> detalles, int? pedidoIdExcluir = null)
+        {
+            var detallesAgrupados = detalles
+                .GroupBy(d => d.ProductoStockId)
+                .Select(g => new
+                {
+                    ProductoStockId = g.Key,
+                    Cantidad = g.Sum(x => x.Cantidad)
+                })
+                .ToList();
+
+            foreach (var item in detallesAgrupados)
+            {
+                if (item.Cantidad <= 0)
+                    throw new Exception("La cantidad solicitada debe ser mayor a 0.");
+
+                var productoStock = await _pedidoRepository.GetProductoStockByIdAsync(item.ProductoStockId);
+
+                if (productoStock == null)
+                    throw new Exception($"No existe el producto de stock con ID {item.ProductoStockId}.");
+
+                var reservadoEnOtrosPedidos = await _pedidoRepository.ObtenerCantidadReservadaPendienteAsync(
+                    item.ProductoStockId,
+                    pedidoIdExcluir
+                );
+
+                var disponible = productoStock.StockActual - reservadoEnOtrosPedidos;
+
+                if (item.Cantidad > disponible)
+                {
+                    throw new Exception(
+                        $"Stock insuficiente para {productoStock.Estilo}. Disponible: {disponible} u. Solicitado: {item.Cantidad} u."
+                    );
+                }
+            }
         }
     }
 }

@@ -21,6 +21,9 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             return await _context.Pedidos
                 .Include(p => p.Cliente)
+                .Include(p => p.Estado)
+                .Include(p => p.Detalles)
+                .ThenInclude(d => d.ProductoStock)
                 .ToListAsync();
         }
 
@@ -35,7 +38,13 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             return await _context.Pedidos
                 .Include(p => p.Cliente)
+                .Include(p => p.Estado)
                 .Include(p => p.Detalles)
+                .ThenInclude(d => d.ProductoStock)
+                .ThenInclude(ps => ps.Receta)
+                .Include(p => p.Detalles)
+                .ThenInclude(d => d.ProductoStock)
+                .ThenInclude(ps => ps.FormatoEnvase)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
@@ -43,6 +52,47 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             _context.Pedidos.Update(pedido);
             await _context.SaveChangesAsync();
+        }
+
+        //Chequea luego lo de abajo
+        public async Task<ProductoStock?> GetProductoStockByIdAsync(int id)
+        {
+            return await _context.ProductosStock
+                .Include(p => p.FormatoEnvase)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<decimal> ObtenerCantidadReservadaPendienteAsync(int productoStockId, int? pedidoIdExcluir = null)
+        {
+            var query = _context.DetallesPedidos
+                .Where(d =>
+                    d.ProductoStockId == productoStockId &&
+                    d.Pedido.EstadoId == 1);
+
+            if (pedidoIdExcluir.HasValue)
+            {
+                query = query.Where(d => d.PedidoId != pedidoIdExcluir.Value);
+            }
+
+            return await query.SumAsync(d => (decimal?)d.Cantidad) ?? 0;
+        }
+
+        public async Task AgregarMovimientoStockAsync(MovimientoStock movimiento)
+        {
+            await _context.MovimientosStock.AddAsync(movimiento);
+        }
+
+        public async Task<Dictionary<int, decimal>> ObtenerReservasPendientesPorProductoAsync()//VER
+        {
+            return await _context.DetallesPedidos
+        .Where(d => d.Pedido.EstadoId == 1)
+        .GroupBy(d => d.ProductoStockId)
+        .Select(g => new
+        {
+            ProductoStockId = g.Key,
+            CantidadReservada = g.Sum(x => x.Cantidad)
+        })
+        .ToDictionaryAsync(x => x.ProductoStockId, x => (decimal)x.CantidadReservada);
         }
     }
 }

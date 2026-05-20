@@ -9,24 +9,109 @@
     </button>
   </div>
 
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-6 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-start">
+    <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Buscar por Cliente</label>
+      <input type="text" 
+             [(ngModel)]="filtroCliente" 
+             placeholder="Escribí el nombre del cliente..." 
+             class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none bg-gray-50 text-sm focus:border-orange-400 transition-all" />
+    </div>
+    <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Filtrar por Estado</label>
+      <select [(ngModel)]="filtroEstado" 
+              class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none bg-gray-50 text-sm focus:border-orange-400 transition-all">
+        <option value="">Todos los estados</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="Entregado">Entregado</option>
+        <option value="Cancelado">Cancelado</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Ordenar listado por</label>
+      <select [(ngModel)]="criterioOrden" 
+              class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none bg-gray-50 text-sm focus:border-orange-400 transition-all">
+        <option value="fecha_desc">Fecha: Más recientes primero</option>
+        <option value="fecha_asc">Fecha: Más viejos primero</option>
+        <option value="total_desc">Total: Mayor a menor monto</option>
+        <option value="total_asc">Total: Menor a mayor monto</option>
+      </select>
+    </div>    
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-visible p-6 mb-8">
     <table class="w-full text-left">
       <thead class="bg-gray-50 border-b border-gray-100">
         <tr>
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">ID</th>
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Cliente</th>
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Total (ARS)</th>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Fecha</th>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Estado</th>
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-right">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let ped of pedidos" class="border-b border-gray-50 hover:bg-gray-50/50">
+        <tr *ngFor="let ped of pedidosFiltrados" class="border-b border-gray-50 hover:bg-gray-50/50">
           <td class="px-6 py-4 font-bold text-[#4A2C2A]">#{{ ped.idPedido || ped.id }}</td>
           <td class="px-6 py-4 text-gray-700 font-medium">{{ ped.clienteNombre || ped.razonSocial || 'ID: ' + ped.clienteId }}</td>
           <td class="px-6 py-4 font-bold text-[#E67E22]">${{ (ped.totalPedido || ped.total) | number:'1.2-2' }}</td>
+          <td class="px-6 py-4 text-gray-600 font-medium">{{ (ped.fechaPedido || ped.fecha) | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td class="px-6 py-4">
+        <span class="px-3 py-1 rounded-full text-xs font-bold"
+              [ngClass]="{
+                'bg-yellow-100 text-yellow-800': (ped.estadoNombre === 'Pendiente'),
+                'bg-green-100 text-green-800': (ped.estadoNombre === 'Entregado'),
+                'bg-red-100 text-red-800': (ped.estadoNombre === 'Cancelado')
+              }">
+          {{ ped.estadoPedido || 'Sin Estado' }}
+        </span>
+      </td>
           <td class="px-6 py-4 text-right">
-            <button class="text-[#4A2C2A] font-bold bg-transparent border-0 cursor-pointer hover:underline uppercase text-[10px]">Ver</button>
-          </td>
+  <div class="flex items-center justify-end gap-3 relative">
+    <button type="button"
+            (click)="OpenDetail(ped)"
+            class="text-[#4A2C2A] font-bold bg-transparent border-0 cursor-pointer hover:underline uppercase text-[11px] tracking-wider">
+      Ver
+    </button>
+
+    <button type="button"
+            (click)="toggleMenuAcciones(ped)"
+            class="w-8 h-8 rounded-lg border border-gray-200 bg-white text-gray-600 font-black cursor-pointer hover:bg-gray-50">
+      ⋮
+    </button>
+
+    <div *ngIf="menuAccionesAbiertoId === getPedidoId(ped)"
+         class="absolute right-0 top-10 z-30 w-48 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden text-left">
+      
+      <button *ngIf="esPendiente(ped)"
+              type="button"
+              (click)="editarDesdeMenu(ped)"
+              class="block w-full px-4 py-3 text-sm font-bold text-gray-700 bg-white border-0 text-left cursor-pointer hover:bg-gray-50">
+        Editar
+      </button>
+
+      <button *ngIf="esPendiente(ped)"
+              type="button"
+              (click)="entregarPedido(ped)"
+              class="block w-full px-4 py-3 text-sm font-bold text-green-700 bg-white border-0 text-left cursor-pointer hover:bg-green-50">
+        Marcar entregado
+      </button>
+
+      <button *ngIf="esPendiente(ped)"
+              type="button"
+              (click)="cancelarPedido(ped)"
+              class="block w-full px-4 py-3 text-sm font-bold text-red-700 bg-white border-0 text-left cursor-pointer hover:bg-red-50">
+        Cancelar pedido
+      </button>
+
+      <div *ngIf="!esPendiente(ped)"
+           class="px-4 py-3 text-sm font-bold text-gray-400">
+        Sin acciones disponibles
+      </div>
+    </div>
+  </div>
+</td>
         </tr>
       </tbody>
     </table>
@@ -37,11 +122,10 @@
       <div class="bg-[#4A2C2A] p-5 flex justify-between items-center text-white">
         <div class="flex items-center gap-3">
           <lucide-icon [img]="Receipt" [size]="24" class="text-orange-400"></lucide-icon>
-          <h5 class="font-bold text-xl">Registrar Nuevo Pedido</h5>
+          <h5 class="font-bold text-xl">{{ isEditing ? 'Editar Pedido #' + pedidoIdActual : 'Registrar Nuevo Pedido' }}</h5>
         </div>
         <button (click)="closeModal()" class="bg-transparent text-white/80 hover:text-white text-2xl border-0 cursor-pointer">✕</button>
       </div>
-
       <form [formGroup]="pedidoForm" (ngSubmit)="guardarPedido()" class="flex flex-col flex-1 overflow-hidden">
         <div class="p-8 overflow-y-auto bg-white flex-1">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -79,7 +163,7 @@
 
                 <div class="col-span-1">
                   <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Litros</label>
-                  <select formControlName="tempCapacidad" class="w-full border rounded-lg p-2 text-sm bg-white outline-none" [disabled]="!d.get('tempFormato')?.value">
+                  <select formControlName="tempCapacidad" class="w-full border rounded-lg p-2 text-sm bg-white outline-none">
                     <option value="">L...</option>
                     <option *ngFor="let cap of getCapacidadesPorFormato(d.get('tempFormato')?.value)" [value]="cap">{{ cap }}L</option>
                   </select>
@@ -87,7 +171,7 @@
 
                 <div class="col-span-2">
                   <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Estilo</label>
-                  <select formControlName="tempEstilo" class="w-full border rounded-lg p-2 text-sm bg-white font-bold text-[#4A2C2A]" [disabled]="!d.get('tempCapacidad')?.value">
+                  <select formControlName="tempEstilo" class="w-full border rounded-lg p-2 text-sm bg-white font-bold text-[#4A2C2A]">
                     <option value="">Estilo...</option>
                     <option *ngFor="let estilo of getEstilosUnicos(d.get('tempFormato')?.value, d.get('tempCapacidad')?.value)" [value]="estilo">
                       {{ estilo }}
@@ -97,14 +181,16 @@
 
                 <div class="col-span-2">
                   <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 text-orange-600">Receta</label>
-                  <select formControlName="productoStockId" class="w-full border-2 border-orange-200 rounded-lg p-2 text-sm bg-white font-bold text-[#4A2C2A]" [disabled]="!d.get('tempEstilo')?.value">
+                  <select formControlName="productoStockId" class="w-full border-2 border-orange-200 rounded-lg p-2 text-sm bg-white font-bold text-[#4A2C2A]">
                     <option value="">Receta...</option>
                     <option *ngFor="let prod of getRecetasPorEstilo(d.get('tempFormato')?.value, d.get('tempCapacidad')?.value, d.get('tempEstilo')?.value, i)" [value]="prod.id">
                       {{ prod.recetaNombre || 'Sin receta específica' }}
                     </option>
                   </select>
                   <span class="text-[10px] mt-1 block font-medium" *ngIf="d.get('productoStockId')?.value">
-                    Stock: <strong class="text-orange-600">{{ obtenerProducto(d.get('productoStockId')?.value)?.stockActual }} u.</strong>
+                    Stock Actual:
+                    <strong class="text-orange-600">{{ obtenerProducto(d.get('productoStockId')?.value)?.stockDisponible }} u.
+                    </strong>
                   </span>
                 </div>
 
@@ -166,5 +252,84 @@
        class="fixed bottom-5 right-5 z-[60] px-6 py-4 rounded-xl text-white font-bold shadow-2xl transition-all duration-300 transform"
        [ngClass]="toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'">
     {{ toast.message }}
+  </div>
+</div>
+
+<div *ngIf="showViewModal && pedidoSeleccionadoVer" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-start">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden max-h-[90vh] flex flex-col border border-gray-200">
+    
+    <div class="bg-[#4A2C2A] p-5 flex justify-between items-center text-white">
+      <div class="flex items-center gap-3">
+        <span class="text-xl">📄</span>
+        <h5 class="font-bold text-xl">Consulta de Pedido #{{ pedidoSeleccionadoVer.id }}</h5>
+      </div>
+      <button (click)="closeViewModal()" class="bg-transparent text-white/80 hover:text-white text-2xl border-0 cursor-pointer">✕</button>
+    </div>
+
+    <div class="p-8 overflow-y-auto bg-white flex-1 space-y-6">
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-50 p-5 rounded-2xl border border-gray-100">
+        <div>
+          <span class="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Cliente</span>
+          <span class="text-base font-bold text-[#4A2C2A]">{{ pedidoSeleccionadoVer.razonSocial }}</span>
+        </div>
+        <div>
+          <span class="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Fecha de Registro</span>
+          <span class="text-base font-medium text-gray-700">{{ pedidoSeleccionadoVer.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div>
+          <span class="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Estado Actual</span>
+          <span class="inline-block mt-1 px-3 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-800">
+            {{ pedidoSeleccionadoVer.estadoPedido || 'Sin Estado' }}
+          </span>
+        </div>
+      </div>
+      <div *ngIf="pedidoSeleccionadoVer.observaciones" 
+     class="bg-gray-50 p-5 rounded-2xl border border-gray-100">
+  <span class="block text-[10px] font-black text-gray-400 uppercase tracking-wider">
+    Observaciones
+  </span>
+  <p class="mt-2 text-sm font-medium text-gray-700">
+    {{ pedidoSeleccionadoVer.observaciones }}
+  </p>
+</div>
+
+      <div>
+        <h6 class="text-[#4A2C2A] font-extrabold text-lg mb-4">Productos Solicitados</h6>
+        <div class="border border-gray-100 rounded-xl overflow-hidden shadow-sm">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-gray-50 text-gray-500 font-bold border-b border-gray-100">
+              <tr>
+                <th class="px-4 py-3">Producto</th>
+                <th class="px-4 py-3 text-center">Cantidad</th>
+                <th class="px-4 py-3 text-right">Precio Unitario</th>
+                <th class="px-4 py-3 text-right">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of pedidoSeleccionadoVer.detalles" class="border-b border-gray-50 bg-white hover:bg-gray-50/50">
+                <td class="px-4 py-3 font-bold text-gray-700">{{ item.productoNombre || ('Producto #' + item.productoStockId) }}</td>
+                <td class="px-4 py-3 text-center font-bold text-gray-600">{{ item.cantidad }} u.</td>
+                <td class="px-4 py-3 text-right text-gray-600">${{ item.precio | number:'1.2-2' }}</td>
+                <td class="px-4 py-3 text-right font-black text-[#4A2C2A]">${{ (item.cantidad * item.precio) | number:'1.2-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6 border-t bg-gray-50 flex justify-between items-center">
+      <div class="flex flex-col">
+        <span class="text-gray-400 uppercase font-black text-[10px] tracking-widest">Monto Facturado</span>
+        <span class="text-2xl font-black text-[#E67E22]">
+  ${{ calcularTotalVer() | number:'1.2-2' }}
+</span>
+      </div>
+      <button type="button" (click)="closeViewModal()" class="px-8 py-3 rounded-xl bg-[#4A2C2A] text-white font-black border-0 cursor-pointer shadow-md uppercase text-xs hover:bg-brown-800 transition-all">
+        Cerrar Detalle
+      </button>
+    </div>
+
   </div>
 </div>
