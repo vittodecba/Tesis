@@ -480,10 +480,11 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Observaciones")
-                        .HasColumnType("nvarchar(max)");
                     b.Property<DateTime?>("FechaEntregaProgramada")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(18,2)");
