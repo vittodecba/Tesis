@@ -46,27 +46,23 @@
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">ID</th>
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Cliente</th>
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Total (ARS)</th>
-          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Fecha</th>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Fecha Entrega</th>
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Estado</th>
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-right">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let ped of pedidosFiltrados" class="border-b border-gray-50 hover:bg-gray-50/50">
+        <tr *ngFor="let ped of pedidosPaginados">
           <td class="px-6 py-4 font-bold text-[#4A2C2A]">#{{ ped.idPedido || ped.id }}</td>
           <td class="px-6 py-4 text-gray-700 font-medium">{{ ped.clienteNombre || ped.razonSocial || 'ID: ' + ped.clienteId }}</td>
-          <td class="px-6 py-4 font-bold text-[#E67E22]">${{ (ped.totalPedido || ped.total) | number:'1.2-2' }}</td>
-          <td class="px-6 py-4 text-gray-600 font-medium">{{ (ped.fechaPedido || ped.fecha) | date:'dd/MM/yyyy HH:mm' }}</td>
-          <td class="px-6 py-4">
-        <span class="px-3 py-1 rounded-full text-xs font-bold"
-              [ngClass]="{
-                'bg-yellow-100 text-yellow-800': (ped.estadoNombre === 'Pendiente'),
-                'bg-green-100 text-green-800': (ped.estadoNombre === 'Entregado'),
-                'bg-red-100 text-red-800': (ped.estadoNombre === 'Cancelado')
-              }">
-          {{ ped.estadoPedido || 'Sin Estado' }}
-        </span>
-      </td>
+          <td class="px-6 py-4 font-bold text-[#E67E22]">${{ (ped.totalPedido || ped.total || 0) | number:'1.2-2' }}</td>
+          <td class="px-6 py-4 text-gray-600 font-medium">{{ ped.fechaEntregaProgramada | date:'dd/MM/yyyy' }}</td>
+         <td class="px-6 py-4">
+  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border"
+        [ngClass]="ObtenerClaseEstado(ped.estadoPedido || ped.estadoNombre)">
+    {{ ped.estadoPedido || ped.estadoNombre || 'Sin Estado' }}
+  </span>
+</td>
           <td class="px-6 py-4 text-right">
   <div class="flex items-center justify-end gap-3 relative">
     <button type="button"
@@ -115,6 +111,44 @@
         </tr>
       </tbody>
     </table>
+    <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4 rounded-lg shadow-sm">
+  <div class="flex flex-1 justify-between sm:hidden">
+    <button (click)="cambiarPagina(paginaActual - 1)" [disabled]="paginaActual === 1" 
+            class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white">
+      Anterior
+    </button>
+    <button (click)="cambiarPagina(paginaActual + 1)" [disabled]="paginaActual === totalPaginas" 
+            class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white">
+      Siguiente
+    </button>
+  </div>
+
+  <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+    <div>
+      <p class="text-sm text-gray-700">
+        Mostrando página <span class="font-semibold text-[#4A2C2A]">{{ paginaActual }}</span> de <span class="font-semibold text-[#4A2C2A]">{{ totalPaginas || 1 }}</span> 
+        (<span class="font-medium">{{ pedidosFiltrados.length }}</span> pedidos en total)
+      </p>
+    </div>
+    <div>
+      <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+        <button (click)="cambiarPagina(paginaActual - 1)" [disabled]="paginaActual === 1" 
+                class="relative inline-flex items-center rounded-l-md px-3 py-2 text-gray-500 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-40 disabled:hover:bg-white">
+          <span class="text-sm font-medium">Anterior</span>
+        </button>
+
+        <span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 bg-gray-50 focus:outline-offset-0">
+          {{ paginaActual }}
+        </span>
+
+        <button (click)="cambiarPagina(paginaActual + 1)" [disabled]="paginaActual === totalPaginas" 
+                class="relative inline-flex items-center rounded-r-md px-3 py-2 text-gray-500 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-40 disabled:hover:bg-white">
+          <span class="text-sm font-medium">Siguiente</span>
+        </button>
+      </nav>
+    </div>
+  </div>
+</div>
   </div>
 
   <div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-start">

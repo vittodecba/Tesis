@@ -24,10 +24,7 @@ namespace AtonBeerTesis.Application.Services
             if (pedidoExistente == null)
             {
                 throw new Exception($"No se encontró el pedido con ID {pedidoDto.Id}");
-            }
-
-            //Validacion de que solo se puedan actualizar pedidos que ya han sido entregados
-            //imaginando que el 1 = pendiente y el 2 = entregado
+            }           
             if (pedidoExistente.EstadoId != 1)
             {
                 throw new Exception("Solo se pueden actualizar pedidos que no hayan sido entregados'");
@@ -35,13 +32,14 @@ namespace AtonBeerTesis.Application.Services
 
             pedidoExistente.ClienteId = pedidoDto.IdCliente;
             pedidoExistente.Observaciones = pedidoDto.Observaciones;
+            pedidoExistente.FechaEntregaProgramada = pedidoDto.FechaEntregaProgramada;
+            pedidoExistente.Total = pedidoDto.TotalPedido;
             var borrarPedido = pedidoExistente.Detalles.ToList();
 
             foreach (var detalleViejo in borrarPedido)
             {
                 pedidoExistente.Detalles.Remove(detalleViejo);
-            }
-            decimal nuevoTotal = 0;
+            }            
             foreach (var item in pedidoDto.Detalles)
             {
                 var detallePedido = new DetallePedido
@@ -50,11 +48,9 @@ namespace AtonBeerTesis.Application.Services
                     Cantidad = item.Cantidad,
                     PrecioUnitario = item.Precio,
                     PedidoId = pedidoExistente.Id
-                };
-                nuevoTotal += (item.Cantidad * item.Precio);
+                };                
                 pedidoExistente.Detalles.Add(detallePedido);
-            }
-            pedidoExistente.Total = nuevoTotal;
+            }            
             await _pedidoRepository.UpdateAsync(pedidoExistente);
             return true;
         }
@@ -69,7 +65,8 @@ namespace AtonBeerTesis.Application.Services
                 clienteNombre = p.Cliente?.RazonSocial ?? "Desconocido",
                 totalPedido = p.Total,
                 fechaPedido = p.Fecha,
-                estadoPedido = p.Estado?.Nombre ?? "Sin Estado"
+                estadoPedido = p.Estado?.Nombre ?? "Sin Estado",
+                fechaEntregaProgramada = p.FechaEntregaProgramada
             });
         }
         public async Task<PedidoEdicionDTO> ObtenerPorIdAsync(int id)
@@ -85,6 +82,8 @@ namespace AtonBeerTesis.Application.Services
                 Fecha = pedido.Fecha,
                 Observaciones = pedido.Observaciones ?? "",
                 EstadoPedido = pedido.Estado?.Nombre ?? "Sin Estado",
+                FechaEntregaProgramada = pedido.FechaEntregaProgramada,
+                TotalPedido = pedido.Total,
                 Detalles = pedido.Detalles.Select(d => new PedidoDetalleDTO
                 {
                     ProductoStockId = d.ProductoStockId,

@@ -12,8 +12,10 @@ namespace AtonBeerTesis.Application.Dtos
         public int IdCliente { get; set; }
         public string? RazonSocial { get; set; }
         public DateTime Fecha { get; set; }
+        public DateTime? FechaEntregaProgramada { get; set; }
         public string? Observaciones { get; set; }
         public string? EstadoPedido { get; set; }
         public List<PedidoDetalleDTO> Detalles { get; set; }
+        public decimal TotalPedido { get; set; }
     }
 }

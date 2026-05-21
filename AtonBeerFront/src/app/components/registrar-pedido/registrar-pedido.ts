@@ -31,6 +31,8 @@ export class RegistrarPedidoComponent implements OnInit {
   pedidoSeleccionadoVer: any = null;
   menuAccionesAbiertoId: number | null = null;
   fechaMinima: string = '';
+  paginaActual: number = 1;
+  itemsPorPagina: number = 10;
 
   constructor(
     private fb: FormBuilder, 
@@ -113,7 +115,8 @@ export class RegistrarPedidoComponent implements OnInit {
     detalle.get('subtotal')?.setValue(cant * precio, { emitEvent: true });
   }
 
-  recalcularTotalFinal(): void {
+  recalcularTotalFinal(): void {  
+
     const total = this.detalles.controls.reduce((acc, c) => {
       return acc + (Number(c.get('subtotal')?.value) || 0);
     }, 0);
@@ -166,6 +169,7 @@ export class RegistrarPedidoComponent implements OnInit {
       (p.estadoPedido || p.estadoNombre) === this.filtroEstado;
     return coincideCliente && coincideEstado;
   });
+  
 
   return resultado.sort((a, b) => {
     switch (this.criterioOrden) {
@@ -187,6 +191,22 @@ export class RegistrarPedidoComponent implements OnInit {
   });
 }
 
+  //Calculo de las paginas segun la cantidad de pedidos.
+  get totalPaginas(): number {
+    return Math.ceil(this.pedidosFiltrados.length / this.itemsPorPagina);
+  }
+  //para que se pueda filtrar en el paginado
+  get pedidosPaginados(): any[] {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+    return this.pedidosFiltrados.slice(inicio, fin);
+  }
+  cambiarPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+    }
+  }
+
   obtenerProducto(id: any) {
     return this.productos.find(x => x.id == id);
   }
@@ -199,6 +219,7 @@ export class RegistrarPedidoComponent implements OnInit {
   }
 
   openCreate(): void {
+    this.isEditing = false;
     this.cargarDatos();
     this.pedidoForm.reset({ totalPedido: 0, clienteId: '', fechaEntregaProgramada: '' });
     while (this.detalles.length !== 0) this.detalles.removeAt(0);
@@ -207,29 +228,33 @@ export class RegistrarPedidoComponent implements OnInit {
     this.cdr.detectChanges();
   }
 openEdit(pedidoRow: any): void {
-    this.isEditing = true;
+    this.isEditing = true; 
     this.pedidoIdActual = pedidoRow.idPedido || pedidoRow.id;  
     this.showModal = true;   
+    
     this.pedidoService.getClientes().subscribe(resClientes => {
       this.clientes = resClientes;      
       this.pedidoService.getProductos().subscribe(resProductos => {
         this.productos = resProductos;        
         this.pedidoService.getPedidoPorId(this.pedidoIdActual!).subscribe({
-          next: (pedidoCompleto: any) => {
-            console.log("🎯 DATOS OFICIALES RECIBIDOS DEL BACKEND:", pedidoCompleto);            
+          next: (pedidoCompleto: any) => {                    
+            
             this.pedidoForm.patchValue({
               clienteId: pedidoCompleto.idCliente ? Number(pedidoCompleto.idCliente) : '',
-              observaciones: pedidoCompleto.observaciones || ''
-            });             
+              observaciones: pedidoCompleto.observaciones || '',
+              totalPedido: 0 // Lo dejamos en 0 inicialmente, el recalcular lo va a sobreescribir al final
+            }, { emitEvent: false }); 
+            
             while (this.detalles.length !== 0) {
               this.detalles.removeAt(0);
-            }     
+            }    
+            
             const listaDetalles = pedidoCompleto.detalles;
             if (listaDetalles && listaDetalles.length > 0) {
-              listaDetalles.forEach((det: any) => {     
+              listaDetalles.forEach((det: any) => {    
                 const idProducto = det.productoStockId;
                 const cant = det.cantidad || 1;
-                const prec = det.precio || 0;             
+                const prec = det.precio || 0;            
                 const prodMaster = this.productos.find(x => x.id == idProducto);                
                 const detalleGroup = this.fb.group({
                   tempFormato: [prodMaster?.formatoEnvaseNombre || '', Validators.required],
@@ -239,7 +264,8 @@ openEdit(pedidoRow: any): void {
                   cantidad: [cant, [Validators.required, Validators.min(1)]],
                   precioUnitario: [prec, [Validators.required, Validators.min(0)]],
                   subtotal: [(cant * prec), [Validators.required, Validators.min(0)]]
-                });              
+                });            
+                
                 detalleGroup.get('cantidad')?.valueChanges.subscribe(() => this.recalcularFila(detalleGroup));
                 detalleGroup.get('precioUnitario')?.valueChanges.subscribe(() => this.recalcularFila(detalleGroup));
                 detalleGroup.get('subtotal')?.valueChanges.subscribe(() => this.recalcularTotalFinal());
@@ -248,9 +274,10 @@ openEdit(pedidoRow: any): void {
               });
             } else {            
               this.agregarDetalle();
-            }            
-            this.recalcularTotalFinal();
+            }                            
+            this.recalcularTotalFinal();           
             this.cdr.detectChanges();
+           
           },
           error: (err: any) => {
             this.mostrarToast('No se pudo recuperar el pedido desde el servidor.', 'error');
@@ -262,23 +289,24 @@ openEdit(pedidoRow: any): void {
 
   closeModal(): void {
     this.showModal = false;
+    this.isEditing = false;
   }
 
   guardarPedido(): void {
     if (this.pedidoForm.invalid) return;
 
-    const v = this.pedidoForm.value;
+    const v = this.pedidoForm.getRawValue();
     const body: any = {
       idCliente: Number(v.clienteId),
       fechaEntregaProgramada: v.fechaEntregaProgramada,
       observaciones: v.observaciones || "",
-      totalPedido: Number(v.totalPedido),
+      totalPedido: Number(v.totalPedido) || 0,     
       detalles: v.detalles.map((d: any) => ({
         productoStockId: Number(d.productoStockId),
         cantidad: Number(d.cantidad),
         precio: Number(d.precioUnitario)
       }))
-    };
+    };    
     if (this.isEditing && this.pedidoIdActual) {    
       body.id = this.pedidoIdActual; 
       this.pedidoService.actualizarPedido(this.pedidoIdActual, body).subscribe({
@@ -313,7 +341,7 @@ openEdit(pedidoRow: any): void {
   this.pedidoService.getPedidoPorId(idBuscar).subscribe({
     next: (pedidoCompleto: any) => {
       console.log('Detalle recibido:', pedidoCompleto);
-
+      pedidoCompleto.montoFinal = pedidoRow.totalPedido || pedidoRow.total;
       this.pedidoSeleccionadoVer = pedidoCompleto;
       this.showViewModal = true;
       this.cdr.detectChanges();
@@ -328,12 +356,10 @@ openEdit(pedidoRow: any): void {
     this.showViewModal = false;
     this.pedidoSeleccionadoVer = null;
   }
-  calcularTotalVer(): number {
-    if (!this.pedidoSeleccionadoVer || !this.pedidoSeleccionadoVer.detalles) return 0;   
-    return this.pedidoSeleccionadoVer.detalles.reduce((sum: number, item: any) => {
-      return sum + ((item.cantidad || 0) * (item.precio || 0));
-    }, 0);
-  }
+  calcularTotalVer(): number {   
+    if (!this.pedidoSeleccionadoVer) return 0;     
+    return this.pedidoSeleccionadoVer.totalPedido || this.pedidoSeleccionadoVer.total || 0;
+}
 
   getEstilosUnicos(nombreFormato: string, capacidad: number) {
     const filtrados = this.productos.filter(p => 
@@ -418,5 +444,22 @@ entregarPedido(pedido: any): void {
       this.mostrarToast(msg, 'error');
     }
   });
+}
+
+ObtenerClaseEstado(estado : string)
+{
+  switch(estado)
+  {
+    case 'Pendiente':
+      return 'bg-amber-100 text-amber-800 border border-amber-200';
+      case 'Entregado':
+        return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+       case'Facturado':
+           return 'bg-blue-100 text-blue-800 border border-blue-200';
+       case'Cancelado':
+       return 'bg-rose-100 text-rose-800 border border-rose-200';
+       default:
+      return 'bg-slate-100 text-slate-800 border-slate-200';
+  }
 }
 }
