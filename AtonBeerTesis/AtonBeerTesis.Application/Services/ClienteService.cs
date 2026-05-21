@@ -20,15 +20,10 @@ namespace AtonBeerTesis.Application.Services
         {
             var clientes = await _clienteRepository.GetAllAsync();
 
-            // Estado: por defecto solo Activos
             if (!string.IsNullOrWhiteSpace(estado) &&
                 Enum.TryParse<EstadoCliente>(estado, true, out var estadoEnum))
             {
                 clientes = clientes.Where(c => c.EstadoCliente == estadoEnum).ToList();
-            }
-            else
-            {
-                clientes = clientes.Where(c => c.EstadoCliente == EstadoCliente.Activo).ToList();
             }
 
             // Tipo
