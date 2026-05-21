@@ -7,7 +7,8 @@ namespace AtonBeerTesis.Application.Dtos
         public int IdCliente { get; set; }
         public string? Observaciones { get; set; }
         public decimal TotalPedido { get; set; }
-        public List<PedidoDetalleDTO> Detalles { get; set; }       
+        public List<PedidoDetalleDTO> Detalles { get; set; }
+        public DateTime? FechaEntregaProgramada { get; set; }
     }
 
     public class PedidoDetalleDTO

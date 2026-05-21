@@ -139,6 +139,10 @@
               </select>
             </div>
             <div class="space-y-2">
+              <label class="block text-sm font-bold text-gray-700">Fecha estimada de entrega *</label>
+              <input type="date" formControlName="fechaEntregaProgramada" [min]="fechaMinima" class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none bg-gray-50" />
+            </div>
+            <div class="space-y-2">
               <label class="block text-sm font-bold text-gray-700">Observaciones</label>
               <input type="text" formControlName="observaciones" class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none bg-gray-50" />
             </div>

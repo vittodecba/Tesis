@@ -107,6 +107,7 @@ namespace AtonBeerTesis.Application.Services
                 EstadoId = 1,
                 Total = pedidoDto.TotalPedido,
                 Observaciones = pedidoDto.Observaciones,
+                FechaEntregaProgramada = pedidoDto.FechaEntregaProgramada,
                 Detalles = new List<DetallePedido>()
             };
 

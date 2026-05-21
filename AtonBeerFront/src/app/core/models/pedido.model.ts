@@ -1,6 +1,7 @@
 export interface PedidoCreacion {
   clienteId: number;
   fechaPedido: string;
+  fechaEntregaProgramada?: string | null;
   observaciones?: string;
   estado?: string;
   detalles: DetallePedidoCreacion[];
