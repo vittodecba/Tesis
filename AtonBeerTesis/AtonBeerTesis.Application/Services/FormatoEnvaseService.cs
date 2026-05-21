@@ -39,6 +39,11 @@ namespace AtonBeerTesis.Application.Services
                 EsRetornable = f.EsRetornable,
                 Productos = productosStock
                     .Where(p => p.FormatoEnvaseId == f.Id)
+                    .GroupBy(p => p.Estilo)
+                    .SelectMany(g =>
+                        g.Any(p => p.RecetaId != null)
+                            ? g.Where(p => p.RecetaId != null)
+                            : g)
                     .Select(p => new ProductoStockDto
                     {
                         Id = p.Id,
@@ -76,27 +81,27 @@ namespace AtonBeerTesis.Application.Services
             };
             await _formatoRepository.AddAsync(formato);
 
-            // Crear entrada de stock por cada estilo existente en recetas
+            // Crear entrada de stock por cada receta existente con estilo
             var recetas = await _recetaRepository.GetAllAsync();
-            var estilosDistintos = recetas
-                .Select(r => r.Estilo)
-                .Where(e => !string.IsNullOrWhiteSpace(e))
-                .Distinct()
+            var recetasConEstilo = recetas
+                .Where(r => !string.IsNullOrWhiteSpace(r.Estilo))
                 .ToList();
 
-            foreach (var estilo in estilosDistintos)
+            foreach (var receta in recetasConEstilo)
             {
                 await _productoStockRepository.AddAsync(new ProductoStock
                 {
                     FormatoEnvaseId = formato.Id,
-                    Estilo = estilo!,
+                    Estilo = receta.Estilo!,
+                    RecetaId = receta.IdReceta,
                     StockActual = 0
                 });
             }
 
-            var productos = estilosDistintos.Select((e, i) => new ProductoStockDto
+            var productos = recetasConEstilo.Select(r => new ProductoStockDto
             {
-                Estilo = e!,
+                Estilo = r.Estilo!,
+                RecetaId = r.IdReceta,
                 StockActual = 0
             }).ToList();
 
@@ -130,7 +135,7 @@ namespace AtonBeerTesis.Application.Services
             return true;
         }
 
-        public async Task AgregarEstiloATodosLosFormatosAsync(string estilo)
+        public async Task AgregarEstiloATodosLosFormatosAsync(string estilo, int? recetaId = null)
         {
             var formatos = await _formatoRepository.FindAllAsync();
             var productosExistentes = await _productoStockRepository.FindAllAsync();
@@ -139,7 +144,8 @@ namespace AtonBeerTesis.Application.Services
             {
                 bool yaExiste = productosExistentes.Any(p =>
                     p.FormatoEnvaseId == formato.Id &&
-                    p.Estilo.Equals(estilo, StringComparison.OrdinalIgnoreCase));
+                    p.Estilo.Equals(estilo, StringComparison.OrdinalIgnoreCase) &&
+                    p.RecetaId == recetaId);
 
                 if (!yaExiste)
                 {
@@ -147,6 +153,7 @@ namespace AtonBeerTesis.Application.Services
                     {
                         FormatoEnvaseId = formato.Id,
                         Estilo = estilo,
+                        RecetaId = recetaId,
                         StockActual = 0
                     });
                 }

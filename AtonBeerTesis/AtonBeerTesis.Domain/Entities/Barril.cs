@@ -16,6 +16,9 @@ namespace AtonBeerTesis.Domain.Entities
         public int? ClienteId { get; set; }
         public Cliente? Cliente { get; set; }
 
+        public int? LoteActualId { get; set; }
+        public Lote? LoteActual { get; set; }
+
         public DateTime FechaAdquisicion { get; set; }
 
         public DateTime? UltimaActualizacion { get; set; }

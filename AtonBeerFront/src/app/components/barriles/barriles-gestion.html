@@ -86,7 +86,7 @@
           <th class="px-6 py-4">Formato</th>
           <th class="px-6 py-4 text-center">Estado</th>
           <th class="px-6 py-4">Cliente asociado</th>
-          <th class="px-6 py-4">Fecha Adquisición</th>
+          <th class="px-6 py-4">Últ. Actualización</th>
           <th class="px-6 py-4 text-right">Acciones</th>
         </tr>
       </thead>
@@ -131,14 +131,12 @@
               class="text-gray-400 text-xs italic">Sin asignar</span>
           </td>
 
-          <!-- Fecha -->
+          <!-- Últ. Actualización -->
           <td class="px-6 py-4">
-            <div class="flex flex-col">
-              <span class="text-sm text-gray-500">{{ b.fechaAdquisicion | date: 'dd/MM/yyyy' }}</span>
-              <span *ngIf="b.ultimaActualizacion" class="text-[10px] text-gray-400 mt-0.5">
-                Últ. act: {{ b.ultimaActualizacion | date: 'dd/MM/yyyy HH:mm' }}
-              </span>
-            </div>
+            <span *ngIf="b.ultimaActualizacion" class="text-sm text-gray-500">
+              {{ b.ultimaActualizacion | date: 'dd/MM/yyyy HH:mm' }}
+            </span>
+            <span *ngIf="!b.ultimaActualizacion" class="text-gray-300 text-xs">—</span>
           </td>
 
           <!-- Acciones -->
@@ -151,12 +149,21 @@
               >
                 <lucide-icon [img]="Pencil" [size]="18"></lucide-icon>
               </button>
+
               <button
                 (click)="eliminar(b)"
                 class="p-2 text-red-400 hover:bg-red-50 rounded-lg transition"
                 title="Eliminar barril"
               >
                 <lucide-icon [img]="Trash2" [size]="18"></lucide-icon>
+              </button>
+
+              <button
+                [routerLink]="['/barriles', b.id]"
+                class="p-2 text-blue-900 hover:bg-blue-50 rounded-lg transition shadow-sm border border-transparent hover:border-gray-200"
+                title="Ver detalle"
+              >
+                <lucide-icon [img]="FileText" [size]="18"></lucide-icon>
               </button>
             </div>
           </td>

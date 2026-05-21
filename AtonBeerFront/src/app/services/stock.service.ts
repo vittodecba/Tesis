@@ -44,6 +44,7 @@ export interface MovimientoDetalladoDto {
   stockPrevio: number;
   stockResultante: number;
   estilo: string;
+  recetaNombre: string | null;
   formatoNombre: string;
   capacidadLitros: number;
   loteId: number | null;

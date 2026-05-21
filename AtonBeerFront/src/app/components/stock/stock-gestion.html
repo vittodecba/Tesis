@@ -37,7 +37,7 @@
   <div class="mb-4">
     <input
       [(ngModel)]="searchTerm"
-      placeholder="Buscar por formato o estilo..."
+      placeholder="Buscar por formato, estilo o receta..."
       class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-amber-500 focus:outline-none" />
   </div>
 
@@ -90,8 +90,7 @@
               <ng-container *ngFor="let grupo of agruparPorEstilo(formato.productos)">
 
                 <!-- Fila de estilo (cabecera del grupo) -->
-                <tr class="border-t border-gray-100 hover:bg-white transition-colors"
-                    [class.bg-amber-50/40]="!esGrupoSimple(grupo)">
+                <tr class="bg-amber-50/40 border-t border-gray-100 hover:bg-white transition-colors">
                   <td class="px-6 py-3">
                     <span class="font-semibold text-gray-800">{{ grupo.estilo }}</span>
                   </td>
@@ -103,30 +102,11 @@
                       {{ grupo.total }}
                     </span>
                   </td>
-                  <!-- Botones solo si es grupo simple (1 item sin receta) -->
-                  <td class="px-6 py-3 text-right">
-                    <div *ngIf="esGrupoSimple(grupo)" class="flex justify-end gap-3">
-                      <button
-                        (click)="abrirIngreso(grupo.items[0], formato.nombre); $event.stopPropagation()"
-                        class="text-xs font-medium text-amber-600 hover:text-amber-800 transition-colors">
-                        + Agregar
-                      </button>
-                      <button
-                        (click)="abrirCorreccion(grupo.items[0], formato.nombre); $event.stopPropagation()"
-                        class="text-xs font-medium text-blue-500 hover:text-blue-700 transition-colors">
-                        Editar
-                      </button>
-                      <button
-                        (click)="abrirEgreso(grupo.items[0], formato.nombre); $event.stopPropagation()"
-                        class="text-xs font-medium text-red-400 hover:text-red-600 transition-colors">
-                        - Retirar
-                      </button>
-                    </div>
-                  </td>
+                  <td></td>
                 </tr>
 
-                <!-- Sub-filas por receta (solo si el grupo tiene receta o múltiples items) -->
-                <ng-container *ngIf="!esGrupoSimple(grupo)">
+                <!-- Sub-filas por receta -->
+                <ng-container>
                   <tr *ngFor="let prod of grupo.items"
                       class="border-t border-gray-50 hover:bg-white transition-colors bg-white">
                     <td class="pl-12 pr-6 py-2">
@@ -211,6 +191,7 @@
             </td>
             <td class="px-4 py-3">
               <p class="font-medium text-gray-800">{{ mov.estilo }}</p>
+              <p *ngIf="mov.recetaNombre" class="text-xs text-amber-600 font-medium">{{ mov.recetaNombre }}</p>
               <p class="text-xs text-gray-400">{{ mov.formatoNombre }} · {{ fmtCapacidad(mov.capacidadLitros) }}</p>
             </td>
             <td class="px-4 py-3 text-right font-semibold"

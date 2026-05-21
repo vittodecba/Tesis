@@ -7,6 +7,6 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<IEnumerable<FormatoEnvaseDto>> ObtenerTodosAsync();
         Task<FormatoEnvaseDto> CrearFormatoAsync(CreateFormatoEnvaseDto dto);
         Task<bool> EliminarFormatoAsync(int id);
-        Task AgregarEstiloATodosLosFormatosAsync(string estilo);
+        Task AgregarEstiloATodosLosFormatosAsync(string estilo, int? recetaId = null);
     }
 }

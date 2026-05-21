@@ -352,7 +352,7 @@ namespace AtonBeerTesis.Application.Services
                             .SelectMany(lista => lista.Select(b => b.Id))
                             .ToList();
                         if (idsALlenar.Any())
-                            await _barrilRepository.MarcarComoLlenosAsync(idsALlenar);
+                            await _barrilRepository.MarcarComoLlenosAsync(idsALlenar, planificacion.LoteId);
                     }
                 }
             }

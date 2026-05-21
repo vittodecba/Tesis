@@ -62,12 +62,12 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task MarcarComoLlenosAsync(List<int> barrilIds)
+        public async Task MarcarComoLlenosAsync(List<int> barrilIds, int loteId)
         {
             if (!barrilIds.Any()) return;
             var ids = string.Join(",", barrilIds);
             await _context.Database.ExecuteSqlRawAsync(
-                $"UPDATE Barriles SET Estado = 1, UltimaActualizacion = GETDATE() WHERE Id IN ({ids})");
+                $"UPDATE Barriles SET Estado = 1, LoteActualId = {loteId}, UltimaActualizacion = GETDATE() WHERE Id IN ({ids})");
         }
 
         public async Task<Dictionary<int, decimal>> ObtenerFormatosRetornablesAsync()
@@ -83,6 +83,17 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             return await _context.Barriles.AnyAsync(b =>
                 b.Codigo.ToLower() == codigo.ToLower() &&
                 (!excludeId.HasValue || b.Id != excludeId.Value));
+        }
+
+        public async Task<Barril?> ObtenerDetalleAsync(int id)
+        {
+            return await _context.Barriles
+                .Include(b => b.FormatoEnvase)
+                .Include(b => b.Cliente)
+                .Include(b => b.LoteActual)
+                    .ThenInclude(l => l.Receta)
+                .Include(b => b.Movimientos.OrderByDescending(m => m.Fecha))
+                .FirstOrDefaultAsync(b => b.Id == id);
         }
     }
 }

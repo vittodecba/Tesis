@@ -8,9 +8,9 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 {
     public class RolRepository : IRolRepository, IRepository<Rol>
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context; 
 
-        public RolRepository(ApplicationDbContext context)
+        public RolRepository(ApplicationDbContext context) 
         {
             _context = context;
         }

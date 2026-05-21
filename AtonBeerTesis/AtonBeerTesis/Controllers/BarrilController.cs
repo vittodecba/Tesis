@@ -22,6 +22,15 @@ namespace AtonBeerTesis.WebApi.Controllers
             return Ok(lista);
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<BarrilDetalleDto>> GetDetalle(int id)
+        {
+            var detalle = await _service.GetDetalleAsync(id);
+            if (detalle == null)
+                return NotFound($"No se encontró el barril con ID {id}.");
+            return Ok(detalle);
+        }
+
         [HttpPost]
         public async Task<ActionResult<BarrilDto>> Create([FromBody] CreateBarrilDto dto)
         {
@@ -53,6 +62,7 @@ namespace AtonBeerTesis.WebApi.Controllers
         }
 
         [HttpPatch("{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateBarrilDto dto)
         {
             try
@@ -66,6 +76,42 @@ namespace AtonBeerTesis.WebApi.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPut("{id}/observaciones")]
+        public async Task<IActionResult> ActualizarObservaciones(int id, [FromBody] BarrilDetalleDto dto)
+        {
+            try
+            {
+                var updateDto = new UpdateBarrilDto { Observaciones = dto.Observaciones };
+                var resultado = await _service.UpdateAsync(id, updateDto);
+                if (!resultado)
+                    return NotFound();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("registrar-movimiento")]
+        public async Task<IActionResult> RegistrarMovimiento([FromBody] RegistrarMovimientoDto dto)
+        {
+            var resultado = await _service.RegistrarMovimientoAsync(dto);
+
+            if (!resultado)
+                return NotFound(new { mensaje = "Barril no encontrado." });
+
+            return Ok(new { mensaje = "Movimiento registrado con éxito." });
+        }
+
+        [HttpDelete("{id}/ultimo-movimiento")]
+        public async Task<IActionResult> EliminarUltimoMovimiento(int id)
+        {
+            var resultado = await _service.EliminarUltimoMovimientoAsync(id);
+            if (!resultado) return NotFound("No se encontró el barril o no tiene movimientos para eliminar.");
+            return Ok();
         }
     }
 }

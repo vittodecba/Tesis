@@ -10,6 +10,7 @@ namespace AtonBeerTesis.Application.Dtos.STOCK
         public decimal StockPrevio { get; set; }
         public decimal StockResultante { get; set; }
         public string Estilo { get; set; } = "";
+        public string? RecetaNombre { get; set; }
         public string FormatoNombre { get; set; } = "";
         public decimal CapacidadLitros { get; set; }
         public int? LoteId { get; set; }
