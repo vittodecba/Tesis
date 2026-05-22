@@ -15,5 +15,6 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<decimal> ObtenerCantidadReservadaPendienteAsync(int productoStockId, int? pedidoIdExcluir = null);
         Task AgregarMovimientoStockAsync(MovimientoStock movimiento);
         Task<Dictionary<int, decimal>> ObtenerReservasPendientesPorProductoAsync();
+        Task<bool> TieneClientePedidosActivosAsync(int clienteId);
     }
 }

@@ -105,7 +105,9 @@ export class ClientesComponent implements OnInit {
         cliente.estadoCliente = nuevoEstado;
         this.aplicarFiltros();
       },
-      error: () => {
+      error: (err: any) => {
+        const msg = err?.error?.message ?? 'No se pudo cambiar el estado del cliente.';
+        alert(msg);
         this.loadClientes();
       },
     });
