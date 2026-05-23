@@ -82,6 +82,12 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             await _context.MovimientosStock.AddAsync(movimiento);
         }
 
+        public async Task<bool> TieneClientePedidosActivosAsync(int clienteId)
+        {
+            return await _context.Pedidos
+                .AnyAsync(p => p.ClienteId == clienteId && p.EstadoId != 2 && p.EstadoId != 4);
+        }
+
         public async Task<Dictionary<int, decimal>> ObtenerReservasPendientesPorProductoAsync()//VER
         {
             return await _context.DetallesPedidos

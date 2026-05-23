@@ -10,10 +10,12 @@ namespace AtonBeerTesis.Application.Services
     public class ClienteService : IClienteService
     {
         private readonly IClienteRepository _clienteRepository;
+        private readonly IPedidoRepository _pedidoRepository;
 
-        public ClienteService(IClienteRepository clienteRepository)
+        public ClienteService(IClienteRepository clienteRepository, IPedidoRepository pedidoRepository)
         {
             _clienteRepository = clienteRepository;
+            _pedidoRepository = pedidoRepository;
         }
 
         public async Task<List<ClienteDto>> GetAllAsync(string? tipo = null, string? ubicacion = null, string? estado = null)
@@ -140,6 +142,13 @@ namespace AtonBeerTesis.Application.Services
             {
                 if (!Enum.TryParse<EstadoCliente>(dto.EstadoCliente, true, out var estado))
                     throw new Exception("Estado de cliente inválido");
+
+                if (estado == EstadoCliente.Inactivo)
+                {
+                    var tieneActivos = await _pedidoRepository.TieneClientePedidosActivosAsync(id);
+                    if (tieneActivos)
+                        throw new Exception("El cliente tiene pedidos activos y no puede ser desactivado.");
+                }
 
                 cliente.EstadoCliente = estado;
             }
