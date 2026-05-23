@@ -1,6 +1,7 @@
 ﻿using AtonBeerTesis.Application.Dtos;
 using AtonBeerTesis.Application.DTOs;
 using AtonBeerTesis.Application.Interfaces;
+using AtonBeerTesis.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AtonBeerTesis.Controllers
@@ -113,11 +114,16 @@ namespace AtonBeerTesis.Controllers
         }
 
         [HttpPatch("{id}/entregar")]
-        public async Task<IActionResult> Entregar(int id)
+        public async Task<IActionResult> Entregar(int id, [FromBody] List<int> barrilesId)
         {
             try
             {
-                var resultado = await _pedidoService.EntregarPedidoAsync(id);
+                var pedidoDto = new PedidoEntregadoDto
+                {
+                    PedidoId = id,
+                    BarrilesIds = barrilesId ?? new List<int>()
+                };
+                var resultado = await _pedidoService.EntregarPedidoAsync(pedidoDto);
                 if (!resultado) return NotFound(new { mensaje = $"No se encontró el pedido con ID {id}." });
 
                 return Ok(new { mensaje = "Pedido marcado como entregado correctamente." });

@@ -27,47 +27,23 @@ namespace AtonBeerTesis.Application.Services
             _pedidoRepository = pedidoRepository;
         }
 
-       /* public async Task<IEnumerable<ProductoStockDto>> ObtenerTodosAsync()
-        {
-            var productos = await _productoStockRepository.GetAllAsync("FormatoEnvase", "Receta");
+       public async Task<IEnumerable<ProductoStockDto>> ObtenerTodosAsync()
+         {
+             var productos = await _productoStockRepository.GetAllAsync("FormatoEnvase", "Receta");
 
-            return productos.Select(p => new ProductoStockDto
-            {
-                Id = p.Id,
-                Estilo = p.Estilo,
-                RecetaId = p.RecetaId,
-                RecetaNombre = p.Receta?.Nombre,
-                FormatoEnvaseNombre = p.FormatoEnvase?.Nombre ?? "Sin Formato",
-                CapacidadLitros = p.FormatoEnvase?.CapacidadLitros ?? 0,
-                EsRetornable = p.FormatoEnvase?.EsRetornable ?? false,
-                StockActual = p.StockActual
-            });
-        }*/
-        public async Task<IEnumerable<ProductoStockDto>> ObtenerTodosAsync()
-        {
-            var productos = await _productoStockRepository.GetAllAsync("FormatoEnvase", "Receta");
-            var reservasPendientes = await _pedidoRepository.ObtenerReservasPendientesPorProductoAsync();
-
-            return productos.Select(p =>
-            {
-                var reservado = reservasPendientes.TryGetValue(p.Id, out var cantidad)
-                    ? cantidad
-                    : 0;
-
-                return new ProductoStockDto
-                {
-                    Id = p.Id,
-                    Estilo = p.Estilo,
-                    RecetaId = p.RecetaId,
-                    RecetaNombre = p.Receta?.Nombre,
-                    FormatoEnvaseNombre = p.FormatoEnvase?.Nombre ?? "Sin Formato",
-                    CapacidadLitros = p.FormatoEnvase?.CapacidadLitros ?? 0,
-                    EsRetornable = p.FormatoEnvase?.EsRetornable ?? false,
-                    StockActual = p.StockActual,
-                    StockDisponible = p.StockActual - reservado
-                };
-            });
-        }
+             return productos.Select(p => new ProductoStockDto
+             {
+                 Id = p.Id,
+                 Estilo = p.Estilo,
+                 RecetaId = p.RecetaId,
+                 RecetaNombre = p.Receta?.Nombre,
+                 FormatoEnvaseNombre = p.FormatoEnvase?.Nombre ?? "Sin Formato",
+                 CapacidadLitros = p.FormatoEnvase?.CapacidadLitros ?? 0,
+                 EsRetornable = p.FormatoEnvase?.EsRetornable ?? false,
+                 StockActual = p.StockActual,
+                 StockDisponible = p.StockActual
+             });
+         }
 
         public async Task<IEnumerable<MovimientoDetalladoDto>> ObtenerMovimientosAsync()
         {

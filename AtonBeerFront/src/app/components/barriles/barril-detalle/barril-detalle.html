@@ -135,12 +135,9 @@
         <div>
           <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Tipo de Movimiento</label>
           <select [(ngModel)]="nuevoMovimiento.tipoMovimiento" class="w-full p-3 text-sm border border-gray-200 rounded-xl outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500">
-            <option value="1">Despacho a Cliente</option>
-            <option value="2">Devolución de Cliente</option>
-            <option value="3">Ingreso a Lavadero</option>
-            <option value="4">Fin de Lavado</option>
-            <option value="5">Envío a Mantenimiento</option>
-            <option value="6">Retorno de Mantenimiento</option>
+            <option *ngFor="let op of opcionesMovimiento" [value]="op.valor">
+              {{ op.texto }}
+            </option>
           </select>
         </div>
 

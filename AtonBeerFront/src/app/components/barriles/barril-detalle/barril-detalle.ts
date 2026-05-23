@@ -35,6 +35,7 @@ export class BarrilDetalleComponent implements OnInit {
   clientesFiltrados: any[] = [];
   busquedaCliente = '';
   clienteSeleccionado: any = null;
+  opcionesMovimiento: { valor: number, texto: string }[] = [];
 
   constructor(
     private route: ActivatedRoute, 
@@ -97,11 +98,55 @@ export class BarrilDetalleComponent implements OnInit {
   }
 
   volver() { window.history.back(); }
-
-  abrirModalMovimiento() {
-    this.nuevoMovimiento = { tipoMovimiento: 1, clienteId: null, observaciones: '' };
+///Modificado 2 veces//
+ abrirModalMovimiento() {
+    console.log('Barril completo:', this.barril);     
+    const estadoActual = this.barril.estado || this.barril.estadoTexto || this.barril.estadoNombre || '';
+    console.log('Estado detectado por Angular:', estadoActual);  
+    this.opcionesMovimiento = this.obtenerOpcionesPorEstado(estadoActual);      
+    const primerValorValido = this.opcionesMovimiento.length > 0 ? this.opcionesMovimiento[0].valor : 1;
+    this.nuevoMovimiento = { tipoMovimiento: primerValorValido, clienteId: null, observaciones: '' };
     this.limpiarCliente();
     this.mostrarModalMovimiento = true;
+  }
+  obtenerOpcionesPorEstado(estadoTexto: string): { valor: number, texto: string }[] {
+    const estado = (estadoTexto || '').toLowerCase().trim();
+    let opciones: { valor: number, texto: string }[] = [];
+    const opDespacho = { valor: 1, texto: 'Despacho a Cliente' };
+    const opDevolucion = { valor: 2, texto: 'Devolución de Cliente' };
+    const opLavadero = { valor: 3, texto: 'Ingreso a Lavadero' };
+    const opFinLavado = { valor: 4, texto: 'Fin de Lavado' };
+    const opMantenimiento = { valor: 5, texto: 'Envío a Mantenimiento' };
+    const opRetornoMant = { valor: 6, texto: 'Retorno de Mantenimiento' };
+
+    console.log(`🤖 Analizando estado: "${estado}"`);
+
+    if (estado === 'lleno' || estado === 'disponible') {
+      console.log('✅ Entró en: Lleno/Disponible');
+      opciones.push(opDespacho, opLavadero, opMantenimiento);
+    } 
+    else if (estado === 'con cliente' || estado === 'en cliente') {
+      console.log('✅ Entró en: Con Cliente');
+      opciones.push(opDevolucion);
+    } 
+    else if (estado === 'sucio') {
+      console.log('✅ Entró en: Sucio');
+      opciones.push(opLavadero, opMantenimiento);
+    } 
+    else if (estado === 'en lavadero' || estado === 'lavando') {
+      console.log('✅ Entró en: Lavadero');
+      opciones.push(opFinLavado);
+    } 
+    else if (estado === 'en mantenimiento' || estado === 'mantenimiento') {
+      console.log('✅ Entró en: Mantenimiento');
+      opciones.push(opRetornoMant);
+    } 
+    else {
+      console.log('⚠️ ESTADO DESCONOCIDO - Mostrando todo por defecto');
+      opciones.push(opDespacho, opDevolucion, opLavadero, opFinLavado, opMantenimiento, opRetornoMant);
+    }
+
+    return opciones;
   }
 
   cerrarModalMovimiento() {

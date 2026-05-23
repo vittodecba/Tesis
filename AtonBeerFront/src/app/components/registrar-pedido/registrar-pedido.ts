@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PedidoService } from '../../core/services/pedido.service';
 import { LucideAngularModule, Receipt, Plus, Trash2 } from 'lucide-angular';
+import { BarrilService, BarrilDto } from '../../services/barril.service';
+
 
 @Component({
   selector: 'app-registrar-pedido',
@@ -34,9 +36,18 @@ export class RegistrarPedidoComponent implements OnInit {
   paginaActual: number = 1;
   itemsPorPagina: number = 10;
 
+  // --- VARIABLES NUEVAS PARA BARRILES ---
+  showModalAsignacionBarriles: boolean = false;
+  pedidoParaEntregar: any = null;
+  barrilesParaSeleccionar: BarrilDto[] = [];
+  listaBarrilesSeleccionadosIds: number[] = [];
+  cantidadBarrilesRequeridos: number = 0;
+  resumenCapacidades: { [litros: number]: { requeridos: number, seleccionados: number } } = {};
+
   constructor(
     private fb: FormBuilder, 
-    private pedidoService: PedidoService, 
+    private pedidoService: PedidoService,
+    private barrilService: BarrilService, 
     private cdr: ChangeDetectorRef
   ) {
     this.pedidoForm = this.fb.group({
@@ -191,11 +202,10 @@ export class RegistrarPedidoComponent implements OnInit {
   });
 }
 
-  //Calculo de las paginas segun la cantidad de pedidos.
+  
   get totalPaginas(): number {
     return Math.ceil(this.pedidosFiltrados.length / this.itemsPorPagina);
-  }
-  //para que se pueda filtrar en el paginado
+  }  
   get pedidosPaginados(): any[] {
     const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
     const fin = inicio + this.itemsPorPagina;
@@ -427,24 +437,105 @@ cancelarPedido(pedido: any): void {
 }
 
 entregarPedido(pedido: any): void {
-  const id = this.getPedidoId(pedido);
+    const id = this.getPedidoId(pedido);
 
-  if (!confirm(
-  `¿Marcar como entregado el pedido #${id}?\n\nEsta acción cambia el estado del pedido y no se puede deshacer desde esta pantalla.`
-)) return;
+    if (!confirm(`¿Marcar como entregado el pedido #${id}?`)) return;
 
-  this.pedidoService.entregarPedido(id).subscribe({
-    next: () => {
-      this.mostrarToast('Pedido marcado como entregado.', 'success');
-      this.cargarDatos();
-      this.cerrarMenuAcciones();
-    },
-    error: (err) => {
-      const msg = err.error?.mensaje || 'No se pudo entregar el pedido.';
-      this.mostrarToast(msg, 'error');
+    this.pedidoService.getPedidoPorId(id).subscribe({
+      next: (pedidoCompleto: any) => {        
+        this.resumenCapacidades = {};
+        this.cantidadBarrilesRequeridos = 0;        
+        pedidoCompleto.detalles.forEach((d: any) => {
+          const nombre = (d.productoNombre || '').toLowerCase();
+          if (nombre.includes('barril')) {
+            const cant = d.cantidad || 0;
+            this.cantidadBarrilesRequeridos += cant;    
+            //Para saber los litros especifico de cada barril//        
+            const match = nombre.match(/(\d+)\s*l\b/i);
+            const cap = match ? parseInt(match[1], 10) : 0; 
+
+            if (!this.resumenCapacidades[cap]) {
+              this.resumenCapacidades[cap] = { requeridos: 0, seleccionados: 0 };
+            }
+            this.resumenCapacidades[cap].requeridos += cant;
+          }
+        });
+
+        if (this.cantidadBarrilesRequeridos > 0) {
+          this.pedidoParaEntregar = pedido;
+          this.listaBarrilesSeleccionadosIds = [];
+          
+          this.barrilService.getBarriles().subscribe(barriles => {            
+            const capacidadesNecesarias = Object.keys(this.resumenCapacidades).map(Number);
+            
+            this.barrilesParaSeleccionar = barriles.filter(b => 
+              b.estadoTexto?.toLowerCase() === 'lleno' &&
+              capacidadesNecesarias.includes(b.capacidadLitros)
+            );
+            
+            this.showModalAsignacionBarriles = true;
+            this.cerrarMenuAcciones();
+            this.cdr.detectChanges();
+          });
+        } else {
+          this.ejecutarEntrega(id, []);
+        }
+      },
+      error: () => this.mostrarToast('No se pudo verificar el detalle del pedido.', 'error')
+    });
+  }
+
+  // --- MÉTODOS DE APOYO PARA EL MODAL ---
+ toggleBarrilSeleccionado(barril: any, event: any): void {
+    const cap = barril.capacidadLitros || 0;
+
+    if (event.target.checked) {    
+      if (this.resumenCapacidades[cap].seleccionados >= this.resumenCapacidades[cap].requeridos) {
+        event.target.checked = false;
+        this.mostrarToast(`Ya seleccionaste todos los barriles de ${cap}L necesarios.`, 'error');
+        return;
+      }
+
+      this.listaBarrilesSeleccionadosIds.push(barril.id);
+      this.resumenCapacidades[cap].seleccionados++;
+
+    } else {    
+      this.listaBarrilesSeleccionadosIds = this.listaBarrilesSeleccionadosIds.filter(bId => bId !== barril.id);
+      this.resumenCapacidades[cap].seleccionados--;
     }
-  });
-}
+  }
+  get resumenArray() {
+    return Object.keys(this.resumenCapacidades).map(cap => ({
+      capacidad: cap,
+      ...this.resumenCapacidades[Number(cap)]
+    }));
+  }
+
+  get seleccionCompleta(): boolean {
+    return Object.values(this.resumenCapacidades).every(r => r.seleccionados === r.requeridos);
+  }
+
+  confirmarEntregaConBarriles(): void {
+    const id = this.getPedidoId(this.pedidoParaEntregar);
+    this.ejecutarEntrega(id, this.listaBarrilesSeleccionadosIds);
+  }
+
+  private ejecutarEntrega(pedidoId: number, barrilesIds: number[]): void {
+    this.pedidoService.entregarPedido(pedidoId, barrilesIds).subscribe({
+      next: () => {
+        this.mostrarToast('Pedido marcado como entregado y stock actualizado.', 'success');
+        this.showModalAsignacionBarriles = false;
+        this.listaBarrilesSeleccionadosIds = [];
+        this.cargarDatos();
+        this.cerrarMenuAcciones();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        const msg = err.error?.mensaje || 'No se pudo entregar el pedido.';
+        this.mostrarToast(msg, 'error');
+      }
+    });
+  }
 
 ObtenerClaseEstado(estado : string)
 {
