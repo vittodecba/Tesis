@@ -73,13 +73,15 @@ export class RegistrarPedidoComponent implements OnInit {
 
   cargarDatos(): void {
     this.pedidoService.getClientes().subscribe(res => {
-      this.clientes = res;
+      this.clientes = res.filter((c: any) => c.estadoCliente === 'Activo' || c.EstadoCliente === 'Activo');
       this.cdr.detectChanges();
     });
+    
     this.pedidoService.getProductos().subscribe(res => {
       this.productos = res;
       this.cdr.detectChanges();
     });
+    
     this.pedidoService.getPedidos().subscribe(res => {
       this.pedidos = res;
       this.cdr.detectChanges();
