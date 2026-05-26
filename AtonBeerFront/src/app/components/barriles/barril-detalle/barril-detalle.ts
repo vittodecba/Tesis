@@ -98,7 +98,6 @@ export class BarrilDetalleComponent implements OnInit {
   }
 
   volver() { window.history.back(); }
-///Modificado 2 veces//
  abrirModalMovimiento() {
     console.log('Barril completo:', this.barril);     
     const estadoActual = this.barril.estado || this.barril.estadoTexto || this.barril.estadoNombre || '';
@@ -109,10 +108,9 @@ export class BarrilDetalleComponent implements OnInit {
     this.limpiarCliente();
     this.mostrarModalMovimiento = true;
   }
-  obtenerOpcionesPorEstado(estadoTexto: string): { valor: number, texto: string }[] {
+ obtenerOpcionesPorEstado(estadoTexto: string): { valor: number, texto: string }[] {
     const estado = (estadoTexto || '').toLowerCase().trim();
-    let opciones: { valor: number, texto: string }[] = [];
-    const opDespacho = { valor: 1, texto: 'Despacho a Cliente' };
+    let opciones: { valor: number, texto: string }[] = [];    
     const opDevolucion = { valor: 2, texto: 'Devolución de Cliente' };
     const opLavadero = { valor: 3, texto: 'Ingreso a Lavadero' };
     const opFinLavado = { valor: 4, texto: 'Fin de Lavado' };
@@ -123,7 +121,7 @@ export class BarrilDetalleComponent implements OnInit {
 
     if (estado === 'lleno' || estado === 'disponible') {
       console.log('✅ Entró en: Lleno/Disponible');
-      opciones.push(opDespacho, opLavadero, opMantenimiento);
+      opciones.push(opLavadero, opMantenimiento);
     } 
     else if (estado === 'con cliente' || estado === 'en cliente') {
       console.log('✅ Entró en: Con Cliente');
@@ -132,9 +130,9 @@ export class BarrilDetalleComponent implements OnInit {
     else if (estado === 'sucio') {
       console.log('✅ Entró en: Sucio');
       opciones.push(opLavadero, opMantenimiento);
-    } 
-    else if (estado === 'en lavadero' || estado === 'lavando') {
-      console.log('✅ Entró en: Lavadero');
+    }     
+    else if (estado === 'en lavadero' || estado === 'lavando' || estado === 'en lavado') {
+      console.log('✅ Entró en: Lavado');
       opciones.push(opFinLavado);
     } 
     else if (estado === 'en mantenimiento' || estado === 'mantenimiento') {
@@ -142,13 +140,12 @@ export class BarrilDetalleComponent implements OnInit {
       opciones.push(opRetornoMant);
     } 
     else {
-      console.log('⚠️ ESTADO DESCONOCIDO - Mostrando todo por defecto');
-      opciones.push(opDespacho, opDevolucion, opLavadero, opFinLavado, opMantenimiento, opRetornoMant);
+      console.log('⚠️ ESTADO DESCONOCIDO - Mostrando todo por defecto');      
+      opciones.push(opDevolucion, opLavadero, opFinLavado, opMantenimiento, opRetornoMant);
     }
 
     return opciones;
   }
-
   cerrarModalMovimiento() {
     this.mostrarModalMovimiento = false;
   }

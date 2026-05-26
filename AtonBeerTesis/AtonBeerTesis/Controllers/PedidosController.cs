@@ -76,6 +76,7 @@ namespace AtonBeerTesis.Controllers
                 });
             }
         }
+
         [HttpPut]
         public async Task<IActionResult> Put(int id, [FromBody] PedidoEdicionDTO pedidoDto)
         {
@@ -130,6 +131,25 @@ namespace AtonBeerTesis.Controllers
             }
             catch (Exception ex)
             {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
+        [HttpPut("{id}/deshacer-entrega")]
+        public async Task<IActionResult> DeshacerEntrega(int id)
+        {
+            try
+            {
+                var resultado = await _pedidoService.DeshacerEntregaPedidoAsync(id);
+                if (!resultado)
+                {
+                    return NotFound(new { mensaje = $"No se encontró el pedido #{id}." });
+                }
+
+                return Ok(new { mensaje = "Entrega revertida con éxito. El pedido vuelve a estar Pendiente." });
+            }
+            catch (Exception ex)
+            {                
                 return BadRequest(new { mensaje = ex.Message });
             }
         }

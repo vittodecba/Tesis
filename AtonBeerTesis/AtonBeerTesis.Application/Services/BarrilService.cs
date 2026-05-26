@@ -64,8 +64,8 @@ namespace AtonBeerTesis.Application.Services
             var creado = await _repository.GetByIdAsync(barril.Id);
             return MapToDto(creado!);
         }
-
-        public async Task<bool> UpdateAsync(int id, UpdateBarrilDto dto)
+        //Metodo Santi
+        /*public async Task<bool> UpdateAsync(int id, UpdateBarrilDto dto)
         {
             var barril = await _repository.GetByIdAsync(id);
             if (barril == null) return false;
@@ -95,6 +95,80 @@ namespace AtonBeerTesis.Application.Services
             barril.UltimaActualizacion = DateTime.Now;
 
             return await _repository.UpdateAsync(barril);
+        }*/
+
+        //Metodo nuevo:
+        public async Task<bool> UpdateAsync(int id, UpdateBarrilDto dto)
+        {
+            var barril = await _repository.GetByIdAsync(id);
+            if (barril == null) return false;
+            var estadoAnterior = barril.Estado;
+            bool huboCambioDeEstado = false;
+
+            if (dto.Estado.HasValue)
+            {
+                var nuevoEstado = (EstadoBarril)dto.Estado.Value;
+                if (nuevoEstado != estadoAnterior)
+                {
+                    if (!TransicionesValidas.TryGetValue(barril.Estado, out var permitidos) ||
+                        !permitidos.Contains(nuevoEstado))
+                    {
+                        throw new Exception(
+                            $"No se puede cambiar el estado de '{ObtenerTextoEstado(barril.Estado)}' " +
+                            $"a '{ObtenerTextoEstado(nuevoEstado)}'.");
+                    }
+                    barril.Estado = nuevoEstado;
+                    huboCambioDeEstado = true;
+
+                    if (nuevoEstado == EstadoBarril.Sucio || nuevoEstado == EstadoBarril.Disponible)
+                    {
+                        barril.ClienteId = null;
+                        if (nuevoEstado == EstadoBarril.Sucio) barril.LoteActualId = null;
+                    }
+                }
+            }
+            if (dto.DesasociarCliente)
+                barril.ClienteId = null;
+            else if (dto.ClienteId.HasValue)
+                barril.ClienteId = dto.ClienteId.Value;
+
+            if (dto.FechaAdquisicion.HasValue)
+                barril.FechaAdquisicion = dto.FechaAdquisicion.Value;
+
+            barril.Observaciones = dto.Observaciones;
+            barril.UltimaActualizacion = DateTime.Now;
+
+            if (huboCambioDeEstado)
+            {
+                var movimiento = new MovimientoBarril
+                {
+                    Fecha = DateTime.Now,
+                    EstadoAnterior = estadoAnterior,
+                    EstadoNuevo = barril.Estado,
+                    Motivo = MotivoTransicion(estadoAnterior, barril.Estado),
+                    Observaciones = string.IsNullOrWhiteSpace(dto.Observaciones)
+                        ? "Actualización de estado desde edición manual."
+                        : $"Edición manual: {dto.Observaciones}",
+
+                    LoteId = barril.LoteActualId
+                };
+
+
+                barril.Movimientos ??= new List<MovimientoBarril>();
+                barril.Movimientos.Add(movimiento);
+            }
+            return await _repository.UpdateAsync(barril);
+        }
+
+        private static string MotivoTransicion(EstadoBarril anterior, EstadoBarril nuevo)
+        {
+            if (anterior == EstadoBarril.Disponible && nuevo == EstadoBarril.Mantenimiento) return "EnvioMantenimiento";
+            if (anterior == EstadoBarril.Mantenimiento && nuevo == EstadoBarril.Disponible) return "RetornoMantenimiento";
+            if (anterior == EstadoBarril.ConCliente && nuevo == EstadoBarril.Sucio) return "DevolucionCliente";
+            if (anterior == EstadoBarril.Sucio && nuevo == EstadoBarril.EnLavado) return "IngresoLavadero";
+            if (anterior == EstadoBarril.EnLavado && nuevo == EstadoBarril.Disponible) return "FinLavado";
+
+            return "EdicionManual";
         }
 
         public async Task<bool> EliminarAsync(int id)
@@ -158,6 +232,8 @@ namespace AtonBeerTesis.Application.Services
             FechaAdquisicion = b.FechaAdquisicion,
             UltimaActualizacion = b.UltimaActualizacion,
             Observaciones = b.Observaciones,
+            Estilo = b.LoteActual?.Receta?.Estilo ?? "",
+            Receta = b.LoteActual?.Receta?.Nombre ?? ""
         };
 
         private static string ObtenerTextoEstado(EstadoBarril estado) => estado switch

@@ -11,6 +11,7 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<int> RegistrarPedidoAsync(PedidoCreacionDTO pedidoDto);
         Task<bool> ActualizarPedidoAsync(PedidoEdicionDTO pedidoDto);
         Task<bool> CancelarPedidoAsync(int id);
-        Task<bool> EntregarPedidoAsync(PedidoEntregadoDto pedidoDto);      
+        Task<bool> EntregarPedidoAsync(PedidoEntregadoDto pedidoDto);
+        Task<bool> DeshacerEntregaPedidoAsync(int pedidoId);
     }
 }

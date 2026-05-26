@@ -76,7 +76,10 @@ namespace AtonBeerTesis.Application.Services
         {
             var pedido = await _pedidoRepository.GetByIdAsync(id);
             if (pedido == null) return null;
-
+            var barrilesDelCliente = await _barrilRepository.GetAllAsync();
+            var barrilesAsignadosAlCliente = barrilesDelCliente
+                .Where(b => b.ClienteId == pedido.ClienteId && b.Estado == EstadoBarril.ConCliente)
+                .ToList();
             return new PedidoEdicionDTO
             {
                 Id = pedido.Id,
@@ -96,7 +99,11 @@ namespace AtonBeerTesis.Application.Services
                     $"{d.ProductoStock?.Receta?.Nombre ?? "Sin receta específica"} - " +
                     $"{d.ProductoStock?.Estilo ?? "Sin estilo"} - " +
                     $"{d.ProductoStock?.FormatoEnvase?.Nombre ?? "Sin formato"} "+
-                    $"{d.ProductoStock?.FormatoEnvase?.CapacidadLitros:0.##} L"
+                    $"{d.ProductoStock?.FormatoEnvase?.CapacidadLitros:0.##} L",
+                    BarrilesAsignados = barrilesAsignadosAlCliente
+                        .Where(b => b.FormatoEnvaseId == d.ProductoStock?.FormatoEnvaseId)
+                        .Select(b => b.Codigo)
+                        .ToList()
                 }).ToList()
             };
         }
@@ -200,22 +207,22 @@ namespace AtonBeerTesis.Application.Services
                     var barrilFisico = await _barrilRepository.GetByIdAsync(barrilId);
 
                     if (barrilFisico != null)
-                    {                       
-                        var estadoPrevio = barrilFisico.Estado;                        
-                        barrilFisico.Estado = EstadoBarril.ConCliente; 
+                    {
+                        var estadoPrevio = barrilFisico.Estado;
+                        barrilFisico.Estado = EstadoBarril.ConCliente;
                         barrilFisico.ClienteId = pedido.ClienteId;
                         //Aca vinculo con el movimiento automatico del barril
                         var nuevoMovimiento = new MovimientoBarril
                         {
                             Fecha = DateTime.Now,
                             EstadoAnterior = estadoPrevio,
-                            EstadoNuevo = EstadoBarril.ConCliente,                           
-                            Motivo = "Despacho a Cliente",                           
+                            EstadoNuevo = EstadoBarril.ConCliente,
+                            Motivo = "Despacho a Cliente",
                             ClienteNombre = pedido.Cliente?.RazonSocial ?? $"Cliente ID: {pedido.ClienteId}",
                             Observaciones = $"Despacho automático por entrega de Pedido #{pedido.Id}"
                         };
-                        
-                        barrilFisico.Movimientos.Add(nuevoMovimiento);                        
+
+                        barrilFisico.Movimientos.Add(nuevoMovimiento);
                         await _barrilRepository.UpdateAsync(barrilFisico);
                     }
                 }
@@ -225,11 +232,16 @@ namespace AtonBeerTesis.Application.Services
             await _pedidoRepository.UpdateAsync(pedido);
             return true;
         }
-
-        //Metodo para validar que el stock del producto sea suficiente para el pedido.
-        /*private async Task ValidarStockDisponibleAsync(IEnumerable<PedidoDetalleDTO> detalles, int? pedidoIdExcluir = null)
+        public async Task<bool> DeshacerEntregaPedidoAsync(int pedidoId)
         {
-            var detallesAgrupados = detalles
+            var pedido = await _pedidoRepository.GetByIdAsync(pedidoId);
+            if (pedido == null) return false;
+            if (pedido.EstadoId != 2)
+            {
+                throw new Exception("Solo se puede deshacer la entrega de pedidos que figuren como 'Entregados'.");
+            }
+           
+            var detallesAgrupados = pedido.Detalles
                 .GroupBy(d => d.ProductoStockId)
                 .Select(g => new
                 {
@@ -240,28 +252,56 @@ namespace AtonBeerTesis.Application.Services
 
             foreach (var item in detallesAgrupados)
             {
-                if (item.Cantidad <= 0)
-                    throw new Exception("La cantidad solicitada debe ser mayor a 0.");
-
                 var productoStock = await _pedidoRepository.GetProductoStockByIdAsync(item.ProductoStockId);
 
-                if (productoStock == null)
-                    throw new Exception($"No existe el producto de stock con ID {item.ProductoStockId}.");
-
-                var reservadoEnOtrosPedidos = await _pedidoRepository.ObtenerCantidadReservadaPendienteAsync(
-                    item.ProductoStockId,
-                    pedidoIdExcluir
-                );
-
-                var disponible = productoStock.StockActual - reservadoEnOtrosPedidos;
-
-                if (item.Cantidad > disponible)
+                if (productoStock != null)
                 {
-                    throw new Exception(
-                        $"Stock insuficiente para {productoStock.Estilo}. Disponible: {disponible} u. Solicitado: {item.Cantidad} u."
-                    );
+                    var stockPrevio = productoStock.StockActual;
+                    productoStock.StockActual += item.Cantidad; 
+
+                    await _pedidoRepository.AgregarMovimientoStockAsync(new MovimientoStock
+                    {
+                        ProductoStockId = productoStock.Id,
+                        LoteId = null,
+                        Cantidad = item.Cantidad,
+                        TipoMovimiento = "Ingreso",
+                        MotivoMovimiento = $"Reversión por cancelación de entrega de Pedido #{pedido.Id}",
+                        StockPrevio = stockPrevio,
+                        StockResultante = productoStock.StockActual,
+                        Fecha = DateTime.Now
+                    });
                 }
-            }
-        }*/
+            }            
+            var todosLosBarriles = await _barrilRepository.GetAllAsync();            
+            var barrilesDelPedido = todosLosBarriles
+                .Where(b => b.ClienteId == pedido.ClienteId && b.Estado == EstadoBarril.ConCliente)
+                .Where(b => b.Movimientos != null && b.Movimientos.Any(m => m.Observaciones != null && m.Observaciones.Contains($"Pedido #{pedido.Id}")))
+                .ToList();
+
+            foreach (var barrilFisico in barrilesDelPedido)
+            {
+                var estadoPrevio = barrilFisico.Estado;
+
+                barrilFisico.Estado = EstadoBarril.Lleno;
+                barrilFisico.ClienteId = null;             
+                var movimientoReversion = new MovimientoBarril
+                {
+                    Fecha = DateTime.Now,
+                    EstadoAnterior = estadoPrevio,
+                    EstadoNuevo = EstadoBarril.Lleno,
+                    Motivo = "ReversiónEntrega",
+                    ClienteNombre = pedido.Cliente?.RazonSocial ?? $"Cliente ID: {pedido.ClienteId}",
+                    Observaciones = $"Reversión automática por cancelación de entrega de Pedido #{pedido.Id}",
+                    LoteId = barrilFisico.LoteActualId
+                };
+
+                barrilFisico.Movimientos.Add(movimientoReversion);
+                await _barrilRepository.UpdateAsync(barrilFisico);
+            }           
+            pedido.EstadoId = 1;
+            await _pedidoRepository.UpdateAsync(pedido);
+
+            return true;
+        }
     }
 }

@@ -101,6 +101,13 @@
         Cancelar pedido
       </button>
 
+      <button *ngIf="(ped.estadoPedido || ped.estadoNombre) === 'Entregado'"
+              type="button"
+              (click)="deshacerEntrega(ped)"
+              class="block w-full px-4 py-3 text-sm font-bold text-amber-600 bg-white border-0 text-left cursor-pointer hover:bg-amber-50">
+        <span class="mr-2">↩</span> Revertir Entrega
+      </button>
+
       <div *ngIf="!esPendiente(ped)"
            class="px-4 py-3 text-sm font-bold text-gray-400">
         Sin acciones disponibles
@@ -332,27 +339,79 @@
   </p>
 </div>
 
-      <div>
+    <div>
         <h6 class="text-[#4A2C2A] font-extrabold text-lg mb-4">Productos Solicitados</h6>
-        <div class="border border-gray-100 rounded-xl overflow-hidden shadow-sm">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-gray-50 text-gray-500 font-bold border-b border-gray-100">
-              <tr>
-                <th class="px-4 py-3">Producto</th>
-                <th class="px-4 py-3 text-center">Cantidad</th>
-                <th class="px-4 py-3 text-right">Precio Unitario</th>
-                <th class="px-4 py-3 text-right">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of pedidoSeleccionadoVer.detalles" class="border-b border-gray-50 bg-white hover:bg-gray-50/50">
-                <td class="px-4 py-3 font-bold text-gray-700">{{ item.productoNombre || ('Producto #' + item.productoStockId) }}</td>
-                <td class="px-4 py-3 text-center font-bold text-gray-600">{{ item.cantidad }} u.</td>
-                <td class="px-4 py-3 text-right text-gray-600">${{ item.precio | number:'1.2-2' }}</td>
-                <td class="px-4 py-3 text-right font-black text-[#4A2C2A]">${{ (item.cantidad * item.precio) | number:'1.2-2' }}</td>
-              </tr>
-            </tbody>
-          </table>
+        
+        <div class="space-y-3">
+          <div *ngFor="let item of pedidoSeleccionadoVer.detalles" class="p-4 bg-white border border-gray-100 shadow-sm rounded-xl transition-all">
+            
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+              
+              <div>
+                <span class="font-bold text-[#4A2C2A] text-base block mb-2">{{ item.productoNombre || ('Producto #' + item.productoStockId) }}</span>
+                
+                <div class="flex items-center gap-3">
+                  <span class="inline-block text-sm font-black text-gray-700 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
+                    Cant: {{ item.cantidad }} u.
+                  </span>
+                  
+                  <button 
+                    *ngIf="item.barrilesAsignados && item.barrilesAsignados.length > 0"
+                    (click)="item.mostrarAcordeon = !item.mostrarAcordeon" 
+                    class="text-xs font-bold text-[#e67e22] bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-colors border border-orange-100 shrink-0 outline-none cursor-pointer">
+                    <span>{{ item.mostrarAcordeon ? 'Ocultar envases' : 'Ver envases físicos' }}</span>
+                    <span class="font-black">{{ item.mostrarAcordeon ? '▲' : '▼' }}</span>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="flex items-center border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100 justify-end w-full sm:w-auto">
+                <div class="flex flex-col items-end text-sm text-gray-500">
+                  <span>Precio unit: ${{ item.precio | number:'1.2-2' }}</span>
+                  <span class="font-black text-[#E67E22] bg-orange-50 px-2 py-0.5 rounded-md mt-0.5">
+                    Subtotal: ${{ (item.cantidad * item.precio) | number:'1.2-2' }}
+                  </span>
+                </div>
+              </div>
+
+            </div>
+
+            <div *ngIf="item.mostrarAcordeon" class="mt-4 p-4 bg-gray-50/80 rounded-xl border border-gray-200 animate-in slide-in-from-top-2 duration-200">
+              
+              <div class="flex justify-between items-end mb-3">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                  Control de Carga Físico (Picking)
+                </p>
+                <div class="w-24 bg-gray-200 rounded-full h-1.5">
+                  <div class="bg-green-500 h-1.5 rounded-full transition-all duration-300" [style.width.%]="progresoVerificacion(item.barrilesAsignados)"></div>
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                <button 
+                  *ngFor="let codigo of item.barrilesAsignados" 
+                  (click)="toggleVerificacion(codigo)"
+                  type="button"
+                  class="relative px-2 py-2.5 rounded-lg text-sm font-black transition-all border text-center shadow-sm cursor-pointer outline-none"
+                  [ngClass]="{
+                    'bg-white border-gray-200 text-[#4A2C2A] hover:border-orange-300 hover:bg-orange-50': !codigosVerificados.has(codigo),
+                    'bg-green-50 border-green-200 text-green-600/70 line-through scale-95': codigosVerificados.has(codigo)
+                  }"
+                >
+                  #{{ codigo }}
+                  
+                  <div *ngIf="codigosVerificados.has(codigo)" class="absolute -top-1.5 -right-1.5 bg-green-500 text-white rounded-full h-4 w-4 flex items-center justify-center text-[10px] shadow-sm">
+                    ✓
+                  </div>
+                </button>
+              </div>
+              
+              <p class="text-xs text-gray-400 mt-3 italic text-center">
+                Haz clic en los códigos de barril a medida que los cargás en el transporte para llevar un control.
+              </p>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>
@@ -371,8 +430,6 @@
 
   </div>
 </div>
-
-/*PARTENUEVA*/
 <div *ngIf="showModalAsignacionBarriles" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
   <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col border border-gray-200">
     
@@ -404,7 +461,14 @@
         </div>
       </div>
       
-      <h6 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider">Barriles Compatibles Disponibles</h6>
+      <div class="flex justify-between items-center mb-3">
+        <h6 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Barriles Compatibles Disponibles</h6>
+        
+        <button type="button" (click)="autoAsignarBarriles()"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 text-[#E67E22] hover:bg-orange-200 border border-orange-200 rounded-lg text-xs font-bold transition-colors cursor-pointer outline-none">
+          <span>⚡ Auto-completar</span>
+        </button>
+      </div>
       
       <div class="space-y-2">
         <div *ngIf="barrilesParaSeleccionar.length === 0" class="text-center py-4 text-gray-500 text-sm italic">

@@ -42,7 +42,8 @@ export class RegistrarPedidoComponent implements OnInit {
   barrilesParaSeleccionar: BarrilDto[] = [];
   listaBarrilesSeleccionadosIds: number[] = [];
   cantidadBarrilesRequeridos: number = 0;
-  resumenCapacidades: { [litros: number]: { requeridos: number, seleccionados: number } } = {};
+  resumenCapacidades: { [key: string]: { requeridos: number, seleccionados: number, litros: number, estilo: string, receta: string } } = {};
+  codigosVerificados: Set<string> = new Set<string>();
 
   constructor(
     private fb: FormBuilder, 
@@ -347,22 +348,30 @@ openEdit(pedidoRow: any): void {
 
     }    
   }
- OpenDetail(pedidoRow: any): void {
-  const idBuscar = pedidoRow.idPedido || pedidoRow.id;
 
-  this.pedidoService.getPedidoPorId(idBuscar).subscribe({
-    next: (pedidoCompleto: any) => {
-      console.log('Detalle recibido:', pedidoCompleto);
-      pedidoCompleto.montoFinal = pedidoRow.totalPedido || pedidoRow.total;
-      this.pedidoSeleccionadoVer = pedidoCompleto;
-      this.showViewModal = true;
-      this.cdr.detectChanges();
-    },
-    error: () => {
-      this.mostrarToast('No se pudo cargar el detalle.', 'error');
+
+OpenDetail(pedidoRow: any): void {
+    const idBuscar = pedidoRow.idPedido || pedidoRow.id;    
+    const pickingGuardado = localStorage.getItem(`atonbeer_picking_${idBuscar}`);
+    if (pickingGuardado) {
+      this.codigosVerificados = new Set(JSON.parse(pickingGuardado));
+    } else {
+      this.codigosVerificados = new Set();
     }
-  });
-}
+
+    this.pedidoService.getPedidoPorId(idBuscar).subscribe({
+      next: (pedidoCompleto: any) => {
+        console.log('Detalle recibido:', pedidoCompleto);
+        pedidoCompleto.montoFinal = pedidoRow.totalPedido || pedidoRow.total;
+        this.pedidoSeleccionadoVer = pedidoCompleto;
+        this.showViewModal = true;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.mostrarToast('No se pudo cargar el detalle.', 'error');
+      }
+    });
+  }
 
   closeViewModal(): void {
     this.showViewModal = false;
@@ -447,19 +456,29 @@ entregarPedido(pedido: any): void {
       next: (pedidoCompleto: any) => {        
         this.resumenCapacidades = {};
         this.cantidadBarrilesRequeridos = 0;        
+        
         pedidoCompleto.detalles.forEach((d: any) => {
-          const nombre = (d.productoNombre || '').toLowerCase();
-          if (nombre.includes('barril')) {
+          const nombreCompleto = (d.productoNombre || '');          
+          if (nombreCompleto.toLowerCase().includes('barril')) {
             const cant = d.cantidad || 0;
-            this.cantidadBarrilesRequeridos += cant;    
-            //Para saber los litros especifico de cada barril//        
-            const match = nombre.match(/(\d+)\s*l\b/i);
-            const cap = match ? parseInt(match[1], 10) : 0; 
+            this.cantidadBarrilesRequeridos += cant;                     
+            const match = nombreCompleto.match(/(\d+)\s*l\b/i);
+            const cap = match ? parseInt(match[1], 10) : 0;                    
+            const partes = nombreCompleto.split('-').map((p: string) => p.trim());
+            const recetaExtraida = partes[0] || '';
+            const estiloExtraido = partes.length > 1 ? partes[1] : '';            
+            const key = `${cap}-${estiloExtraido}-${recetaExtraida}`;
 
-            if (!this.resumenCapacidades[cap]) {
-              this.resumenCapacidades[cap] = { requeridos: 0, seleccionados: 0 };
+            if (!this.resumenCapacidades[key]) {
+              this.resumenCapacidades[key] = { 
+                requeridos: 0, 
+                seleccionados: 0, 
+                litros: cap, 
+                estilo: estiloExtraido, 
+                receta: recetaExtraida 
+              };
             }
-            this.resumenCapacidades[cap].requeridos += cant;
+            this.resumenCapacidades[key].requeridos += cant;
           }
         });
 
@@ -467,13 +486,27 @@ entregarPedido(pedido: any): void {
           this.pedidoParaEntregar = pedido;
           this.listaBarrilesSeleccionadosIds = [];
           
-          this.barrilService.getBarriles().subscribe(barriles => {            
-            const capacidadesNecesarias = Object.keys(this.resumenCapacidades).map(Number);
-            
-            this.barrilesParaSeleccionar = barriles.filter(b => 
-              b.estadoTexto?.toLowerCase() === 'lleno' &&
-              capacidadesNecesarias.includes(b.capacidadLitros)
-            );
+          this.barrilService.getBarriles().subscribe(barriles => {           
+            this.barrilesParaSeleccionar = barriles.filter(b => {
+              if (b.estadoTexto?.toLowerCase() !== 'lleno') return false;
+
+              return Object.values(this.resumenCapacidades).some(req => {
+                // Pasamos todo a minúsculas y sacamos espacios extra para evitar errores tontos
+                const reqEst = req.estilo.toLowerCase().trim();
+                const reqRec = req.receta.toLowerCase().trim();
+                const bEst = (b.estilo || '').toLowerCase().trim();
+                const bRec = (b.receta || '').toLowerCase().trim();
+
+                const coincide = (req.litros === b.capacidadLitros) && (bEst === reqEst) && (bRec === reqRec);
+                
+                // ESTO TE VA A MOSTRAR EN LA CONSOLA (F12) QUÉ ESTÁ LEYENDO ANGULAR
+                if (b.capacidadLitros === req.litros) {
+                  console.log(`🔎 Analizando Barril #${b.codigo} | Backend mandó -> Estilo: '${bEst}', Receta: '${bRec}' | El pedido pide -> Estilo: '${reqEst}', Receta: '${reqRec}' | ¿Coincide?: ${coincide}`);
+                }
+
+                return coincide;
+              });
+            });
             
             this.showModalAsignacionBarriles = true;
             this.cerrarMenuAcciones();
@@ -485,32 +518,116 @@ entregarPedido(pedido: any): void {
       },
       error: () => this.mostrarToast('No se pudo verificar el detalle del pedido.', 'error')
     });
+}
+
+deshacerEntrega(pedido: any): void {
+  const id = this.getPedidoId(pedido);
+
+  if (!confirm(
+    `¿Estás seguro de que querés deshacer la entrega del pedido #${id}?\n\n` +
+    `Esto devolverá el stock virtual a los productos y pondrá los barriles físicos asignados nuevamente en estado 'Lleno' en la fábrica.`
+  )) return;
+
+  this.pedidoService.deshacerEntregaPedido(id).subscribe({
+    next: () => {
+      this.mostrarToast(`Entrega del pedido #${id} revertida. El pedido volvió a 'Pendiente'.`, 'success');         
+      localStorage.removeItem(`atonbeer_picking_${id}`);      
+      this.cargarDatos();
+      this.cerrarMenuAcciones();
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      const msg = err.error?.mensaje || 'No se pudo deshacer la entrega del pedido.';
+      this.mostrarToast(msg, 'error');
+    }
+  });
+}
+
+   toggleVerificacion(codigo: string) {
+    if (this.codigosVerificados.has(codigo)) {
+      this.codigosVerificados.delete(codigo);
+    } else {
+      this.codigosVerificados.add(codigo);
+    }    
+    if (this.pedidoSeleccionadoVer) {
+      const id = this.pedidoSeleccionadoVer.id || this.pedidoSeleccionadoVer.idPedido;
+      localStorage.setItem(`atonbeer_picking_${id}`, JSON.stringify(Array.from(this.codigosVerificados)));
+    }
+  }
+  progresoVerificacion(codigos: string[]): number {
+    if (!codigos || codigos.length === 0) return 0;
+    const verificados = codigos.filter(c => this.codigosVerificados.has(c)).length;
+    return (verificados / codigos.length) * 100;
   }
 
-  // --- MÉTODOS DE APOYO PARA EL MODAL ---
+
  toggleBarrilSeleccionado(barril: any, event: any): void {
     const cap = barril.capacidadLitros || 0;
+    const est = barril.estilo || '';
+    const rec = barril.receta || '';
+    const key = `${cap}-${est}-${rec}`;
+
+    if (!this.resumenCapacidades[key]) return; 
 
     if (event.target.checked) {    
-      if (this.resumenCapacidades[cap].seleccionados >= this.resumenCapacidades[cap].requeridos) {
+      if (this.resumenCapacidades[key].seleccionados >= this.resumenCapacidades[key].requeridos) {
         event.target.checked = false;
-        this.mostrarToast(`Ya seleccionaste todos los barriles de ${cap}L necesarios.`, 'error');
+        this.mostrarToast(`Ya seleccionaste todos los barriles de ${cap}L - ${est} necesarios.`, 'error');
         return;
       }
 
       this.listaBarrilesSeleccionadosIds.push(barril.id);
-      this.resumenCapacidades[cap].seleccionados++;
+      this.resumenCapacidades[key].seleccionados++;
 
     } else {    
       this.listaBarrilesSeleccionadosIds = this.listaBarrilesSeleccionadosIds.filter(bId => bId !== barril.id);
-      this.resumenCapacidades[cap].seleccionados--;
+      this.resumenCapacidades[key].seleccionados--;
     }
   }
+
+  autoAsignarBarriles(): void {    
+    this.listaBarrilesSeleccionadosIds = [];
+    Object.keys(this.resumenCapacidades).forEach(k => this.resumenCapacidades[k].seleccionados = 0);    
+    this.barrilesParaSeleccionar.forEach(b => {
+      const cb = document.getElementById('barril-' + b.id) as HTMLInputElement;
+      if (cb) cb.checked = false;
+    });
+    
+    Object.keys(this.resumenCapacidades).forEach(key => {
+      const req = this.resumenCapacidades[key];
+      const reqEst = req.estilo.toLowerCase().trim();
+      const reqRec = req.receta.toLowerCase().trim();      
+      const barrilesCompatibles = this.barrilesParaSeleccionar.filter(b => {
+        const bEst = (b.estilo || '').toLowerCase().trim();
+        const bRec = (b.receta || '').toLowerCase().trim();
+        return b.capacidadLitros === req.litros && bEst === reqEst && bRec === reqRec;
+      });
+      
+      let asignados = 0;
+      for (let b of barrilesCompatibles) {
+        if (asignados >= req.requeridos) break;
+        this.listaBarrilesSeleccionadosIds.push(b.id);
+        this.resumenCapacidades[key].seleccionados++;
+        asignados++;       
+        const cb = document.getElementById('barril-' + b.id) as HTMLInputElement;
+        if (cb) cb.checked = true;
+      }
+    });
+
+    this.mostrarToast('Asignación automática completada según el stock.', 'success');
+  }
   get resumenArray() {
-    return Object.keys(this.resumenCapacidades).map(cap => ({
-      capacidad: cap,
-      ...this.resumenCapacidades[Number(cap)]
-    }));
+    return Object.keys(this.resumenCapacidades).map(key => {
+      const item = this.resumenCapacidades[key];
+      return {
+        key: key,
+        capacidad: item.litros,
+        estilo: item.estilo,
+        receta: item.receta,
+        requeridos: item.requeridos,
+        seleccionados: item.seleccionados
+      };
+    });
   }
 
   get seleccionCompleta(): boolean {

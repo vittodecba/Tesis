@@ -80,6 +80,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         public async Task AgregarMovimientoStockAsync(MovimientoStock movimiento)
         {
             await _context.MovimientosStock.AddAsync(movimiento);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> TieneClientePedidosActivosAsync(int clienteId)

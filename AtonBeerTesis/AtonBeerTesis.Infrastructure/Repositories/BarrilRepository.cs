@@ -20,6 +20,9 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             return await _context.Barriles
                 .Include(b => b.FormatoEnvase)
                 .Include(b => b.Cliente)
+                .Include(b => b.LoteActual)
+                .ThenInclude(l => l.Receta)
+                .Include(b => b.Movimientos)
                 .OrderBy(b => b.Codigo)
                 .ToListAsync();
         }

@@ -37,4 +37,7 @@ export class PedidoService {
 entregarPedido(id: number, barrilesIds: number[] = []): Observable<any> {  
   return this.http.patch(`${this.apiUrl}/${id}/entregar`, barrilesIds);
 }
+deshacerEntregaPedido(id: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/deshacer-entrega`, {});
+  }
 }

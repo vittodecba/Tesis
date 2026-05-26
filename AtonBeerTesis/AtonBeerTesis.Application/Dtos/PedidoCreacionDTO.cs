@@ -17,6 +17,7 @@ namespace AtonBeerTesis.Application.Dtos
         public string? ProductoNombre { get; set; }
         public int Cantidad { get; set; }
         public decimal Precio { get; set; }
+        public List<string> BarrilesAsignados { get; set; } = new List<string>();
 
     }
 }

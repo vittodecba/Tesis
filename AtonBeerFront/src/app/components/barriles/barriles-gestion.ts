@@ -56,7 +56,7 @@ export class BarrilesGestion implements OnInit {
   clienteIdEditar: number | null = null;
 
   private readonly transiciones: Record<number, OpcionEstado[]> = {
-    0: [{ valor: 1, texto: 'Lleno' }, { valor: 5, texto: 'Mantenimiento' }],
+    0: [{ valor: 5, texto: 'Mantenimiento' }],
     1: [{ valor: 2, texto: 'Con Cliente' }],
     2: [{ valor: 3, texto: 'Sucio' }],
     3: [{ valor: 4, texto: 'En Lavado' }],

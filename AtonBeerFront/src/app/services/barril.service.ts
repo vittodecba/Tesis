@@ -15,6 +15,8 @@ export interface BarrilDto {
   fechaAdquisicion: string;
   ultimaActualizacion: string | null;
   observaciones: string | null;
+  estilo?: string;
+  receta?: string;
 }
 
 export interface MovimientoItemDto {
