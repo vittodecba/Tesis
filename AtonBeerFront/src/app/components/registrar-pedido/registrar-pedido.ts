@@ -668,6 +668,8 @@ ObtenerClaseEstado(estado : string)
            return 'bg-blue-100 text-blue-800 border border-blue-200';
        case'Cancelado':
        return 'bg-rose-100 text-rose-800 border border-rose-200';
+       case 'Atrasado':
+            return 'bg-red-100 text-red-800 font-bold border border-red-300';
        default:
       return 'bg-slate-100 text-slate-800 border-slate-200';
   }

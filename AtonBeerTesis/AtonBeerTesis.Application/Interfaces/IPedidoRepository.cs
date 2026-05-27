@@ -9,12 +9,12 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<IEnumerable<Pedido>> GetAllAsync();
         Task<Pedido> AddAsync(Pedido pedido);
         Task<Pedido?> GetByIdAsync(int id);
-        Task UpdateAsync(Pedido pedido);
-        ///Chequear-validaciones con el stock
+        Task UpdateAsync(Pedido pedido);        
         Task<ProductoStock?> GetProductoStockByIdAsync(int id);
         Task<decimal> ObtenerCantidadReservadaPendienteAsync(int productoStockId, int? pedidoIdExcluir = null);
         Task AgregarMovimientoStockAsync(MovimientoStock movimiento);
         Task<Dictionary<int, decimal>> ObtenerReservasPendientesPorProductoAsync();
         Task<bool> TieneClientePedidosActivosAsync(int clienteId);
+        Task<List<Pedido>> GetPedidosVencidosAsync(DateTime fechaLimite, int estadoPendienteId);
     }
 }

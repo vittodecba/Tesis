@@ -27,11 +27,11 @@ namespace AtonBeerTesis.Application.Services
             if (pedidoExistente == null)
             {
                 throw new Exception($"No se encontró el pedido con ID {pedidoDto.Id}");
-            }           
+            }
             if (pedidoExistente.EstadoId != 1)
             {
                 throw new Exception("Solo se pueden actualizar pedidos que no hayan sido entregados'");
-            }           
+            }
 
             pedidoExistente.ClienteId = pedidoDto.IdCliente;
             pedidoExistente.Observaciones = pedidoDto.Observaciones;
@@ -42,7 +42,7 @@ namespace AtonBeerTesis.Application.Services
             foreach (var detalleViejo in borrarPedido)
             {
                 pedidoExistente.Detalles.Remove(detalleViejo);
-            }            
+            }
             foreach (var item in pedidoDto.Detalles)
             {
                 var detallePedido = new DetallePedido
@@ -51,15 +51,16 @@ namespace AtonBeerTesis.Application.Services
                     Cantidad = item.Cantidad,
                     PrecioUnitario = item.Precio,
                     PedidoId = pedidoExistente.Id
-                };                
+                };
                 pedidoExistente.Detalles.Add(detallePedido);
-            }            
+            }
             await _pedidoRepository.UpdateAsync(pedidoExistente);
             return true;
         }
 
         public async Task<IEnumerable<object>> ObtenerTodosAsync()
         {
+            await VerificarPedidosAtrasadosAsync();
             var pedidos = await _pedidoRepository.GetAllAsync();
             return pedidos.Select(p => new
             {
@@ -98,7 +99,7 @@ namespace AtonBeerTesis.Application.Services
                     ProductoNombre =
                     $"{d.ProductoStock?.Receta?.Nombre ?? "Sin receta específica"} - " +
                     $"{d.ProductoStock?.Estilo ?? "Sin estilo"} - " +
-                    $"{d.ProductoStock?.FormatoEnvase?.Nombre ?? "Sin formato"} "+
+                    $"{d.ProductoStock?.FormatoEnvase?.Nombre ?? "Sin formato"} " +
                     $"{d.ProductoStock?.FormatoEnvase?.CapacidadLitros:0.##} L",
                     BarrilesAsignados = barrilesAsignadosAlCliente
                         .Where(b => b.FormatoEnvaseId == d.ProductoStock?.FormatoEnvaseId)
@@ -108,7 +109,7 @@ namespace AtonBeerTesis.Application.Services
             };
         }
         public async Task<int> RegistrarPedidoAsync(PedidoCreacionDTO pedidoDto)
-        {            
+        {
             var nuevoPedido = new Pedido
             {
                 ClienteId = pedidoDto.IdCliente,
@@ -240,7 +241,7 @@ namespace AtonBeerTesis.Application.Services
             {
                 throw new Exception("Solo se puede deshacer la entrega de pedidos que figuren como 'Entregados'.");
             }
-           
+
             var detallesAgrupados = pedido.Detalles
                 .GroupBy(d => d.ProductoStockId)
                 .Select(g => new
@@ -257,7 +258,7 @@ namespace AtonBeerTesis.Application.Services
                 if (productoStock != null)
                 {
                     var stockPrevio = productoStock.StockActual;
-                    productoStock.StockActual += item.Cantidad; 
+                    productoStock.StockActual += item.Cantidad;
 
                     await _pedidoRepository.AgregarMovimientoStockAsync(new MovimientoStock
                     {
@@ -271,8 +272,8 @@ namespace AtonBeerTesis.Application.Services
                         Fecha = DateTime.Now
                     });
                 }
-            }            
-            var todosLosBarriles = await _barrilRepository.GetAllAsync();            
+            }
+            var todosLosBarriles = await _barrilRepository.GetAllAsync();
             var barrilesDelPedido = todosLosBarriles
                 .Where(b => b.ClienteId == pedido.ClienteId && b.Estado == EstadoBarril.ConCliente)
                 .Where(b => b.Movimientos != null && b.Movimientos.Any(m => m.Observaciones != null && m.Observaciones.Contains($"Pedido #{pedido.Id}")))
@@ -283,7 +284,7 @@ namespace AtonBeerTesis.Application.Services
                 var estadoPrevio = barrilFisico.Estado;
 
                 barrilFisico.Estado = EstadoBarril.Lleno;
-                barrilFisico.ClienteId = null;             
+                barrilFisico.ClienteId = null;
                 var movimientoReversion = new MovimientoBarril
                 {
                     Fecha = DateTime.Now,
@@ -297,11 +298,27 @@ namespace AtonBeerTesis.Application.Services
 
                 barrilFisico.Movimientos.Add(movimientoReversion);
                 await _barrilRepository.UpdateAsync(barrilFisico);
-            }           
+            }
             pedido.EstadoId = 1;
             await _pedidoRepository.UpdateAsync(pedido);
 
             return true;
+        }
+
+        private async Task VerificarPedidosAtrasadosAsync()
+        {
+            var hoy = DateTime.Today;
+
+            var pedidosVencidos = await _pedidoRepository.GetPedidosVencidosAsync(hoy, 1);
+
+            if (pedidosVencidos != null && pedidosVencidos.Any())
+            {               
+                foreach (var p in pedidosVencidos)
+                {
+                    p.EstadoId = 5;
+                    await _pedidoRepository.UpdateAsync(p);
+                }
+            }
         }
     }
 }
