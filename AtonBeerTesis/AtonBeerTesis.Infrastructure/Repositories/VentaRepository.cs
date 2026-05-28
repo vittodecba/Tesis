@@ -35,5 +35,13 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .OrderByDescending(v => v.FechaCreacion)
                 .ToListAsync();
         }
+
+        public async Task<Venta?> GetByIdAsync(int id)
+        {
+            return await _context.Ventas
+                .Include(v => v.Cliente)
+                .Include(v => v.Pedido)
+                .FirstOrDefaultAsync(v => v.Id == id);
+        }
     }
 }

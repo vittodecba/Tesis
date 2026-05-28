@@ -26,4 +26,8 @@ export class VentasService {
   getVentas(): Observable<VentaDto[]> {
     return this.http.get<VentaDto[]>(this.apiUrl);
   }
+
+  patchVenta(id: number, dto: { estadoVenta?: string; plazo?: string; metodoPago?: string }): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${id}`, dto);
+  }
 }

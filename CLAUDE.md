@@ -114,16 +114,19 @@ ng serve    # Puerto 4200
 - Una Venta por Pedido (índice único `PedidoId`)
 - **NumeroVenta** generado automáticamente: `VNT-{año}-{Id:D5}` (ej: `VNT-2026-00001`)
 - **EstadoVenta:** `Pendiente` (default al crear) o `Pagado`
-- **MetodoPago:** `Efectivo` o `Transferencia` — el usuario lo elige al entregar el pedido
-- **Plazo:** fecha de cobro — el usuario la elige al entregar el pedido
-- El módulo solo muestra la lista de ventas (sin filtros por ahora)
+- **MetodoPago:** `Efectivo` o `Transferencia` — el usuario lo elige al entregar el pedido o al editar
+- **Plazo:** fecha de cobro — el usuario la elige al entregar el pedido o al editar
+- **Edición:** campos modificables son `EstadoVenta`, `Plazo` y `MetodoPago`
+- **Bloqueo:** una vez en estado `Pagado`, la venta no admite ninguna modificación (backend rechaza con 400)
+- El botón "Editar" no aparece en filas con estado `Pagado` (UX)
 - Componente: `AtonBeerFront/src/app/components/ventas/ventas.component.ts`
 - Servicio: `AtonBeerFront/src/app/services/ventas.service.ts`
 
-#### Endpoint Ventas
+#### Endpoints Ventas
 | Método | Ruta | Descripción |
 |--------|------|-------------|
 | GET | `/api/ventas` | Lista todas las ventas |
+| PATCH | `/api/ventas/{id}` | Editar (`PatchVentaDto`: EstadoVenta?, Plazo?, MetodoPago?) |
 
 #### Campos Venta
 `Id, NumeroVenta, FechaCreacion, ClienteId → Cliente, PedidoId → Pedido, MontoTotal, EstadoVenta (enum), Plazo, MetodoPago (enum)`

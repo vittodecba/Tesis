@@ -1,5 +1,6 @@
 using AtonBeerTesis.Application.Dtos.VENTAS;
 using AtonBeerTesis.Application.Interfaces;
+using AtonBeerTesis.Domain.Enums;
 
 namespace AtonBeerTesis.Application.Services
 {
@@ -28,6 +29,36 @@ namespace AtonBeerTesis.Application.Services
                 Plazo         = v.Plazo,
                 MetodoPago    = v.MetodoPago.ToString()
             });
+        }
+
+        public async Task<bool> PatchAsync(int id, PatchVentaDto dto)
+        {
+            var venta = await _ventaRepository.GetByIdAsync(id);
+            if (venta is null) return false;
+
+            // BLOQUEO: venta pagada no puede modificarse
+            if (venta.EstadoVenta == EstadoVenta.Pagado)
+                throw new Exception("La venta ya está pagada y no puede modificarse.");
+
+            if (dto.Plazo is not null)
+                venta.Plazo = dto.Plazo.Value;
+
+            if (dto.MetodoPago is not null)
+            {
+                if (!Enum.TryParse<MetodoPago>(dto.MetodoPago, ignoreCase: true, out var metodo))
+                    throw new Exception($"Método de pago inválido: '{dto.MetodoPago}'.");
+                venta.MetodoPago = metodo;
+            }
+
+            if (dto.EstadoVenta is not null)
+            {
+                if (!Enum.TryParse<EstadoVenta>(dto.EstadoVenta, ignoreCase: true, out var estado))
+                    throw new Exception($"Estado de venta inválido: '{dto.EstadoVenta}'.");
+                venta.EstadoVenta = estado;
+            }
+
+            await _ventaRepository.UpdateAsync(venta);
+            return true;
         }
     }
 }
