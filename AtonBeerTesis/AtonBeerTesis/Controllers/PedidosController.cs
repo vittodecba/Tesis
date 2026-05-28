@@ -2,6 +2,7 @@
 using AtonBeerTesis.Application.DTOs;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
+using AtonBeerTesis.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AtonBeerTesis.Controllers
@@ -115,19 +116,24 @@ namespace AtonBeerTesis.Controllers
         }
 
         [HttpPatch("{id}/entregar")]
-        public async Task<IActionResult> Entregar(int id, [FromBody] List<int> barrilesId)
+        public async Task<IActionResult> Entregar(int id, [FromBody] EntregarPedidoRequest request)
         {
             try
             {
+                if (!Enum.TryParse<MetodoPago>(request.MetodoPago, ignoreCase: true, out var metodoPagoEnum))
+                    return BadRequest(new { mensaje = $"Método de pago inválido: '{request.MetodoPago}'. Valores válidos: Efectivo, Transferencia." });
+
                 var pedidoDto = new PedidoEntregadoDto
                 {
-                    PedidoId = id,
-                    BarrilesIds = barrilesId ?? new List<int>()
+                    PedidoId    = id,
+                    BarrilesIds = request.BarrilesIds ?? new List<int>(),
+                    Plazo       = request.Plazo,
+                    MetodoPago  = metodoPagoEnum
                 };
                 var resultado = await _pedidoService.EntregarPedidoAsync(pedidoDto);
                 if (!resultado) return NotFound(new { mensaje = $"No se encontró el pedido con ID {id}." });
 
-                return Ok(new { mensaje = "Pedido marcado como entregado correctamente." });
+                return Ok(new { mensaje = "Pedido entregado y Venta generada correctamente." });
             }
             catch (Exception ex)
             {
@@ -149,9 +155,16 @@ namespace AtonBeerTesis.Controllers
                 return Ok(new { mensaje = "Entrega revertida con éxito. El pedido vuelve a estar Pendiente." });
             }
             catch (Exception ex)
-            {                
+            {
                 return BadRequest(new { mensaje = ex.Message });
             }
         }
+    }
+
+    public class EntregarPedidoRequest
+    {
+        public List<int> BarrilesIds { get; set; } = new List<int>();
+        public DateTime Plazo { get; set; }
+        public string MetodoPago { get; set; } = string.Empty;
     }
 }

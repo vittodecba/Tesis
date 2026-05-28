@@ -34,6 +34,7 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<LoteDesignacion> LoteDesignaciones { get; set; }
         public DbSet<Barril> Barriles { get; set; }
         public DbSet<MovimientoBarril> MovimientosBarril { get; set; }
+        public DbSet<Venta> Ventas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -226,6 +227,34 @@ namespace AtonBeerTesis.Infrastructure.Data
                     .HasForeignKey(m => m.BarrilId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+            // ── VENTA ─────────────────────────────────────────────────────
+            modelBuilder.Entity<Venta>(entity =>
+            {
+                entity.ToTable("Ventas");
+                entity.HasKey(v => v.Id);
+                entity.Property(v => v.NumeroVenta).HasMaxLength(20);
+                entity.Property(v => v.MontoTotal).HasPrecision(18, 2);
+                entity.HasIndex(v => v.PedidoId).IsUnique().HasDatabaseName("IX_Ventas_PedidoId");
+
+                entity.HasOne(v => v.Cliente)
+                    .WithMany()
+                    .HasForeignKey(v => v.ClienteId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(v => v.Pedido)
+                    .WithMany()
+                    .HasForeignKey(v => v.PedidoId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ── SEED: ESTADOS PEDIDO ──────────────────────────────────────
+            modelBuilder.Entity<EstadoPedido>().HasData(
+                new EstadoPedido { Id = 1, Nombre = "Pendiente" },
+                new EstadoPedido { Id = 2, Nombre = "Entregado" },
+                new EstadoPedido { Id = 3, Nombre = "Facturado" },
+                new EstadoPedido { Id = 4, Nombre = "Cancelado" }
+            );
         }
     }
 }

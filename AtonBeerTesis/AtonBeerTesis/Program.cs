@@ -87,12 +87,15 @@ namespace AtonBeerTesis
             //--- Lotes ---
             builder.Services.AddScoped<ILoteRepository, LoteRepository>();
 
-            //--- PEDIDOS (NUEVO) ---
+            //--- PEDIDOS ---
             builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
             builder.Services.AddScoped<IPedidoService, PedidoService>();
             // --- BARRILES ---
             builder.Services.AddScoped<IBarrilRepository, BarrilRepository>();
             builder.Services.AddScoped<IBarrilService, BarrilService>();
+            // --- VENTAS ---
+            builder.Services.AddScoped<IVentaRepository, VentaRepository>();
+            builder.Services.AddScoped<IVentaService, VentaService>();
 
             var app = builder.Build();
 

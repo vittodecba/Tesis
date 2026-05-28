@@ -36,7 +36,7 @@ export class RegistrarPedidoComponent implements OnInit {
   paginaActual: number = 1;
   itemsPorPagina: number = 10;
 
-  // --- VARIABLES NUEVAS PARA BARRILES ---
+  // --- VARIABLES PARA BARRILES ---
   showModalAsignacionBarriles: boolean = false;
   pedidoParaEntregar: any = null;
   barrilesParaSeleccionar: BarrilDto[] = [];
@@ -44,6 +44,13 @@ export class RegistrarPedidoComponent implements OnInit {
   cantidadBarrilesRequeridos: number = 0;
   resumenCapacidades: { [key: string]: { requeridos: number, seleccionados: number, litros: number, estilo: string, receta: string } } = {};
   codigosVerificados: Set<string> = new Set<string>();
+
+  // --- VARIABLES PARA DATOS DE VENTA ---
+  showModalDatosVenta: boolean = false;
+  pedidoIdParaEntregar: number | null = null;
+  barrilesPreSeleccionados: number[] = [];
+  plazoVenta: string = '';
+  metodoPagoSeleccionado: string = '';
 
   constructor(
     private fb: FormBuilder, 
@@ -513,7 +520,13 @@ entregarPedido(pedido: any): void {
             this.cdr.detectChanges();
           });
         } else {
-          this.ejecutarEntrega(id, []);
+          this.pedidoIdParaEntregar = id;
+          this.barrilesPreSeleccionados = [];
+          this.plazoVenta = '';
+          this.metodoPagoSeleccionado = '';
+          this.showModalDatosVenta = true;
+          this.cerrarMenuAcciones();
+          this.cdr.detectChanges();
         }
       },
       error: () => this.mostrarToast('No se pudo verificar el detalle del pedido.', 'error')
@@ -636,13 +649,40 @@ deshacerEntrega(pedido: any): void {
 
   confirmarEntregaConBarriles(): void {
     const id = this.getPedidoId(this.pedidoParaEntregar);
-    this.ejecutarEntrega(id, this.listaBarrilesSeleccionadosIds);
+    this.pedidoIdParaEntregar = id;
+    this.barrilesPreSeleccionados = [...this.listaBarrilesSeleccionadosIds];
+    this.showModalAsignacionBarriles = false;
+    this.plazoVenta = '';
+    this.metodoPagoSeleccionado = '';
+    this.showModalDatosVenta = true;
+    this.cdr.detectChanges();
   }
 
-  private ejecutarEntrega(pedidoId: number, barrilesIds: number[]): void {
-    this.pedidoService.entregarPedido(pedidoId, barrilesIds).subscribe({
+  confirmarDatosVenta(): void {
+    if (!this.plazoVenta || !this.metodoPagoSeleccionado) {
+      this.mostrarToast('Completá el plazo y el método de pago para continuar.', 'error');
+      return;
+    }
+    const id = this.pedidoIdParaEntregar!;
+    const barriles = this.barrilesPreSeleccionados;
+    const plazo = this.plazoVenta;
+    const metodo = this.metodoPagoSeleccionado;
+    this.showModalDatosVenta = false;
+    this.ejecutarEntrega(id, barriles, plazo, metodo);
+  }
+
+  cancelarModalVenta(): void {
+    this.showModalDatosVenta = false;
+    this.pedidoIdParaEntregar = null;
+    this.barrilesPreSeleccionados = [];
+    this.plazoVenta = '';
+    this.metodoPagoSeleccionado = '';
+  }
+
+  private ejecutarEntrega(pedidoId: number, barrilesIds: number[], plazo: string, metodoPago: string): void {
+    this.pedidoService.entregarPedido(pedidoId, barrilesIds, plazo, metodoPago).subscribe({
       next: () => {
-        this.mostrarToast('Pedido marcado como entregado y stock actualizado.', 'success');
+        this.mostrarToast('Pedido entregado y Venta generada correctamente.', 'success');
         this.showModalAsignacionBarriles = false;
         this.listaBarrilesSeleccionadosIds = [];
         this.cargarDatos();

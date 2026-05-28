@@ -69,6 +69,68 @@ ng serve    # Puerto 4200
 - Vincula Lote + Fermentador con fecha de inicio
 - Se sincroniza con el estado del Lote al finalizar
 
+### Clientes (`/clientes`)
+- CRUD completo con filtros por tipo, ubicación y estado
+- **TipoCliente:** `Franquicia` o `Externo`
+- **EstadoCliente:** `Activo` o `Inactivo` (borrado lógico, no físico)
+- CUIT validado y normalizado (`CuitValidator`) — no se puede cambiar con PATCH
+- No se puede desactivar un cliente con pedidos activos (`EstadoId != 2 y != 4`)
+- Campos de métricas: `UltimoPedido`, `UltimaCompra`, `TotalPedidos`
+- Componente: `AtonBeerFront/src/app/components/clientes/clientes.component.ts`
+- Servicio: `AtonBeerFront/src/app/services/clientes-api.ts`
+
+### Pedidos (`/pedidos/registrar`)
+- **Entidades:** `Pedido → DetallePedido → ProductoStock`, vinculado a `Cliente` y `EstadoPedido`
+- **Estados (tabla catálogo):** `1=Pendiente`, `2=Entregado`, `4=Cancelado`
+- **Flujo:** `Pendiente → Entregado` / `Pendiente → Cancelado` / `Entregado → Pendiente` (reversa)
+- Solo pedidos `Pendiente` pueden editarse, cancelarse o entregarse
+- **Al entregar:** descuenta stock (`MovimientoStock` tipo "Egreso") + asigna barriles físicos al cliente (`EstadoBarril.ConCliente`)
+- **Reversa de entrega:** restaura stock + devuelve barriles a `EstadoBarril.Lleno`
+- **Descuento Franquicia:** clientes tipo `Franquicia` reciben 10% de descuento (calculado en frontend)
+- Solo clientes `Activo` aparecen en el selector al crear pedidos
+- El UI tiene un estado "Facturado" en el flujo pero **aún no está implementado en el backend**
+- Componente: `AtonBeerFront/src/app/components/registrar-pedido/registrar-pedido.ts`
+- Servicio: `AtonBeerFront/src/app/core/services/pedido.service.ts`
+
+#### Endpoints Pedidos
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/pedidos` | Lista todos |
+| GET | `/api/pedidos/{id}` | Detalle para edición |
+| POST | `/api/pedidos` | Crear (`PedidoCreacionDTO`) |
+| PUT | `/api/pedidos` | Actualizar (`PedidoEdicionDTO`) |
+| PATCH | `/api/pedidos/{id}/cancelar` | Cancelar |
+| PATCH | `/api/pedidos/{id}/entregar` | Entregar (body: array barrilIds) |
+| PUT | `/api/pedidos/{id}/deshacer-entrega` | Revertir entrega |
+
+#### DTOs Pedidos
+- **PedidoCreacionDTO:** `IdCliente, Observaciones, TotalPedido, Detalles[], FechaEntregaProgramada`
+- **PedidoDetalleDTO:** `ProductoStockId, Cantidad, Precio, BarrilesAsignados[]`
+- **PedidoEdicionDTO:** `Id, IdCliente, RazonSocial, Fecha, FechaEntregaProgramada, Observaciones, EstadoPedido, Detalles[], TotalPedido`
+- **PedidoEntregadoDto:** `PedidoId, BarrilesIds[], Plazo, MetodoPago` *(Plazo y MetodoPago agregados para crear la Venta)*
+
+### Ventas (`/ventas`)
+- **Las ventas se crean automáticamente** al marcar un pedido como Entregado — no existe registro manual
+- Una Venta por Pedido (índice único `PedidoId`)
+- **NumeroVenta** generado automáticamente: `VNT-{año}-{Id:D5}` (ej: `VNT-2026-00001`)
+- **EstadoVenta:** `Pendiente` (default al crear) o `Pagado`
+- **MetodoPago:** `Efectivo` o `Transferencia` — el usuario lo elige al entregar el pedido
+- **Plazo:** fecha de cobro — el usuario la elige al entregar el pedido
+- El módulo solo muestra la lista de ventas (sin filtros por ahora)
+- Componente: `AtonBeerFront/src/app/components/ventas/ventas.component.ts`
+- Servicio: `AtonBeerFront/src/app/services/ventas.service.ts`
+
+#### Endpoint Ventas
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/ventas` | Lista todas las ventas |
+
+#### Campos Venta
+`Id, NumeroVenta, FechaCreacion, ClienteId → Cliente, PedidoId → Pedido, MontoTotal, EstadoVenta (enum), Plazo, MetodoPago (enum)`
+
+#### Flujo de entrega modificado
+Al entregar un pedido, el usuario debe completar un modal "Datos de Venta" con Plazo y MetodoPago antes de confirmar. El endpoint `PATCH /api/pedidos/{id}/entregar` recibe `{ barrilesIds[], plazo, metodoPago }` (ya no es solo `number[]`).
+
 ## Reglas de negocio críticas
 
 ### Validaciones de Designación de Volumen
@@ -110,6 +172,8 @@ ng serve    # Puerto 4200
 - `Fermentadores`, `RegistrosFermentacion`
 - `PlanificacionProduccion`
 - `FormatosEnvase`, `ProductosStock`, `MovimientosStock`
+- `Clientes`, `Pedidos`, `DetallesPedidos`, `EstadosPedido`
+- `Ventas` (PedidoId único, FK Restrict a Cliente y Pedido)
 - `ProductosPrueba` (legacy, no usar — reemplazado por ProductosStock)
 
 **Última migración:** `StockRework` — agrega FormatosEnvase, ProductosStock, LoteDesignaciones; migra MovimientosStock a la nueva FK.

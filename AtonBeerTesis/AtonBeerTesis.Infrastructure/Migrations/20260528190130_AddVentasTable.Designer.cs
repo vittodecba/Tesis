@@ -4,6 +4,7 @@ using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260528190130_AddVentasTable")]
+    partial class AddVentasTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -199,28 +202,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("EstadosPedido");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Nombre = "Pendiente"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Nombre = "Entregado"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Nombre = "Facturado"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Nombre = "Cancelado"
-                        });
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Fermentador", b =>
