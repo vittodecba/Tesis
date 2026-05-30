@@ -13,6 +13,8 @@ namespace AtonBeerTesis.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(@"
+                SET IDENTITY_INSERT EstadosPedido ON;
+
                 IF NOT EXISTS (SELECT 1 FROM EstadosPedido WHERE Id = 1)
                     INSERT INTO EstadosPedido (Id, Nombre) VALUES (1, 'Pendiente');
                 IF NOT EXISTS (SELECT 1 FROM EstadosPedido WHERE Id = 2)
@@ -21,6 +23,8 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     INSERT INTO EstadosPedido (Id, Nombre) VALUES (3, 'Facturado');
                 IF NOT EXISTS (SELECT 1 FROM EstadosPedido WHERE Id = 4)
                     INSERT INTO EstadosPedido (Id, Nombre) VALUES (4, 'Cancelado');
+
+                SET IDENTITY_INSERT EstadosPedido OFF;
             ");
         }
 
