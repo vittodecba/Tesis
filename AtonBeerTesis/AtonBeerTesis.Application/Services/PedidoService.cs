@@ -14,11 +14,13 @@ namespace AtonBeerTesis.Application.Services
     {
         private readonly IPedidoRepository _pedidoRepository;
         private readonly IBarrilRepository _barrilRepository;
+        private readonly IVentaRepository _ventaRepository;
 
-        public PedidoService(IPedidoRepository pedidoRepository, IBarrilRepository barrilRepository)
+        public PedidoService(IPedidoRepository pedidoRepository, IBarrilRepository barrilRepository, IVentaRepository ventaRepository)
         {
             _pedidoRepository = pedidoRepository;
             _barrilRepository = barrilRepository;
+            _ventaRepository = ventaRepository;
         }
 
         public async Task<bool> ActualizarPedidoAsync(PedidoEdicionDTO pedidoDto)
@@ -231,6 +233,23 @@ namespace AtonBeerTesis.Application.Services
 
             pedido.EstadoId = 2;
             await _pedidoRepository.UpdateAsync(pedido);
+
+            // Crear Venta automáticamente al entregar el pedido
+            var nuevaVenta = new Venta
+            {
+                FechaCreacion = DateTime.Now,
+                ClienteId     = pedido.ClienteId,
+                PedidoId      = pedido.Id,
+                MontoTotal    = pedido.Total,
+                EstadoVenta   = EstadoVenta.Pendiente,
+                Plazo         = pedidoDto.Plazo,
+                MetodoPago    = pedidoDto.MetodoPago,
+                NumeroVenta   = string.Empty
+            };
+            var ventaGuardada = await _ventaRepository.AddAsync(nuevaVenta);
+            ventaGuardada.NumeroVenta = $"VNT-{DateTime.Now.Year}-{ventaGuardada.Id:D5}";
+            await _ventaRepository.UpdateAsync(ventaGuardada);
+
             return true;
         }
         public async Task<bool> DeshacerEntregaPedidoAsync(int pedidoId)

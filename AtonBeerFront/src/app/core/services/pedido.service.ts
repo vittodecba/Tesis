@@ -34,8 +34,8 @@ export class PedidoService {
   cancelarPedido(id: number): Observable<any> {
   return this.http.patch<any>(`${this.apiUrl}/${id}/cancelar`, {});
 }
-entregarPedido(id: number, barrilesIds: number[] = []): Observable<any> {  
-  return this.http.patch(`${this.apiUrl}/${id}/entregar`, barrilesIds);
+entregarPedido(id: number, barrilesIds: number[] = [], plazo: string, metodoPago: string): Observable<any> {
+  return this.http.patch(`${this.apiUrl}/${id}/entregar`, { barrilesIds, plazo, metodoPago });
 }
 deshacerEntregaPedido(id: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}/deshacer-entrega`, {});
