@@ -12,11 +12,14 @@ import { AuthService } from '../../core/services/auth.service';
       <h1>Menú Principal</h1>
       
       <div style="margin: 30px 0; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-        <button routerLink="/usuarios" style="padding: 15px; background: #2980b9; color: white; border: none; border-radius: 5px;">
+        <button routerLink="/usuarios" style="padding: 15px; background: #2980b9; color: white; border: none; border-radius: 5px; cursor: pointer;">
           Gestionar Usuarios
         </button>
-        <button routerLink="/roles" style="padding: 15px; background: #8e44ad; color: white; border: none; border-radius: 5px;">
+        <button routerLink="/roles" style="padding: 15px; background: #8e44ad; color: white; border: none; border-radius: 5px; cursor: pointer;">
           Gestionar Roles
+        </button>
+        <button routerLink="/ventas" style="padding: 15px; background: #e67e22; color: white; border: none; border-radius: 5px; cursor: pointer;">
+          Gestionar Ventas
         </button>
       </div>
 
