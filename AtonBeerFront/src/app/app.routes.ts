@@ -21,7 +21,6 @@ import { PlanificacionFormComponent } from './components/Planificacion/Planifica
 import { RegistrarPedidoComponent } from './components/registrar-pedido/registrar-pedido';
 import { BarrilesGestion } from './components/barriles/barriles-gestion';
 import { BarrilDetalleComponent } from './components/barriles/barril-detalle/barril-detalle';
-import { VentasComponent } from './components/ventas/ventas.component';
 import { VentasListadoComponent } from './components/ventas/ventas-listado';
 
 export const routes: Routes = [
@@ -117,19 +116,14 @@ export const routes: Routes = [
         path: 'barriles',
         component: BarrilesGestion,
         data: { title: 'Barriles', subtitle: 'Seguimiento de activos retornables' }
-      },
-      {
-        path: 'ventas',
-        component: VentasComponent,
-        data: { title: 'Ventas', subtitle: 'Registro de ventas generadas' }
-      },        
+      },      
       {
         path: 'barriles/:id',
         component: BarrilDetalleComponent,
         data: { title: 'Detalle de Barril', subtitle: 'Información y movimientos' },
       },
       {
-        path: 'ventas/listado',
+        path: 'ventas',
         component: VentasListadoComponent,
         data: { title: 'Ventas', subtitle: 'Gestión de ventas' },
       }
