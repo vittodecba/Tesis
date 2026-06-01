@@ -120,13 +120,20 @@ namespace AtonBeerTesis.Application.Services
             if (formato == null) return false;
 
             // Validar ANTES de borrar cualquier cosa
+
+            // 1. Verificar si hay stock activo en algún ProductoStock de este formato
+            var productos = await _productoStockRepository.FindAllAsync();
+            var productosDelFormato = productos.Where(p => p.FormatoEnvaseId == id).ToList();
+            var tieneStock = productosDelFormato.Any(p => p.StockActual > 0);
+            if (tieneStock)
+                throw new InvalidOperationException(
+                    "No se puede eliminar: este formato tiene stock activo. Primero llevá el stock a 0 antes de eliminar el formato.");
+
+            // 2. Verificar si hay lotes con designaciones de volumen para este formato
             var tieneDesignaciones = await _designacionRepository.CountAsync(d => d.FormatoEnvaseId == id) > 0;
             if (tieneDesignaciones)
                 throw new InvalidOperationException(
                     "No se puede eliminar: hay lotes que usan este formato en sus designaciones de volumen.");
-
-            var productos = await _productoStockRepository.FindAllAsync();
-            var productosDelFormato = productos.Where(p => p.FormatoEnvaseId == id).ToList();
 
             foreach (var p in productosDelFormato)
                 _productoStockRepository.Remove(p.Id);

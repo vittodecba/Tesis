@@ -65,12 +65,13 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task MarcarComoLlenosAsync(List<int> barrilIds, int loteId)
+        public async Task MarcarComoLlenosAsync(List<int> barrilIds, int? loteId)
         {
             if (!barrilIds.Any()) return;
             var ids = string.Join(",", barrilIds);
+            var loteVal = loteId.HasValue ? loteId.Value.ToString() : "NULL";
             await _context.Database.ExecuteSqlRawAsync(
-                $"UPDATE Barriles SET Estado = 1, LoteActualId = {loteId}, UltimaActualizacion = GETDATE() WHERE Id IN ({ids})");
+                $"UPDATE Barriles SET Estado = 1, LoteActualId = {loteVal}, UltimaActualizacion = GETDATE() WHERE Id IN ({ids})");
         }
 
         public async Task<Dictionary<int, decimal>> ObtenerFormatosRetornablesAsync()
