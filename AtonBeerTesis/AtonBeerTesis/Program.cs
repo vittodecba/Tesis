@@ -96,7 +96,9 @@ namespace AtonBeerTesis
             // --- VENTAS ---
             builder.Services.AddScoped<IVentaRepository, VentaRepository>();
             builder.Services.AddScoped<IVentaService, VentaService>();
-
+            /// --- VENTAS-PAGOS ---
+            builder.Services.AddScoped<IPagoService, PagoService>();
+            builder.Services.AddScoped<IPagoRepository, PagoRepository>();
             var app = builder.Build();
 
             // 5. Pipeline de la aplicación

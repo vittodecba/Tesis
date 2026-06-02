@@ -85,6 +85,33 @@
             </span>
             <span class="font-black text-gray-700 text-sm">{{ v.metodoPago || 'No definido' }}</span>
           </div>
+
+          <div class="col-span-2 grid grid-cols-2 gap-3">
+  <div class="flex flex-col bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+      Pagado
+    </span>
+    <span class="font-black text-green-700 text-sm">
+      ${{ v.totalPagado | number:'1.2-2' }}
+    </span>
+  </div>
+
+  <div class="flex flex-col bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+      Saldo
+    </span>
+    <span class="font-black text-amber-700 text-sm">
+      ${{ v.saldoPendiente | number:'1.2-2' }}
+    </span>
+  </div>
+</div>
+ <button *ngIf="v.totalPagado > 0"
+        type="button"
+        (click)="abrirHistorialPagos(v)"
+        class="col-span-2 mt-1 px-4 py-2 rounded-xl border border-orange-100 bg-orange-50/70 text-[#E67E22] text-xs font-black uppercase tracking-widest hover:bg-orange-100 transition-all">
+  Ver historial de pagos
+</button>
+
         </div>
       </div>
 
@@ -95,6 +122,13 @@
         </div>
         
         <div class="flex gap-2.5">
+          <button *ngIf="v.estadoVenta !== 'Pagado' && v.saldoPendiente > 0"
+        type="button"
+        (click)="abrirModalPago(v)"
+        class="p-3 bg-white/10 text-white hover:bg-green-600 hover:scale-105 rounded-xl transition-all duration-300 shadow-sm"
+        title="Registrar pago">
+  <span class="font-black text-base">$</span>
+</button>
           <button *ngIf="v.estadoVenta !== 'Pagado'" (click)="editarVenta(v)" class="p-3 bg-white/10 text-white hover:bg-[#E67E22] hover:scale-105 rounded-xl transition-all duration-300 shadow-sm" title="Editar Venta">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -163,20 +197,16 @@
       </div>
       <div class="px-6 py-6 space-y-5">
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-            Estado de la venta <span class="text-red-500">*</span>
-          </label>
-          <select [(ngModel)]="editEstado" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-transparent bg-white">
-            <option value="Pendiente">Pendiente</option>
-            <option value="Pagado">Pagado</option>
-          </select>
-          <div *ngIf="editEstado === 'Pagado'" class="mt-2 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-            <span class="text-amber-600 font-bold text-sm mt-0.5">!</span>
-            <p class="text-xs text-amber-700 font-medium">
-              Esta acción es irreversible. Una vez marcada como Pagado, la venta no podrá modificarse.
-            </p>
-          </div>
-        </div>
+  <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+    Estado de la venta
+  </label>
+  <div class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-bold bg-gray-50 text-gray-700">
+    {{ ventaEnEdicion?.estadoVenta }}
+  </div>
+  <p class="mt-2 text-xs text-gray-500 font-medium">
+    El estado Pagado se actualiza automáticamente al registrar pagos.
+  </p>
+</div>
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-1.5">
             Plazo de cobro <span class="text-red-500">*</span>
@@ -185,7 +215,7 @@
         </div>
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-            Método de pago <span class="text-red-500">*</span>
+            Método previsto <span class="text-red-500">*</span>
           </label>
           <select [(ngModel)]="editMetodoPago" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-transparent bg-white">
             <option value="Efectivo">Efectivo</option>
@@ -203,5 +233,154 @@
       </div>
     </div>
   </div>
+
+  <div *ngIf="showModalPago && ventaParaPago" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+    <div class="bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] px-6 py-4">
+      <h2 class="text-lg font-bold text-white">Registrar Pago</h2>
+      <p class="text-sm text-orange-100 mt-0.5 font-mono">{{ ventaParaPago.numeroVenta }}</p>
+    </div>
+
+    <div class="px-6 py-6 space-y-5">
+      <div class="grid grid-cols-3 gap-3">
+        <div>
+          <span class="block text-[10px] font-black text-gray-400 uppercase">Total</span>
+          <strong>${{ ventaParaPago.montoTotal | number:'1.2-2' }}</strong>
+        </div>
+        <div>
+          <span class="block text-[10px] font-black text-gray-400 uppercase">Pagado</span>
+          <strong class="text-green-700">${{ ventaParaPago.totalPagado | number:'1.2-2' }}</strong>
+        </div>
+        <div>
+          <span class="block text-[10px] font-black text-gray-400 uppercase">Saldo</span>
+          <strong class="text-amber-700">${{ ventaParaPago.saldoPendiente | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Monto *</label>
+        <input type="number"
+               [(ngModel)]="pagoMonto"
+               min="1"
+               class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-transparent" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Fecha *</label>
+        <input type="date"
+               [(ngModel)]="pagoFecha"
+               class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-transparent" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Método de pago *</label>
+        <select [(ngModel)]="pagoMetodoPago"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-transparent bg-white">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Cheque">Cheque</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-200">
+      <button type="button"
+              (click)="cerrarModalPago()"
+              class="px-5 py-2.5 text-sm font-bold text-gray-600 bg-white border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-100">
+        Cancelar
+      </button>
+
+      <button type="button"
+              (click)="registrarPago()"
+              [disabled]="registrandoPago || !pagoMonto || !pagoFecha || !pagoMetodoPago"
+              class="px-5 py-2.5 text-sm font-bold text-white bg-[#E67E22] border-0 rounded-xl cursor-pointer hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed">
+        {{ registrandoPago ? 'Registrando...' : 'Registrar pago' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showModalHistorialPagos && ventaHistorialPagos"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden">
+    
+    <div class="bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] px-6 py-4">
+      <h2 class="text-lg font-bold text-white">Historial de Pagos</h2>
+      <p class="text-sm text-orange-100 mt-0.5 font-mono">
+        {{ ventaHistorialPagos.numeroVenta }} - {{ ventaHistorialPagos.clienteNombre }}
+      </p>
+    </div>
+
+    <div class="px-6 py-6 space-y-5">
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-gray-50 border border-gray-100 rounded-xl p-3">
+          <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Total</span>
+          <strong class="text-[#4A2C2A]">
+            ${{ ventaHistorialPagos.montoTotal | number:'1.2-2' }}
+          </strong>
+        </div>
+
+        <div class="bg-gray-50 border border-gray-100 rounded-xl p-3">
+          <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Pagado</span>
+          <strong class="text-green-700">
+            ${{ ventaHistorialPagos.totalPagado | number:'1.2-2' }}
+          </strong>
+        </div>
+
+        <div class="bg-gray-50 border border-gray-100 rounded-xl p-3">
+          <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Saldo</span>
+          <strong class="text-amber-700">
+            ${{ ventaHistorialPagos.saldoPendiente | number:'1.2-2' }}
+          </strong>
+        </div>
+      </div>
+
+      <div *ngIf="cargandoHistorialPagos" class="text-sm font-bold text-gray-500 text-center py-8">
+        Cargando pagos...
+      </div>
+
+      <div *ngIf="!cargandoHistorialPagos && pagosHistorial.length === 0"
+           class="bg-gray-50 border border-dashed border-gray-200 rounded-xl p-8 text-center">
+        <p class="text-sm font-bold text-gray-500">
+          Esta venta todavía no tiene pagos registrados.
+        </p>
+      </div>
+
+      <div *ngIf="!cargandoHistorialPagos && pagosHistorial.length > 0"
+           class="border border-gray-100 rounded-xl overflow-hidden shadow-sm">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] font-black tracking-widest border-b border-gray-100">
+            <tr>
+              <th class="px-4 py-3">Fecha</th>
+              <th class="px-4 py-3">Método</th>
+              <th class="px-4 py-3 text-right">Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let pago of pagosHistorial" class="border-b border-gray-50 last:border-b-0">
+              <td class="px-4 py-3 font-medium text-gray-700">
+                {{ pago.fecha | date:'dd/MM/yyyy' }}
+              </td>
+              <td class="px-4 py-3 font-medium text-gray-700">
+                {{ pago.metodoPago }}
+              </td>
+              <td class="px-4 py-3 text-right font-black text-[#4A2C2A]">
+                ${{ pago.monto | number:'1.2-2' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="bg-gray-50 px-6 py-4 flex justify-end border-t border-gray-200">
+      <button type="button"
+              (click)="cerrarHistorialPagos()"
+              class="px-5 py-2.5 text-sm font-bold text-gray-600 bg-white border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-100">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
 
 </div>

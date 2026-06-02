@@ -7,28 +7,39 @@ namespace AtonBeerTesis.Application.Services
     public class VentaService : IVentaService
     {
         private readonly IVentaRepository _ventaRepository;
-
-        public VentaService(IVentaRepository ventaRepository)
+        private readonly IPagoRepository _pagoRepository;
+        public VentaService(IVentaRepository ventaRepository, IPagoRepository pagoRepository)
         {
             _ventaRepository = ventaRepository;
+            _pagoRepository = pagoRepository;
         }
 
         public async Task<IEnumerable<VentaDto>> ObtenerTodasAsync()
         {
             var ventas = await _ventaRepository.GetAllAsync();
-            return ventas.Select(v => new VentaDto
+            var resultado = new List<VentaDto>();
+            foreach (var v in ventas)
             {
-                Id            = v.Id,
-                NumeroVenta   = v.NumeroVenta,
-                FechaCreacion = v.FechaCreacion,
-                ClienteId     = v.ClienteId,
-                ClienteNombre = v.Cliente?.RazonSocial ?? $"Cliente #{v.ClienteId}",
-                PedidoId      = v.PedidoId,
-                MontoTotal    = v.MontoTotal,
-                EstadoVenta   = v.EstadoVenta.ToString(),
-                Plazo         = v.Plazo,
-                MetodoPago    = v.MetodoPago.ToString()
-            });
+                var totalPagado = await _pagoRepository.GetTotalPagadoByVentaIdAsync(v.Id);
+                var saldoPendiente = v.MontoTotal - totalPagado;
+
+                resultado.Add(new VentaDto
+                {
+                    Id = v.Id,
+                    NumeroVenta = v.NumeroVenta,
+                    FechaCreacion = v.FechaCreacion,
+                    ClienteId = v.ClienteId,
+                    ClienteNombre = v.Cliente?.RazonSocial ?? $"Cliente #{v.ClienteId}",
+                    PedidoId = v.PedidoId,
+                    MontoTotal = v.MontoTotal,
+                    EstadoVenta = v.EstadoVenta.ToString(),
+                    Plazo = v.Plazo,
+                    MetodoPago = v.MetodoPago.ToString(),
+                    TotalPagado = totalPagado,
+                    SaldoPendiente = saldoPendiente
+                });
+            }
+            return resultado;
         }
 
         public async Task<bool> PatchAsync(int id, PatchVentaDto dto)

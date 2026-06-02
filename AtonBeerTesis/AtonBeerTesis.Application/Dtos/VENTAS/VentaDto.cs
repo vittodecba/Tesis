@@ -12,5 +12,7 @@ namespace AtonBeerTesis.Application.Dtos.VENTAS
         public string EstadoVenta { get; set; } = string.Empty;
         public DateTime Plazo { get; set; }
         public string MetodoPago { get; set; } = string.Empty;
+        public decimal TotalPagado { get; set; }
+        public decimal SaldoPendiente { get; set; }
     }
 }
