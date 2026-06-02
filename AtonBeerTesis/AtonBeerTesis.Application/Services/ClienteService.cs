@@ -195,6 +195,7 @@ namespace AtonBeerTesis.Application.Services
             ContactoEmail = c.ContactoEmail,
 
             UltimaCompra = c.UltimaCompra,
+            TotalPedidos = c.TotalPedidos,
             EstadoCliente = c.EstadoCliente.ToString()
         };
     }
