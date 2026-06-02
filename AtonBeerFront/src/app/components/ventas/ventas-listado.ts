@@ -34,7 +34,8 @@ export class VentasListadoComponent implements OnInit {
     private ventasService: VentasService
   ) {
     this.filtroForm = this.fb.group({
-      fecha: [''],
+      fechaDesde: [''],
+      fechaHasta: [''],
       clienteNombre: [''],
       estadoPago: [''],
       metodoPago: ['']
@@ -59,6 +60,20 @@ export class VentasListadoComponent implements OnInit {
     });
   }
 
+  obtenerEstadoReal(venta: VentaDto): string {
+    if (venta.estadoVenta === 'Pendiente' && venta.plazo) {
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      const fechaPlazo = new Date(venta.plazo);
+      fechaPlazo.setHours(0, 0, 0, 0);
+      
+      if (fechaPlazo < hoy) {
+        return 'Atrasado';
+      }
+    }
+    return venta.estadoVenta;
+  }
+
   aplicarFiltros(): void {
     const filtros = this.filtroForm.value;
     
@@ -68,8 +83,23 @@ export class VentasListadoComponent implements OnInit {
       let cumpleEstado = true;
       let cumpleMetodo = true;
 
-      if (filtros.fecha && v.fechaCreacion) {
-        cumpleFecha = v.fechaCreacion.startsWith(filtros.fecha);
+      if (v.fechaCreacion) {
+        const fechaVenta = new Date(v.fechaCreacion);
+        fechaVenta.setHours(0, 0, 0, 0);
+
+        if (filtros.fechaDesde) {
+          const desde = new Date(filtros.fechaDesde);
+          desde.setHours(0, 0, 0, 0);
+          if (fechaVenta < desde) cumpleFecha = false;
+        }
+        
+        if (filtros.fechaHasta) {
+          const hasta = new Date(filtros.fechaHasta);
+          hasta.setHours(0, 0, 0, 0);
+          if (fechaVenta > hasta) cumpleFecha = false;
+        }
+      } else if (filtros.fechaDesde || filtros.fechaHasta) {
+        cumpleFecha = false;
       }
       
       if (filtros.clienteNombre && v.clienteNombre) {
@@ -77,7 +107,7 @@ export class VentasListadoComponent implements OnInit {
       }
 
       if (filtros.estadoPago) {
-        cumpleEstado = v.estadoVenta === filtros.estadoPago;
+        cumpleEstado = this.obtenerEstadoReal(v) === filtros.estadoPago;
       }
 
       if (filtros.metodoPago) {

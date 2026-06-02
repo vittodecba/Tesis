@@ -16,8 +16,11 @@
   <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 mb-8">
     <form [formGroup]="filtroForm" class="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div class="space-y-2">
-        <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest">Fecha de Venta</label>
-        <input type="date" formControlName="fecha" class="w-full border-2 border-gray-100 rounded-xl py-2.5 px-4 outline-none focus:border-[#E67E22] focus:ring-4 focus:ring-orange-500/10 transition-all text-gray-700 font-medium bg-gray-50/50" />
+        <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest">Emisión (Desde - Hasta)</label>
+        <div class="flex gap-2">
+          <input type="date" formControlName="fechaDesde" class="w-full border-2 border-gray-100 rounded-xl py-2.5 px-3 outline-none focus:border-[#E67E22] focus:ring-4 focus:ring-orange-500/10 transition-all text-gray-700 font-medium bg-gray-50/50 text-xs" />
+          <input type="date" formControlName="fechaHasta" class="w-full border-2 border-gray-100 rounded-xl py-2.5 px-3 outline-none focus:border-[#E67E22] focus:ring-4 focus:ring-orange-500/10 transition-all text-gray-700 font-medium bg-gray-50/50 text-xs" />
+        </div>
       </div>
       <div class="space-y-2">
         <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest">Cliente / Razón Social</label>
@@ -29,6 +32,7 @@
           <option value="">Todos los estados</option>
           <option value="Pagado">Pagado</option>
           <option value="Pendiente">Pendiente</option>
+          <option value="Atrasado">Atrasado</option>
         </select>
       </div>
       <div class="space-y-2">
@@ -45,9 +49,9 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
     <div *ngFor="let v of ventasPaginadas" 
          class="relative bg-gradient-to-br from-white to-orange-50/80 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border flex flex-col overflow-hidden group"
-         [ngClass]="v.estadoVenta === 'Pagado' ? 'border-green-200' : 'border-amber-200'">
+         [ngClass]="{'border-green-200': obtenerEstadoReal(v) === 'Pagado', 'border-amber-200': obtenerEstadoReal(v) === 'Pendiente', 'border-red-200': obtenerEstadoReal(v) === 'Atrasado'}">
       
-      <div class="absolute top-0 left-0 w-1.5 h-full" [ngClass]="v.estadoVenta === 'Pagado' ? 'bg-green-500' : 'bg-amber-500'"></div>
+      <div class="absolute top-0 left-0 w-1.5 h-full" [ngClass]="{'bg-green-500': obtenerEstadoReal(v) === 'Pagado', 'bg-amber-500': obtenerEstadoReal(v) === 'Pendiente', 'bg-red-500': obtenerEstadoReal(v) === 'Atrasado'}"></div>
 
       <div class="p-6 flex-1 ml-1.5">
         <div class="flex justify-between items-start mb-6">
@@ -55,9 +59,9 @@
             #{{ v.numeroVenta || v.id }}
           </span>
           <span class="px-4 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 border-2 shadow-sm"
-                [ngClass]="v.estadoVenta === 'Pagado' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'">
-            <span class="w-2 h-2 rounded-full" [ngClass]="v.estadoVenta === 'Pagado' ? 'bg-green-500' : 'bg-amber-500 animate-pulse'"></span>
-            {{ v.estadoVenta }}
+                [ngClass]="{'bg-green-50 text-green-700 border-green-200': obtenerEstadoReal(v) === 'Pagado', 'bg-amber-50 text-amber-700 border-amber-200': obtenerEstadoReal(v) === 'Pendiente', 'bg-red-50 text-red-700 border-red-200': obtenerEstadoReal(v) === 'Atrasado'}">
+            <span class="w-2 h-2 rounded-full" [ngClass]="{'bg-green-500': obtenerEstadoReal(v) === 'Pagado', 'bg-amber-500 animate-pulse': obtenerEstadoReal(v) === 'Pendiente', 'bg-red-500 animate-pulse': obtenerEstadoReal(v) === 'Atrasado'}"></span>
+            {{ obtenerEstadoReal(v) }}
           </span>
         </div>
         
@@ -74,14 +78,21 @@
           <div class="flex flex-col bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
               <svg class="w-3.5 h-3.5 text-[#E67E22]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-              Fecha
+              Emitida
             </span>
             <span class="font-black text-gray-700 text-sm">{{ v.fechaCreacion | date:'dd/MM/yy' }}</span>
           </div>
-          <div class="col-span-2 flex items-center justify-between bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+          <div class="flex flex-col bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-[#E67E22]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              Vence
+            </span>
+            <span class="font-black text-gray-700 text-sm">{{ v.plazo | date:'dd/MM/yy' }}</span>
+          </div>
+          <div class="flex flex-col bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
               <svg class="w-3.5 h-3.5 text-[#E67E22]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-              Método de pago
+              Método
             </span>
             <span class="font-black text-gray-700 text-sm">{{ v.metodoPago || 'No definido' }}</span>
           </div>
@@ -95,7 +106,7 @@
         </div>
         
         <div class="flex gap-2.5">
-          <button *ngIf="v.estadoVenta !== 'Pagado'" (click)="editarVenta(v)" class="p-3 bg-white/10 text-white hover:bg-[#E67E22] hover:scale-105 rounded-xl transition-all duration-300 shadow-sm" title="Editar Venta">
+          <button *ngIf="obtenerEstadoReal(v) !== 'Pagado'" (click)="editarVenta(v)" class="p-3 bg-white/10 text-white hover:bg-[#E67E22] hover:scale-105 rounded-xl transition-all duration-300 shadow-sm" title="Editar Venta">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
             </svg>
