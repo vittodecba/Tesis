@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { VentaDto, VentasService } from '../../services/ventas.service';
+import { PagosDto, VentaDto, VentasService } from '../../services/ventas.service';
 
 @Component({
   selector: 'app-ventas-listado',
@@ -27,7 +27,18 @@ export class VentasListadoComponent implements OnInit {
   guardando: boolean = false;
 
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
+//PAGO//
+showModalPago: boolean = false;
+ventaParaPago: VentaDto | null = null;
+pagoMonto: number | null = null;
+pagoFecha: string = '';
+pagoMetodoPago: string = 'Efectivo';
+registrandoPago: boolean = false;
 
+showModalHistorialPagos: boolean = false;
+ventaHistorialPagos: VentaDto | null = null;
+pagosHistorial: PagosDto[] = [];
+cargandoHistorialPagos: boolean = false;
   constructor(
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
@@ -170,8 +181,7 @@ export class VentasListadoComponent implements OnInit {
   guardarEdicion(): void {
     if (!this.ventaEnEdicion || this.guardando) return;
     this.guardando = true;
-    const dto = {
-      estadoVenta: this.editEstado,
+    const dto = {      
       plazo: this.editPlazo,
       metodoPago: this.editMetodoPago
     };
@@ -189,4 +199,88 @@ export class VentasListadoComponent implements OnInit {
       }
     });
   }
+
+  //Metodos-PAGO//
+  abrirModalPago(venta: VentaDto): void {
+  this.ventaParaPago = venta;
+  this.pagoMonto = null;
+  this.pagoMetodoPago = venta.metodoPago || 'Efectivo';
+  this.pagoFecha = new Date().toISOString().split('T')[0];
+  this.registrandoPago = false;
+  this.showModalPago = true;
+  this.cdr.detectChanges();
+}
+
+cerrarModalPago(): void {
+  this.showModalPago = false;
+  this.ventaParaPago = null;
+  this.pagoMonto = null;
+  this.registrandoPago = false;
+}
+
+registrarPago(): void {
+  if (!this.ventaParaPago || this.registrandoPago) return;
+
+  const monto = Number(this.pagoMonto || 0);
+
+  if (monto <= 0) {
+    this.mostrarToast('El monto debe ser mayor a 0.', 'error');
+    return;
+  }
+
+  if (monto > this.ventaParaPago.saldoPendiente) {
+    this.mostrarToast('El monto no puede superar el saldo pendiente.', 'error');
+    return;
+  }
+
+  this.registrandoPago = true;
+
+  this.ventasService.registrarPago({
+    ventaId: this.ventaParaPago.id,
+    monto,
+    fecha: this.pagoFecha,
+    metodoPago: this.pagoMetodoPago
+  }).subscribe({
+    next: () => {
+      this.mostrarToast('Pago registrado correctamente.', 'success');
+      this.cerrarModalPago();
+      this.cargarVentasReales();
+    },
+    error: (err: any) => {
+      const msg = err.error?.mensaje || 'No se pudo registrar el pago.';
+      this.mostrarToast(msg, 'error');
+      this.registrandoPago = false;
+      this.cdr.detectChanges();
+    }
+  });
+  }
+
+  abrirHistorialPagos(venta: VentaDto): void {
+  this.ventaHistorialPagos = venta;
+  this.pagosHistorial = [];
+  this.cargandoHistorialPagos = true;
+  this.showModalHistorialPagos = true;
+
+  this.ventasService.getPagosPorVenta(venta.id).subscribe({
+    next: (pagos: PagosDto[]) => {
+      this.pagosHistorial = pagos;
+      this.cargandoHistorialPagos = false;
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      this.mostrarToast('No se pudo cargar el historial de pagos.', 'error');
+      this.cargandoHistorialPagos = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+cerrarHistorialPagos(): void {
+  this.showModalHistorialPagos = false;
+  this.ventaHistorialPagos = null;
+  this.pagosHistorial = [];
+  this.cargandoHistorialPagos = false;
+}
+
+
 }

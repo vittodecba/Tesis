@@ -18,5 +18,6 @@ namespace AtonBeerTesis.Domain.Entities
         public EstadoVenta EstadoVenta { get; set; } = EstadoVenta.Pendiente;
         public DateTime Plazo { get; set; }
         public MetodoPago MetodoPago { get; set; }
+        public virtual ICollection<Pago> Pagos { get; set; } = new List<Pago>();
     }
 }
