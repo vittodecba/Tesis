@@ -1,5 +1,5 @@
 import { ApplicationConfig, LOCALE_ID } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withDebugTracing } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 
@@ -11,7 +11,7 @@ registerLocaleData(localeEs);
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
+    provideRouter(routes, withDebugTracing()),
     provideHttpClient(),
     { provide: LOCALE_ID, useValue: 'es-AR' }, // Establece español de Argentina como default
   ],

@@ -22,6 +22,7 @@ import { RegistrarPedidoComponent } from './components/registrar-pedido/registra
 import { BarrilesGestion } from './components/barriles/barriles-gestion';
 import { BarrilDetalleComponent } from './components/barriles/barril-detalle/barril-detalle';
 import { VentasListadoComponent } from './components/ventas/ventas-listado';
+import { VentasReporte } from './components/ventas-reporte/ventas-reporte';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -123,10 +124,15 @@ export const routes: Routes = [
         data: { title: 'Detalle de Barril', subtitle: 'Información y movimientos' },
       },
       {
+        path: 'ventas/reporte',
+        component: VentasReporte,
+        data: { title: 'Reportes de Ventas', subtitle: 'Análisis financiero' },
+      },
+      {
         path: 'ventas',
         component: VentasListadoComponent,
         data: { title: 'Ventas', subtitle: 'Gestión de ventas' },
-      }
+      },
     ],
   },
   { path: '**', redirectTo: 'login' },
