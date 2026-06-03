@@ -32,6 +32,13 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             return await _context.Ventas
                 .Include(v => v.Cliente)
                 .Include(v => v.Pedido)
+                    .ThenInclude(p => p.Detalles)
+                        .ThenInclude(d => d.ProductoStock)
+                            .ThenInclude(ps => ps.FormatoEnvase)
+                .Include(v => v.Pedido)
+                    .ThenInclude(p => p.Detalles)
+                        .ThenInclude(d => d.ProductoStock)
+                            .ThenInclude(ps => ps.Receta)
                 .OrderByDescending(v => v.FechaCreacion)
                 .ToListAsync();
         }
@@ -41,6 +48,13 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             return await _context.Ventas
                 .Include(v => v.Cliente)
                 .Include(v => v.Pedido)
+                    .ThenInclude(p => p.Detalles)
+                        .ThenInclude(d => d.ProductoStock)
+                            .ThenInclude(ps => ps.FormatoEnvase)
+                .Include(v => v.Pedido)
+                    .ThenInclude(p => p.Detalles)
+                        .ThenInclude(d => d.ProductoStock)
+                            .ThenInclude(ps => ps.Receta)
                 .FirstOrDefaultAsync(v => v.Id == id);
         }
     }

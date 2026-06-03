@@ -1,5 +1,7 @@
+using AtonBeerBackend.Models.DTOs;
 using AtonBeerTesis.Application.Dtos.VENTAS;
 using AtonBeerTesis.Application.Interfaces;
+using AtonBeerTesis.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AtonBeerTesis.Controllers
@@ -41,6 +43,20 @@ namespace AtonBeerTesis.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("reporte")]
+        public async Task<ActionResult<ReporteVentasDto>> ObtenerReporte([FromQuery] DateTime fechaDesde, [FromQuery] DateTime fechaHasta)
+        {
+            try
+            {
+                var reporte = await _ventaService.ObtenerReporteVentasAsync(fechaDesde, fechaHasta);
+                return Ok(reporte);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
     }

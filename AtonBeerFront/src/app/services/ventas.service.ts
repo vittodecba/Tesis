@@ -15,6 +15,40 @@ export interface VentaDto {
   metodoPago: string;
 }
 
+export interface VentaPorDia {
+  fecha: string;
+  total: number;
+}
+
+export interface TopCliente {
+  cliente: string;
+  totalComprado: number;
+  cantidadVentas: number;
+}
+
+export interface TopProducto {
+  producto: string;
+  cantidadVendida: number;
+}
+
+export interface TopEstilo {
+  estilo: string;
+  cantidadVendida: number;
+}
+
+export interface ReporteVentas {
+  totalVendido: number;
+  cantidadVentas: number;
+  efectivoTotal: number;
+  transferenciaTotal: number;
+  ticketPromedio: number;
+  variacionIngresosPorcentaje: number;
+  ventasPorDia: VentaPorDia[];
+  topClientes: TopCliente[];
+  topProductos: TopProducto[];
+  topEstilos: TopEstilo[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -29,5 +63,11 @@ export class VentasService {
 
   patchVenta(id: number, dto: { estadoVenta?: string; plazo?: string; metodoPago?: string }): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${id}`, dto);
+  }
+
+  obtenerReporteVentas(fechaDesde: string, fechaHasta: string) {
+    return this.http.get<ReporteVentas>(`${this.apiUrl}/reporte`, {
+      params: { fechaDesde, fechaHasta }
+    });
   }
 }
