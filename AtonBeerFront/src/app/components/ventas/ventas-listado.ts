@@ -36,9 +36,12 @@ pagoMetodoPago: string = 'Efectivo';
 registrandoPago: boolean = false;
 
 showModalHistorialPagos: boolean = false;
+showModalConfirmacion: boolean = false;
 ventaHistorialPagos: VentaDto | null = null;
 pagosHistorial: PagosDto[] = [];
 cargandoHistorialPagos: boolean = false;
+errorPago: string = '';
+
   constructor(
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
@@ -207,6 +210,7 @@ cargandoHistorialPagos: boolean = false;
   this.pagoMetodoPago = venta.metodoPago || 'Efectivo';
   this.pagoFecha = new Date().toISOString().split('T')[0];
   this.registrandoPago = false;
+  this.errorPago = '';
   this.showModalPago = true;
   this.cdr.detectChanges();
 }
@@ -216,43 +220,62 @@ cerrarModalPago(): void {
   this.ventaParaPago = null;
   this.pagoMonto = null;
   this.registrandoPago = false;
+  this.errorPago = '';
 }
 
 registrarPago(): void {
-  if (!this.ventaParaPago || this.registrandoPago) return;
+    if (!this.ventaParaPago || this.registrandoPago) return;
 
-  const monto = Number(this.pagoMonto || 0);
+    const monto = Number(this.pagoMonto || 0);
 
-  if (monto <= 0) {
-    this.mostrarToast('El monto debe ser mayor a 0.', 'error');
-    return;
-  }
-
-  if (monto > this.ventaParaPago.saldoPendiente) {
-    this.mostrarToast('El monto no puede superar el saldo pendiente.', 'error');
-    return;
-  }
-
-  this.registrandoPago = true;
-
-  this.ventasService.registrarPago({
-    ventaId: this.ventaParaPago.id,
-    monto,
-    fecha: this.pagoFecha,
-    metodoPago: this.pagoMetodoPago
-  }).subscribe({
-    next: () => {
-      this.mostrarToast('Pago registrado correctamente.', 'success');
-      this.cerrarModalPago();
-      this.cargarVentasReales();
-    },
-    error: (err: any) => {
-      const msg = err.error?.mensaje || 'No se pudo registrar el pago.';
-      this.mostrarToast(msg, 'error');
-      this.registrandoPago = false;
+    // 1. Validaciones
+    if (monto <= 0) {
+      this.errorPago = 'El monto debe ser mayor a 0.';
       this.cdr.detectChanges();
+      return;
     }
-  });
+    if (monto > this.ventaParaPago.saldoPendiente) {
+      this.errorPago = 'El monto no puede superar el saldo pendiente.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.errorPago = ''; 
+    
+    // 2. En vez de usar el confirm() del navegador, abrimos nuestro propio modal
+    this.showModalConfirmacion = true;
+  }
+
+  cerrarConfirmacion(): void {
+    // Si el usuario se arrepiente, solo cerramos el modal chico
+    this.showModalConfirmacion = false;
+  }
+
+  confirmarYRegistrarPago(): void {
+    // Si el usuario dice que sí, cerramos el cartel y disparamos al backend
+    this.showModalConfirmacion = false;
+    this.registrandoPago = true;
+    
+    const monto = Number(this.pagoMonto || 0);
+
+    this.ventasService.registrarPago({
+      ventaId: this.ventaParaPago!.id,
+      monto,
+      fecha: this.pagoFecha,
+      metodoPago: this.pagoMetodoPago
+    }).subscribe({
+      next: () => {
+        this.mostrarToast('Pago registrado correctamente.', 'success');
+        this.cerrarModalPago(); // Esto cierra el modal grande
+        this.cargarVentasReales();
+      },
+      error: (err: any) => {
+        const msg = err.error?.mensaje || 'No se pudo registrar el pago.';
+        this.errorPago = msg; 
+        this.registrandoPago = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   abrirHistorialPagos(venta: VentaDto): void {
