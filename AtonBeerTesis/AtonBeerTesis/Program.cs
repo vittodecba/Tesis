@@ -54,6 +54,7 @@ namespace AtonBeerTesis
             builder.Services.AddScoped<IRolService, RolService>();
             builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
             builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+            builder.Services.AddScoped<IHistorialAccesoRepository, HistorialAccesoRepository>();
 
             // --- AUTENTICACIÓN Y TOKEN ---
             builder.Services.AddScoped<ITokenService, TokenService>();

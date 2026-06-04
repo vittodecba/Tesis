@@ -22,6 +22,7 @@ import { RegistrarPedidoComponent } from './components/registrar-pedido/registra
 import { BarrilesGestion } from './components/barriles/barriles-gestion';
 import { BarrilDetalleComponent } from './components/barriles/barril-detalle/barril-detalle';
 import { VentasComponent } from './components/ventas/ventas.component';
+import { HistorialAccesoComponent } from './components/historial/historialComponent';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -52,6 +53,11 @@ export const routes: Routes = [
         component: RolesGestion,
         data: { title: 'Roles', subtitle: 'Permisos del sistema' },
       },
+      {
+       path: 'historial-accesos',
+       component: HistorialAccesoComponent,
+       data: { title: 'Historial de Accesos', subtitle: 'Auditoría de inicios de sesión' },
+       },
       {
         path: 'stock',
         component: StockGestion,

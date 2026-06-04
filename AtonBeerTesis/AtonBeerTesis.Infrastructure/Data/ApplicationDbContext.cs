@@ -59,6 +59,20 @@ namespace AtonBeerTesis.Infrastructure.Data
                 .HasForeignKey(u => u.RolId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // ── HISTORIAL ACCESO ───────────
+            modelBuilder.Entity<HistorialAcceso>(entity =>
+            {
+                entity.ToTable("historialAccesos");
+                entity.HasKey(h => h.Id);
+                entity.Property(h => h.EmailIntentado).HasMaxLength(150).IsRequired();
+                entity.Property(h => h.Detalles).HasMaxLength(300).IsRequired();
+                entity.Property(h => h.Ip).HasMaxLength(50);
+                entity.HasOne(h => h.Usuario)
+                    .WithMany()
+                    .HasForeignKey(h => h.UsuarioId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
             // ── LOTE ──────────────────────────────────────────────────────
             modelBuilder.Entity<Lote>(entity =>
             {

@@ -32,6 +32,7 @@ import {
   Boxes,
   Receipt,
   Ruler, 
+  History
 } from 'lucide-angular';
 
 @Component({
@@ -71,6 +72,9 @@ export class LayoutComponent implements OnInit {
   currentUser: any;
   pageTitle = 'Inicio';
   pageSub = 'Panel de control';
+
+  //Historial
+  History = History;
 
   ngOnInit() {
     this.currentUser = this.authService.getCurrentUser();

@@ -2,6 +2,7 @@
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Interfaces;
 using AtonBeerTesis.Application.Dto;
+using AtonBeerTesis.Domain.Entidades;
 
 namespace AtonBeerTesis.Controllers
 {
@@ -12,12 +13,14 @@ namespace AtonBeerTesis.Controllers
         private readonly IAuthService _authService;
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly ITokenService _tokenService;
+        private readonly IHistorialAccesoRepository _historialAccesoRepository;
 
-        public AuthController(IAuthService authService, IUsuarioRepository usuarioRepository, ITokenService tokenService)
+        public AuthController(IAuthService authService, IUsuarioRepository usuarioRepository, ITokenService tokenService, IHistorialAccesoRepository historialAccesoRepository)
         {
             _authService = authService;
             _usuarioRepository = usuarioRepository;
             _tokenService = tokenService;
+            _historialAccesoRepository = historialAccesoRepository;
         }
 
         [HttpPost("login")]
@@ -28,12 +31,42 @@ namespace AtonBeerTesis.Controllers
             var usuario = await _usuarioRepository.GetByEmailAsync(Dto.Email);
 
             if (usuario == null || usuario.Contrasena != Dto.Contrasena)
+            {
+                await _historialAccesoRepository.AddAsync(new HistorialAcceso
+                {
+                    UsuarioId = usuario?.Id,
+                    EmailIntentado = Dto.Email,
+                    FechaIntento = DateTime.Now,
+                    Exitoso = false,
+                    Detalles = usuario == null ? "Email no encontrado" : "Contraseña incorrecta",
+                    Ip = HttpContext.Connection.RemoteIpAddress?.ToString()
+                });
                 return Unauthorized(new { message = "Credenciales inválidas" });
-
+            }
             if (!usuario.Activo)
+            {
+                await _historialAccesoRepository.AddAsync(new HistorialAcceso
+                {
+                    UsuarioId = usuario.Id,
+                    EmailIntentado = Dto.Email,
+                    FechaIntento = DateTime.Now,
+                    Exitoso = false,
+                    Detalles = "Usuario inactivo",
+                    Ip = HttpContext.Connection.RemoteIpAddress?.ToString()
+                });
                 return Unauthorized(new { message = "Usuario inactivo. Contacte al administrador." });
-
+            }
             var token = _tokenService.GenerarTokenJWT(usuario);
+
+            await _historialAccesoRepository.AddAsync(new HistorialAcceso
+            {
+                UsuarioId = usuario.Id,
+                EmailIntentado = Dto.Email,
+                FechaIntento = DateTime.Now,
+                Exitoso = true,
+                Detalles = "Inicio de sesión exitoso",
+                Ip = HttpContext.Connection.RemoteIpAddress?.ToString()
+            });
 
             return Ok(new
             {

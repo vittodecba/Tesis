@@ -1,0 +1,91 @@
+<div class="p-6 min-h-screen bg-orange-50/30 font-sans">
+  <div class="mb-8">
+    <h2 class="text-3xl font-bold text-[#4A2C2A]">Auditoría de Accesos</h2>
+    <p class="text-gray-600 font-medium">Registro de intentos de inicio de sesión.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+    <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Email</label>
+      <input type="text" [(ngModel)]="filtros.email" (input)="aplicarFiltros()"
+             placeholder="Buscar email..."
+             class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none bg-gray-50 text-sm focus:border-orange-400">
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Fecha</label>
+      <input type="date" [(ngModel)]="filtros.fecha" (change)="aplicarFiltros()"
+             class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none bg-gray-50 text-sm focus:border-orange-400">
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Estado</label>
+      <select [(ngModel)]="exitoSelect" (change)="aplicarFiltros()"
+              class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none bg-gray-50 text-sm focus:border-orange-400">
+        <option value="">Todos</option>
+        <option value="true">Exitosos</option>
+        <option value="false">Fallidos</option>
+      </select>
+    </div>
+
+    <div class="flex items-end">
+      <button type="button" (click)="limpiar()"
+              class="px-5 py-3 rounded-xl bg-[#4A2C2A] text-white font-bold text-sm">
+        Limpiar
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-6">
+    <table class="w-full text-left">
+      <thead class="bg-gray-50 border-b border-gray-100">
+        <tr>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Fecha</th>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Usuario</th>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Email</th>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">IP</th>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-center">Estado</th>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Detalles</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngIf="cargando">
+          <td colspan="6" class="px-6 py-8 text-center text-gray-500 font-medium">
+            Cargando historial...
+          </td>
+        </tr>
+
+        <tr *ngFor="let item of historial" class="border-b border-gray-50 hover:bg-gray-50/50">
+          <td class="px-6 py-4 text-gray-700 font-medium">
+            {{ item.fecha | date:'dd/MM/yyyy HH:mm' }}
+          </td>
+          <td class="px-6 py-4 font-bold text-[#4A2C2A]">
+            {{ item.usuario }}
+          </td>
+          <td class="px-6 py-4 text-gray-600">
+            {{ item.email }}
+          </td>
+          <td class="px-6 py-4 text-gray-600">
+            {{ item.ip || '-' }}
+          </td>
+          <td class="px-6 py-4 text-center">
+            <span class="px-3 py-1 rounded-full text-xs font-bold"
+                  [ngClass]="item.exitoso ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+              {{ item.exitoso ? 'Exitoso' : 'Fallido' }}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-gray-600">
+            {{ item.detalles }}
+          </td>
+        </tr>
+
+        <tr *ngIf="!cargando && historial.length === 0">
+          <td colspan="6" class="px-6 py-8 text-center text-gray-500 font-medium">
+            No hay registros de auditoría.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
