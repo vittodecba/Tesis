@@ -233,21 +233,36 @@ namespace AtonBeerTesis.Application.Services
             pedido.EstadoId = 2;
             await _pedidoRepository.UpdateAsync(pedido);
 
-            // Crear Venta automáticamente al entregar el pedido
-            var nuevaVenta = new Venta
+            var ventaExistente = await _ventaRepository.GetByPedidoIdAsync(pedido.Id);
+
+            if (ventaExistente != null)
             {
-                FechaCreacion = DateTime.Now,
-                ClienteId     = pedido.ClienteId,
-                PedidoId      = pedido.Id,
-                MontoTotal    = pedido.Total,
-                EstadoVenta   = EstadoVenta.Pendiente,
-                Plazo         = pedidoDto.Plazo,
-                MetodoPago    = pedidoDto.MetodoPago,
-                NumeroVenta   = string.Empty
-            };
-            var ventaGuardada = await _ventaRepository.AddAsync(nuevaVenta);
-            ventaGuardada.NumeroVenta = $"VNT-{DateTime.Now.Year}-{ventaGuardada.Id:D5}";
-            await _ventaRepository.UpdateAsync(ventaGuardada);
+                ventaExistente.ClienteId = pedido.ClienteId;
+                ventaExistente.MontoTotal = pedido.Total;
+                ventaExistente.EstadoVenta = EstadoVenta.Pendiente;
+                ventaExistente.Plazo = pedidoDto.Plazo;
+                ventaExistente.MetodoPago = pedidoDto.MetodoPago;
+
+                await _ventaRepository.UpdateAsync(ventaExistente);
+            }
+            else
+            {
+                var nuevaVenta = new Venta
+                {
+                    FechaCreacion = DateTime.Now,
+                    ClienteId = pedido.ClienteId,
+                    PedidoId = pedido.Id,
+                    MontoTotal = pedido.Total,
+                    EstadoVenta = EstadoVenta.Pendiente,
+                    Plazo = pedidoDto.Plazo,
+                    MetodoPago = pedidoDto.MetodoPago,
+                    NumeroVenta = string.Empty
+                };
+
+                var ventaGuardada = await _ventaRepository.AddAsync(nuevaVenta);
+                ventaGuardada.NumeroVenta = $"VNT-{DateTime.Now.Year}-{ventaGuardada.Id:D5}";
+                await _ventaRepository.UpdateAsync(ventaGuardada);
+            }
 
             return true;
         }

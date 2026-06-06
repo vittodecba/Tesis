@@ -43,5 +43,10 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .Include(v => v.Pedido)
                 .FirstOrDefaultAsync(v => v.Id == id);
         }
+        public async Task<Venta?> GetByPedidoIdAsync(int pedidoId)
+        {
+            return await _context.Ventas
+                .FirstOrDefaultAsync(v => v.PedidoId == pedidoId);
+        }
     }
 }
