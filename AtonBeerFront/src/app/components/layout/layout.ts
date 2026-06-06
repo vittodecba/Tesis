@@ -11,6 +11,7 @@ import {
 import { LucideAngularModule } from 'lucide-angular';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
+import { ROLES } from '../../core/constants/roles';
 import {
   Home,
   Users,
@@ -87,8 +88,40 @@ export class LayoutComponent implements OnInit {
       });
   }
 
-  esAdmin(): boolean {
-    return true;
+  hasRole(...roles: string[]): boolean {
+    return this.authService.hasRole(...roles);
+  }
+
+  puedeVerAdministracion(): boolean {
+    return this.hasRole(ROLES.ADMIN, ROLES.GERENTE);
+  }
+
+  puedeVerProduccion(): boolean {
+    return this.hasRole(ROLES.ADMIN, ROLES.RESP_PLANTA, ROLES.COCINERO);
+  }
+
+  puedeVerPlanificacion(): boolean {
+    return this.hasRole(ROLES.ADMIN, ROLES.RESP_PLANTA);
+  }
+
+  puedeVerBarriles(): boolean {
+    return this.hasRole(ROLES.ADMIN, ROLES.RESP_PLANTA, ROLES.RESP_PEDIDOS);
+  }
+
+  puedeVerClientes(): boolean {
+    return this.hasRole(ROLES.ADMIN, ROLES.GERENTE, ROLES.RESP_PEDIDOS);
+  }
+
+  puedeVerPedidos(): boolean {
+    return this.hasRole(ROLES.ADMIN, ROLES.GERENTE, ROLES.RESP_PLANTA, ROLES.RESP_PEDIDOS);
+  }
+
+  puedeVerVentas(): boolean {
+    return this.hasRole(ROLES.ADMIN, ROLES.GERENTE, ROLES.GERENTE_MAYOR);
+  }
+
+  puedeVerReportes(): boolean {
+    return this.hasRole(ROLES.ADMIN, ROLES.GERENTE_MAYOR);
   }
 
   private updateHeader() {

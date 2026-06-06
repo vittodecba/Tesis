@@ -23,6 +23,15 @@ import { BarrilesGestion } from './components/barriles/barriles-gestion';
 import { BarrilDetalleComponent } from './components/barriles/barril-detalle/barril-detalle';
 import { VentasComponent } from './components/ventas/ventas.component';
 import { HistorialAccesoComponent } from './components/historial/historialComponent';
+import { roleGuard } from './core/guards/role.guard';
+import { ROLES } from './core/constants/roles';
+
+const A = ROLES.ADMIN;
+const G = ROLES.GERENTE;
+const GM = ROLES.GERENTE_MAYOR;
+const RP = ROLES.RESP_PLANTA;
+const RPE = ROLES.RESP_PEDIDOS;
+const C = ROLES.COCINERO;
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -41,97 +50,116 @@ export const routes: Routes = [
       {
         path: 'clientes',
         component: ClientesComponent,
-        data: { title: 'Clientes', subtitle: 'Gestión de franquicias' },
+        canActivate: [roleGuard],
+        data: { title: 'Clientes', subtitle: 'Gestión de franquicias', roles: [A, G, RPE] },
       },
       {
         path: 'usuarios',
         component: UsuariosComponent,
-        data: { title: 'Usuarios', subtitle: 'Administración de accesos' },
+        canActivate: [roleGuard],
+        data: { title: 'Usuarios', subtitle: 'Administración de accesos', roles: [A, G] },
       },
       {
         path: 'roles',
         component: RolesGestion,
-        data: { title: 'Roles', subtitle: 'Permisos del sistema' },
+        canActivate: [roleGuard],
+        data: { title: 'Roles', subtitle: 'Permisos del sistema', roles: [A, G] },
       },
       {
-       path: 'historial-accesos',
-       component: HistorialAccesoComponent,
-       data: { title: 'Historial de Accesos', subtitle: 'Auditoría de inicios de sesión' },
-       },
+        path: 'historial-accesos',
+        component: HistorialAccesoComponent,
+        canActivate: [roleGuard],
+        data: { title: 'Historial de Accesos', subtitle: 'Auditoría de inicios de sesión', roles: [A, G] },
+      },
       {
         path: 'stock',
         component: StockGestion,
-        data: { title: 'Stock', subtitle: 'Control de productos' },
+        canActivate: [roleGuard],
+        data: { title: 'Stock', subtitle: 'Control de productos', roles: [A, RP, C] },
       },
       {
         path: 'insumos',
         component: InsumoComponent,
-        data: { title: 'Insumos', subtitle: 'Gestión de materia prima' },
+        canActivate: [roleGuard],
+        data: { title: 'Insumos', subtitle: 'Gestión de materia prima', roles: [A, RP, C] },
       },
       {
         path: 'unidades-medida',
         component: UnidadMedidaComponent,
-        data: { title: 'Unidades', subtitle: 'Gestión de medidas' },
+        canActivate: [roleGuard],
+        data: { title: 'Unidades', subtitle: 'Gestión de medidas', roles: [A, RP] },
       },
       {
         path: 'fermentadores',
         component: FermentadorComponent,
-        data: { title: 'Fermentadores', subtitle: 'Gestión de tanques de fermentación' },
+        canActivate: [roleGuard],
+        data: { title: 'Fermentadores', subtitle: 'Gestión de tanques de fermentación', roles: [A, RP, C] },
       },
       {
         path: 'fermentadores/:id',
         component: FermentadorDetalleComponent,
-        data: { title: 'Detalle de Fermentador', subtitle: 'Seguimiento del lote y fermentación' },
+        canActivate: [roleGuard],
+        data: { title: 'Detalle de Fermentador', subtitle: 'Seguimiento del lote y fermentación', roles: [A, RP, C] },
       },
       {
         path: 'recetas',
         component: RecetaListComponent,
-        data: { title: 'Recetas', subtitle: 'Gestión de recetas de cerveza' },
+        canActivate: [roleGuard],
+        data: { title: 'Recetas', subtitle: 'Gestión de recetas de cerveza', roles: [A, RP, C] },
       },
       {
         path: 'recetas/detalle/:id',
         component: RecetaDetalle,
-        data: { title: 'Detalle de Receta', subtitle: 'Información completa' },
+        canActivate: [roleGuard],
+        data: { title: 'Detalle de Receta', subtitle: 'Información completa', roles: [A, RP, C] },
       },
       {
         path: 'planificacion',
         component: LoteListadoComponent,
-        data: { title: 'Planificación', subtitle: 'Gestión y seguimiento de lotes' },
+        canActivate: [roleGuard],
+        data: { title: 'Planificación', subtitle: 'Gestión y seguimiento de lotes', roles: [A, RP] },
       },
       {
         path: 'planificacion/Listado',
         component: PlanificacionListComponent,
-        data: { title: 'Planificacion', subtitle: 'Planificaciones activas' }
+        canActivate: [roleGuard],
+        data: { title: 'Planificacion', subtitle: 'Planificaciones activas', roles: [A, RP] },
       },
       {
         path: 'planificacion/nueva',
         component: PlanificacionFormComponent,
-        data: { title: 'Nueva Planificacion', subtitle: 'Programar Coccion' }
+        canActivate: [roleGuard],
+        data: { title: 'Nueva Planificacion', subtitle: 'Programar Coccion', roles: [A, RP] },
       },
       {
         path: 'planificacion/detalle/:id',
         component: LoteDetalleComponent,
-        data: { title: 'Detalle de Lote', subtitle: 'Información completa del lote' },
+        canActivate: [roleGuard],
+        data: { title: 'Detalle de Lote', subtitle: 'Información completa del lote', roles: [A, RP] },
       },
       {
-          path: 'pedidos/registrar',
-          component: RegistrarPedidoComponent,
-          data: { title: 'Pedidos', subtitle: 'Administración y registro de pedidos' }
-        },
-        {
-          path: 'barriles',
-          component: BarrilesGestion,
-          data: { title: 'Barriles', subtitle: 'Seguimiento de activos retornables' }
-        },
-        {
-          path: 'ventas',
-          component: VentasComponent,
-          data: { title: 'Ventas', subtitle: 'Registro de ventas generadas' }
-        },        
+        path: 'pedidos/registrar',
+        component: RegistrarPedidoComponent,
+        canActivate: [roleGuard],
+        data: { title: 'Pedidos', subtitle: 'Administración y registro de pedidos', roles: [A, G, RP, RPE] },
+      },
+      {
+        path: 'barriles',
+        component: BarrilesGestion,
+        canActivate: [roleGuard],
+        data: { title: 'Barriles', subtitle: 'Seguimiento de activos retornables', roles: [A, RP, RPE] },
+      },
       {
         path: 'barriles/:id',
         component: BarrilDetalleComponent,
-        data: { title: 'Detalle de Barril', subtitle: 'Información y movimientos' },
+        canActivate: [roleGuard],
+        data: { title: 'Detalle de Barril', subtitle: 'Información y movimientos', roles: [A, RP, RPE] },
+      },
+      {
+        path: 'ventas',
+        component: VentasComponent,
+        canActivate: [roleGuard],
+        data: { title: 'Ventas', subtitle: 'Registro de ventas generadas', roles: [A, G, GM] },
       },
     ],
   },
