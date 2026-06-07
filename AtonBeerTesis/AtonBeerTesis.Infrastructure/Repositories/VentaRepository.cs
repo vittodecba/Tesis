@@ -30,6 +30,8 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         public async Task<IEnumerable<Venta>> GetAllAsync()
         {
             return await _context.Ventas
+                .AsNoTracking()
+                .AsSplitQuery()
                 .Include(v => v.Cliente)
                 .Include(v => v.Pedido)
                     .ThenInclude(p => p.Detalles)
@@ -56,6 +58,30 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                         .ThenInclude(d => d.ProductoStock)
                             .ThenInclude(ps => ps.Receta)
                 .FirstOrDefaultAsync(v => v.Id == id);
+        }
+
+        public async Task<List<Venta>> GetVentasPorRangoAsync(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            return await _context.Ventas
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(v => v.Cliente)
+                .Include(v => v.Pedido)
+                    .ThenInclude(p => p.Detalles)
+                        .ThenInclude(d => d.ProductoStock)
+                            .ThenInclude(ps => ps.FormatoEnvase)
+                .Include(v => v.Pedido)
+                    .ThenInclude(p => p.Detalles)
+                        .ThenInclude(d => d.ProductoStock)
+                            .ThenInclude(ps => ps.Receta)
+                .Where(v => v.FechaCreacion >= fechaDesde && v.FechaCreacion <= fechaHasta)
+                .OrderByDescending(v => v.FechaCreacion)
+                .ToListAsync();
+        }
+
+        public IQueryable<Venta> GetQueryable()
+        {
+            return _context.Ventas.AsNoTracking();
         }
     }
 }

@@ -1,7 +1,6 @@
-using AtonBeerBackend.Models.DTOs;
 using AtonBeerTesis.Application.Dtos.VENTAS;
+using AtonBeerTesis.Application.DTOs;
 using AtonBeerTesis.Application.Interfaces;
-using AtonBeerTesis.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AtonBeerTesis.Controllers

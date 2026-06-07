@@ -20,6 +20,12 @@ export interface VentaPorDia {
   total: number;
 }
 
+export interface ComparativaMes {
+  diaDelPeriodo: number;
+  totalActual: number;
+  totalAnterior: number;
+}
+
 export interface TopCliente {
   cliente: string;
   totalComprado: number;
@@ -36,6 +42,17 @@ export interface TopEstilo {
   cantidadVendida: number;
 }
 
+export interface EvolucionEstilo {
+  fecha: string;
+  estilo: string;
+  cantidad: number;
+}
+
+export interface IngresoPorMes {
+  mes: string;
+  total: number;
+}
+
 export interface ReporteVentas {
   totalVendido: number;
   cantidadVentas: number;
@@ -44,9 +61,12 @@ export interface ReporteVentas {
   ticketPromedio: number;
   variacionIngresosPorcentaje: number;
   ventasPorDia: VentaPorDia[];
+  comparativaMensual: ComparativaMes[];
   topClientes: TopCliente[];
   topProductos: TopProducto[];
   topEstilos: TopEstilo[];
+  evolucionEstilos: EvolucionEstilo[];
+  evolucionMensualIngresos: IngresoPorMes[];
 }
 
 @Injectable({

@@ -1,5 +1,5 @@
-using AtonBeerBackend.Models.DTOs;
 using AtonBeerTesis.Application.Dtos.VENTAS;
+using AtonBeerTesis.Application.DTOs;
 
 namespace AtonBeerTesis.Application.Interfaces
 {

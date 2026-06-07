@@ -1,32 +1,15 @@
 <div class="p-6 min-h-screen bg-orange-50/40 text-start font-sans relative">
-  
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
     <div>
       <h2 class="text-3xl font-bold text-[#4A2C2A]">Reportes de Ventas</h2>
       <p class="text-gray-600 font-medium">Análisis de rendimiento financiero e indicadores.</p>
     </div>
-    <button class="flex items-center gap-2 bg-[#E67E22] text-white px-5 py-2.5 rounded-xl font-bold hover:bg-[#D6731B] transition-all shadow-md shadow-orange-500/20 active:scale-95 text-sm">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-      Exportar Reporte a PDF
-    </button>
   </div>
 
   <div class="flex space-x-1 mb-6 border-b-2 border-orange-100 overflow-x-auto">
-    <button (click)="cambiarTab('general')" 
-            [ngClass]="tabActiva === 'general' ? 'border-[#E67E22] text-[#E67E22]' : 'border-transparent text-gray-500 hover:text-gray-700'"
-            class="px-6 py-3 font-black text-sm border-b-4 transition-colors whitespace-nowrap">
-      RESUMEN GENERAL
-    </button>
-    <button (click)="cambiarTab('clientes')" 
-            [ngClass]="tabActiva === 'clientes' ? 'border-[#E67E22] text-[#E67E22]' : 'border-transparent text-gray-500 hover:text-gray-700'"
-            class="px-6 py-3 font-black text-sm border-b-4 transition-colors whitespace-nowrap">
-      ANÁLISIS DE CLIENTES
-    </button>
-    <button (click)="cambiarTab('productos')" 
-            [ngClass]="tabActiva === 'productos' ? 'border-[#E67E22] text-[#E67E22]' : 'border-transparent text-gray-500 hover:text-gray-700'"
-            class="px-6 py-3 font-black text-sm border-b-4 transition-colors whitespace-nowrap">
-      PRODUCTOS Y ESTILOS
-    </button>
+    <button (click)="cambiarTab('general')" [ngClass]="tabActiva === 'general' ? 'border-[#E67E22] text-[#E67E22]' : 'border-transparent text-gray-500'" class="px-6 py-3 font-black text-sm border-b-4 transition-colors whitespace-nowrap">RESUMEN GENERAL</button>
+    <button (click)="cambiarTab('clientes')" [ngClass]="tabActiva === 'clientes' ? 'border-[#E67E22] text-[#E67E22]' : 'border-transparent text-gray-500'" class="px-6 py-3 font-black text-sm border-b-4 transition-colors whitespace-nowrap">ANÁLISIS DE CLIENTES</button>
+    <button (click)="cambiarTab('productos')" [ngClass]="tabActiva === 'productos' ? 'border-[#E67E22] text-[#E67E22]' : 'border-transparent text-gray-500'" class="px-6 py-3 font-black text-sm border-b-4 transition-colors whitespace-nowrap">PRODUCTOS Y ESTILOS</button>
   </div>
 
   <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 mb-8">
@@ -39,17 +22,14 @@
           <option value="mes_anterior">Mes Anterior</option>
         </select>
       </div>
-
       <div class="space-y-2 flex-1">
         <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest">Fecha Desde</label>
         <input type="date" formControlName="fechaDesde" class="w-full border-2 border-gray-100 rounded-xl py-2.5 px-4 outline-none focus:border-[#E67E22] text-gray-700 font-medium bg-gray-50/50" />
       </div>
-      
       <div class="space-y-2 flex-1">
         <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest">Fecha Hasta</label>
         <input type="date" formControlName="fechaHasta" class="w-full border-2 border-gray-100 rounded-xl py-2.5 px-4 outline-none focus:border-[#E67E22] text-gray-700 font-medium bg-gray-50/50" />
       </div>
-
       <div *ngIf="tabActiva === 'clientes'" class="space-y-2 flex-1 animate-fade-in">
         <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest">Filtrar por Cliente</label>
         <select formControlName="clienteId" class="w-full border-2 border-gray-100 rounded-xl py-2.5 px-4 outline-none focus:border-[#E67E22] text-gray-700 font-medium bg-gray-50/50">
@@ -57,123 +37,97 @@
           <option *ngFor="let c of topClientes" [value]="c.cliente">{{ c.cliente }}</option>
         </select>
       </div>
-
-      <button type="submit" class="w-full md:w-auto px-8 py-3 bg-[#4A2C2A] text-white font-bold rounded-xl hover:bg-[#3A2220] transition-colors shadow-sm">
-        Filtrar Datos
+      <button type="submit" [disabled]="cargando" class="w-full md:w-auto px-8 py-3 bg-[#4A2C2A] text-white font-bold rounded-xl hover:bg-[#3A2220] transition-colors shadow-sm disabled:opacity-50">
+        <span *ngIf="!cargando">Filtrar Datos</span>
+        <span *ngIf="cargando">Cargando...</span>
       </button>
     </form>
   </div>
 
-  <div *ngIf="tabActiva === 'general'" class="animate-fade-in">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      <div class="bg-white rounded-2xl p-6 border-l-4 border-[#E67E22] shadow-sm">
-        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Ingreso Total</span>
-        <h3 class="text-3xl font-black text-[#3A2220]">${{ resumen.totalVendido | number:'1.2-2' }}</h3>
-      </div>
-      <div class="bg-white rounded-2xl p-6 border-l-4 border-amber-400 shadow-sm">
-        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Cant. de Ventas</span>
-        <h3 class="text-3xl font-black text-[#3A2220]">{{ resumen.cantidadVentas }}</h3>
-      </div>
-      <div class="bg-white rounded-2xl p-6 border-l-4 border-purple-500 shadow-sm">
-        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Ticket Promedio</span>
-        <h3 class="text-3xl font-black text-[#3A2220]">${{ resumen.ticketPromedio | number:'1.2-2' }}</h3>
-      </div>
-      <div class="bg-white rounded-2xl p-6 border-l-4 border-indigo-500 shadow-sm">
-        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Vs. Período Anterior</span>
-        <h3 class="text-3xl font-black" [ngClass]="resumen.variacionIngresosPorcentaje >= 0 ? 'text-green-500' : 'text-red-500'">
-          {{ resumen.variacionIngresosPorcentaje > 0 ? '+' : '' }}{{ resumen.variacionIngresosPorcentaje }}%
-        </h3>
-      </div>
-      <div class="bg-white rounded-2xl p-6 border-l-4 border-green-500 shadow-sm">
-        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Ingreso Efectivo</span>
-        <h3 class="text-3xl font-black text-[#3A2220]">${{ resumen.efectivoTotal | number:'1.2-2' }}</h3>
-      </div>
-      <div class="bg-white rounded-2xl p-6 border-l-4 border-blue-500 shadow-sm">
-        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Ingreso Transf.</span>
-        <h3 class="text-3xl font-black text-[#3A2220]">${{ resumen.transferenciaTotal | number:'1.2-2' }}</h3>
-      </div>
-    </div>
-
-    <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 h-96">
-      <div style="display: block; width: 100%; height: 100%;">
-        <canvas baseChart [data]="barChartData" [options]="barChartOptions" [plugins]="barChartPlugins" [legend]="barChartLegend" type="bar"></canvas>
-      </div>
-    </div>
+  <div *ngIf="cargando" class="flex flex-col items-center justify-center py-20">
+    <svg class="animate-spin h-12 w-12 text-[#E67E22] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    <p class="text-gray-500 font-bold text-lg">Procesando información...</p>
   </div>
 
-  <div *ngIf="tabActiva === 'clientes'" class="animate-fade-in">
-    <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6">
-      <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Top 5 Clientes por Volumen de Compra</h3>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="border-b border-gray-100">
-              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Cliente</th>
-              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Nº Ventas</th>
-              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Total Comprado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let cliente of topClientes" class="border-b border-gray-50 hover:bg-orange-50/30 transition-colors">
-              <td class="py-4 px-4 text-sm font-bold text-gray-700">{{ cliente.cliente }}</td>
-              <td class="py-4 px-4 text-sm font-medium text-gray-500 text-center">{{ cliente.cantidadVentas }}</td>
-              <td class="py-4 px-4 text-sm font-black text-[#E67E22] text-right">${{ cliente.totalComprado | number:'1.2-2' }}</td>
-            </tr>
-            <tr *ngIf="topClientes.length === 0">
-              <td colspan="3" class="py-8 text-center text-sm font-medium text-gray-400">No hay datos de clientes para este período.</td>
-            </tr>
-          </tbody>
-        </table>
+  <div *ngIf="!cargando">
+    <div *ngIf="tabActiva === 'general'" class="animate-fade-in">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-2xl p-6 border-l-4 border-[#E67E22] shadow-sm">
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Ingreso Total</span>
+          <h3 class="text-3xl font-black text-[#3A2220]">${{ resumen.totalVendido | number:'1.2-2' }}</h3>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border-l-4 border-amber-400 shadow-sm">
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Cant. de Ventas</span>
+          <h3 class="text-3xl font-black text-[#3A2220]">{{ resumen.cantidadVentas }}</h3>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border-l-4 border-purple-500 shadow-sm">
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Ticket Promedio</span>
+          <h3 class="text-3xl font-black text-[#3A2220]">${{ resumen.ticketPromedio | number:'1.2-2' }}</h3>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border-l-4 border-indigo-500 shadow-sm">
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Vs. Período Anterior</span>
+          <h3 class="text-3xl font-black" [ngClass]="resumen.variacionIngresosPorcentaje >= 0 ? 'text-green-500' : 'text-red-500'">{{ resumen.variacionIngresosPorcentaje > 0 ? '+' : '' }}{{ resumen.variacionIngresosPorcentaje }}%</h3>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border-l-4 border-green-500 shadow-sm">
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Ingreso Efectivo</span>
+          <h3 class="text-3xl font-black text-[#3A2220]">${{ resumen.efectivoTotal | number:'1.2-2' }}</h3>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border-l-4 border-blue-500 shadow-sm">
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Ingreso Transf.</span>
+          <h3 class="text-3xl font-black text-[#3A2220]">${{ resumen.transferenciaTotal | number:'1.2-2' }}</h3>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div *ngIf="mostrarComparativaDiaria" class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 lg:col-span-2 h-[400px] animate-fade-in">
+          <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Comparativa Mensual de Ingresos</h3>
+          <div style="display: block; width: 100%; height: calc(100% - 2rem);"><canvas baseChart [datasets]="barChartDatasets" [labels]="barChartLabels" [options]="barChartOptions" [type]="'bar'"></canvas></div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 h-[400px]" [ngClass]="mostrarComparativaDiaria ? 'lg:col-span-1' : 'lg:col-span-3'">
+          <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Distribución por Pago</h3>
+          <div style="display: block; width: 100%; height: calc(100% - 2rem);"><canvas baseChart [datasets]="doughnutChartDatasets" [labels]="doughnutChartLabels" [options]="doughnutChartOptions" [type]="'doughnut'"></canvas></div>
+        </div>
+      </div>
+      <div class="mt-6 bg-white rounded-2xl shadow-sm border border-orange-100 p-6 h-[400px]">
+        <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Evolución de Ingresos (Por Mes)</h3>
+        <div style="display: block; width: 100%; height: calc(100% - 2rem);">
+          <canvas baseChart [datasets]="mensualBarChartDatasets" [labels]="mensualBarChartLabels" [options]="mensualBarChartOptions" [type]="'bar'"></canvas>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div *ngIf="tabActiva === 'productos'" class="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
-    <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6">
-      <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Top 5 Estilos Más Vendidos</h3>
-      <div class="overflow-x-auto">
+    <div *ngIf="tabActiva === 'clientes'" class="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
+      <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 h-[400px]">
+        <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Comportamiento (Frecuencia vs Volumen)</h3>
+        <div style="display: block; width: 100%; height: calc(100% - 2rem);"><canvas baseChart [datasets]="scatterChartDatasets" [options]="scatterChartOptions" [type]="'scatter'"></canvas></div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6">
+        <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Top 5 Clientes</h3>
         <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="border-b border-gray-100">
-              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Estilo</th>
-              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Cant. Vendida</th>
-            </tr>
-          </thead>
+          <thead><tr class="border-b border-gray-100"><th class="py-3 px-4 text-xs font-bold text-gray-400">Cliente</th><th class="py-3 px-4 text-xs font-bold text-gray-400 text-right">Total</th></tr></thead>
           <tbody>
-            <tr *ngFor="let estilo of topEstilos" class="border-b border-gray-50 hover:bg-orange-50/30 transition-colors">
-              <td class="py-4 px-4 text-sm font-bold text-gray-700 uppercase">{{ estilo.estilo }}</td>
-              <td class="py-4 px-4 text-sm font-black text-purple-600 text-right">{{ estilo.cantidadVendida }} u.</td>
-            </tr>
-            <tr *ngIf="topEstilos.length === 0">
-              <td colspan="2" class="py-8 text-center text-sm font-medium text-gray-400">No hay datos de estilos.</td>
-            </tr>
+            <tr *ngFor="let cliente of topClientes" class="border-b border-gray-50"><td class="py-3 px-4 text-sm font-bold">{{ cliente.cliente }}</td><td class="py-3 px-4 text-sm font-black text-[#E67E22] text-right">${{ cliente.totalComprado | number:'1.2-2' }}</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6">
-      <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Top 5 Productos Exactos Más Vendidos</h3>
-      <div class="overflow-x-auto">
+    <div *ngIf="tabActiva === 'productos'" class="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
+      <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 lg:col-span-2 h-[400px]">
+        <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Evolución de Venta por Estilos</h3>
+        <div style="display: block; width: 100%; height: calc(100% - 2rem);"><canvas baseChart [datasets]="lineChartDatasets" [labels]="lineChartLabels" [options]="lineChartOptions" [type]="'line'"></canvas></div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 lg:col-span-2">
+        <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Top Productos Exactos</h3>
         <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="border-b border-gray-100">
-              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Detalle del Producto</th>
-              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Cant. Vendida</th>
-            </tr>
-          </thead>
+          <thead><tr class="border-b border-gray-100"><th class="py-3 px-4 text-xs font-bold text-gray-400">Detalle</th><th class="py-3 px-4 text-xs font-bold text-gray-400 text-right">Unidades</th></tr></thead>
           <tbody>
-            <tr *ngFor="let prod of topProductos" class="border-b border-gray-50 hover:bg-orange-50/30 transition-colors">
-              <td class="py-4 px-4 text-sm font-medium text-gray-600">{{ prod.producto }}</td>
-              <td class="py-4 px-4 text-sm font-black text-indigo-600 text-right">{{ prod.cantidadVendida }} u.</td>
-            </tr>
-            <tr *ngIf="topProductos.length === 0">
-              <td colspan="2" class="py-8 text-center text-sm font-medium text-gray-400">No hay datos de productos.</td>
-            </tr>
+            <tr *ngFor="let prod of topProductos" class="border-b border-gray-50"><td class="py-3 px-4 text-sm">{{ prod.producto }}</td><td class="py-3 px-4 text-sm font-black text-indigo-600 text-right">{{ prod.cantidadVendida }} u.</td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
-
 </div>
