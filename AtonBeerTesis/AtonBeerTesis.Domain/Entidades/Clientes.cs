@@ -12,6 +12,9 @@ public class Cliente
     public TipoCliente Tipocliente { get; set; } = TipoCliente.Externo;
     public EstadoCliente EstadoCliente { get; set; } = EstadoCliente.Activo;
 
+    // Condición frente al IVA (define el tipo de factura: A o B)
+    public CondicionIVA CondicionIVA { get; set; } = CondicionIVA.ResponsableInscripto;
+
     // Datos del cliente
     public string RazonSocial { get; set; } = null!;
     public string Cuit { get; set; } = null!; // string por ceros/guiones

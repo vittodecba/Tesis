@@ -22,6 +22,7 @@ import { RegistrarPedidoComponent } from './components/registrar-pedido/registra
 import { BarrilesGestion } from './components/barriles/barriles-gestion';
 import { BarrilDetalleComponent } from './components/barriles/barril-detalle/barril-detalle';
 import { VentasComponent } from './components/ventas/ventas.component';
+import { EmpresaComponent } from './components/empresa/empresa.component';
 import { HistorialAccesoComponent } from './components/historial/historialComponent';
 import { roleGuard } from './core/guards/role.guard';
 import { ROLES } from './core/constants/roles';
@@ -160,6 +161,12 @@ export const routes: Routes = [
         component: VentasComponent,
         canActivate: [roleGuard],
         data: { title: 'Ventas', subtitle: 'Registro de ventas generadas', roles: [A, G, GM] },
+      },
+      {
+        path: 'empresa',
+        component: EmpresaComponent,
+        canActivate: [roleGuard],
+        data: { title: 'Empresa', subtitle: 'Datos del emisor para facturación', roles: [A, G] },
       },
     ],
   },

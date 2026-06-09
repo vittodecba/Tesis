@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, CreditCard, Pencil } from 'lucide-angular';
+import { LucideAngularModule, CreditCard, Pencil, FileText, Download } from 'lucide-angular';
 import { VentasService, VentaDto } from '../../services/ventas.service';
 
 @Component({
@@ -13,10 +13,15 @@ import { VentasService, VentaDto } from '../../services/ventas.service';
 export class VentasComponent implements OnInit {
   readonly CreditCard = CreditCard;
   readonly Pencil = Pencil;
+  readonly FileText = FileText;
+  readonly Download = Download;
 
   ventas: VentaDto[] = [];
   cargando: boolean = true;
   error: string = '';
+
+  // Id de la venta que se está facturando (para deshabilitar el botón)
+  facturandoId: number | null = null;
 
   // Toast
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
@@ -103,6 +108,43 @@ export class VentasComponent implements OnInit {
         this.mostrarToast(msg, 'error');
         this.guardando = false;
       }
+    });
+  }
+
+  generarFactura(venta: VentaDto): void {
+    if (this.facturandoId) return;
+    this.facturandoId = venta.id;
+    this.ventasService.generarFactura(venta.id).subscribe({
+      next: (factura) => {
+        this.mostrarToast(`Factura ${factura.tipo} ${factura.numeroComprobante} generada.`, 'success');
+        this.facturandoId = null;
+        this.descargarPdf(factura.id);
+        this.cargarVentas();
+      },
+      error: (err) => {
+        const msg = err.error?.mensaje || 'No se pudo generar la factura.';
+        this.mostrarToast(msg, 'error');
+        this.facturandoId = null;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  descargarFactura(venta: VentaDto): void {
+    if (venta.facturaId) this.descargarPdf(venta.facturaId);
+  }
+
+  private descargarPdf(facturaId: number): void {
+    this.ventasService.descargarFacturaPdf(facturaId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Factura_${facturaId}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.mostrarToast('No se pudo descargar el PDF de la factura.', 'error')
     });
   }
 

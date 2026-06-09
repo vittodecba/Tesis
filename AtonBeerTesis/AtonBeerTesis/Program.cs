@@ -97,6 +97,15 @@ namespace AtonBeerTesis
             // --- VENTAS ---
             builder.Services.AddScoped<IVentaRepository, VentaRepository>();
             builder.Services.AddScoped<IVentaService, VentaService>();
+            // --- EMPRESA (EMISOR) ---
+            builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
+            builder.Services.AddScoped<IEmpresaService, EmpresaService>();
+            // --- FACTURAS ---
+            builder.Services.AddScoped<IFacturaRepository, FacturaRepository>();
+            builder.Services.AddScoped<IFacturaService, FacturaService>();
+
+            // Licencia QuestPDF (gratuita para uso Community)
+            QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
             var app = builder.Build();
 

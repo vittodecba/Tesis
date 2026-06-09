@@ -1,0 +1,83 @@
+<div class="p-6 min-h-screen bg-orange-50/30 font-sans">
+  <!-- Encabezado -->
+  <div class="flex items-center gap-3 mb-6">
+    <div class="p-2.5 rounded-xl bg-gradient-to-r from-[#4A2C2A] to-[#E67E22]">
+      <lucide-icon [img]="Building2" [size]="20" class="text-white"></lucide-icon>
+    </div>
+    <div>
+      <h2 class="text-3xl font-bold text-[#4A2C2A]">Datos de la Empresa</h2>
+      <p class="text-sm text-gray-500">Emisor de los comprobantes (facturas)</p>
+    </div>
+  </div>
+
+  <div *ngIf="cargando" class="text-gray-400 text-sm">Cargando…</div>
+
+  <!-- Formulario -->
+  <form *ngIf="!cargando" [formGroup]="form" (ngSubmit)="guardar()"
+        class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 max-w-3xl">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div class="md:col-span-2">
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Razón Social *</label>
+        <input formControlName="razonSocial"
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">CUIT *</label>
+        <input formControlName="cuit"
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Condición IVA *</label>
+        <select formControlName="condicionIVA"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none">
+          <option value="ResponsableInscripto">Responsable Inscripto</option>
+          <option value="Monotributo">Monotributo</option>
+          <option value="ConsumidorFinal">Consumidor Final</option>
+          <option value="Exento">Exento</option>
+        </select>
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Domicilio Comercial *</label>
+        <input formControlName="domicilioComercial"
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Punto de Venta *</label>
+        <input type="number" formControlName="puntoVenta" min="1"
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Ingresos Brutos</label>
+        <input formControlName="ingresosBrutos"
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Inicio de Actividades *</label>
+        <input type="date" formControlName="inicioActividades"
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none" />
+      </div>
+    </div>
+
+    <div class="mt-6 flex justify-end">
+      <button type="submit" [disabled]="guardando"
+              class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] rounded-xl hover:brightness-110 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+        <lucide-icon [img]="Save" [size]="16"></lucide-icon>
+        {{ guardando ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+    </div>
+  </form>
+
+  <!-- Toast -->
+  <div *ngIf="toast.show"
+       class="fixed bottom-6 right-6 px-5 py-3 rounded-xl shadow-lg text-sm font-bold z-50"
+       [ngClass]="toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'">
+    {{ toast.message }}
+  </div>
+</div>

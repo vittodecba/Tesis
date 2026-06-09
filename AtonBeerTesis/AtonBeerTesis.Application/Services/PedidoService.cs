@@ -256,6 +256,10 @@ namespace AtonBeerTesis.Application.Services
         {
             var pedido = await _pedidoRepository.GetByIdAsync(pedidoId);
             if (pedido == null) return false;
+            if (pedido.EstadoId == 3)
+            {
+                throw new Exception("El pedido ya fue facturado; no se puede deshacer la entrega.");
+            }
             if (pedido.EstadoId != 2)
             {
                 throw new Exception("Solo se puede deshacer la entrega de pedidos que figuren como 'Entregados'.");
