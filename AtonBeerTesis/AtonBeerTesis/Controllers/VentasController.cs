@@ -58,5 +58,20 @@ namespace AtonBeerTesis.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("reporte/pdf")]
+        public async Task<IActionResult> DescargarPdfReporte([FromQuery] DateTime fechaDesde, [FromQuery] DateTime fechaHasta)
+        {
+            try
+            {
+                var pdfBytes = await _ventaService.GenerarPdfReporteVentasAsync(fechaDesde, fechaHasta);
+                var nombreArchivo = $"Reporte_Ventas_{fechaDesde:yyyyMMdd}_al_{fechaHasta:yyyyMMdd}.pdf";
+                return File(pdfBytes, "application/pdf", nombreArchivo);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al generar el PDF: {ex.Message}");
+            }
+        }
     }
 }

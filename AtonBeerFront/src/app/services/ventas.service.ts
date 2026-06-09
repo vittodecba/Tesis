@@ -90,4 +90,8 @@ export class VentasService {
       params: { fechaDesde, fechaHasta }
     });
   }
+  descargarPdfReporte(fechaDesde: string, fechaHasta: string) {
+    const url = `${this.apiUrl}/reporte/pdf?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
 }

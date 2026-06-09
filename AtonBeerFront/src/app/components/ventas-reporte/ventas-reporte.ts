@@ -20,6 +20,7 @@ export class VentasReporte implements OnInit {
   filtroForm: FormGroup;
   tabActiva: string = 'general';
   cargando: boolean = false;
+  descargandoPdf: boolean = false;
   mostrarComparativaDiaria: boolean = true;
   
   resumen = {
@@ -256,6 +257,30 @@ export class VentasReporte implements OnInit {
       error: (err: any) => {
         this.cargando = false;
         console.error(err);
+      }
+    });
+  }
+
+  descargarPdf(): void {
+    const { fechaDesde, fechaHasta } = this.filtroForm.value;
+    if (!fechaDesde || !fechaHasta) return;
+
+    this.descargandoPdf = true;
+    this.ventasService.descargarPdfReporte(fechaDesde, fechaHasta).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Reporte_Ventas_${fechaDesde}_al_${fechaHasta}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.descargandoPdf = false;
+      },
+      error: (err: any) => {
+        console.error('Error al descargar el PDF', err);
+        this.descargandoPdf = false;
       }
     });
   }

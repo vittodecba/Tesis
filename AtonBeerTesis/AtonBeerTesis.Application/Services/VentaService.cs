@@ -3,6 +3,9 @@ using AtonBeerTesis.Application.DTOs;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace AtonBeerTesis.Application.Services
 {
@@ -13,6 +16,7 @@ namespace AtonBeerTesis.Application.Services
         public VentaService(IVentaRepository ventaRepository)
         {
             _ventaRepository = ventaRepository;
+            QuestPDF.Settings.License = LicenseType.Community;
         }
 
         public async Task<IEnumerable<VentaDto>> ObtenerTodasAsync()
@@ -193,6 +197,110 @@ namespace AtonBeerTesis.Application.Services
                 EvolucionEstilos = evolucionLimpia,
                 EvolucionMensualIngresos = evolucionMensualDto
             };
+        }
+
+        public async Task<byte[]> GenerarPdfReporteVentasAsync(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            var data = await ObtenerReporteVentasAsync(fechaDesde, fechaHasta);
+
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(2, Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(10));
+
+                    page.Header().Row(row =>
+                    {
+                        row.RelativeItem().Column(col =>
+                        {
+                            col.Item().Text("ATON BEER").FontSize(24).Black().FontColor("#4A2C2A");
+                            col.Item().Text("Reporte Financiero de Ventas").FontSize(14).SemiBold().FontColor("#E67E22");
+                            col.Item().Text($"Período: {fechaDesde:dd/MM/yyyy} al {fechaHasta:dd/MM/yyyy}").FontSize(10).FontColor(Colors.Grey.Medium);
+                        });
+                    });
+
+                    page.Content().PaddingVertical(1, Unit.Centimetre).Column(col =>
+                    {
+                        col.Spacing(20);
+
+                        col.Item().Background(Colors.Grey.Lighten4).Padding(10).Row(row =>
+                        {
+                            row.RelativeItem().Column(c =>
+                            {
+                                c.Item().Text("INGRESO TOTAL").FontSize(8).SemiBold().FontColor(Colors.Grey.Darken2);
+                                c.Item().Text($"${data.TotalVendido:N2}").FontSize(14).Black().FontColor("#3A2220");
+                            });
+                            row.RelativeItem().Column(c =>
+                            {
+                                c.Item().Text("CANT. VENTAS").FontSize(8).SemiBold().FontColor(Colors.Grey.Darken2);
+                                c.Item().Text($"{data.CantidadVentas}").FontSize(14).Black().FontColor("#3A2220");
+                            });
+                            row.RelativeItem().Column(c =>
+                            {
+                                c.Item().Text("TICKET PROMEDIO").FontSize(8).SemiBold().FontColor(Colors.Grey.Darken2);
+                                c.Item().Text($"${data.TicketPromedio:N2}").FontSize(14).Black().FontColor("#3A2220");
+                            });
+                        });
+
+                        col.Item().Text("Top 5 Clientes").FontSize(14).SemiBold().FontColor("#4A2C2A");
+                        col.Item().Table(tabla =>
+                        {
+                            tabla.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn();
+                                columns.ConstantColumn(120);
+                            });
+
+                            tabla.Header(header =>
+                            {
+                                header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingBottom(5).Text("Cliente").SemiBold().FontSize(10).FontColor(Colors.Grey.Darken2);
+                                header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingBottom(5).AlignRight().Text("Total Comprado").SemiBold().FontSize(10).FontColor(Colors.Grey.Darken2);
+                            });
+
+                            foreach (var cliente in data.TopClientes)
+                            {
+                                tabla.Cell().PaddingVertical(5).BorderBottom(1).BorderColor(Colors.Grey.Lighten4).Text(cliente.Cliente).FontSize(10);
+                                tabla.Cell().PaddingVertical(5).BorderBottom(1).BorderColor(Colors.Grey.Lighten4).AlignRight().Text($"${cliente.TotalComprado:N2}").FontSize(10).SemiBold().FontColor("#E67E22");
+                            }
+                        });
+
+                        col.Item().Text("Top Productos Vendidos").FontSize(14).SemiBold().FontColor("#4A2C2A");
+                        col.Item().Table(tabla =>
+                        {
+                            tabla.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn();
+                                columns.ConstantColumn(120);
+                            });
+
+                            tabla.Header(header =>
+                            {
+                                header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingBottom(5).Text("Producto / Estilo").SemiBold().FontSize(10).FontColor(Colors.Grey.Darken2);
+                                header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingBottom(5).AlignRight().Text("Unidades").SemiBold().FontSize(10).FontColor(Colors.Grey.Darken2);
+                            });
+
+                            foreach (var prod in data.TopProductos)
+                            {
+                                tabla.Cell().PaddingVertical(5).BorderBottom(1).BorderColor(Colors.Grey.Lighten4).Text(prod.Producto).FontSize(10);
+                                tabla.Cell().PaddingVertical(5).BorderBottom(1).BorderColor(Colors.Grey.Lighten4).AlignRight().Text($"{prod.CantidadVendida} u.").FontSize(10).SemiBold();
+                            }
+                        });
+                    });
+
+                    page.Footer().AlignCenter().Text(x =>
+                    {
+                        x.Span("Página ");
+                        x.CurrentPageNumber();
+                        x.Span(" de ");
+                        x.TotalPages();
+                    });
+                });
+            });
+
+            return document.GeneratePdf();
         }
     }
 }
