@@ -91,27 +91,27 @@
         </div>
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div *ngIf="mostrarComparativaDiaria" class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 lg:col-span-2 h-[400px] animate-fade-in">
+        <div *ngIf="mostrarComparativaDiaria" class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 lg:col-span-2 h-[500px] min-h-[500px] animate-fade-in">
           <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Comparativa Mensual de Ingresos</h3>
-          <div style="display: block; width: 100%; height: calc(100% - 2rem);"><canvas baseChart [datasets]="barChartDatasets" [labels]="barChartLabels" [options]="barChartOptions" [type]="'bar'"></canvas></div>
+          <div style="display: block; width: 100%; height: calc(100% - 2rem); position: relative;"><canvas baseChart [datasets]="barChartDatasets" [labels]="barChartLabels" [options]="barChartOptions" [type]="'bar'"></canvas></div>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 h-[400px]" [ngClass]="mostrarComparativaDiaria ? 'lg:col-span-1' : 'lg:col-span-3'">
+        <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 h-[500px] min-h-[500px]" [ngClass]="mostrarComparativaDiaria ? 'lg:col-span-1' : 'lg:col-span-3'">
           <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Distribución por Pago</h3>
-          <div style="display: block; width: 100%; height: calc(100% - 2rem);"><canvas baseChart [datasets]="doughnutChartDatasets" [labels]="doughnutChartLabels" [options]="doughnutChartOptions" [type]="'doughnut'"></canvas></div>
+          <div style="display: block; width: 100%; height: calc(100% - 2rem); position: relative;"><canvas baseChart [datasets]="doughnutChartDatasets" [labels]="doughnutChartLabels" [options]="doughnutChartOptions" [type]="'doughnut'"></canvas></div>
         </div>
       </div>
-      <div class="mt-6 bg-white rounded-2xl shadow-sm border border-orange-100 p-6 h-[400px]">
+      <div class="mt-6 bg-white rounded-2xl shadow-sm border border-orange-100 p-6 h-[500px] min-h-[500px]">
         <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Evolución de Ingresos (Por Mes)</h3>
-        <div style="display: block; width: 100%; height: calc(100% - 2rem);">
+        <div style="display: block; width: 100%; height: calc(100% - 2rem); position: relative;">
           <canvas baseChart [datasets]="mensualBarChartDatasets" [labels]="mensualBarChartLabels" [options]="mensualBarChartOptions" [type]="'bar'"></canvas>
         </div>
       </div>
     </div>
 
     <div *ngIf="tabActiva === 'clientes'" class="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
-      <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 h-[400px]">
+      <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 h-[500px] min-h-[500px]">
         <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Comportamiento (Frecuencia vs Volumen)</h3>
-        <div style="display: block; width: 100%; height: calc(100% - 2rem);"><canvas baseChart [datasets]="scatterChartDatasets" [options]="scatterChartOptions" [type]="'scatter'"></canvas></div>
+        <div style="display: block; width: 100%; height: calc(100% - 2rem); position: relative;"><canvas baseChart [datasets]="scatterChartDatasets" [options]="scatterChartOptions" [type]="'scatter'"></canvas></div>
       </div>
       <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6">
         <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Top 5 Clientes</h3>
@@ -125,16 +125,25 @@
     </div>
 
     <div *ngIf="tabActiva === 'productos'" class="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
-      <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 lg:col-span-2 h-[400px]">
+      <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 lg:col-span-2 h-[500px] min-h-[500px]">
         <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Evolución de Venta por Estilos</h3>
-        <div style="display: block; width: 100%; height: calc(100% - 2rem);"><canvas baseChart [datasets]="lineChartDatasets" [labels]="lineChartLabels" [options]="lineChartOptions" [type]="'line'"></canvas></div>
+        <div style="display: block; width: 100%; height: calc(100% - 2rem); position: relative;"><canvas baseChart [datasets]="lineChartDatasets" [labels]="lineChartLabels" [options]="lineChartOptions" [type]="'line'"></canvas></div>
       </div>
-      <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 lg:col-span-2">
+      <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6">
         <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Top Productos Exactos</h3>
         <table class="w-full text-left border-collapse">
-          <thead><tr class="border-b border-gray-100"><th class="py-3 px-4 text-xs font-bold text-gray-400">Detalle</th><th class="py-3 px-4 text-xs font-bold text-gray-400 text-right">Unidades</th></tr></thead>
+          <thead><tr class="border-b border-gray-100"><th class="py-3 px-4 text-xs font-bold text-gray-400">Detalle (Receta - Envase)</th><th class="py-3 px-4 text-xs font-bold text-gray-400 text-right">Unidades</th></tr></thead>
           <tbody>
-            <tr *ngFor="let prod of topProductos" class="border-b border-gray-50"><td class="py-3 px-4 text-sm">{{ prod.producto }}</td><td class="py-3 px-4 text-sm font-black text-indigo-600 text-right">{{ prod.cantidadVendida }} u.</td></tr>
+            <tr *ngFor="let prod of topProductos" class="border-b border-gray-50"><td class="py-3 px-4 text-sm font-bold text-gray-700">{{ prod.producto }}</td><td class="py-3 px-4 text-sm font-black text-indigo-600 text-right">{{ prod.cantidadVendida }} u.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6">
+        <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Top Estilos Más Vendidos</h3>
+        <table class="w-full text-left border-collapse">
+          <thead><tr class="border-b border-gray-100"><th class="py-3 px-4 text-xs font-bold text-gray-400">Estilo</th><th class="py-3 px-4 text-xs font-bold text-gray-400 text-right">Unidades</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let estilo of topEstilos" class="border-b border-gray-50"><td class="py-3 px-4 text-sm font-bold text-gray-700">{{ estilo.estilo }}</td><td class="py-3 px-4 text-sm font-black text-[#E67E22] text-right">{{ estilo.cantidadVendida }} u.</td></tr>
           </tbody>
         </table>
       </div>

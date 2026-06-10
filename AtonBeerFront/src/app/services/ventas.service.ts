@@ -85,13 +85,15 @@ export class VentasService {
     return this.http.patch(`${this.apiUrl}/${id}`, dto);
   }
 
-  obtenerReporteVentas(fechaDesde: string, fechaHasta: string) {
-    return this.http.get<ReporteVentas>(`${this.apiUrl}/reporte`, {
-      params: { fechaDesde, fechaHasta }
-    });
+  obtenerReporteVentas(fechaDesde: string, fechaHasta: string, cliente: string = '') {
+    let url = `${this.apiUrl}/reporte?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`;
+    if (cliente) {
+      url += `&cliente=${encodeURIComponent(cliente)}`;
+    }
+    return this.http.get<ReporteVentas>(url);
   }
-  descargarPdfReporte(fechaDesde: string, fechaHasta: string) {
-    const url = `${this.apiUrl}/reporte/pdf?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`;
-    return this.http.get(url, { responseType: 'blob' });
+  descargarPdfReporte(payload: any) {
+    const url = `${this.apiUrl}/reporte/pdf`;
+    return this.http.post(url, payload, { responseType: 'blob' });
   }
 }

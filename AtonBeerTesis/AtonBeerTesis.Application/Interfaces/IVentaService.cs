@@ -7,7 +7,7 @@ namespace AtonBeerTesis.Application.Interfaces
     {
         Task<IEnumerable<VentaDto>> ObtenerTodasAsync();
         Task<bool> PatchAsync(int id, PatchVentaDto dto);
-        Task<ReporteVentasDto> ObtenerReporteVentasAsync(DateTime fechaDesde, DateTime fechaHasta);
-        Task<byte[]> GenerarPdfReporteVentasAsync(DateTime fechaDesde, DateTime fechaHasta);
+        Task<ReporteVentasDto> ObtenerReporteVentasAsync(DateTime fechaDesde, DateTime fechaHasta, string? cliente = null);
+        Task<byte[]> GenerarPdfReporteVentasAsync(ReportePdfRequestDto request);
     }
 }

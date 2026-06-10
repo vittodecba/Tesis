@@ -59,11 +59,12 @@ export class VentasReporte implements OnInit {
   public doughnutChartOptions: ChartOptions<'doughnut'> = { 
     responsive: true, 
     maintainAspectRatio: false, 
-    plugins: { legend: { position: 'bottom' } } 
+    layout: { padding: 15 },
+    plugins: { legend: { position: 'bottom', labels: { font: { size: 14 } } } } 
   };
   public doughnutChartLabels: string[] = ['Efectivo', 'Transferencia'];
   public doughnutChartDatasets: any[] = [
-    { data: [], backgroundColor: ['#22c55e', '#3b82f6'], hoverBackgroundColor: ['#16a34a', '#2563eb'] }
+    { data: [], backgroundColor: ['#22c55e', '#3b82f6'], hoverBackgroundColor: ['#16a34a', '#2563eb'], borderWidth: 2 }
   ];
 
   public scatterChartOptions: ChartOptions<'scatter'> = { 
@@ -74,6 +75,7 @@ export class VentasReporte implements OnInit {
       y: { title: { display: true, text: 'Monto Total Comprado ($)' } } 
     },
     plugins: {
+      legend: { display: true, position: 'bottom', labels: { boxWidth: 15, padding: 15 } },
       tooltip: {
         callbacks: {
           label: function(context: any) {
@@ -84,22 +86,20 @@ export class VentasReporte implements OnInit {
       }
     }
   };
-  public scatterChartDatasets: any[] = [
-    { data: [], label: 'Clientes', backgroundColor: '#8b5cf6', pointRadius: 6, pointHoverRadius: 8 }
-  ];
+  public scatterChartDatasets: any[] = [];
 
   public lineChartOptions: ChartOptions<'line'> = { 
     responsive: true, 
     maintainAspectRatio: false,
+    layout: { padding: { top: 10, right: 20 } },
     scales: {
       x: { title: { display: true, text: 'Fechas' } },
       y: { title: { display: true, text: 'Unidades Vendidas' }, beginAtZero: true }
-    }
+    },
+    plugins: { legend: { position: 'bottom' } }
   };
   public lineChartLabels: string[] = [];
-  public lineChartDatasets: any[] = [
-    { data: [], label: 'Estilos', borderColor: '#e67e22', tension: 0.3, fill: false }
-  ];
+  public lineChartDatasets: any[] = [];
 
   private fb = inject(FormBuilder);
   private ventasService = inject(VentasService);
@@ -145,7 +145,7 @@ export class VentasReporte implements OnInit {
   }
 
   filtrarReporte(): void {
-    const { fechaDesde, fechaHasta } = this.filtroForm.value;
+    const { fechaDesde, fechaHasta, clienteId } = this.filtroForm.value;
     if (!fechaDesde || !fechaHasta) return;
 
     this.cargando = true;
@@ -166,7 +166,7 @@ export class VentasReporte implements OnInit {
     const labelActual = `Actual (${formatStr(dDesde)} al ${formatStr(dHasta)})`;
     const labelAnterior = `Anterior (${formatStr(dDesdeAnt)} al ${formatStr(dHastaAnt)})`;
 
-    this.ventasService.obtenerReporteVentas(fechaDesde, fechaHasta).subscribe({
+    this.ventasService.obtenerReporteVentas(fechaDesde, fechaHasta, clienteId).subscribe({
       next: (data: ReporteVentas) => {
         this.resumen = {
           totalVendido: data.totalVendido,
@@ -211,26 +211,25 @@ export class VentasReporte implements OnInit {
         ];
 
         this.doughnutChartDatasets = [
-          { data: [data.efectivoTotal, data.transferenciaTotal], backgroundColor: ['#22c55e', '#3b82f6'], hoverBackgroundColor: ['#16a34a', '#2563eb'] }
+          { data: [data.efectivoTotal, data.transferenciaTotal], backgroundColor: ['#22c55e', '#3b82f6'], hoverBackgroundColor: ['#16a34a', '#2563eb'], borderWidth: 2 }
         ];
 
-        this.scatterChartDatasets = [
-          { 
-            data: data.topClientes.map(c => ({ 
-              x: c.cantidadVentas, 
-              y: c.totalComprado,
-              cliente: c.cliente
-            })), 
-            label: 'Clientes', 
-            backgroundColor: '#8b5cf6', 
-            pointRadius: 6, 
-            pointHoverRadius: 8 
-          }
-        ];
+        const coloresScatter = ['#8b5cf6', '#e67e22', '#3b82f6', '#22c55e', '#ef4444'];
+        this.scatterChartDatasets = data.topClientes.map((c, i) => ({
+          label: c.cliente,
+          data: [{ x: c.cantidadVentas, y: c.totalComprado, cliente: c.cliente }],
+          backgroundColor: coloresScatter[i % coloresScatter.length],
+          pointRadius: 8,
+          pointHoverRadius: 11
+        }));
 
         const estilos = [...new Set(data.evolucionEstilos.map(e => e.estilo))];
         const fechas = [...new Set(data.evolucionEstilos.map(e => e.fecha))].sort();
-        const colores = ['#e67e22', '#3b82f6', '#22c55e', '#ef4444', '#a855f7'];
+        const coloresLine = [
+          '#e67e22', '#3b82f6', '#22c55e', '#ef4444', '#a855f7', 
+          '#06b6d4', '#f59e0b', '#ec4899', '#84cc16', '#64748b',
+          '#10b981', '#f43f5e', '#d946ef', '#0ea5e9', '#eab308'
+        ];
 
         this.lineChartLabels = fechas;
         this.lineChartDatasets = estilos.map((estilo, i) => ({
@@ -239,7 +238,11 @@ export class VentasReporte implements OnInit {
             const registro = data.evolucionEstilos.find(e => e.fecha === f && e.estilo === estilo);
             return registro ? registro.cantidad : 0;
           }),
-          borderColor: colores[i % colores.length],
+          borderColor: coloresLine[i % coloresLine.length],
+          backgroundColor: coloresLine[i % coloresLine.length],
+          borderWidth: 3,
+          pointRadius: 5,
+          pointHoverRadius: 7,
           tension: 0.3,
           fill: false
         }));
@@ -262,16 +265,39 @@ export class VentasReporte implements OnInit {
   }
 
   descargarPdf(): void {
-    const { fechaDesde, fechaHasta } = this.filtroForm.value;
+    const { fechaDesde, fechaHasta, clienteId } = this.filtroForm.value;
     if (!fechaDesde || !fechaHasta) return;
 
     this.descargandoPdf = true;
-    this.ventasService.descargarPdfReporte(fechaDesde, fechaHasta).subscribe({
+
+    let graficoPrincipalBase64 = '';
+    let graficoSecundarioBase64 = '';
+
+    if (this.charts && this.charts.length > 0) {
+      const chartArray = this.charts.toArray();
+      if (this.tabActiva === 'general') {
+        if (chartArray.length >= 1) graficoPrincipalBase64 = chartArray[0].chart?.toBase64Image() || '';
+        if (chartArray.length >= 2) graficoSecundarioBase64 = chartArray[1].chart?.toBase64Image() || '';
+      } else if (this.tabActiva === 'clientes' || this.tabActiva === 'productos') {
+        if (chartArray.length >= 1) graficoPrincipalBase64 = chartArray[0].chart?.toBase64Image() || '';
+      }
+    }
+
+    const payload = {
+      fechaDesde,
+      fechaHasta,
+      tipoReporte: this.tabActiva,
+      cliente: clienteId,
+      graficoPrincipalBase64,
+      graficoSecundarioBase64
+    };
+
+    this.ventasService.descargarPdfReporte(payload).subscribe({
       next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Reporte_Ventas_${fechaDesde}_al_${fechaHasta}.pdf`;
+        a.download = `Reporte_${this.tabActiva.toUpperCase()}_${fechaDesde}_al_${fechaHasta}.pdf`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
