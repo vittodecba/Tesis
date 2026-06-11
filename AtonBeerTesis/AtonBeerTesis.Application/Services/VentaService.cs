@@ -165,25 +165,26 @@ namespace AtonBeerTesis.Application.Services
                 .Take(5)
                 .ToListAsync();
 
-            var evolucionEstilosDb = await qActuales
+            var detallesEstilos = await qActuales
                 .Where(v => v.Pedido != null)
                 .SelectMany(v => v.Pedido.Detalles)
                 .Where(d => d.ProductoStock != null)
-                .GroupBy(d => new { d.Pedido.Fecha.Date, d.ProductoStock.Estilo })
-                .Select(g => new
+                .Select(d => new { d.Pedido.Fecha, Estilo = d.ProductoStock.Estilo ?? "Sin Estilo", d.Cantidad })
+                .ToListAsync();
+
+            var evolucionLimpia = detallesEstilos
+                .GroupBy(d => new {
+                    ClaveFecha = diasDiferencia > 31 ? d.Fecha.ToString("yyyy-MM") : d.Fecha.ToString("yyyy-MM-dd"),
+                    d.Estilo
+                })
+                .Select(g => new EvolucionEstiloDto
                 {
-                    FechaDate = g.Key.Date,
+                    Fecha = g.Key.ClaveFecha,
                     Estilo = g.Key.Estilo,
                     Cantidad = g.Sum(x => x.Cantidad)
                 })
-                .ToListAsync();
-
-            var evolucionLimpia = evolucionEstilosDb.Select(e => new EvolucionEstiloDto
-            {
-                Fecha = e.FechaDate.ToString("yyyy-MM-dd"),
-                Estilo = e.Estilo,
-                Cantidad = e.Cantidad
-            }).OrderBy(x => x.Fecha).ToList();
+                .OrderBy(x => x.Fecha)
+                .ToList();
 
             var evolucionMensualIngresos = await qActuales
                 .GroupBy(v => new { v.FechaCreacion.Year, v.FechaCreacion.Month })
@@ -320,7 +321,7 @@ namespace AtonBeerTesis.Application.Services
                         }
                         else if (request.TipoReporte.ToLower() == "clientes")
                         {
-                            col.Item().Text(string.IsNullOrEmpty(request.Cliente) ? "Top Clientes con Mayor Volumen de Compra" : "Resumen del Cliente").FontSize(14).SemiBold().FontColor("#4A2C2A");
+                            col.Item().Text(string.IsNullOrEmpty(request.Cliente) ? "Top 5 Clientes por Facturación" : "Resumen del Cliente").FontSize(14).SemiBold().FontColor("#4A2C2A");
                             col.Item().Table(tabla =>
                             {
                                 tabla.ColumnsDefinition(columns =>
@@ -344,7 +345,7 @@ namespace AtonBeerTesis.Application.Services
                         }
                         else if (request.TipoReporte.ToLower() == "productos")
                         {
-                            col.Item().Text("Top Productos Exactos Vendidos").FontSize(14).SemiBold().FontColor("#4A2C2A");
+                            col.Item().Text("Top 5 Productos Más Vendidos").FontSize(14).SemiBold().FontColor("#4A2C2A");
                             col.Item().Table(tabla =>
                             {
                                 tabla.ColumnsDefinition(columns =>
@@ -355,7 +356,7 @@ namespace AtonBeerTesis.Application.Services
 
                                 tabla.Header(header =>
                                 {
-                                    header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingBottom(5).Text("Producto Exacto").SemiBold().FontSize(10).FontColor(Colors.Grey.Darken2);
+                                    header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingBottom(5).Text("Producto").SemiBold().FontSize(10).FontColor(Colors.Grey.Darken2);
                                     header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingBottom(5).AlignRight().Text("Unidades").SemiBold().FontSize(10).FontColor(Colors.Grey.Darken2);
                                 });
 
@@ -366,7 +367,7 @@ namespace AtonBeerTesis.Application.Services
                                 }
                             });
 
-                            col.Item().PaddingTop(15).Text("Top Estilos Más Vendidos").FontSize(14).SemiBold().FontColor("#4A2C2A");
+                            col.Item().PaddingTop(15).Text("Top 5 Estilos Más Vendidos").FontSize(14).SemiBold().FontColor("#4A2C2A");
                             col.Item().Table(tabla =>
                             {
                                 tabla.ColumnsDefinition(columns =>
@@ -402,8 +403,18 @@ namespace AtonBeerTesis.Application.Services
                                 _ => "Gráfico Principal"
                             };
 
-                            col.Item().PaddingTop(15).Text(tituloPrincipal).FontSize(14).SemiBold().FontColor("#4A2C2A");
-                            col.Item().PaddingTop(5).Box().MaxHeight(300).Image(imgPrincipal).FitArea();
+                            col.Item().EnsureSpace().Column(c =>
+                            {
+                                c.Item().PaddingTop(15).Text(tituloPrincipal).FontSize(14).SemiBold().FontColor("#4A2C2A");
+                                if (tituloPrincipal == "Distribución por Pago")
+                                {
+                                    c.Item().PaddingTop(10).AlignCenter().Box().MaxWidth(250).Image(imgPrincipal);
+                                }
+                                else
+                                {
+                                    c.Item().PaddingTop(10).Image(imgPrincipal);
+                                }
+                            });
                         }
 
                         if (imgSecundario != null)
@@ -414,8 +425,18 @@ namespace AtonBeerTesis.Application.Services
                                 _ => "Gráfico Secundario"
                             };
 
-                            col.Item().PaddingTop(15).Text(tituloSecundario).FontSize(14).SemiBold().FontColor("#4A2C2A");
-                            col.Item().PaddingTop(5).Box().MaxHeight(300).Image(imgSecundario).FitArea();
+                            col.Item().EnsureSpace().Column(c =>
+                            {
+                                c.Item().PaddingTop(15).Text(tituloSecundario).FontSize(14).SemiBold().FontColor("#4A2C2A");
+                                if (tituloSecundario == "Distribución por Pago")
+                                {
+                                    c.Item().PaddingTop(10).AlignCenter().Box().MaxWidth(250).Image(imgSecundario);
+                                }
+                                else
+                                {
+                                    c.Item().PaddingTop(10).Image(imgSecundario);
+                                }
+                            });
                         }
                     });
 

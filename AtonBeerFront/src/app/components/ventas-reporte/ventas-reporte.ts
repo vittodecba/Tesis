@@ -59,7 +59,6 @@ export class VentasReporte implements OnInit {
   public doughnutChartOptions: ChartOptions<'doughnut'> = { 
     responsive: true, 
     maintainAspectRatio: false, 
-    layout: { padding: 15 },
     plugins: { legend: { position: 'bottom', labels: { font: { size: 14 } } } } 
   };
   public doughnutChartLabels: string[] = ['Efectivo', 'Transferencia'];
@@ -93,7 +92,10 @@ export class VentasReporte implements OnInit {
     maintainAspectRatio: false,
     layout: { padding: { top: 10, right: 20 } },
     scales: {
-      x: { title: { display: true, text: 'Fechas' } },
+      x: { 
+        title: { display: true, text: 'Fechas' },
+        ticks: { autoSkip: true, maxTicksLimit: 12, maxRotation: 0, minRotation: 0 }
+      },
       y: { title: { display: true, text: 'Unidades Vendidas' }, beginAtZero: true }
     },
     plugins: { legend: { position: 'bottom' } }
@@ -240,9 +242,9 @@ export class VentasReporte implements OnInit {
           }),
           borderColor: coloresLine[i % coloresLine.length],
           backgroundColor: coloresLine[i % coloresLine.length],
-          borderWidth: 3,
-          pointRadius: 5,
-          pointHoverRadius: 7,
+          borderWidth: 2,
+          pointRadius: fechas.length > 31 ? 0 : 4,
+          pointHoverRadius: 6,
           tension: 0.3,
           fill: false
         }));
