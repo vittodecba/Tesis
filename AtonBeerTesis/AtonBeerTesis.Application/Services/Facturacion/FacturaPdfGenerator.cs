@@ -16,6 +16,8 @@ namespace AtonBeerTesis.Application.Services.Facturacion
         private const string GrisBorde  = "#E5E7EB";
         private const string GrisTexto  = "#374151";
 
+        private const decimal AlicuotaIva = 0.21m;
+
         private static readonly CultureInfo Ar = new("es-AR");
         private static string Money(decimal v) => "$ " + v.ToString("N2", Ar);
 
@@ -127,6 +129,11 @@ namespace AtonBeerTesis.Application.Services.Facturacion
                             .Text(d.DiscriminaIva ? "Subtotal (neto)" : "Subtotal").FontColor(Colors.White).Bold();
                     });
 
+                    // En Factura A los precios van netos (el IVA se discrimina abajo).
+                    // En Factura B el IVA NO se discrimina: se muestra incluido en el precio,
+                    // así la suma de las líneas coincide con el TOTAL (sin saltos sin explicar).
+                    var ivaFactor = d.DiscriminaIva ? 1m : 1m + AlicuotaIva;
+
                     var zebra = false;
                     foreach (var l in d.Lineas)
                     {
@@ -135,8 +142,8 @@ namespace AtonBeerTesis.Application.Services.Facturacion
 
                         table.Cell().Background(bg).Padding(5).Text(l.Descripcion);
                         table.Cell().Background(bg).Padding(5).AlignRight().Text(l.Cantidad.ToString());
-                        table.Cell().Background(bg).Padding(5).AlignRight().Text(Money(l.PrecioUnitario));
-                        table.Cell().Background(bg).Padding(5).AlignRight().Text(Money(l.Subtotal));
+                        table.Cell().Background(bg).Padding(5).AlignRight().Text(Money(l.PrecioUnitario * ivaFactor));
+                        table.Cell().Background(bg).Padding(5).AlignRight().Text(Money(l.Subtotal * ivaFactor));
                     }
                 });
 
@@ -153,7 +160,8 @@ namespace AtonBeerTesis.Application.Services.Facturacion
                     }
                     else if (d.Descuento > 0)
                     {
-                        TotalRow(tot, "Descuento franquicia (10%)", "- " + Money(d.Descuento));
+                        // En B el descuento también se muestra con IVA incluido, para que cuadre.
+                        TotalRow(tot, "Descuento franquicia (10%)", "- " + Money(d.Descuento * (1m + AlicuotaIva)));
                     }
 
                     tot.Item().PaddingTop(4).Background(Naranja).Padding(6).Row(r =>
