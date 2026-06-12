@@ -59,7 +59,6 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                             .ThenInclude(ps => ps.Receta)
                 .FirstOrDefaultAsync(v => v.Id == id);
         }
-
         public async Task<List<Venta>> GetVentasPorRangoAsync(DateTime fechaDesde, DateTime fechaHasta)
         {
             return await _context.Ventas
@@ -83,5 +82,10 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             return _context.Ventas.AsNoTracking();
         }
-    }
+
+        public async Task<Venta?> GetByPedidoIdAsync(int pedidoId)
+        {
+            return await _context.Ventas
+                .FirstOrDefaultAsync(v => v.PedidoId == pedidoId);
+        }
 }

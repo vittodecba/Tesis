@@ -13,6 +13,21 @@ export interface VentaDto {
   estadoVenta: string;
   plazo: string;
   metodoPago: string;
+  totalPagado: number;
+  saldoPendiente: number;
+}
+export interface PagosDto {
+  id: number;
+  ventaId: number;
+  monto: number;
+  fecha: string;
+  metodoPago: string;
+}
+export interface RegistrarPagoDto {
+  ventaId: number;
+  monto: number;
+  fecha: string;
+  metodoPago: string;
 }
 
 export interface VentaPorDia {
@@ -84,7 +99,6 @@ export class VentasService {
   patchVenta(id: number, dto: { estadoVenta?: string; plazo?: string; metodoPago?: string }): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${id}`, dto);
   }
-
   obtenerReporteVentas(fechaDesde: string, fechaHasta: string, cliente: string = '') {
     let url = `${this.apiUrl}/reporte?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`;
     if (cliente) {
@@ -96,4 +110,12 @@ export class VentasService {
     const url = `${this.apiUrl}/reporte/pdf`;
     return this.http.post(url, payload, { responseType: 'blob' });
   }
+
+    registrarPago(dto: RegistrarPagoDto): Observable<PagosDto> {
+  return this.http.post<PagosDto>('http://localhost:5190/api/Pagos', dto);
+}
+
+getPagosPorVenta(ventaId: number): Observable<PagosDto[]> {
+  return this.http.get<PagosDto[]>(`http://localhost:5190/api/Pagos/venta/${ventaId}`);
+}
 }

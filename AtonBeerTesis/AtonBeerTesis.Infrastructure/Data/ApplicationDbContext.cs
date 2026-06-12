@@ -35,6 +35,7 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<Barril> Barriles { get; set; }
         public DbSet<MovimientoBarril> MovimientosBarril { get; set; }
         public DbSet<Venta> Ventas { get; set; }
+        public DbSet<Pago> Pagos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -262,6 +263,17 @@ namespace AtonBeerTesis.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
+            // ── VENTA-PAGO ──────────────────────────────────────────────────────
+            modelBuilder.Entity<Pago>(entity =>
+            {
+                entity.ToTable("Pagos");
+                entity.HasKey(p => p.Id);
+                entity.Property(p => p.Monto).HasPrecision(18, 2);
+                entity.HasOne(p => p.Venta)
+                    .WithMany(v => v.Pagos)
+                    .HasForeignKey(p => p.VentaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
             // ── SEED: ESTADOS PEDIDO ──────────────────────────────────────
             modelBuilder.Entity<EstadoPedido>().HasData(
                 new EstadoPedido { Id = 1, Nombre = "Pendiente" },

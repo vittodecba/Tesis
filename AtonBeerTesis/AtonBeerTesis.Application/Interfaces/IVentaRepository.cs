@@ -10,5 +10,6 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<Venta?> GetByIdAsync(int id);
         Task<List<Venta>> GetVentasPorRangoAsync(DateTime fechaDesde, DateTime fechaHasta);
         IQueryable<Venta> GetQueryable();
+        Task<Venta?> GetByPedidoIdAsync(int pedidoId);
     }
 }

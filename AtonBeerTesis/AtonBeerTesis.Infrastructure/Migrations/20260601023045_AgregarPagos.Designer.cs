@@ -4,6 +4,7 @@ using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260601023045_AgregarPagos")]
+    partial class AgregarPagos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,23 +35,17 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.Property<string>("Detalles")
                         .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EmailIntentado")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Exitoso")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("FechaIntento")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Ip")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int?>("UsuarioId")
                         .HasColumnType("int");
@@ -57,7 +54,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("historialAccesos", (string)null);
+                    b.ToTable("historialAccesos");
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Barril", b =>
@@ -1015,8 +1012,7 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                 {
                     b.HasOne("AtonBeerTesis.Domain.Entities.Usuario", "Usuario")
                         .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("UsuarioId");
 
                     b.Navigation("Usuario");
                 });

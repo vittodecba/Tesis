@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { VentaDto, VentasService } from '../../services/ventas.service';
+import { PagosDto, VentaDto, VentasService } from '../../services/ventas.service';
 
 @Component({
   selector: 'app-ventas-listado',
@@ -27,6 +27,20 @@ export class VentasListadoComponent implements OnInit {
   guardando: boolean = false;
 
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
+//PAGO//
+showModalPago: boolean = false;
+ventaParaPago: VentaDto | null = null;
+pagoMonto: number | null = null;
+pagoFecha: string = '';
+pagoMetodoPago: string = 'Efectivo';
+registrandoPago: boolean = false;
+
+showModalHistorialPagos: boolean = false;
+showModalConfirmacion: boolean = false;
+ventaHistorialPagos: VentaDto | null = null;
+pagosHistorial: PagosDto[] = [];
+cargandoHistorialPagos: boolean = false;
+errorPago: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -170,8 +184,7 @@ export class VentasListadoComponent implements OnInit {
   guardarEdicion(): void {
     if (!this.ventaEnEdicion || this.guardando) return;
     this.guardando = true;
-    const dto = {
-      estadoVenta: this.editEstado,
+    const dto = {      
       plazo: this.editPlazo,
       metodoPago: this.editMetodoPago
     };
@@ -189,4 +202,108 @@ export class VentasListadoComponent implements OnInit {
       }
     });
   }
+
+  //Metodos-PAGO//
+  abrirModalPago(venta: VentaDto): void {
+  this.ventaParaPago = venta;
+  this.pagoMonto = null;
+  this.pagoMetodoPago = venta.metodoPago || 'Efectivo';
+  this.pagoFecha = new Date().toISOString().split('T')[0];
+  this.registrandoPago = false;
+  this.errorPago = '';
+  this.showModalPago = true;
+  this.cdr.detectChanges();
+}
+
+cerrarModalPago(): void {
+  this.showModalPago = false;
+  this.ventaParaPago = null;
+  this.pagoMonto = null;
+  this.registrandoPago = false;
+  this.errorPago = '';
+}
+
+registrarPago(): void {
+    if (!this.ventaParaPago || this.registrandoPago) return;
+
+    const monto = Number(this.pagoMonto || 0);
+
+    // 1. Validaciones
+    if (monto <= 0) {
+      this.errorPago = 'El monto debe ser mayor a 0.';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (monto > this.ventaParaPago.saldoPendiente) {
+      this.errorPago = 'El monto no puede superar el saldo pendiente.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.errorPago = ''; 
+    
+    // 2. En vez de usar el confirm() del navegador, abrimos nuestro propio modal
+    this.showModalConfirmacion = true;
+  }
+
+  cerrarConfirmacion(): void {
+    // Si el usuario se arrepiente, solo cerramos el modal chico
+    this.showModalConfirmacion = false;
+  }
+
+  confirmarYRegistrarPago(): void {
+    // Si el usuario dice que sí, cerramos el cartel y disparamos al backend
+    this.showModalConfirmacion = false;
+    this.registrandoPago = true;
+    
+    const monto = Number(this.pagoMonto || 0);
+
+    this.ventasService.registrarPago({
+      ventaId: this.ventaParaPago!.id,
+      monto,
+      fecha: this.pagoFecha,
+      metodoPago: this.pagoMetodoPago
+    }).subscribe({
+      next: () => {
+        this.mostrarToast('Pago registrado correctamente.', 'success');
+        this.cerrarModalPago(); // Esto cierra el modal grande
+        this.cargarVentasReales();
+      },
+      error: (err: any) => {
+        const msg = err.error?.mensaje || 'No se pudo registrar el pago.';
+        this.errorPago = msg; 
+        this.registrandoPago = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  abrirHistorialPagos(venta: VentaDto): void {
+  this.ventaHistorialPagos = venta;
+  this.pagosHistorial = [];
+  this.cargandoHistorialPagos = true;
+  this.showModalHistorialPagos = true;
+
+  this.ventasService.getPagosPorVenta(venta.id).subscribe({
+    next: (pagos: PagosDto[]) => {
+      this.pagosHistorial = pagos;
+      this.cargandoHistorialPagos = false;
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      this.mostrarToast('No se pudo cargar el historial de pagos.', 'error');
+      this.cargandoHistorialPagos = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+cerrarHistorialPagos(): void {
+  this.showModalHistorialPagos = false;
+  this.ventaHistorialPagos = null;
+  this.pagosHistorial = [];
+  this.cargandoHistorialPagos = false;
+}
+
+
 }
