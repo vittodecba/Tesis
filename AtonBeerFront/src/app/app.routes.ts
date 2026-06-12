@@ -22,6 +22,7 @@ import { RegistrarPedidoComponent } from './components/registrar-pedido/registra
 import { BarrilesGestion } from './components/barriles/barriles-gestion';
 import { BarrilDetalleComponent } from './components/barriles/barril-detalle/barril-detalle';
 import { HistorialAccesoComponent } from './components/historial/historialComponent';
+import { EmpresaComponent } from './components/empresa/empresa.component';
 import { roleGuard } from './core/guards/role.guard';
 import { ROLES } from './core/constants/roles';
 
@@ -155,17 +156,23 @@ export const routes: Routes = [
         component: BarrilDetalleComponent,
         canActivate: [roleGuard],
         data: { title: 'Detalle de Barril', subtitle: 'Información y movimientos', roles: [A, RP, RPE] },
-      },         
-       {
-         path: 'ventas',
-         component: VentasListadoComponent,
-         canActivate: [roleGuard],
-         data: { title: 'Ventas', subtitle: 'Gestión de ventas', roles: [A, G, GM] },
-       },
+      },
+      {
+        path: 'ventas',
+        component: VentasListadoComponent,
+        canActivate: [roleGuard],
+        data: { title: 'Ventas', subtitle: 'Gestión de ventas', roles: [A, G, GM] },
+      },
       {
         path: 'ventas/reporte',
         component: VentasReporte,
         data: { title: 'Reportes de Ventas', subtitle: 'Análisis financiero' },
+      },
+      {
+        path: 'empresa',
+        component: EmpresaComponent,
+        canActivate: [roleGuard],
+        data: { title: 'Empresa', subtitle: 'Datos del emisor para facturación', roles: [A, G] },
       },
     ],
   },

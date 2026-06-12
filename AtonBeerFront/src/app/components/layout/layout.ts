@@ -32,8 +32,9 @@ import {
   FlaskConical, // <--- IMPORTADO
   Boxes,
   Receipt,
-  Ruler, 
-  History
+  Ruler,
+  History,
+  Building2
 } from 'lucide-angular';
 
 @Component({
@@ -76,6 +77,7 @@ export class LayoutComponent implements OnInit {
 
   //Historial
   History = History;
+  Building2 = Building2;
 
   ngOnInit() {
     this.currentUser = this.authService.getCurrentUser();

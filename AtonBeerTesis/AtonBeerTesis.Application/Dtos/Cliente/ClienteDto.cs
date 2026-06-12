@@ -13,6 +13,7 @@ namespace AtonBeerTesis.Application.Dtos.Cliente
 
         public string TipoCliente { get; set; } = null!;
         public string EstadoCliente { get; set; } = null!;
+        public string CondicionIVA { get; set; } = null!;
 
         public string RazonSocial { get; set; } = null!;
         public string Cuit { get; set; } = null!;

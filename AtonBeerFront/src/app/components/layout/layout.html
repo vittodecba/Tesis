@@ -34,6 +34,10 @@
           <lucide-icon [img]="History" class="navIcon" [size]="18"></lucide-icon>
           <span>Historial de Accesos</span>
         </a>
+        <a class="navItem" routerLink="/empresa" routerLinkActive="active">
+          <lucide-icon [img]="Building2" class="navIcon" [size]="18"></lucide-icon>
+          <span>Datos de Empresa</span>
+        </a>
       </ng-container>
 
       <hr *ngIf="puedeVerProduccion() || puedeVerPlanificacion()" class="border-orange-200/20 my-2 mx-4" />

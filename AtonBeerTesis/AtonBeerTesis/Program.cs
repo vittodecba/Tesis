@@ -15,6 +15,10 @@ namespace AtonBeerTesis
     {
         public static void Main(string[] args)
         {
+            // Licencia QuestPDF (gratuita para uso Community). Se setea una vez al arrancar,
+            // así cualquier servicio que genere PDFs (reportes, facturas) la tiene disponible.
+            QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
             var builder = WebApplication.CreateBuilder(args);
 
             // 1. Configuración de Base de Datos
@@ -100,6 +104,13 @@ namespace AtonBeerTesis
             /// --- VENTAS-PAGOS ---
             builder.Services.AddScoped<IPagoService, PagoService>();
             builder.Services.AddScoped<IPagoRepository, PagoRepository>();
+            // --- EMPRESA (EMISOR) ---
+            builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
+            builder.Services.AddScoped<IEmpresaService, EmpresaService>();
+            // --- FACTURAS ---
+            builder.Services.AddScoped<IFacturaRepository, FacturaRepository>();
+            builder.Services.AddScoped<IFacturaService, FacturaService>();
+
             var app = builder.Build();
 
             // 5. Pipeline de la aplicación

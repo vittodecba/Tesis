@@ -4,6 +4,7 @@ using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AtonBeerTesis.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260608133055_AddFacturacion")]
+    partial class AddFacturacion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -565,34 +568,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.HasIndex("ProductoStockId");
 
                     b.ToTable("MovimientosStock", (string)null);
-                });
-
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Pago", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MetodoPago")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Monto")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("VentaId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("VentaId");
-
-                    b.ToTable("Pagos", (string)null);
                 });
 
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.PasosElaboracion", b =>
@@ -1245,17 +1220,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
                     b.Navigation("ProductoStock");
                 });
 
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Pago", b =>
-                {
-                    b.HasOne("AtonBeerTesis.Domain.Entities.Venta", "Venta")
-                        .WithMany("Pagos")
-                        .HasForeignKey("VentaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Venta");
-                });
-
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.PasosElaboracion", b =>
                 {
                     b.HasOne("AtonBeerTesis.Domain.Entities.Receta", "Receta")
@@ -1463,11 +1427,6 @@ namespace AtonBeerTesis.Infrastructure.Migrations
             modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Rol", b =>
                 {
                     b.Navigation("Usuarios");
-                });
-
-            modelBuilder.Entity("AtonBeerTesis.Domain.Entities.Venta", b =>
-                {
-                    b.Navigation("Pagos");
                 });
 #pragma warning restore 612, 618
         }

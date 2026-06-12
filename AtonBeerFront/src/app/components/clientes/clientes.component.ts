@@ -61,6 +61,7 @@ export class ClientesComponent implements OnInit {
       razonSocial: ['', [Validators.required]],
       cuit: ['', [Validators.required]],
       tipoCliente: ['Externo', [Validators.required]],
+      condicionIVA: ['ResponsableInscripto', [Validators.required]],
       ubicacion: ['', [Validators.required]],
       estadoCliente: ['Activo'], // Para que el Update no falle
       contactoNombre: [''],
@@ -116,7 +117,7 @@ export class ClientesComponent implements OnInit {
   openCreate(): void {
     this.isEditing = false;
     this.selectedId = null;
-    this.form.reset({ tipoCliente: 'Externo', estadoCliente: 'Activo' });
+    this.form.reset({ tipoCliente: 'Externo', condicionIVA: 'ResponsableInscripto', estadoCliente: 'Activo' });
     this.form.get('cuit')?.enable();
     this.showCreate = true;
     this.createError = null;

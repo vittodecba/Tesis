@@ -13,21 +13,25 @@ namespace AtonBeerTesis.Application.Services
     {
         private readonly IVentaRepository _ventaRepository;
         private readonly IPagoRepository _pagoRepository;
-        public VentaService(IVentaRepository ventaRepository, IPagoRepository pagoRepository)
+        private readonly IFacturaRepository _facturaRepository;   
+
+        public VentaService(IVentaRepository ventaRepository, IPagoRepository pagoRepository, IFacturaRepository facturaRepository)
         {
             _ventaRepository = ventaRepository;
-            QuestPDF.Settings.License = LicenseType.Community;
             _pagoRepository = pagoRepository;
+            _facturaRepository = facturaRepository;
+            QuestPDF.Settings.License = LicenseType.Community;            
         }
 
         public async Task<IEnumerable<VentaDto>> ObtenerTodasAsync()
         {
             var ventas = await _ventaRepository.GetAllAsync();
             var resultado = new List<VentaDto>();
+            var facturasPorVenta = await _facturaRepository.GetFacturaIdsPorVentaAsync();
             foreach (var v in ventas)
             {
                 var totalPagado = await _pagoRepository.GetTotalPagadoByVentaIdAsync(v.Id);
-                var saldoPendiente = v.MontoTotal - totalPagado;
+                var saldoPendiente = v.MontoTotal - totalPagado;               
 
                 resultado.Add(new VentaDto
                 {
@@ -42,7 +46,9 @@ namespace AtonBeerTesis.Application.Services
                     Plazo = v.Plazo,
                     MetodoPago = v.MetodoPago.ToString(),
                     TotalPagado = totalPagado,
-                    SaldoPendiente = saldoPendiente
+                    SaldoPendiente = saldoPendiente,
+                    TieneFactura = facturasPorVenta.ContainsKey(v.Id),
+                    FacturaId = facturasPorVenta.TryGetValue(v.Id, out var fid) ? fid : null
                 });
             }
             return resultado;

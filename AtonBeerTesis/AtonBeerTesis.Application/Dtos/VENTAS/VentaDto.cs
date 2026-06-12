@@ -14,5 +14,8 @@ namespace AtonBeerTesis.Application.Dtos.VENTAS
         public string MetodoPago { get; set; } = string.Empty;
         public decimal TotalPagado { get; set; }
         public decimal SaldoPendiente { get; set; }
+        // Facturación: indica si la venta ya tiene su comprobante generado
+        public bool TieneFactura { get; set; }
+        public int? FacturaId { get; set; }
     }
 }
