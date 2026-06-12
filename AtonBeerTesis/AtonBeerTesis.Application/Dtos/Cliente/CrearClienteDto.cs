@@ -12,6 +12,8 @@ namespace AtonBeerTesis.Application.Dtos.Cliente
         public string RazonSocial { get; set; } = null!;
         public string Cuit { get; set; } = null!;
         public string TipoCliente { get; set; } = null!; // "Franquicia" | "Externo"
+        // "ResponsableInscripto" | "Monotributo" | "ConsumidorFinal" | "Exento"
+        public string? CondicionIVA { get; set; }
 
         public string? Email { get; set; }
         public string Ubicacion { get; set; } = null!;

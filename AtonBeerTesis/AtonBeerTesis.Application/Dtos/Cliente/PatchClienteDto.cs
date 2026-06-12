@@ -5,6 +5,7 @@
         public string? RazonSocial { get; set; }
         public string? TipoCliente { get; set; }
         public string? EstadoCliente { get; set; }
+        public string? CondicionIVA { get; set; }
 
         public string? Email { get; set; }
         public string? Ubicacion { get; set; }

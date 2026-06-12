@@ -35,6 +35,8 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<Barril> Barriles { get; set; }
         public DbSet<MovimientoBarril> MovimientosBarril { get; set; }
         public DbSet<Venta> Ventas { get; set; }
+        public DbSet<Empresa> Empresas { get; set; }
+        public DbSet<Factura> Facturas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -259,6 +261,49 @@ namespace AtonBeerTesis.Infrastructure.Data
                 entity.HasOne(v => v.Pedido)
                     .WithMany()
                     .HasForeignKey(v => v.PedidoId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ── EMPRESA (EMISOR) ──────────────────────────────────────────
+            modelBuilder.Entity<Empresa>(entity =>
+            {
+                entity.ToTable("Empresas");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.RazonSocial).HasMaxLength(150).IsRequired();
+                entity.Property(e => e.Cuit).HasMaxLength(20).IsRequired();
+                entity.Property(e => e.DomicilioComercial).HasMaxLength(200);
+                entity.Property(e => e.IngresosBrutos).HasMaxLength(50);
+            });
+
+            // Fila única de configuración del emisor (editable desde la UI)
+            modelBuilder.Entity<Empresa>().HasData(new Empresa
+            {
+                Id = 1,
+                RazonSocial = "AtonBeer S.A.",
+                Cuit = "30-00000000-0",
+                DomicilioComercial = "Domicilio comercial a completar",
+                CondicionIVA = Domain.Enums.CondicionIVA.ResponsableInscripto,
+                PuntoVenta = 1,
+                IngresosBrutos = "",
+                InicioActividades = new DateTime(2020, 1, 1)
+            });
+
+            // ── FACTURA (COMPROBANTE NO FISCAL) ───────────────────────────
+            modelBuilder.Entity<Factura>(entity =>
+            {
+                entity.ToTable("Facturas");
+                entity.HasKey(f => f.Id);
+                entity.Ignore(f => f.NumeroFormateado);
+                entity.Property(f => f.NetoGravado).HasPrecision(18, 2);
+                entity.Property(f => f.Descuento).HasPrecision(18, 2);
+                entity.Property(f => f.Iva).HasPrecision(18, 2);
+                entity.Property(f => f.Total).HasPrecision(18, 2);
+                entity.Property(f => f.RutaPdf).HasMaxLength(400);
+                entity.HasIndex(f => f.VentaId).IsUnique().HasDatabaseName("IX_Facturas_VentaId");
+
+                entity.HasOne(f => f.Venta)
+                    .WithMany()
+                    .HasForeignKey(f => f.VentaId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 

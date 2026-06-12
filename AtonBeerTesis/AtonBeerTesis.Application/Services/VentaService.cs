@@ -12,16 +12,20 @@ namespace AtonBeerTesis.Application.Services
     public class VentaService : IVentaService
     {
         private readonly IVentaRepository _ventaRepository;
+        private readonly IFacturaRepository _facturaRepository;
 
-        public VentaService(IVentaRepository ventaRepository)
+        public VentaService(IVentaRepository ventaRepository, IFacturaRepository facturaRepository)
         {
             _ventaRepository = ventaRepository;
+            _facturaRepository = facturaRepository;
             QuestPDF.Settings.License = LicenseType.Community;
         }
 
         public async Task<IEnumerable<VentaDto>> ObtenerTodasAsync()
         {
             var ventas = await _ventaRepository.GetAllAsync();
+            var facturasPorVenta = await _facturaRepository.GetFacturaIdsPorVentaAsync();
+
             return ventas.Select(v => new VentaDto
             {
                 Id = v.Id,
@@ -33,7 +37,9 @@ namespace AtonBeerTesis.Application.Services
                 MontoTotal = v.MontoTotal,
                 EstadoVenta = v.EstadoVenta.ToString(),
                 Plazo = v.Plazo,
-                MetodoPago = v.MetodoPago.ToString()
+                MetodoPago = v.MetodoPago.ToString(),
+                TieneFactura = facturasPorVenta.ContainsKey(v.Id),
+                FacturaId = facturasPorVenta.TryGetValue(v.Id, out var fid) ? fid : null
             });
         }
 

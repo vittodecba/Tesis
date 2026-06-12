@@ -13,6 +13,22 @@ export interface VentaDto {
   estadoVenta: string;
   plazo: string;
   metodoPago: string;
+  tieneFactura?: boolean;
+  facturaId?: number | null;
+}
+
+export interface FacturaDto {
+  id: number;
+  ventaId: number;
+  numeroVenta: string;
+  tipo: string;
+  numeroComprobante: string;
+  fecha: string;
+  clienteNombre: string;
+  netoGravado: number;
+  descuento: number;
+  iva: number;
+  total: number;
 }
 
 export interface VentaPorDia {
@@ -74,8 +90,19 @@ export interface ReporteVentas {
 })
 export class VentasService {
   private apiUrl = 'http://localhost:5190/api/Ventas';
+  private facturasUrl = 'http://localhost:5190/api/Facturas';
 
   constructor(private http: HttpClient) {}
+
+  // Genera la factura (comprobante no fiscal) para una venta entregada.
+  generarFactura(ventaId: number): Observable<FacturaDto> {
+    return this.http.post<FacturaDto>(`${this.facturasUrl}/generar/${ventaId}`, {});
+  }
+
+  // Descarga el PDF de la factura.
+  descargarFacturaPdf(facturaId: number): Observable<Blob> {
+    return this.http.get(`${this.facturasUrl}/${facturaId}/pdf`, { responseType: 'blob' });
+  }
 
   getVentas(): Observable<VentaDto[]> {
     return this.http.get<VentaDto[]>(this.apiUrl);

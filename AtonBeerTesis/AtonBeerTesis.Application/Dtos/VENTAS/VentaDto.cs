@@ -12,5 +12,9 @@ namespace AtonBeerTesis.Application.Dtos.VENTAS
         public string EstadoVenta { get; set; } = string.Empty;
         public DateTime Plazo { get; set; }
         public string MetodoPago { get; set; } = string.Empty;
+
+        // Facturación: indica si la venta ya tiene su comprobante generado
+        public bool TieneFactura { get; set; }
+        public int? FacturaId { get; set; }
     }
 }
