@@ -15,6 +15,60 @@ export interface VentaDto {
   metodoPago: string;
 }
 
+export interface VentaPorDia {
+  fecha: string;
+  total: number;
+}
+
+export interface ComparativaMes {
+  diaDelPeriodo: number;
+  totalActual: number;
+  totalAnterior: number;
+}
+
+export interface TopCliente {
+  cliente: string;
+  totalComprado: number;
+  cantidadVentas: number;
+}
+
+export interface TopProducto {
+  producto: string;
+  cantidadVendida: number;
+}
+
+export interface TopEstilo {
+  estilo: string;
+  cantidadVendida: number;
+}
+
+export interface EvolucionEstilo {
+  fecha: string;
+  estilo: string;
+  cantidad: number;
+}
+
+export interface IngresoPorMes {
+  mes: string;
+  total: number;
+}
+
+export interface ReporteVentas {
+  totalVendido: number;
+  cantidadVentas: number;
+  efectivoTotal: number;
+  transferenciaTotal: number;
+  ticketPromedio: number;
+  variacionIngresosPorcentaje: number;
+  ventasPorDia: VentaPorDia[];
+  comparativaMensual: ComparativaMes[];
+  topClientes: TopCliente[];
+  topProductos: TopProducto[];
+  topEstilos: TopEstilo[];
+  evolucionEstilos: EvolucionEstilo[];
+  evolucionMensualIngresos: IngresoPorMes[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -29,5 +83,17 @@ export class VentasService {
 
   patchVenta(id: number, dto: { estadoVenta?: string; plazo?: string; metodoPago?: string }): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${id}`, dto);
+  }
+
+  obtenerReporteVentas(fechaDesde: string, fechaHasta: string, cliente: string = '') {
+    let url = `${this.apiUrl}/reporte?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`;
+    if (cliente) {
+      url += `&cliente=${encodeURIComponent(cliente)}`;
+    }
+    return this.http.get<ReporteVentas>(url);
+  }
+  descargarPdfReporte(payload: any) {
+    const url = `${this.apiUrl}/reporte/pdf`;
+    return this.http.post(url, payload, { responseType: 'blob' });
   }
 }

@@ -1,4 +1,5 @@
 using AtonBeerTesis.Application.Dtos.VENTAS;
+using AtonBeerTesis.Application.DTOs;
 using AtonBeerTesis.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,6 +42,35 @@ namespace AtonBeerTesis.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("reporte")]
+        public async Task<ActionResult<ReporteVentasDto>> ObtenerReporte([FromQuery] DateTime fechaDesde, [FromQuery] DateTime fechaHasta, [FromQuery] string? cliente = null)
+        {
+            try
+            {
+                var reporte = await _ventaService.ObtenerReporteVentasAsync(fechaDesde, fechaHasta, cliente);
+                return Ok(reporte);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("reporte/pdf")]
+        public async Task<IActionResult> DescargarPdfReporte([FromBody] ReportePdfRequestDto request)
+        {
+            try
+            {
+                var pdfBytes = await _ventaService.GenerarPdfReporteVentasAsync(request);
+                var nombreArchivo = $"Reporte_{request.TipoReporte.ToUpper()}_{request.FechaDesde:yyyyMMdd}_al_{request.FechaHasta:yyyyMMdd}.pdf";
+                return File(pdfBytes, "application/pdf", nombreArchivo);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al generar el PDF: {ex.Message}");
             }
         }
     }

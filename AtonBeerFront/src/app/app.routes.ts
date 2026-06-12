@@ -32,6 +32,8 @@ const GM = ROLES.GERENTE_MAYOR;
 const RP = ROLES.RESP_PLANTA;
 const RPE = ROLES.RESP_PEDIDOS;
 const C = ROLES.COCINERO;
+import { VentasListadoComponent } from './components/ventas/ventas-listado';
+import { VentasReporte } from './components/ventas-reporte/ventas-reporte';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -142,6 +144,7 @@ export const routes: Routes = [
         component: RegistrarPedidoComponent,
         canActivate: [roleGuard],
         data: { title: 'Pedidos', subtitle: 'Administración y registro de pedidos', roles: [A, G, RP, RPE] },
+        data: { title: 'Pedidos', subtitle: 'Administración y registro de pedidos' }
       },
       {
         path: 'barriles',
@@ -160,6 +163,16 @@ export const routes: Routes = [
         component: VentasComponent,
         canActivate: [roleGuard],
         data: { title: 'Ventas', subtitle: 'Registro de ventas generadas', roles: [A, G, GM] },
+      },
+      {
+        path: 'ventas/reporte',
+        component: VentasReporte,
+        data: { title: 'Reportes de Ventas', subtitle: 'Análisis financiero' },
+      },
+      {
+        path: 'ventas',
+        component: VentasListadoComponent,
+        data: { title: 'Ventas', subtitle: 'Gestión de ventas' },
       },
     ],
   },
