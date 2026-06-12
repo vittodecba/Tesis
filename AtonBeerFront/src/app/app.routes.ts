@@ -21,7 +21,6 @@ import { PlanificacionFormComponent } from './components/Planificacion/Planifica
 import { RegistrarPedidoComponent } from './components/registrar-pedido/registrar-pedido';
 import { BarrilesGestion } from './components/barriles/barriles-gestion';
 import { BarrilDetalleComponent } from './components/barriles/barril-detalle/barril-detalle';
-import { VentasComponent } from './components/ventas/ventas.component';
 import { HistorialAccesoComponent } from './components/historial/historialComponent';
 import { roleGuard } from './core/guards/role.guard';
 import { ROLES } from './core/constants/roles';
@@ -144,7 +143,6 @@ export const routes: Routes = [
         component: RegistrarPedidoComponent,
         canActivate: [roleGuard],
         data: { title: 'Pedidos', subtitle: 'Administración y registro de pedidos', roles: [A, G, RP, RPE] },
-        data: { title: 'Pedidos', subtitle: 'Administración y registro de pedidos' }
       },
       {
         path: 'barriles',
@@ -157,22 +155,17 @@ export const routes: Routes = [
         component: BarrilDetalleComponent,
         canActivate: [roleGuard],
         data: { title: 'Detalle de Barril', subtitle: 'Información y movimientos', roles: [A, RP, RPE] },
-      },
-      {
-        path: 'ventas',
-        component: VentasComponent,
-        canActivate: [roleGuard],
-        data: { title: 'Ventas', subtitle: 'Registro de ventas generadas', roles: [A, G, GM] },
-      },
+      },         
+       {
+         path: 'ventas',
+         component: VentasListadoComponent,
+         canActivate: [roleGuard],
+         data: { title: 'Ventas', subtitle: 'Gestión de ventas', roles: [A, G, GM] },
+       },
       {
         path: 'ventas/reporte',
         component: VentasReporte,
         data: { title: 'Reportes de Ventas', subtitle: 'Análisis financiero' },
-      },
-      {
-        path: 'ventas',
-        component: VentasListadoComponent,
-        data: { title: 'Ventas', subtitle: 'Gestión de ventas' },
       },
     ],
   },

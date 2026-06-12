@@ -88,4 +88,5 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             return await _context.Ventas
                 .FirstOrDefaultAsync(v => v.PedidoId == pedidoId);
         }
+    }
 }
