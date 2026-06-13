@@ -57,8 +57,10 @@ namespace AtonBeerTesis.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { mensaje = ex.Message });
+            }
+        }
 
-        [HttpGet("reporte")]
+            [HttpGet("reporte")]
         public async Task<ActionResult<ReporteVentasDto>> ObtenerReporte([FromQuery] DateTime fechaDesde, [FromQuery] DateTime fechaHasta, [FromQuery] string? cliente = null)
         {
             try
