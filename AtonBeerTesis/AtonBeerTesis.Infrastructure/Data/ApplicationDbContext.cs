@@ -236,6 +236,10 @@ namespace AtonBeerTesis.Infrastructure.Data
                 entity.HasKey(v => v.Id);
                 entity.Property(v => v.NumeroVenta).HasMaxLength(20);
                 entity.Property(v => v.MontoTotal).HasPrecision(18, 2);
+                entity.Property(v => v.Subtotal).HasPrecision(18, 2);
+                entity.Property(v => v.DescuentoMonto).HasPrecision(18, 2);
+                entity.Property(v => v.DescuentoPorcentaje).HasPrecision(5, 2);
+                entity.Property(v => v.MotivoDescuento).HasMaxLength(200);
                 entity.HasIndex(v => v.PedidoId).IsUnique().HasDatabaseName("IX_Ventas_PedidoId");
 
                 entity.HasOne(v => v.Cliente)

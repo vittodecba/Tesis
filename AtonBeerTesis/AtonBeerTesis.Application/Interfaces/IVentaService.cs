@@ -6,5 +6,6 @@ namespace AtonBeerTesis.Application.Interfaces
     {
         Task<IEnumerable<VentaDto>> ObtenerTodasAsync();
         Task<bool> PatchAsync(int id, PatchVentaDto dto);
+        Task<bool> AplicarDescuentoAsync(int id, AplicarDescuentoDto dto);
     }
 }

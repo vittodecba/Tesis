@@ -36,7 +36,11 @@ namespace AtonBeerTesis.Application.Services
                     Plazo = v.Plazo,
                     MetodoPago = v.MetodoPago.ToString(),
                     TotalPagado = totalPagado,
-                    SaldoPendiente = saldoPendiente
+                    SaldoPendiente = saldoPendiente,
+                    Subtotal = v.Subtotal > 0 ? v.Subtotal : v.MontoTotal + v.DescuentoMonto,
+                    DescuentoMonto = v.DescuentoMonto,
+                    DescuentoPorcentaje = v.DescuentoPorcentaje,
+                    MotivoDescuento = v.MotivoDescuento,
                 });
             }
             return resultado;
@@ -67,6 +71,60 @@ namespace AtonBeerTesis.Application.Services
                     throw new Exception($"Estado de venta inválido: '{dto.EstadoVenta}'.");
                 venta.EstadoVenta = estado;
             }
+
+            await _ventaRepository.UpdateAsync(venta);
+            return true;
+        }
+        public async Task<bool> AplicarDescuentoAsync(int id, AplicarDescuentoDto dto)
+        {
+            var venta = await _ventaRepository.GetByIdAsync(id);
+            if (venta is null) return false;
+
+            if (venta.EstadoVenta == EstadoVenta.Pagado)
+                throw new Exception("No se puede modificar el descuento de una venta pagada.");
+
+            var totalPagado = await _pagoRepository.GetTotalPagadoByVentaIdAsync(id);
+            if (totalPagado > 0)
+                throw new Exception("No se puede modificar el descuento porque la venta ya tiene pagos registrados.");
+
+            if (dto.Valor <= 0)
+                throw new Exception("El valor del descuento debe ser mayor a 0.");
+
+            var subtotal = venta.Subtotal > 0 ? venta.Subtotal : venta.MontoTotal + venta.DescuentoMonto;
+            if (subtotal <= 0)
+                throw new Exception("No se puede calcular el descuento porque el subtotal de la venta no es válido.");
+
+            decimal descuentoMonto;
+            decimal descuentoPorcentaje;
+
+            var tipoDescuento = dto.TipoDescuento.Trim().ToLower();
+
+            if (tipoDescuento == "porcentaje")
+            {
+                if (dto.Valor >= 100)
+                    throw new Exception("El porcentaje de descuento no puede ser igual o mayor al 100%.");
+
+                descuentoPorcentaje = dto.Valor;
+                descuentoMonto = subtotal * (dto.Valor / 100);
+            }
+            else if (tipoDescuento == "montofijo")
+            {
+                descuentoMonto = dto.Valor;
+                descuentoPorcentaje = (descuentoMonto / subtotal) * 100;
+            }
+            else
+            {
+                throw new Exception("Tipo de descuento inválido.");
+            }
+
+            if (descuentoMonto >= subtotal)
+                throw new Exception("El descuento no puede igualar o superar el subtotal de la venta.");
+
+            venta.Subtotal = subtotal;
+            venta.DescuentoMonto = Math.Round(descuentoMonto, 2);
+            venta.DescuentoPorcentaje = Math.Round(descuentoPorcentaje, 2);
+            venta.MotivoDescuento = string.IsNullOrWhiteSpace(dto.Motivo) ? "Descuento comercial" : dto.Motivo.Trim();
+            venta.MontoTotal = Math.Round(subtotal - descuentoMonto, 2);
 
             await _ventaRepository.UpdateAsync(venta);
             return true;

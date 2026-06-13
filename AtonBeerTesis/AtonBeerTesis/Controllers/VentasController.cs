@@ -43,5 +43,20 @@ namespace AtonBeerTesis.Controllers
                 return BadRequest(new { mensaje = ex.Message });
             }
         }
+        [HttpPatch("{id}/descuento")]
+        public async Task<IActionResult> AplicarDescuento(int id, [FromBody] AplicarDescuentoDto dto)
+        {
+            try
+            {
+                var ok = await _ventaService.AplicarDescuentoAsync(id, dto);
+                if (!ok) return NotFound(new { mensaje = $"No se encontró la venta con ID {id}." });
+
+                return Ok(new { mensaje = "Descuento aplicado correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
     }
 }

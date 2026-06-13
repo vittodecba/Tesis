@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { PagosDto, VentaDto, VentasService } from '../../services/ventas.service';
+import {  AplicarDescuentoDto, PagosDto, VentaDto, VentasService } from '../../services/ventas.service';
 
 @Component({
   selector: 'app-ventas-listado',
@@ -41,6 +41,15 @@ ventaHistorialPagos: VentaDto | null = null;
 pagosHistorial: PagosDto[] = [];
 cargandoHistorialPagos: boolean = false;
 errorPago: string = '';
+
+// DESCUENTOS
+showModalDescuento: boolean = false;
+ventaParaDescuento: VentaDto | null = null;
+tipoDescuento: 'Porcentaje' | 'MontoFijo' = 'Porcentaje';
+valorDescuento: number | null = null;
+motivoDescuento: string = '';
+guardandoDescuento: boolean = false;
+errorDescuento: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -202,6 +211,93 @@ errorPago: string = '';
       }
     });
   }
+abrirModalDescuento(venta: VentaDto): void {
+  this.ventaParaDescuento = venta;
+  this.tipoDescuento = 'Porcentaje';
+  this.valorDescuento = venta.descuentoPorcentaje || null;
+  this.motivoDescuento = venta.motivoDescuento || '';
+  this.errorDescuento = venta.totalPagado > 0
+    ? 'No se puede modificar el descuento porque la venta ya tiene pagos registrados.'
+    : '';
+  this.guardandoDescuento = false;
+  this.showModalDescuento = true;
+  this.cdr.detectChanges();
+}
+
+cerrarModalDescuento(): void {
+  this.showModalDescuento = false;
+  this.ventaParaDescuento = null;
+  this.valorDescuento = null;
+  this.motivoDescuento = '';
+  this.errorDescuento = '';
+  this.guardandoDescuento = false;
+}
+
+calcularDescuentoPreview(): number {
+  if (!this.ventaParaDescuento || !this.valorDescuento) return 0;
+
+  const subtotal = this.ventaParaDescuento.subtotal || this.ventaParaDescuento.montoTotal;
+
+  if (this.tipoDescuento === 'Porcentaje') {
+    return subtotal * (Number(this.valorDescuento) / 100);
+  }
+
+  return Number(this.valorDescuento);
+}
+
+calcularTotalConDescuentoPreview(): number {
+  if (!this.ventaParaDescuento) return 0;
+
+  const subtotal = this.ventaParaDescuento.subtotal || this.ventaParaDescuento.montoTotal;
+  const descuento = this.calcularDescuentoPreview();
+
+  return subtotal - descuento;
+}
+
+guardarDescuento(): void {
+  if (!this.ventaParaDescuento || this.guardandoDescuento) return;
+
+  const valor = Number(this.valorDescuento || 0);
+  const subtotal = this.ventaParaDescuento.subtotal || this.ventaParaDescuento.montoTotal;
+
+  if (this.ventaParaDescuento.totalPagado > 0) {
+    this.errorDescuento = 'No se puede modificar el descuento porque la venta ya tiene pagos registrados.';
+    return;
+  }
+
+  if (valor <= 0) {
+    this.errorDescuento = 'El descuento debe ser mayor a 0.';
+    return;
+  }
+
+  const descuentoPreview = this.calcularDescuentoPreview();
+  if (descuentoPreview >= subtotal) {
+    this.errorDescuento = 'El descuento no puede igualar o superar el subtotal.';
+    return;
+  }
+
+  this.errorDescuento = '';
+  this.guardandoDescuento = true;
+
+  const dto: AplicarDescuentoDto = {
+    tipoDescuento: this.tipoDescuento,
+    valor,
+    motivo: this.motivoDescuento || 'Descuento comercial'
+  };
+
+  this.ventasService.aplicarDescuento(this.ventaParaDescuento.id, dto).subscribe({
+    next: () => {
+      this.mostrarToast('Descuento aplicado correctamente.', 'success');
+      this.cerrarModalDescuento();
+      this.cargarVentasReales();
+    },
+    error: (err: any) => {
+      this.errorDescuento = err.error?.mensaje || 'No se pudo aplicar el descuento.';
+      this.guardandoDescuento = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
 
   //Metodos-PAGO//
   abrirModalPago(venta: VentaDto): void {

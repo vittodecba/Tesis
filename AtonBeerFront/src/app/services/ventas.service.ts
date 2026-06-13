@@ -15,6 +15,15 @@ export interface VentaDto {
   metodoPago: string;
   totalPagado: number;
   saldoPendiente: number;
+  subtotal: number;
+  descuentoMonto: number;
+  descuentoPorcentaje: number;
+  motivoDescuento?: string | null;
+}
+export interface AplicarDescuentoDto {
+  tipoDescuento: 'Porcentaje' | 'MontoFijo';
+  valor: number;
+  motivo?: string;
 }
 export interface PagosDto {
   id: number;
@@ -45,6 +54,9 @@ export class VentasService {
   patchVenta(id: number, dto: { estadoVenta?: string; plazo?: string; metodoPago?: string }): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${id}`, dto);
   }
+  aplicarDescuento(id: number, dto: AplicarDescuentoDto): Observable<any> {
+  return this.http.patch(`${this.apiUrl}/${id}/descuento`, dto);
+}
 
   //Metodos - PAGO//
   registrarPago(dto: RegistrarPagoDto): Observable<PagosDto> {

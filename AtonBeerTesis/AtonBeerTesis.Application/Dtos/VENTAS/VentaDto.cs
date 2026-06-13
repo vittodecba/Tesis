@@ -14,5 +14,9 @@ namespace AtonBeerTesis.Application.Dtos.VENTAS
         public string MetodoPago { get; set; } = string.Empty;
         public decimal TotalPagado { get; set; }
         public decimal SaldoPendiente { get; set; }
+        public decimal Subtotal { get; set; }
+        public decimal DescuentoMonto { get; set; }
+        public decimal DescuentoPorcentaje { get; set; }
+        public string? MotivoDescuento { get; set; }
     }
 }

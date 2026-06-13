@@ -233,11 +233,27 @@ namespace AtonBeerTesis.Application.Services
             pedido.EstadoId = 2;
             await _pedidoRepository.UpdateAsync(pedido);
 
+            var subtotalVenta = pedido.Detalles.Sum(d => d.Cantidad * d.PrecioUnitario);
+            var descuentoMonto = subtotalVenta - pedido.Total;
+
+            if (descuentoMonto < 0)
+            {
+                descuentoMonto = 0;
+            }
+
+            var descuentoPorcentaje = subtotalVenta > 0
+                ? (descuentoMonto / subtotalVenta) * 100
+                : 0;
+
             var ventaExistente = await _ventaRepository.GetByPedidoIdAsync(pedido.Id);
 
             if (ventaExistente != null)
             {
                 ventaExistente.ClienteId = pedido.ClienteId;
+                ventaExistente.Subtotal = subtotalVenta;
+                ventaExistente.DescuentoMonto = Math.Round(descuentoMonto, 2);
+                ventaExistente.DescuentoPorcentaje = Math.Round(descuentoPorcentaje, 2);
+                ventaExistente.MotivoDescuento = descuentoMonto > 0 ? "Descuento franquicia" : null;              
                 ventaExistente.MontoTotal = pedido.Total;
                 ventaExistente.EstadoVenta = EstadoVenta.Pendiente;
                 ventaExistente.Plazo = pedidoDto.Plazo;
@@ -252,6 +268,10 @@ namespace AtonBeerTesis.Application.Services
                     FechaCreacion = DateTime.Now,
                     ClienteId = pedido.ClienteId,
                     PedidoId = pedido.Id,
+                    Subtotal = subtotalVenta,
+                    DescuentoMonto = Math.Round(descuentoMonto, 2),
+                    DescuentoPorcentaje = Math.Round(descuentoPorcentaje, 2),
+                    MotivoDescuento = descuentoMonto > 0 ? "Descuento franquicia" : null,
                     MontoTotal = pedido.Total,
                     EstadoVenta = EstadoVenta.Pendiente,
                     Plazo = pedidoDto.Plazo,

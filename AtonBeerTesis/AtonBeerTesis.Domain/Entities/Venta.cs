@@ -15,6 +15,10 @@ namespace AtonBeerTesis.Domain.Entities
         public virtual Pedido Pedido { get; set; } = null!;
 
         public decimal MontoTotal { get; set; }
+        public decimal Subtotal { get; set; }
+        public decimal DescuentoMonto { get; set; }
+        public decimal DescuentoPorcentaje { get; set; }
+        public string? MotivoDescuento { get; set; }
         public EstadoVenta EstadoVenta { get; set; } = EstadoVenta.Pendiente;
         public DateTime Plazo { get; set; }
         public MetodoPago MetodoPago { get; set; }
