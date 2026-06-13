@@ -65,11 +65,17 @@ namespace AtonBeerTesis.Application.Services
             if (!Enum.TryParse<TipoCliente>(dto.TipoCliente, true, out var tipo))
                 throw new Exception("Tipo de cliente inválido");
 
+            var condicionIva = CondicionIVA.ResponsableInscripto;
+            if (!string.IsNullOrWhiteSpace(dto.CondicionIVA) &&
+                !Enum.TryParse(dto.CondicionIVA, true, out condicionIva))
+                throw new Exception("Condición de IVA inválida");
+
             var cliente = new Cliente
             {
                 RazonSocial = dto.RazonSocial,
                 Cuit = cuit, // ← guardado normalizado
                 Tipocliente = tipo,
+                CondicionIVA = condicionIva,
                 EstadoCliente = EstadoCliente.Activo,
                 Email = dto.Email,
                 Ubicacion = dto.Ubicacion,
@@ -106,6 +112,13 @@ namespace AtonBeerTesis.Application.Services
             cliente.Cuit = cuit;
             cliente.Tipocliente = tipo;
             cliente.EstadoCliente = estado;
+
+            if (!string.IsNullOrWhiteSpace(dto.CondicionIVA))
+            {
+                if (!Enum.TryParse<CondicionIVA>(dto.CondicionIVA, true, out var condIva))
+                    throw new Exception("Condición de IVA inválida");
+                cliente.CondicionIVA = condIva;
+            }
             cliente.Email = dto.Email;
             cliente.Ubicacion = dto.Ubicacion;
             cliente.ContactoNombre = dto.ContactoNombre;
@@ -136,6 +149,13 @@ namespace AtonBeerTesis.Application.Services
                     throw new Exception("Tipo de cliente inválido");
 
                 cliente.Tipocliente = tipo; // OJO: en tu entidad es Tipocliente
+            }
+
+            if (dto.CondicionIVA is not null)
+            {
+                if (!Enum.TryParse<CondicionIVA>(dto.CondicionIVA, true, out var condIva))
+                    throw new Exception("Condición de IVA inválida");
+                cliente.CondicionIVA = condIva;
             }
 
             if (dto.EstadoCliente is not null)
@@ -186,6 +206,7 @@ namespace AtonBeerTesis.Application.Services
             RazonSocial = c.RazonSocial,
             Cuit = c.Cuit,
             TipoCliente = c.Tipocliente.ToString(),
+            CondicionIVA = c.CondicionIVA.ToString(),
             Ubicacion = c.Ubicacion,
 
             ContactoNombre = c.ContactoNombre,
@@ -195,6 +216,7 @@ namespace AtonBeerTesis.Application.Services
             ContactoEmail = c.ContactoEmail,
 
             UltimaCompra = c.UltimaCompra,
+            TotalPedidos = c.TotalPedidos,
             EstadoCliente = c.EstadoCliente.ToString()
         };
     }

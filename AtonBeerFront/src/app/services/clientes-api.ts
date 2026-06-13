@@ -6,6 +6,7 @@ export interface CrearClienteDto {
   razonSocial: string;
   cuit: string;
   tipoCliente: string;
+  condicionIVA?: string;
   email?: string;
   ubicacion: string;
   contactoNombre?: string;

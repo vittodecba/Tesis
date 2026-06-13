@@ -98,13 +98,12 @@ namespace AtonBeerTesis.Application.Services
                 var fermentadorExistente = await _repository.GetByIdAsync(id);
                 if (fermentadorExistente == null) return false;
 
-                // BUG 2: Bloquear edición si tiene lote activo
-                if (await _repository.TieneLotesAsociadosAsync(id))
-                    throw new Exception("No se puede editar un fermentador con un lote activo asignado.");
+                // Bloquear edición solo si el fermentador está Ocupado (hay un lote corriendo activamente)
+                if (fermentadorExistente.Estado == EstadoFermentador.Ocupado)
+                    throw new Exception("No se puede editar un fermentador con un lote activo asignado. Finalizá el lote primero.");
 
                 if (!string.IsNullOrWhiteSpace(dto.Nombre))
                 {
-                    // BUG 1 (edit): no permitir renombrar a un nombre ya existente
                     if (await _repository.ExisteNombreAsync(dto.Nombre, id))
                         throw new Exception($"Ya existe un fermentador con el nombre '{dto.Nombre}'.");
                     fermentadorExistente.Nombre = dto.Nombre;
@@ -117,12 +116,9 @@ namespace AtonBeerTesis.Application.Services
                 {
                     var nuevoEstado = (EstadoFermentador)dto.Estado.Value;
 
-                    // BUG 2: el estado Ocupado solo se asigna automáticamente al crear un lote
+                    // El estado Ocupado solo se asigna automáticamente al iniciar un lote
                     if (nuevoEstado == EstadoFermentador.Ocupado)
                         throw new Exception("El estado 'Ocupado' se asigna automáticamente al crear un lote.");
-
-                    if (fermentadorExistente.Estado == EstadoFermentador.Ocupado)
-                        throw new Exception("Un fermentador ocupado no puede cambiarse manualmente de estado. Debe finalizarse el lote primero.");
 
                     if (nuevoEstado == EstadoFermentador.Mantenimiento &&
                         fermentadorExistente.Estado != EstadoFermentador.Disponible)

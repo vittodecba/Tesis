@@ -19,6 +19,7 @@ namespace AtonBeerTesis.Domain.Entidades
         public string EmailIntentado { get; set; } = string.Empty;//Aca se guarda el email que se ingreso
         public DateTime FechaIntento { get; set; } = DateTime.Now;//El DateTime.Now guarda la fecha y hora actual del intento de acceso
         public bool Exitoso { get; set; }//True si el acceso fue exitoso, false si no lo fue
-        public string Detalles { get; set; }//Detalles como por ejemplo "Contraseña incorrecta"
+        public string Detalles { get; set; } = string.Empty;//Detalles como por ejemplo "Contraseña incorrecta"
+        public string? Ip { get; set; }
     }
 }

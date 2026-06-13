@@ -25,6 +25,7 @@
         <option value="Pendiente">Pendiente</option>
         <option value="Entregado">Entregado</option>
         <option value="Cancelado">Cancelado</option>
+        <option value="Atrasado">Atrasado</option>
       </select>
     </div>
     <div>
@@ -516,7 +517,7 @@
   <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
 
     <!-- Header -->
-    <div class="bg-gradient-to-r from-[#E67E22] to-orange-400 px-6 py-4">
+    <div class="bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] px-6 py-4">
       <h2 class="text-lg font-bold text-white">Datos de la Venta</h2>
       <p class="text-sm text-orange-100 mt-0.5">Completá los datos para registrar la venta automáticamente</p>
     </div>
@@ -559,7 +560,7 @@
       </button>
       <button type="button" (click)="confirmarDatosVenta()"
               [disabled]="!plazoVenta || !metodoPagoSeleccionado"
-              class="px-5 py-2.5 text-sm font-bold text-white bg-[#E67E22] border-0 rounded-xl cursor-pointer hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed">
+              class="px-5 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] border-0 rounded-xl cursor-pointer hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed">
         Confirmar y Entregar
       </button>
     </div>

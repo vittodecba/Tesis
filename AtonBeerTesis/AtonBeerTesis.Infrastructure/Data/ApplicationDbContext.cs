@@ -36,6 +36,8 @@ namespace AtonBeerTesis.Infrastructure.Data
         public DbSet<MovimientoBarril> MovimientosBarril { get; set; }
         public DbSet<Venta> Ventas { get; set; }
         public DbSet<Pago> Pagos { get; set; }
+        public DbSet<Empresa> Empresas { get; set; }
+        public DbSet<Factura> Facturas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -59,6 +61,20 @@ namespace AtonBeerTesis.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(u => u.RolId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // ── HISTORIAL ACCESO ───────────
+            modelBuilder.Entity<HistorialAcceso>(entity =>
+            {
+                entity.ToTable("historialAccesos");
+                entity.HasKey(h => h.Id);
+                entity.Property(h => h.EmailIntentado).HasMaxLength(150).IsRequired();
+                entity.Property(h => h.Detalles).HasMaxLength(300).IsRequired();
+                entity.Property(h => h.Ip).HasMaxLength(50);
+                entity.HasOne(h => h.Usuario)
+                    .WithMany()
+                    .HasForeignKey(h => h.UsuarioId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
 
             // ── LOTE ──────────────────────────────────────────────────────
             modelBuilder.Entity<Lote>(entity =>
@@ -264,6 +280,49 @@ namespace AtonBeerTesis.Infrastructure.Data
                     .HasForeignKey(p => p.VentaId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+            // ── EMPRESA (EMISOR) ──────────────────────────────────────────
+            modelBuilder.Entity<Empresa>(entity =>
+            {
+                entity.ToTable("Empresas");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.RazonSocial).HasMaxLength(150).IsRequired();
+                entity.Property(e => e.Cuit).HasMaxLength(20).IsRequired();
+                entity.Property(e => e.DomicilioComercial).HasMaxLength(200);
+                entity.Property(e => e.IngresosBrutos).HasMaxLength(50);
+            });
+
+            // Fila única de configuración del emisor (editable desde la UI)
+            modelBuilder.Entity<Empresa>().HasData(new Empresa
+            {
+                Id = 1,
+                RazonSocial = "AtonBeer S.A.",
+                Cuit = "30-00000000-0",
+                DomicilioComercial = "Domicilio comercial a completar",
+                CondicionIVA = Domain.Enums.CondicionIVA.ResponsableInscripto,
+                PuntoVenta = 1,
+                IngresosBrutos = "",
+                InicioActividades = new DateTime(2020, 1, 1)
+            });
+
+            // ── FACTURA (COMPROBANTE NO FISCAL) ───────────────────────────
+            modelBuilder.Entity<Factura>(entity =>
+            {
+                entity.ToTable("Facturas");
+                entity.HasKey(f => f.Id);
+                entity.Ignore(f => f.NumeroFormateado);
+                entity.Property(f => f.NetoGravado).HasPrecision(18, 2);
+                entity.Property(f => f.Descuento).HasPrecision(18, 2);
+                entity.Property(f => f.Iva).HasPrecision(18, 2);
+                entity.Property(f => f.Total).HasPrecision(18, 2);
+                entity.Property(f => f.RutaPdf).HasMaxLength(400);
+                entity.HasIndex(f => f.VentaId).IsUnique().HasDatabaseName("IX_Facturas_VentaId");
+
+                entity.HasOne(f => f.Venta)
+                    .WithMany()
+                    .HasForeignKey(f => f.VentaId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
             // ── SEED: ESTADOS PEDIDO ──────────────────────────────────────
             modelBuilder.Entity<EstadoPedido>().HasData(
                 new EstadoPedido { Id = 1, Nombre = "Pendiente" },

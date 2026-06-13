@@ -18,5 +18,8 @@ namespace AtonBeerTesis.Application.Dtos.VENTAS
         public decimal DescuentoMonto { get; set; }
         public decimal DescuentoPorcentaje { get; set; }
         public string? MotivoDescuento { get; set; }
+        // Facturación: indica si la venta ya tiene su comprobante generado
+        public bool TieneFactura { get; set; }
+        public int? FacturaId { get; set; }
     }
 }

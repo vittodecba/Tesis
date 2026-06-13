@@ -21,7 +21,7 @@
         <span>Inicio</span>
       </a>
 
-      <ng-container *ngIf="esAdmin()">
+      <ng-container *ngIf="puedeVerAdministracion()">
         <a class="navItem" routerLink="/usuarios" routerLinkActive="active">
           <lucide-icon [img]="UserCog" class="navIcon" [size]="18"></lucide-icon>
           <span>Gestionar Usuarios</span>
@@ -30,58 +30,66 @@
           <lucide-icon [img]="ShieldCheck" class="navIcon" [size]="18"></lucide-icon>
           <span>Gestionar Roles</span>
         </a>
+        <a class="navItem" routerLink="/historial-accesos" routerLinkActive="active">
+          <lucide-icon [img]="History" class="navIcon" [size]="18"></lucide-icon>
+          <span>Historial de Accesos</span>
+        </a>
+        <a class="navItem" routerLink="/empresa" routerLinkActive="active">
+          <lucide-icon [img]="Building2" class="navIcon" [size]="18"></lucide-icon>
+          <span>Datos de Empresa</span>
+        </a>
       </ng-container>
 
-      <hr class="border-orange-200/20 my-2 mx-4" />
+      <hr *ngIf="puedeVerProduccion() || puedeVerPlanificacion()" class="border-orange-200/20 my-2 mx-4" />
 
-      <a class="navItem" routerLink="/insumos" routerLinkActive="active">
+      <a *ngIf="puedeVerProduccion()" class="navItem" routerLink="/insumos" routerLinkActive="active">
         <lucide-icon [img]="ClipboardList" class="navIcon" [size]="18"></lucide-icon>
         <span>Insumos</span>
       </a>
 
-      <a class="navItem" routerLink="/stock" routerLinkActive="active">
+      <a *ngIf="puedeVerProduccion()" class="navItem" routerLink="/stock" routerLinkActive="active">
         <lucide-icon [img]="Boxes" class="navIcon" [size]="18"></lucide-icon>
         <span>Stock</span>
       </a>
 
-      <a class="navItem" routerLink="/recetas" routerLinkActive="active">
+      <a *ngIf="puedeVerProduccion()" class="navItem" routerLink="/recetas" routerLinkActive="active">
         <lucide-icon [img]="BookOpen" class="navIcon" [size]="18"></lucide-icon>
         <span>Recetas</span>
       </a>
 
-      <a class="navItem" routerLink="/planificacion/Listado" routerLinkActive="active">
+      <a *ngIf="puedeVerPlanificacion()" class="navItem" routerLink="/planificacion/Listado" routerLinkActive="active">
         <lucide-icon [img]="CalendarDays" class="navIcon" [size]="18"></lucide-icon>
         <span>Planificación</span>
       </a>
 
-      <a class="navItem" routerLink="/fermentadores" routerLinkActive="active">
+      <a *ngIf="puedeVerProduccion()" class="navItem" routerLink="/fermentadores" routerLinkActive="active">
         <lucide-icon [img]="FlaskConical" class="navIcon" [size]="18"></lucide-icon>
         <span>Fermentación</span>
       </a>
 
-      <a class="navItem" routerLink="/barriles" routerLinkActive="active">
+      <a *ngIf="puedeVerBarriles()" class="navItem" routerLink="/barriles" routerLinkActive="active">
         <lucide-icon [img]="Barrel" class="navIcon" [size]="18"></lucide-icon>
         <span>Seguimiento Barriles</span>
       </a>
 
-      <hr class="border-orange-200/20 my-2 mx-4" />
+      <hr *ngIf="puedeVerClientes() || puedeVerPedidos() || puedeVerVentas()" class="border-orange-200/20 my-2 mx-4" />
 
-      <a class="navItem" routerLink="/clientes" routerLinkActive="active">
+      <a *ngIf="puedeVerClientes()" class="navItem" routerLink="/clientes" routerLinkActive="active">
         <lucide-icon [img]="Users" class="navIcon" [size]="18"></lucide-icon>
         <span>Clientes</span>
       </a>
 
-      <a class="navItem" routerLink="/pedidos/registrar" routerLinkActive="active">
+      <a *ngIf="puedeVerPedidos()" class="navItem" routerLink="/pedidos/registrar" routerLinkActive="active">
         <lucide-icon [img]="Receipt" class="navIcon" [size]="18"></lucide-icon>
         <span>Pedidos</span>
       </a>
 
-      <a class="navItem" routerLink="/ventas" routerLinkActive="active">
+      <a *ngIf="puedeVerVentas()" class="navItem" routerLink="/ventas" routerLinkActive="active">
         <lucide-icon [img]="CreditCard" class="navIcon" [size]="18"></lucide-icon>
         <span>Ventas</span>
       </a>
 
-      <a class="navItem" routerLink="/reportes" routerLinkActive="active">
+      <a *ngIf="puedeVerReportes()" class="navItem" routerLink="/ventas/reporte" routerLinkActive="active">
         <lucide-icon [img]="LineChart" class="navIcon" [size]="18"></lucide-icon>
         <span>Reportes de Ventas</span>
       </a>

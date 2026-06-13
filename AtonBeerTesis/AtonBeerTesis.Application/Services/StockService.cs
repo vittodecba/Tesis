@@ -98,7 +98,7 @@ namespace AtonBeerTesis.Application.Services
 
             // Marcar barriles como Llenos después de confirmar el stock
             if (idsALlenar != null)
-                await _barrilRepository.MarcarComoLlenosAsync(idsALlenar, movimiento.LoteId.Value);
+                await _barrilRepository.MarcarComoLlenosAsync(idsALlenar, null);
 
             return new MovimientoDetalladoDto
             {

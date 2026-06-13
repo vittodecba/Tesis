@@ -89,7 +89,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .AnyAsync(p => p.ClienteId == clienteId && p.EstadoId != 2 && p.EstadoId != 4);
         }
 
-        public async Task<Dictionary<int, decimal>> ObtenerReservasPendientesPorProductoAsync()//VER
+        public async Task<Dictionary<int, decimal>> ObtenerReservasPendientesPorProductoAsync()
         {
             return await _context.DetallesPedidos
         .Where(d => d.Pedido.EstadoId == 1)
@@ -100,6 +100,14 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             CantidadReservada = g.Sum(x => x.Cantidad)
         })
         .ToDictionaryAsync(x => x.ProductoStockId, x => (decimal)x.CantidadReservada);
+        }
+        public async Task<List<Pedido>> GetPedidosVencidosAsync(DateTime fechaLimite, int estadoPendienteId)
+        {            
+            return await _context.Pedidos
+                .Where(p => p.EstadoId == estadoPendienteId
+                         && p.FechaEntregaProgramada != null
+                         && p.FechaEntregaProgramada < fechaLimite)
+                .ToListAsync();
         }
     }
 }

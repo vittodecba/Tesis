@@ -42,6 +42,7 @@ pagosHistorial: PagosDto[] = [];
 cargandoHistorialPagos: boolean = false;
 errorPago: string = '';
 
+
 // DESCUENTOS
 showModalDescuento: boolean = false;
 ventaParaDescuento: VentaDto | null = null;
@@ -50,6 +51,9 @@ valorDescuento: number | null = null;
 motivoDescuento: string = '';
 guardandoDescuento: boolean = false;
 errorDescuento: string = '';
+
+facturandoId: number | null = null;
+
 
   constructor(
     private fb: FormBuilder,
@@ -369,10 +373,37 @@ registrarPago(): void {
         const msg = err.error?.mensaje || 'No se pudo registrar el pago.';
         this.errorPago = msg; 
         this.registrandoPago = false;
+      }
+    });
+  }
+  // Genera la factura si no existe; si ya existe, descarga el PDF directamente.
+  facturar(venta: VentaDto): void {
+    if (this.facturandoId) return;
+
+    if (venta.tieneFactura && venta.facturaId) {
+      this.descargarPdf(venta.facturaId);
+      return;
+    }
+
+    this.facturandoId = venta.id;
+    this.ventasService.generarFactura(venta.id).subscribe({
+      next: (factura) => {
+        venta.tieneFactura = true;
+        venta.facturaId = factura.id;
+        this.facturandoId = null;
+        this.mostrarToast(`Factura ${factura.tipo} ${factura.numeroComprobante} generada.`, 'success');
+        this.descargarPdf(factura.id);
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.facturandoId = null;
+        const msg = err.error?.mensaje || 'No se pudo generar la factura.';
+        this.mostrarToast(msg, 'error');
         this.cdr.detectChanges();
       }
     });
   }
+
 
   abrirHistorialPagos(venta: VentaDto): void {
   this.ventaHistorialPagos = venta;
@@ -400,6 +431,17 @@ cerrarHistorialPagos(): void {
   this.pagosHistorial = [];
   this.cargandoHistorialPagos = false;
 }
-
-
+  private descargarPdf(facturaId: number): void {
+    this.ventasService.descargarFacturaPdf(facturaId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Factura_${facturaId}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.mostrarToast('No se pudo descargar el PDF de la factura.', 'error')
+    });
+  }
 }

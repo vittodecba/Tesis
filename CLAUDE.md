@@ -180,3 +180,26 @@ Al entregar un pedido, el usuario debe completar un modal "Datos de Venta" con P
 - `ProductosPrueba` (legacy, no usar — reemplazado por ProductosStock)
 
 **Última migración:** `StockRework` — agrega FormatosEnvase, ProductosStock, LoteDesignaciones; migra MovimientosStock a la nueva FK.
+
+## Roles y permisos (RBAC frontend)
+
+### Archivos clave
+- **Constantes:** `AtonBeerFront/src/app/core/constants/roles.ts` — objeto `ROLES` con los nombres exactos de cada rol
+- **Guard:** `AtonBeerFront/src/app/core/guards/role.guard.ts` — `roleGuard` funcional, lee `data.roles` de la ruta
+- **AuthService:** método `hasRole(...roles: string[])` compara contra `rolNombre` del usuario en sesión
+- **Layout:** `layout.ts` tiene helpers `puedeVerAdministracion()`, `puedeVerProduccion()`, etc. usados en `layout.html`
+
+### Roles del sistema (IDs en BD)
+`#1 Administrador` · `#3 Responsable de Planta` · `#4 Responsable de Pedidos` · `#5 Gerente` · `#6 Cocinero` · `#7 Gerente Mayor`
+
+### Mapeo ruta → roles permitidos
+| Ruta | Roles |
+|---|---|
+| `/inicio` | Todos |
+| `/usuarios`, `/roles`, `/historial-accesos` | Administrador, Gerente |
+| `/insumos`, `/stock`, `/recetas`, `/fermentadores` | Administrador, Resp. Planta, Cocinero |
+| `/planificacion/**` | Administrador, Resp. Planta |
+| `/barriles` | Administrador, Resp. Planta, Resp. Pedidos |
+| `/clientes` | Administrador, Gerente, Resp. Pedidos |
+| `/pedidos/registrar` | Administrador, Gerente, Resp. Planta, Resp. Pedidos |
+| `/ventas` | Administrador, Gerente, Gerente Mayor |
