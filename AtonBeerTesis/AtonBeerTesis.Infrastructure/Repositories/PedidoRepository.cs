@@ -109,5 +109,11 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                          && p.FechaEntregaProgramada < fechaLimite)
                 .ToListAsync();
         }
+
+        public async Task UpdateRangeAsync(IEnumerable<Pedido> pedidos)
+        {
+            _context.Pedidos.UpdateRange(pedidos);
+            await _context.SaveChangesAsync();
+        }
     }
 }

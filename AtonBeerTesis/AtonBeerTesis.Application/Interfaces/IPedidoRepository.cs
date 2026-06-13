@@ -16,5 +16,6 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<Dictionary<int, decimal>> ObtenerReservasPendientesPorProductoAsync();
         Task<bool> TieneClientePedidosActivosAsync(int clienteId);
         Task<List<Pedido>> GetPedidosVencidosAsync(DateTime fechaLimite, int estadoPendienteId);
+        Task UpdateRangeAsync(IEnumerable<Pedido> pedidos);
     }
 }

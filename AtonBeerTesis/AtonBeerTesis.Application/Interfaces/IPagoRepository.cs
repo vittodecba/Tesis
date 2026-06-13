@@ -12,5 +12,6 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<Pago> AddAsync(Pago pago);
         Task<IEnumerable<Pago>> GetByVentaIdAsync(int ventaId);
         Task<decimal> GetTotalPagadoByVentaIdAsync(int ventaId);
+        Task<Dictionary<int, decimal>> GetTotalPagadoPorVentasAsync(IEnumerable<int> ventaIds);
     }
 }

@@ -27,11 +27,16 @@ namespace AtonBeerTesis.Application.Services
         {
             var ventas = await _ventaRepository.GetAllAsync();
             var resultado = new List<VentaDto>();
+
+            var ventasIds = ventas.Select(v => v.Id).ToList();
+
             var facturasPorVenta = await _facturaRepository.GetFacturaIdsPorVentaAsync();
+            var pagosPorVenta = await _pagoRepository.GetTotalPagadoPorVentasAsync(ventasIds);
+
             foreach (var v in ventas)
             {
-                var totalPagado = await _pagoRepository.GetTotalPagadoByVentaIdAsync(v.Id);
-                var saldoPendiente = v.MontoTotal - totalPagado;               
+                decimal totalPagado = pagosPorVenta.TryGetValue(v.Id, out var monto) ? monto : 0m;
+                var saldoPendiente = v.MontoTotal - totalPagado;
 
                 resultado.Add(new VentaDto
                 {

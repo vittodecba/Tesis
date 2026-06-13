@@ -26,3 +26,4 @@ obj/
 *.mdf
 *.ldf
 /AtonBeerFrontV2/node_modules
+*.pdf

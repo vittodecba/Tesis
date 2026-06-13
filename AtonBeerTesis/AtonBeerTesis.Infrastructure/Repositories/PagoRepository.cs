@@ -39,5 +39,13 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             .Where(p => p.VentaId == ventaId)
             .SumAsync(p => (decimal?)p.Monto) ?? 0;//Esto para que no tire error si no hay pagos, devuelve 0 en ese caso
         }
+
+        public async Task<Dictionary<int, decimal>> GetTotalPagadoPorVentasAsync(IEnumerable<int> ventaIds)
+        {
+            return await _Context.Pagos
+                .Where(p => ventaIds.Contains(p.VentaId))
+                .GroupBy(p => p.VentaId)
+                .ToDictionaryAsync(g => g.Key, g => g.Sum(p => p.Monto));
+        }
     }
 }
