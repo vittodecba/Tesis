@@ -16,17 +16,20 @@ namespace AtonBeerTesis.Application.Services
         private readonly IVentaRepository _ventaRepository;
         private readonly IPedidoRepository _pedidoRepository;
         private readonly IEmpresaRepository _empresaRepository;
+        private readonly IPagoRepository _pagoRepository;
 
         public FacturaService(
             IFacturaRepository facturaRepository,
             IVentaRepository ventaRepository,
             IPedidoRepository pedidoRepository,
-            IEmpresaRepository empresaRepository)
+            IEmpresaRepository empresaRepository,
+            IPagoRepository pagoRepository)
         {
             _facturaRepository = facturaRepository;
             _ventaRepository = ventaRepository;
             _pedidoRepository = pedidoRepository;
             _empresaRepository = empresaRepository;
+            _pagoRepository = pagoRepository;
         }
 
         public async Task<FacturaDto> GenerarAsync(int ventaId)
@@ -37,6 +40,9 @@ namespace AtonBeerTesis.Application.Services
 
             var venta = await _ventaRepository.GetByIdAsync(ventaId)
                 ?? throw new Exception($"No existe la venta con ID {ventaId}.");
+
+            if (venta.EstadoVenta != EstadoVenta.Pagado)
+                throw new Exception("No se puede facturar: la venta todavía no está 100% pagada.");
 
             var empresa = await _empresaRepository.GetAsync()
                 ?? throw new Exception("Configure los datos de la empresa (emisor) antes de facturar.");
@@ -79,7 +85,8 @@ namespace AtonBeerTesis.Application.Services
             };
 
             // ── Generación del PDF ──
-            var pdfData = ConstruirPdfData(factura, empresa, venta, pedido, cliente);
+            var metodoPagoTexto = await ResolverMetodoPagoAsync(venta);
+            var pdfData = ConstruirPdfData(factura, empresa, venta, pedido, cliente, metodoPagoTexto);
             var pdfBytes = FacturaPdfGenerator.Generar(pdfData);
             factura.RutaPdf = GuardarPdf(pdfBytes, factura);
 
@@ -117,7 +124,8 @@ namespace AtonBeerTesis.Application.Services
 
             // Regeneramos el PDF al vuelo desde los datos guardados (no dependemos de un
             // archivo en disco, que puede no existir o tener una ruta obsoleta).
-            var pdfData = ConstruirPdfData(factura, empresa, venta, pedido, cliente);
+            var metodoPagoTexto = await ResolverMetodoPagoAsync(venta);
+            var pdfData = ConstruirPdfData(factura, empresa, venta, pedido, cliente, metodoPagoTexto);
             var bytes = FacturaPdfGenerator.Generar(pdfData);
             var nombre = $"Factura_{factura.Tipo}_{factura.NumeroFormateado}.pdf";
             return (bytes, nombre);
@@ -125,8 +133,20 @@ namespace AtonBeerTesis.Application.Services
 
         // ─────────────────────────────────────────────────────────────
 
+        // Método de cobro real, según los pagos registrados: un solo método (Efectivo/
+        // Transferencia), "Mixto" si hay varios distintos, o el método planificado si aún no
+        // hay pagos.
+        private async Task<string> ResolverMetodoPagoAsync(Venta venta)
+        {
+            var pagos = await _pagoRepository.GetByVentaIdAsync(venta.Id);
+            var metodos = pagos.Select(p => p.MetodoPago).Distinct().ToList();
+            if (metodos.Count == 0) return venta.MetodoPago.ToString();
+            return metodos.Count > 1 ? "Mixto" : metodos[0].ToString();
+        }
+
         private static FacturaPdfData ConstruirPdfData(
-            Factura factura, Empresa empresa, Venta venta, Pedido pedido, Cliente cliente)
+            Factura factura, Empresa empresa, Venta venta, Pedido pedido, Cliente cliente,
+            string metodoPagoTexto)
         {
             var data = new FacturaPdfData
             {
@@ -146,7 +166,7 @@ namespace AtonBeerTesis.Application.Services
                 ClienteCuit         = cliente.Cuit,
                 ClienteCondicionIVA = Humanizar(cliente.CondicionIVA),
                 ClienteDomicilio    = cliente.Ubicacion,
-                CondicionVenta      = $"{venta.MetodoPago} · Vto: {venta.Plazo:dd/MM/yyyy}",
+                CondicionVenta      = $"{metodoPagoTexto} · Vto: {venta.Plazo:dd/MM/yyyy}",
 
                 NetoGravado = factura.NetoGravado,
                 Descuento   = factura.Descuento,

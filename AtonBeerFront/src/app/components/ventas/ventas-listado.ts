@@ -286,6 +286,12 @@ registrarPago(): void {
       return;
     }
 
+    // Solo se puede emitir factura cuando la venta está 100% pagada.
+    if (this.obtenerEstadoReal(venta) !== 'Pagado') {
+      this.mostrarToast('No se puede facturar: la venta todavía no está 100% pagada.', 'error');
+      return;
+    }
+
     this.facturandoId = venta.id;
     this.ventasService.generarFactura(venta.id).subscribe({
       next: (factura) => {
