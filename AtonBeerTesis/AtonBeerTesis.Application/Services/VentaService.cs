@@ -37,7 +37,23 @@ namespace AtonBeerTesis.Application.Services
             {
                 decimal totalPagado = pagosPorVenta.TryGetValue(v.Id, out var monto) ? monto : 0m;
                 var saldoPendiente = v.MontoTotal - totalPagado;
+                var pagosVenta = await _pagoRepository.GetByVentaIdAsync(v.Id);
 
+                var metodosPago = pagosVenta
+                    .Select(p => p.MetodoPago.ToString())
+                    .Distinct()
+                    .ToList();
+
+                var metodoCobroReal = "Sin pagos";
+
+                if (metodosPago.Count == 1)
+                {
+                    metodoCobroReal = metodosPago[0];
+                }
+                else if (metodosPago.Count > 1)
+                {
+                    metodoCobroReal = "Mixto";
+                }
                 resultado.Add(new VentaDto
                 {
                     Id = v.Id,
@@ -50,6 +66,7 @@ namespace AtonBeerTesis.Application.Services
                     EstadoVenta = v.EstadoVenta.ToString(),
                     Plazo = v.Plazo,
                     MetodoPago = v.MetodoPago.ToString(),
+                    MetodoCobroReal = metodoCobroReal,
                     TotalPagado = totalPagado,
                     SaldoPendiente = saldoPendiente,
                     TieneFactura = facturasPorVenta.ContainsKey(v.Id),
