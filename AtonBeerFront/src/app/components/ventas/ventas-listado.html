@@ -83,13 +83,21 @@
             </span>
             <span class="font-black text-gray-700 text-sm">{{ v.plazo | date:'dd/MM/yy' }}</span>
           </div>
-          <div class="flex flex-col bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5 text-[#E67E22]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-              Método
-            </span>
-            <span class="font-black text-gray-700 text-sm">{{ v.metodoPago || 'No definido' }}</span>
-          </div>
+         <div class="flex flex-col bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+  <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+    <svg class="w-3.5 h-3.5 text-[#E67E22]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+      </path>
+    </svg>
+
+    {{ v.totalPagado > 0 ? 'Cobro' : 'Método previsto' }}
+  </span>
+
+  <span class="font-black text-gray-700 text-sm">
+    {{ v.totalPagado > 0 ? (v.metodoCobroReal || 'Sin pagos') : (v.metodoPago || 'No definido') }}
+  </span>
+</div>
 
 <div class="col-span-2 bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
   <div class="flex items-center justify-between mb-2">
@@ -193,9 +201,10 @@
     </path>
   </svg>
 </button>
-<button (click)="facturar(v)" [disabled]="facturandoId === v.id"
+<button (click)="facturar(v)"
+        [disabled]="facturandoId === v.id || (!v.tieneFactura && obtenerEstadoReal(v) !== 'Pagado')"
         class="p-3 bg-white/10 text-white hover:bg-[#E67E22] hover:scale-105 rounded-xl transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-        [title]="v.tieneFactura ? 'Descargar Factura PDF' : 'Generar Factura'">
+        [title]="v.tieneFactura ? 'Descargar Factura PDF' : (obtenerEstadoReal(v) === 'Pagado' ? 'Generar Factura' : 'No se puede facturar: la venta no está 100% pagada')">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
@@ -342,8 +351,7 @@
         <select [(ngModel)]="pagoMetodoPago"
                 class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-transparent bg-white">
           <option value="Efectivo">Efectivo</option>
-          <option value="Transferencia">Transferencia</option>
-          <option value="Cheque">Cheque</option>
+          <option value="Transferencia">Transferencia</option>          
         </select>
       </div>
     </div>

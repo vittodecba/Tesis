@@ -13,6 +13,7 @@ export interface VentaDto {
   estadoVenta: string;
   plazo: string;
   metodoPago: string;
+  metodoCobroReal: string;
   totalPagado: number;
   saldoPendiente: number;
   subtotal: number;

@@ -363,19 +363,19 @@ namespace AtonBeerTesis.Application.Services
             return true;
         }
 
+
         private async Task VerificarPedidosAtrasadosAsync()
         {
             var hoy = DateTime.Today;
-
             var pedidosVencidos = await _pedidoRepository.GetPedidosVencidosAsync(hoy, 1);
 
             if (pedidosVencidos != null && pedidosVencidos.Any())
-            {               
+            {
                 foreach (var p in pedidosVencidos)
                 {
                     p.EstadoId = 5;
-                    await _pedidoRepository.UpdateAsync(p);
                 }
+                await _pedidoRepository.UpdateRangeAsync(pedidosVencidos);
             }
         }
     }

@@ -328,7 +328,8 @@ namespace AtonBeerTesis.Infrastructure.Data
                 new EstadoPedido { Id = 1, Nombre = "Pendiente" },
                 new EstadoPedido { Id = 2, Nombre = "Entregado" },
                 new EstadoPedido { Id = 3, Nombre = "Facturado" },
-                new EstadoPedido { Id = 4, Nombre = "Cancelado" }
+                new EstadoPedido { Id = 4, Nombre = "Cancelado" },
+                new EstadoPedido { Id = 5, Nombre = "Atrasado" }
             );
         }
     }
