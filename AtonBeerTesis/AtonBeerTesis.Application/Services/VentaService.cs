@@ -89,7 +89,11 @@ namespace AtonBeerTesis.Application.Services
                 throw new Exception("La venta ya está pagada y no puede modificarse.");
 
             if (dto.Plazo is not null)
+            {
+                if (dto.Plazo.Value.Date < DateTime.Today)
+                    throw new Exception("El plazo de cobro no puede ser anterior a la fecha actual.");
                 venta.Plazo = dto.Plazo.Value;
+            }
 
             if (dto.MetodoPago is not null)
             {
