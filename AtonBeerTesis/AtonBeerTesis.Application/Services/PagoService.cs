@@ -25,6 +25,10 @@ namespace AtonBeerTesis.Application.Services
             {
                 throw new Exception("El monto del pago debe ser mayor a 0.");
             }
+            if (dto.Fecha.Date > DateTime.Now.Date)
+            {
+                throw new Exception("No se puede registrar un pago con fecha futura.");
+            }
             var venta = _ventaRepository.GetByIdAsync(dto.VentaId).Result;
             if (venta == null)
             {

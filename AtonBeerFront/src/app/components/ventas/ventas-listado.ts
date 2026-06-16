@@ -34,6 +34,7 @@ pagoMonto: number | null = null;
 pagoFecha: string = '';
 pagoMetodoPago: string = 'Efectivo';
 registrandoPago: boolean = false;
+fechaHoy: string = new Date().toISOString().split('T')[0];
 
 showModalHistorialPagos: boolean = false;
 showModalConfirmacion: boolean = false;
@@ -120,6 +121,7 @@ facturandoId: number | null = null;
           if (fechaVenta < desde) cumpleFecha = false;
         }
         
+        
         if (filtros.fechaHasta) {
           const hasta = new Date(filtros.fechaHasta);
           hasta.setHours(0, 0, 0, 0);
@@ -138,8 +140,12 @@ facturandoId: number | null = null;
       }
 
       if (filtros.metodoPago) {
-        cumpleMetodo = v.metodoPago === filtros.metodoPago;
-      }
+  const metodoVisible = v.totalPagado > 0
+    ? v.metodoCobroReal
+    : v.metodoPago;
+
+  cumpleMetodo = metodoVisible === filtros.metodoPago;
+}
 
       return cumpleFecha && cumpleCliente && cumpleEstado && cumpleMetodo;
     });
