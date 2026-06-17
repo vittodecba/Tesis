@@ -13,14 +13,14 @@ namespace AtonBeerTesis.Application.Services
     {
         private readonly IVentaRepository _ventaRepository;
         private readonly IPagoRepository _pagoRepository;
-        private readonly IFacturaRepository _facturaRepository;   
+        private readonly IFacturaRepository _facturaRepository;
 
         public VentaService(IVentaRepository ventaRepository, IPagoRepository pagoRepository, IFacturaRepository facturaRepository)
         {
             _ventaRepository = ventaRepository;
             _pagoRepository = pagoRepository;
             _facturaRepository = facturaRepository;
-            QuestPDF.Settings.License = LicenseType.Community;            
+            QuestPDF.Settings.License = LicenseType.Community;
         }
 
         public async Task<IEnumerable<VentaDto>> ObtenerTodasAsync()
@@ -98,7 +98,11 @@ namespace AtonBeerTesis.Application.Services
                 throw new Exception("La venta ya está pagada y no puede modificarse.");
 
             if (dto.Plazo is not null)
+            {
+                if (dto.Plazo.Value.Date < DateTime.Today)
+                    throw new Exception("El plazo de cobro no puede ser anterior a la fecha actual.");
                 venta.Plazo = dto.Plazo.Value;
+            }
 
             if (dto.MetodoPago is not null)
             {
@@ -202,9 +206,17 @@ namespace AtonBeerTesis.Application.Services
 
             var totalVendido = await qActuales.SumAsync(v => v.MontoTotal);
             var cantidadVentas = await qActuales.CountAsync();
-            var efectivoTotal = await qActuales.Where(v => v.MetodoPago == MetodoPago.Efectivo).SumAsync(v => v.MontoTotal);
-            var transferenciaTotal = await qActuales.Where(v => v.MetodoPago == MetodoPago.Transferencia).SumAsync(v => v.MontoTotal);
             var totalAnterior = await qAnteriores.SumAsync(v => v.MontoTotal);
+
+            var actualesIds = await qActuales.Select(v => v.Id).ToListAsync();
+
+            var pagosActuales = await _ventaRepository.GetQueryable()
+                .Where(v => actualesIds.Contains(v.Id))
+                .SelectMany(v => v.Pagos)
+                .ToListAsync();
+
+            var efectivoTotal = pagosActuales.Where(p => p.MetodoPago == MetodoPago.Efectivo).Sum(p => p.Monto);
+            var transferenciaTotal = pagosActuales.Where(p => p.MetodoPago == MetodoPago.Transferencia).Sum(p => p.Monto);
 
             var ticketPromedio = cantidadVentas > 0 ? Math.Round(totalVendido / cantidadVentas, 2) : 0;
             var variacion = totalAnterior == 0 ? 100 : Math.Round(((totalVendido - totalAnterior) / totalAnterior) * 100, 2);

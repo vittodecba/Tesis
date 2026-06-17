@@ -27,6 +27,14 @@ export class VentasListadoComponent implements OnInit {
   guardando: boolean = false;
 
   toast = { show: false, message: '', type: 'success' as 'success' | 'error' };
+
+  // Fecha de hoy en formato yyyy-MM-dd (para el min del plazo de cobro).
+  get hoyISO(): string {
+    const d = new Date();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${m}-${day}`;
+  }
 //PAGO//
 showModalPago: boolean = false;
 ventaParaPago: VentaDto | null = null;
@@ -202,8 +210,15 @@ facturandoId: number | null = null;
 
   guardarEdicion(): void {
     if (!this.ventaEnEdicion || this.guardando) return;
+
+    // El plazo de cobro no puede ser anterior a hoy.
+    if (this.editPlazo && this.editPlazo < this.hoyISO) {
+      this.mostrarToast('El plazo de cobro no puede ser anterior a la fecha actual.', 'error');
+      return;
+    }
+
     this.guardando = true;
-    const dto = {      
+    const dto = {
       plazo: this.editPlazo,
       metodoPago: this.editMetodoPago
     };

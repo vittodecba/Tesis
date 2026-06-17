@@ -12,6 +12,47 @@
   }
 }
 
+// ── Alertas (Zona A) ─────────────────────────────────────────
+.alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 14px;
+
+  &.danger {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fecaca;
+  }
+  &.warning {
+    background: #fffbeb;
+    color: #b45309;
+    border-color: #fde68a;
+  }
+  &.clickable {
+    cursor: pointer;
+    &:hover {
+      filter: brightness(0.98);
+    }
+  }
+}
+
+.loading {
+  color: #6b7280;
+  padding: 24px 0;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -27,6 +68,16 @@
   display: flex;
   align-items: center;
   gap: 16px;
+  transition: 0.15s;
+
+  &.clickable {
+    cursor: pointer;
+    &:hover {
+      border-color: #d1d5db;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+  }
 
   .stat-icon {
     width: 48px;
@@ -51,6 +102,14 @@
     &.purple {
       background: #faf5ff;
       color: #a855f7;
+    }
+    &.red {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+    &.teal {
+      background: #f0fdfa;
+      color: #14b8a6;
     }
   }
 
@@ -88,6 +147,42 @@
   }
 }
 
+// ── Lista contextual (Zona C) ────────────────────────────────
+.lista {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+}
+
+.lista-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 8px;
+  border-bottom: 1px solid #f3f4f6;
+
+  &:last-child {
+    border-bottom: none;
+  }
+  &.clickable {
+    cursor: pointer;
+    border-radius: 8px;
+    &:hover {
+      background: #f9fafb;
+    }
+  }
+
+  .lista-texto {
+    font-weight: 700;
+    color: #111827;
+    font-size: 14px;
+  }
+  .lista-sub {
+    font-size: 12px;
+    color: #6b7280;
+  }
+}
+
 .quick-actions {
   display: flex;
   flex-direction: column;
@@ -96,6 +191,9 @@
 }
 
 .action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 12px;
   border-radius: 10px;
   border: 1px solid #e5e7eb;

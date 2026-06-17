@@ -1,37 +1,83 @@
+<!-- Zona A: saludo + alertas -->
 <div class="welcome-section">
   <div class="welcome-text">
     <h1>¡Hola de nuevo, {{ currentUser?.nombre }}! 👋</h1>
     <p>
-      Hoy es {{ fechaActual | date: "EEEE, d 'de' MMMM" }}. Aquí tienes un resumen de Aton Beer.
+      Hoy es {{ fechaActual | date: "EEEE, d 'de' MMMM" }}.
+      <span *ngIf="rolNombre">Vista de {{ rolNombre }}.</span>
     </p>
   </div>
 </div>
 
-<div class="stats-grid">
-  <div class="stat-card" *ngFor="let item of stats">
-    <div class="stat-icon" [ngClass]="item.color">
-      <lucide-icon [img]="item.icon" [size]="24"></lucide-icon>
-    </div>
-    <div class="stat-info">
-      <span class="stat-label">{{ item.label }}</span>
-      <span class="stat-value">{{ item.value }}</span>
-    </div>
+<div class="alerts" *ngIf="alerts.length">
+  <div
+    class="alert"
+    *ngFor="let a of alerts"
+    [ngClass]="a.level"
+    (click)="irA(a.route)"
+    [class.clickable]="a.route"
+  >
+    <lucide-icon [img]="AlertTriangle" [size]="18"></lucide-icon>
+    <span>{{ a.text }}</span>
   </div>
 </div>
 
-<div class="dashboard-content">
-  <div class="main-card">
-    <h3>Próximas Actividades</h3>
-    <div class="empty-state">
-      <p>No tienes tareas pendientes para hoy. ¡Buen trabajo!</p>
+<!-- Estado de carga -->
+<div class="loading" *ngIf="loading">
+  <p>Cargando tu resumen…</p>
+</div>
+
+<ng-container *ngIf="!loading">
+  <!-- Zona B: KPI cards -->
+  <div class="stats-grid" *ngIf="kpis.length">
+    <div
+      class="stat-card"
+      *ngFor="let item of kpis"
+      (click)="irA(item.route)"
+      [class.clickable]="item.route"
+    >
+      <div class="stat-icon" [ngClass]="item.color">
+        <lucide-icon [img]="item.icon" [size]="24"></lucide-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">{{ item.label }}</span>
+        <span class="stat-value">{{ item.value }}</span>
+      </div>
     </div>
   </div>
 
-  <div class="side-card">
-    <h3>Accesos Rápidos</h3>
-    <div class="quick-actions">
-      <button class="action-btn">Nuevo Pedido</button>
-      <button class="action-btn">Registrar Cocción</button>
+  <!-- Zona C: lista contextual + accesos rápidos -->
+  <div class="dashboard-content">
+    <div class="main-card">
+      <h3>{{ lista?.titulo || 'Para hoy' }}</h3>
+
+      <div class="lista" *ngIf="lista && lista.items.length; else vacio">
+        <div
+          class="lista-item"
+          *ngFor="let it of lista.items"
+          (click)="irA(it.route)"
+          [class.clickable]="it.route"
+        >
+          <span class="lista-texto">{{ it.texto }}</span>
+          <span class="lista-sub" *ngIf="it.sub">{{ it.sub }}</span>
+        </div>
+      </div>
+
+      <ng-template #vacio>
+        <div class="empty-state">
+          <p>No hay nada pendiente por ahora. ¡Buen trabajo!</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <div class="side-card" *ngIf="shortcuts.length">
+      <h3>Accesos Rápidos</h3>
+      <div class="quick-actions">
+        <button class="action-btn" *ngFor="let s of shortcuts" (click)="irA(s.route)">
+          <lucide-icon [img]="s.icon" [size]="18"></lucide-icon>
+          <span>{{ s.label }}</span>
+        </button>
+      </div>
     </div>
   </div>
-</div>
+</ng-container>
