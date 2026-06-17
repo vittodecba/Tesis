@@ -29,9 +29,11 @@ namespace AtonBeerTesis.Application.Services.Facturacion
 
         // Totales
         public decimal NetoGravado { get; set; }
-        public decimal Descuento { get; set; }
+        public decimal Descuento { get; set; }        
+        public string DescuentoDescripcion { get; set; } = string.Empty;
         public decimal Iva { get; set; }
         public decimal Total { get; set; }
+ 
 
         public bool DiscriminaIva => Tipo == "A";
     }

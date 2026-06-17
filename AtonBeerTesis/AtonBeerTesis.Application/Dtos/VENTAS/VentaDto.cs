@@ -18,6 +18,11 @@ namespace AtonBeerTesis.Application.Dtos.VENTAS
         public decimal DescuentoMonto { get; set; }
         public decimal DescuentoPorcentaje { get; set; }
         public string? MotivoDescuento { get; set; }
+
+        public decimal NetoGravado { get; set; }
+        public decimal IvaPorcentaje { get; set; }
+        public decimal IvaMonto { get; set; }
+
         public string MetodoCobroReal { get; set; } = string.Empty;
         // Facturación: indica si la venta ya tiene su comprobante generado
         public bool TieneFactura { get; set; }

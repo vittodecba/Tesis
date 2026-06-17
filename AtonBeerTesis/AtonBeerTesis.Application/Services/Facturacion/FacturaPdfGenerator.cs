@@ -154,14 +154,14 @@ namespace AtonBeerTesis.Application.Services.Facturacion
                     {
                         TotalRow(tot, "Subtotal neto", Money(d.NetoGravado + d.Descuento));
                         if (d.Descuento > 0)
-                            TotalRow(tot, "Descuento franquicia (10%)", "- " + Money(d.Descuento));
+                            TotalRow(tot, d.DescuentoDescripcion, "- " + Money(d.Descuento));
                         TotalRow(tot, "Neto gravado", Money(d.NetoGravado));
                         TotalRow(tot, "IVA 21%", Money(d.Iva));
                     }
                     else if (d.Descuento > 0)
                     {
                         // En B el descuento también se muestra con IVA incluido, para que cuadre.
-                        TotalRow(tot, "Descuento franquicia (10%)", "- " + Money(d.Descuento * (1m + AlicuotaIva)));
+                        TotalRow(tot, d.DescuentoDescripcion, "- " + Money(d.Descuento * (1m + AlicuotaIva)));
                     }
 
                     tot.Item().PaddingTop(4).Background(Naranja).Padding(6).Row(r =>

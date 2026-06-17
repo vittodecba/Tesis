@@ -69,9 +69,18 @@ namespace AtonBeerTesis.Application.Services
                     MetodoCobroReal = metodoCobroReal,
                     TotalPagado = totalPagado,
                     SaldoPendiente = saldoPendiente,
-                    Subtotal = v.Subtotal > 0 ? v.Subtotal : v.MontoTotal + v.DescuentoMonto,
+                    Subtotal = v.Subtotal > 0
+                    ? v.Subtotal
+                    : v.NetoGravado > 0
+                    ? v.NetoGravado + v.DescuentoMonto
+                    : v.MontoTotal,
                     DescuentoMonto = v.DescuentoMonto,
                     DescuentoPorcentaje = v.DescuentoPorcentaje,
+
+                    NetoGravado = v.NetoGravado,
+                    IvaPorcentaje = v.IvaPorcentaje,
+                    IvaMonto = v.IvaMonto,
+
                     MotivoDescuento = v.MotivoDescuento,
                     TieneFactura = facturasPorVenta.ContainsKey(v.Id),
                     FacturaId = facturasPorVenta.TryGetValue(v.Id, out var fid) ? fid : null
@@ -123,7 +132,8 @@ namespace AtonBeerTesis.Application.Services
             if (dto.Valor <= 0)
                 throw new Exception("El valor del descuento debe ser mayor a 0.");
 
-            var subtotal = venta.Subtotal > 0 ? venta.Subtotal : venta.MontoTotal + venta.DescuentoMonto;
+            var subtotal = venta.Subtotal > 0 ? venta.Subtotal : venta.NetoGravado > 0 ? venta.NetoGravado + venta.DescuentoMonto
+             : venta.MontoTotal;
             if (subtotal <= 0)
                 throw new Exception("No se puede calcular el descuento porque el subtotal de la venta no es válido.");
 
@@ -153,12 +163,22 @@ namespace AtonBeerTesis.Application.Services
             if (descuentoMonto >= subtotal)
                 throw new Exception("El descuento no puede igualar o superar el subtotal de la venta.");
 
+            var netoGravado = subtotal - descuentoMonto;
+            var ivaPorcentaje = 21m;
+            var ivaMonto = Math.Round(netoGravado * (ivaPorcentaje / 100), 2);
+            var totalConIva = Math.Round(netoGravado + ivaMonto, 2);
+
             venta.Subtotal = subtotal;
             venta.DescuentoMonto = Math.Round(descuentoMonto, 2);
             venta.DescuentoPorcentaje = Math.Round(descuentoPorcentaje, 2);
-            venta.MotivoDescuento = string.IsNullOrWhiteSpace(dto.Motivo) ? "Descuento comercial" : dto.Motivo.Trim();
-            venta.MontoTotal = Math.Round(subtotal - descuentoMonto, 2);
+            venta.MotivoDescuento = string.IsNullOrWhiteSpace(dto.Motivo)
+                ? "Descuento comercial"
+                : dto.Motivo.Trim();
 
+            venta.NetoGravado = Math.Round(netoGravado, 2);
+            venta.IvaPorcentaje = ivaPorcentaje;
+            venta.IvaMonto = ivaMonto;
+            venta.MontoTotal = totalConIva;
             await _ventaRepository.UpdateAsync(venta);
             return true;
         }

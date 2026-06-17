@@ -245,7 +245,10 @@ namespace AtonBeerTesis.Application.Services
             var descuentoPorcentaje = subtotalVenta > 0
                 ? (descuentoMonto / subtotalVenta) * 100
                 : 0;
-
+            var netoGravado = subtotalVenta - descuentoMonto;
+            var ivaPorcentaje = 21m;
+            var ivaMonto = Math.Round(netoGravado * (ivaPorcentaje / 100), 2);
+            var totalConIva = Math.Round(netoGravado + ivaMonto, 2);
             var ventaExistente = await _ventaRepository.GetByPedidoIdAsync(pedido.Id);
 
             if (ventaExistente != null)
@@ -254,11 +257,15 @@ namespace AtonBeerTesis.Application.Services
                 ventaExistente.Subtotal = subtotalVenta;
                 ventaExistente.DescuentoMonto = Math.Round(descuentoMonto, 2);
                 ventaExistente.DescuentoPorcentaje = Math.Round(descuentoPorcentaje, 2);
-                ventaExistente.MotivoDescuento = descuentoMonto > 0 ? "Descuento franquicia" : null;              
-                ventaExistente.MontoTotal = pedido.Total;
+                ventaExistente.MotivoDescuento = descuentoMonto > 0 ? "Descuento franquicia" : null;  
                 ventaExistente.EstadoVenta = EstadoVenta.Pendiente;
                 ventaExistente.Plazo = pedidoDto.Plazo;
                 ventaExistente.MetodoPago = pedidoDto.MetodoPago;
+
+                ventaExistente.NetoGravado = Math.Round(netoGravado, 2);
+                ventaExistente.IvaPorcentaje = ivaPorcentaje;
+                ventaExistente.IvaMonto = ivaMonto;
+                ventaExistente.MontoTotal = totalConIva;
 
                 await _ventaRepository.UpdateAsync(ventaExistente);
             }
@@ -272,8 +279,13 @@ namespace AtonBeerTesis.Application.Services
                     Subtotal = subtotalVenta,
                     DescuentoMonto = Math.Round(descuentoMonto, 2),
                     DescuentoPorcentaje = Math.Round(descuentoPorcentaje, 2),
-                    MotivoDescuento = descuentoMonto > 0 ? "Descuento franquicia" : null,
-                    MontoTotal = pedido.Total,
+                    MotivoDescuento = descuentoMonto > 0 ? "Descuento franquicia" : null,                   
+
+                    NetoGravado = Math.Round(netoGravado, 2),
+                    IvaPorcentaje = ivaPorcentaje,
+                    IvaMonto = ivaMonto,
+                    MontoTotal = totalConIva,
+
                     EstadoVenta = EstadoVenta.Pendiente,
                     Plazo = pedidoDto.Plazo,
                     MetodoPago = pedidoDto.MetodoPago,

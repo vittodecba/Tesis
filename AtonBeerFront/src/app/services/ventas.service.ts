@@ -20,6 +20,11 @@ export interface VentaDto {
   descuentoMonto: number;
   descuentoPorcentaje: number;
   motivoDescuento?: string | null;
+
+  netoGravado: number;
+  ivaPorcentaje: number;
+  ivaMonto: number;
+
   tieneFactura?: boolean;
   facturaId?: number | null;
 }

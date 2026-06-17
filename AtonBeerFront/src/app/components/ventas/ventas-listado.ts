@@ -255,15 +255,22 @@ calcularDescuentoPreview(): number {
   return Number(this.valorDescuento);
 }
 
-calcularTotalConDescuentoPreview(): number {
+calcularNetoPreview(): number {
   if (!this.ventaParaDescuento) return 0;
 
   const subtotal = this.ventaParaDescuento.subtotal || this.ventaParaDescuento.montoTotal;
   const descuento = this.calcularDescuentoPreview();
 
-  return subtotal - descuento;
+  return Math.max(subtotal - descuento, 0);
 }
 
+calcularIvaPreview(): number {
+  return Math.round(this.calcularNetoPreview() * 0.21 * 100) / 100;
+}
+
+calcularTotalConDescuentoPreview(): number {
+  return Math.round((this.calcularNetoPreview() + this.calcularIvaPreview()) * 100) / 100;
+}
 guardarDescuento(): void {
   if (!this.ventaParaDescuento || this.guardandoDescuento) return;
 

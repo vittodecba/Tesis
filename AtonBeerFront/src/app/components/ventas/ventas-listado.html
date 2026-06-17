@@ -118,7 +118,7 @@
     <div class="flex justify-between text-gray-400">
       <span>Subtotal</span>
       <span class="font-bold">
-        ${{ (v.subtotal || v.montoTotal) | number:'1.2-2' }}
+       ${{ (v.subtotal || (v.netoGravado + v.descuentoMonto) || v.montoTotal) | number:'1.2-2' }}
       </span>
     </div>
 
@@ -142,6 +142,13 @@
         <span class="font-bold">$0,00</span>
       </div>
     </ng-template>
+
+    <div class="flex justify-between text-gray-400">
+  <span>IVA {{ v.ivaPorcentaje || 21 }}%</span>
+  <span class="font-bold">
+    ${{ (v.ivaMonto || 0) | number:'1.2-2' }}
+  </span>
+</div>
   </div>
 </div>
 
@@ -471,15 +478,21 @@
     </div>
 
     <div class="px-6 py-6 space-y-5">
-      <div class="grid grid-cols-3 gap-3">
+      <div class="grid grid-cols-4 gap-3">
         <div>
           <span class="block text-[10px] font-black text-gray-400 uppercase">Subtotal</span>
-          <strong>${{ (ventaParaDescuento.subtotal || ventaParaDescuento.montoTotal) | number:'1.2-2' }}</strong>
+          <strong>${{ (ventaParaDescuento.subtotal || (ventaParaDescuento.netoGravado + ventaParaDescuento.descuentoMonto) || ventaParaDescuento.montoTotal) | number:'1.2-2' }}</strong>
         </div>
         <div>
           <span class="block text-[10px] font-black text-gray-400 uppercase">Descuento</span>
           <strong class="text-green-700">-${{ calcularDescuentoPreview() | number:'1.2-2' }}</strong>
         </div>
+        <div>
+  <span class="block text-[10px] font-black text-gray-400 uppercase">IVA 21%</span>
+  <strong class="text-gray-700">
+    ${{ calcularIvaPreview() | number:'1.2-2' }}
+  </strong>
+</div>
         <div>
           <span class="block text-[10px] font-black text-gray-400 uppercase">Total</span>
           <strong class="text-[#E67E22]">${{ calcularTotalConDescuentoPreview() | number:'1.2-2' }}</strong>

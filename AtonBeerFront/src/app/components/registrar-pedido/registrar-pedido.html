@@ -9,18 +9,39 @@
     </button>
   </div>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-start">
+<div class="grid grid-cols-1 md:grid-cols-[1.4fr_0.5fr_1fr_1.1fr] gap-4 mb-6 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-start">
     <div>
-      <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Buscar por Cliente</label>
-      <input type="text" 
-             [(ngModel)]="filtroCliente" 
-             placeholder="Escribí el nombre del cliente..." 
-             class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none bg-gray-50 text-sm focus:border-orange-400 transition-all" />
+      <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+        Buscar por cliente
+      </label>
+      <input
+        type="text"
+        [(ngModel)]="filtroCliente"
+        placeholder="Escribí el nombre del cliente"
+        class="w-full h-14 px-4 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 outline-none focus:border-orange-400"
+      />
     </div>
+
     <div>
-      <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Filtrar por Estado</label>
-      <select [(ngModel)]="filtroEstado" 
-              class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none bg-gray-50 text-sm focus:border-orange-400 transition-all">
+      <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+        ID pedido
+      </label>
+      <input
+        type="text"
+        [(ngModel)]="filtroPedidoId"
+        placeholder="Ej: 39"
+        class="w-full h-14 px-4 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 outline-none focus:border-orange-400"
+      />
+    </div>
+
+    <div>
+      <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+        Filtrar por estado
+      </label>
+      <select
+        [(ngModel)]="filtroEstado"
+        class="w-full h-14 px-4 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 outline-none focus:border-orange-400"
+      >
         <option value="">Todos los estados</option>
         <option value="Pendiente">Pendiente</option>
         <option value="Entregado">Entregado</option>
@@ -29,14 +50,19 @@
         <option value="Atrasado">Atrasado</option>
       </select>
     </div>
+
     <div>
-      <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Ordenar listado por</label>
-      <select [(ngModel)]="criterioOrden" 
-              class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none bg-gray-50 text-sm focus:border-orange-400 transition-all">
+      <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+        Ordenar listado por
+      </label>
+      <select
+        [(ngModel)]="criterioOrden"
+        class="w-full h-14 px-4 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 outline-none focus:border-orange-400"
+      >
         <option value="fecha_desc">Fecha: Más recientes primero</option>
-        <option value="fecha_asc">Fecha: Más viejos primero</option>
-        <option value="total_desc">Total: Mayor a menor monto</option>
-        <option value="total_asc">Total: Menor a mayor monto</option>
+        <option value="fecha_asc">Fecha: Más antiguos primero</option>
+        <option value="total_desc">Total: Mayor a menor</option>
+        <option value="total_asc">Total: Menor a mayor</option>
       </select>
     </div>    
   </div>

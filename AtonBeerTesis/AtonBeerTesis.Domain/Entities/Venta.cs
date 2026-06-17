@@ -19,6 +19,11 @@ namespace AtonBeerTesis.Domain.Entities
         public decimal DescuentoMonto { get; set; }
         public decimal DescuentoPorcentaje { get; set; }
         public string? MotivoDescuento { get; set; }
+
+        public decimal NetoGravado { get; set; }
+        public decimal IvaPorcentaje { get; set; }
+        public decimal IvaMonto { get; set; }
+
         public EstadoVenta EstadoVenta { get; set; } = EstadoVenta.Pendiente;
         public DateTime Plazo { get; set; }
         public MetodoPago MetodoPago { get; set; }

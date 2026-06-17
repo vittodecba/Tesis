@@ -24,5 +24,6 @@ namespace AtonBeerTesis.Domain.Entities
 
         // Número formateado AFIP: 00001-00000001
         public string NumeroFormateado => $"{PuntoVenta:D5}-{Numero:D8}";
+
     }
 }

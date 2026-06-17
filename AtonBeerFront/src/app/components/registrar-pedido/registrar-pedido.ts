@@ -27,6 +27,7 @@ export class RegistrarPedidoComponent implements OnInit {
   isEditing = false;
   pedidoIdActual: number | null = null;
   filtroCliente: string = '';
+  filtroPedidoId: string = '';
   filtroEstado: string = '';
   criterioOrden: string = 'fecha_desc';
   showViewModal: boolean = false;
@@ -183,29 +184,39 @@ export class RegistrarPedidoComponent implements OnInit {
   }
 
   get pedidosFiltrados(): any[] {
+  const busquedaCliente = (this.filtroCliente || '').toLowerCase().trim();
+  const busquedaPedidoId = (this.filtroPedidoId || '').trim();
+
   let resultado = this.pedidos.filter(p => {
-    const coincideCliente = !this.filtroCliente || 
-      (p.clienteNombre || '').toLowerCase().includes(this.filtroCliente.toLowerCase());
-    const coincideEstado = !this.filtroEstado || 
+    const idPedido = String(p.idPedido || p.id || '');
+    const clienteNombre = (p.clienteNombre || '').toLowerCase();
+
+    const coincideCliente = !busquedaCliente ||
+      clienteNombre.includes(busquedaCliente);
+
+    const coincidePedidoId = !busquedaPedidoId ||
+      idPedido.includes(busquedaPedidoId);
+
+    const coincideEstado = !this.filtroEstado ||
       (p.estadoPedido || p.estadoNombre) === this.filtroEstado;
-    return coincideCliente && coincideEstado;
+
+    return coincideCliente && coincidePedidoId && coincideEstado;
   });
-  
 
   return resultado.sort((a, b) => {
     switch (this.criterioOrden) {
       case 'fecha_desc':
         return new Date(b.fechaPedido || b.fecha).getTime() - new Date(a.fechaPedido || a.fecha).getTime();
-      
+
       case 'fecha_asc':
         return new Date(a.fechaPedido || a.fecha).getTime() - new Date(b.fechaPedido || b.fecha).getTime();
-      
+
       case 'total_desc':
         return (b.totalPedido || b.total) - (a.totalPedido || a.total);
-      
+
       case 'total_asc':
         return (a.totalPedido || a.total) - (b.totalPedido || b.total);
-      
+
       default:
         return 0;
     }

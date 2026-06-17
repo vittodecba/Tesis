@@ -58,14 +58,24 @@ namespace AtonBeerTesis.Application.Services
                 ? TipoComprobante.A
                 : TipoComprobante.B;
 
-            // ── Cálculo (precios netos) ──
-            var netoBruto = pedido.Detalles.Sum(d => d.PrecioUnitario * d.Cantidad);
-            var descuento = cliente.Tipocliente == TipoCliente.Franquicia
-                ? Math.Round(netoBruto * DescuentoFranquicia, 2)
-                : 0m;
-            var netoGravado = Math.Round(netoBruto - descuento, 2);
-            var iva = Math.Round(netoGravado * AlicuotaIva, 2);
-            var total = netoGravado + iva;
+            // ── Cálculo tomado desde la venta ──
+            var subtotal = venta.Subtotal > 0
+                ? venta.Subtotal
+                : pedido.Detalles.Sum(d => d.PrecioUnitario * d.Cantidad);
+
+            var descuento = Math.Round(venta.DescuentoMonto, 2);
+
+            var netoGravado = venta.NetoGravado > 0
+                ? Math.Round(venta.NetoGravado, 2)
+                : Math.Round(subtotal - descuento, 2);
+
+            var iva = venta.IvaMonto > 0
+                ? Math.Round(venta.IvaMonto, 2)
+                : Math.Round(netoGravado * AlicuotaIva, 2);
+
+            var total = venta.MontoTotal > 0
+                ? Math.Round(venta.MontoTotal, 2)
+                : Math.Round(netoGravado + iva, 2);
 
             // ── Numeración correlativa separada por tipo ──
             var ultimoNumero = await _facturaRepository.GetMaxNumeroAsync(tipo, empresa.PuntoVenta);
@@ -133,21 +143,36 @@ namespace AtonBeerTesis.Application.Services
 
         // ─────────────────────────────────────────────────────────────
 
-        // Método de cobro real, según los pagos registrados: un solo método (Efectivo/
-        // Transferencia), "Mixto" si hay varios distintos, o el método planificado si aún no
-        // hay pagos.
+        // Método de cobro real según los pagos registrados:
+        // un solo método, combinación de métodos separados por "/", o el método planificado si aún no hay pagos.
         private async Task<string> ResolverMetodoPagoAsync(Venta venta)
         {
             var pagos = await _pagoRepository.GetByVentaIdAsync(venta.Id);
             var metodos = pagos.Select(p => p.MetodoPago).Distinct().ToList();
             if (metodos.Count == 0) return venta.MetodoPago.ToString();
-            return metodos.Count > 1 ? "Mixto" : metodos[0].ToString();
+            return metodos.Count > 1
+             ? string.Join(" / ", metodos.Select(m => m.ToString()))
+             : metodos[0].ToString();
         }
 
         private static FacturaPdfData ConstruirPdfData(
             Factura factura, Empresa empresa, Venta venta, Pedido pedido, Cliente cliente,
             string metodoPagoTexto)
         {
+            var descripcionDescuento = string.Empty;
+
+            if (factura.Descuento > 0)
+            {
+                var motivo = string.IsNullOrWhiteSpace(venta.MotivoDescuento)
+                    ? "Descuento comercial"
+                    : venta.MotivoDescuento;
+
+                var porcentaje = venta.DescuentoPorcentaje > 0
+                    ? $" ({venta.DescuentoPorcentaje:0.##}%)"
+                    : string.Empty;
+
+                descripcionDescuento = $"{motivo}{porcentaje}";
+            }
             var data = new FacturaPdfData
             {
                 EmisorRazonSocial       = empresa.RazonSocial,
@@ -170,6 +195,7 @@ namespace AtonBeerTesis.Application.Services
 
                 NetoGravado = factura.NetoGravado,
                 Descuento   = factura.Descuento,
+                DescuentoDescripcion = descripcionDescuento,
                 Iva         = factura.Iva,
                 Total       = factura.Total
             };
