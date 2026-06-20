@@ -16,6 +16,10 @@ export class HistorialAccesoComponent implements OnInit {
   cargando = false;
   exitoSelect = '';
 
+  paginaActual = 1;
+  itemsPorPagina = 10;
+  opcionesPorPagina = [10, 25, 50];
+
   filtros: HistorialFiltros = {
     email: '',
     fecha: '',
@@ -36,6 +40,7 @@ export class HistorialAccesoComponent implements OnInit {
     this.historialService.getHistorial(this.filtros).subscribe({
       next: data => {
         this.historial= data;
+        this.paginaActual = 1;
         this.cargando = false;
       },
       error: err => {
@@ -45,6 +50,41 @@ export class HistorialAccesoComponent implements OnInit {
       }
     });
   }
+
+  get totalRegistros(): number {
+  return this.historial.length;
+}
+
+get totalPaginas(): number {
+  return Math.max(1, Math.ceil(this.totalRegistros / this.itemsPorPagina));
+}
+
+get historialPaginado(): HistorialItem[] {
+  const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+  return this.historial.slice(inicio, inicio + this.itemsPorPagina);
+}
+
+get registroDesde(): number {
+  if (this.totalRegistros === 0) return 0;
+  return (this.paginaActual - 1) * this.itemsPorPagina + 1;
+}
+
+get registroHasta(): number {
+  return Math.min(
+    this.paginaActual * this.itemsPorPagina,
+    this.totalRegistros
+  );
+}
+
+cambiarPagina(pagina: number): void {
+  if (pagina >= 1 && pagina <= this.totalPaginas) {
+    this.paginaActual = pagina;
+  }
+}
+
+cambiarCantidad(): void {
+  this.paginaActual = 1;
+}
 
   limpiar(): void {
     this.filtros = { email: '', fecha: '', exito: null };
