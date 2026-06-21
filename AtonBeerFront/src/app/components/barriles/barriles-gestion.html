@@ -1,6 +1,5 @@
 <div class="p-6 min-h-screen bg-orange-50/30">
 
-  <!-- HEADER -->
   <div class="flex justify-between items-center mb-8">
     <div>
       <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Barriles</h2>
@@ -15,7 +14,6 @@
     </button>
   </div>
 
-  <!-- FILTROS -->
   <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 flex gap-4 flex-wrap">
     <div class="flex-1 min-w-[160px]">
       <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Buscar código</label>
@@ -69,10 +67,8 @@
     </div>
   </div>
 
-  <!-- TABLA -->
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
-    <!-- empty state -->
     <div *ngIf="filtrados.length === 0" class="flex flex-col items-center justify-center py-16 text-gray-400">
       <lucide-icon [img]="Barrel" [size]="48" class="mb-3 opacity-30"></lucide-icon>
       <p class="font-semibold text-sm">No hay barriles registrados</p>
@@ -96,12 +92,10 @@
           *ngFor="let b of paginados"
           class="hover:bg-orange-50/30 transition-colors group"
         >
-          <!-- Código -->
           <td class="px-6 py-4">
             <span class="font-black text-[#4A2C2A] tracking-wider text-sm">{{ b.codigo }}</span>
           </td>
 
-          <!-- Formato -->
           <td class="px-6 py-4">
             <div class="flex flex-col">
               <span class="text-sm font-medium text-gray-800">{{ b.nombreFormato }}</span>
@@ -109,7 +103,6 @@
             </div>
           </td>
 
-          <!-- Estado -->
           <td class="px-6 py-4 text-center">
             <span
               class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
@@ -119,7 +112,6 @@
             </span>
           </td>
 
-          <!-- Cliente -->
           <td class="px-6 py-4">
             <span *ngIf="b.estadoTexto === 'Con Cliente' && b.clienteNombre"
               class="text-sm font-semibold text-[#e67e22]">
@@ -131,7 +123,6 @@
               class="text-gray-400 text-xs italic">Sin asignar</span>
           </td>
 
-          <!-- Últ. Actualización -->
           <td class="px-6 py-4">
             <span *ngIf="b.ultimaActualizacion" class="text-sm text-gray-500">
               {{ b.ultimaActualizacion | date: 'dd/MM/yyyy HH:mm' }}
@@ -139,7 +130,6 @@
             <span *ngIf="!b.ultimaActualizacion" class="text-gray-300 text-xs">—</span>
           </td>
 
-          <!-- Acciones -->
           <td class="px-6 py-4 text-right">
             <div class="flex justify-end gap-2">
               <button
@@ -171,32 +161,27 @@
       </tbody>
     </table>
 
-    <!-- PAGINACIÓN -->
-    <div
-      *ngIf="filtrados.length > itemsPorPagina"
-      class="flex justify-between items-center px-6 py-3 bg-gray-50 border-t border-gray-100"
-    >
-      <button
-        (click)="paginaActual = paginaActual - 1"
-        [disabled]="paginaActual === 1"
-        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-colors"
-      >
-        Anterior
-      </button>
-      <span class="text-sm text-gray-500 font-medium">
-        Página {{ paginaActual }} de {{ Math.ceil(filtrados.length / itemsPorPagina) }}
-      </span>
-      <button
-        (click)="paginaActual = paginaActual + 1"
-        [disabled]="paginaActual * itemsPorPagina >= filtrados.length"
-        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-colors"
-      >
-        Siguiente
-      </button>
+    <div *ngIf="filtrados.length > 0" class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
+      <div class="flex flex-1 justify-between sm:hidden">
+        <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1" class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-colors">Anterior</button>
+        <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual * itemsPorPagina >= filtrados.length" class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-colors">Siguiente</button>
+      </div>
+      <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+        <p class="text-sm text-gray-700">
+          Página <span class="font-medium">{{ paginaActual }}</span> de <span class="font-medium">{{ Math.ceil(filtrados.length / itemsPorPagina) }}</span>
+        </p>
+        <div class="flex gap-2">    
+          <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1" class="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50">
+            <lucide-icon [img]="ChevronLeft" [size]="18"></lucide-icon>
+          </button>
+          <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual * itemsPorPagina >= filtrados.length" class="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50">
+            <lucide-icon [img]="ChevronRight" [size]="18"></lucide-icon>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- CONTADOR -->
   <p *ngIf="lista.length > 0" class="text-xs text-gray-400 mt-3 ml-1">
     Mostrando {{ paginados.length }} de {{ filtrados.length }} barril{{ filtrados.length !== 1 ? 'es' : '' }}
     <span *ngIf="filtrados.length !== lista.length"> (filtrado de {{ lista.length }} total)</span>
@@ -204,9 +189,6 @@
 
 </div>
 
-<!-- ════════════════════════════════════════════════════
-     MODAL CREAR
-═══════════════════════════════════════════════════════ -->
 <div
   *ngIf="mostrarModalCrear"
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
@@ -220,7 +202,6 @@
 
     <div class="p-6 space-y-5">
 
-      <!-- Código -->
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
           Código físico <span class="text-red-400">*</span>
@@ -232,7 +213,6 @@
         />
       </div>
 
-      <!-- Formato -->
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
           Formato de envase <span class="text-red-400">*</span>
@@ -251,7 +231,6 @@
         </p>
       </div>
 
-      <!-- Fecha adquisición -->
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
           Fecha de adquisición
@@ -263,7 +242,6 @@
         />
       </div>
 
-      <!-- Observaciones -->
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
           Observaciones
@@ -275,10 +253,8 @@
         ></textarea>
       </div>
 
-      <!-- Error -->
       <p *ngIf="error" class="text-sm text-red-500 font-semibold">{{ error }}</p>
 
-      <!-- Botones -->
       <div class="flex justify-end items-center gap-4 pt-4 border-t border-gray-100">
         <button
           (click)="cerrarCrear()"
@@ -298,9 +274,6 @@
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════════════
-     MODAL EDITAR
-═══════════════════════════════════════════════════════ -->
 <div
   *ngIf="mostrarModalEditar && barrilEditando"
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
@@ -314,7 +287,6 @@
 
     <div class="p-6 space-y-5">
 
-      <!-- Info readonly: Código y Formato -->
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Código</label>
@@ -330,11 +302,9 @@
         </div>
       </div>
 
-      <!-- Estado: badge actual + cambio si hay opciones -->
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Estado</label>
         <div class="flex items-center gap-3">
-          <!-- Badge estado actual -->
           <span
             class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0"
             [ngClass]="claseEstado(barrilEditando.estadoTexto)"
@@ -342,7 +312,6 @@
             {{ barrilEditando.estadoTexto }}
           </span>
 
-          <!-- Flecha + select solo si hay transiciones disponibles -->
           <ng-container *ngIf="opcionesEstado.length > 0">
             <span class="text-gray-300 font-bold">→</span>
             <select
@@ -356,14 +325,12 @@
             </select>
           </ng-container>
 
-          <!-- Mensaje si no hay cambio posible -->
           <span *ngIf="opcionesEstado.length === 0" class="text-[11px] text-gray-400 italic">
             Este estado solo cambia automáticamente
           </span>
         </div>
       </div>
 
-      <!-- Cliente asociado -->
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
           Cliente asociado
@@ -377,7 +344,6 @@
         </select>
       </div>
 
-      <!-- Fecha adquisicion editable -->
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
           Fecha de adquisición
@@ -389,7 +355,6 @@
         />
       </div>
 
-      <!-- Observaciones editable -->
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
           Observaciones
@@ -401,10 +366,8 @@
         ></textarea>
       </div>
 
-      <!-- Error -->
       <p *ngIf="error" class="text-sm text-red-500 font-semibold">{{ error }}</p>
 
-      <!-- Botones -->
       <div class="flex justify-end items-center gap-4 pt-4 border-t border-gray-100">
         <button
           (click)="cerrarEditar()"

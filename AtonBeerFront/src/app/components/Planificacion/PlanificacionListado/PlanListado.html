@@ -2,7 +2,7 @@
 
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
     <div>
-      <h2 class="text-3xl font-bold text-[#4A2C2A]">Control de Producción</h2>
+      <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Producción</h2>
       <p class="text-gray-600">Seguimiento de lotes, fermentadores y cronograma.</p>
     </div>
 
@@ -89,7 +89,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-50 text-sm">
-            <tr *ngFor="let p of planificacionesFiltradas" class="hover:bg-orange-50/50 transition-colors group">
+            <tr *ngFor="let p of planificacionesPaginadas" class="hover:bg-orange-50/50 transition-colors group">
               <td class="px-6 py-4 font-mono font-bold text-[#4A2C2A]">L-{{ p.loteId }}</td>
               <td class="px-6 py-4 font-medium text-gray-800">
                 {{ getNombreReceta(p.recetaId) }}
@@ -113,30 +113,71 @@
           </tbody>
         </table>
       </div>
+      <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+        <div class="flex flex-1 justify-between sm:hidden">
+          <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1" class="...">Anterior</button>
+          <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual * itemsPorPagina >= planificacionesFiltradas.length" class="...">Siguiente</button>
+        </div>
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+          <p class="text-sm text-gray-700">
+            Página <span class="font-medium">{{paginaActual}}</span>
+          </p>
+          <div class="flex gap-2">    
+            <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1" class="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50">
+              <lucide-icon [img]="ChevronLeft" [size]="18"></lucide-icon>
+            </button>
+            <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual * itemsPorPagina >= planificacionesFiltradas.length" class="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50">
+              <lucide-icon [img]="ChevronRight" [size]="18"></lucide-icon>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" *ngIf="!loading && vista === 'tarjetas'">
-    <div *ngFor="let p of planificacionesFiltradas" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all group">
-      <div class="h-2 w-full" [style.backgroundColor]="estadosMapping[p.estado].color"></div>
-      <div class="p-5">
-        <div class="flex justify-between items-start mb-4">
-          <h5 class="font-bold text-[#4A2C2A]">Lote #{{ p.loteId }}</h5>
-          <span class="px-2 py-1 rounded-full text-[9px] font-black uppercase border" [ngClass]="estadosMapping[p.estado].clase">
-            {{ estadosMapping[p.estado].nombre }}
-          </span>
+  <div *ngIf="!loading && vista === 'tarjetas'">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let p of planificacionesPaginadas" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all group">
+        <div class="h-2 w-full" [style.backgroundColor]="estadosMapping[p.estado].color"></div>
+        <div class="p-5">
+          <div class="flex justify-between items-start mb-4">
+            <h5 class="font-bold text-[#4A2C2A]">Lote #{{ p.loteId }}</h5>
+            <span class="px-2 py-1 rounded-full text-[9px] font-black uppercase border" [ngClass]="estadosMapping[p.estado].clase">
+              {{ estadosMapping[p.estado].nombre }}
+            </span>
+          </div>
+          <div class="space-y-2 mb-4">
+            <p class="text-sm font-medium text-gray-800 flex items-center gap-2">
+              <lucide-icon [img]="Beer" [size]="14" class="text-[#E67E22"></lucide-icon> {{ getNombreReceta(p.recetaId) }}
+            </p>
+            <p class="text-xs text-gray-500 flex items-center gap-2">
+              <lucide-icon [img]="FlaskConical" [size]="14"></lucide-icon> {{ getNombreFermentador(p.fermentadorId) }}
+            </p>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-50">
+            <span class="text-lg font-black text-[#E67E22]">{{ p.volumenLitros }}L</span>
+            <button (click)="verDetalle(p.id)" class="text-sm font-bold text-blue-600 hover:underline">Ver Detalle</button>
+          </div>
         </div>
-        <div class="space-y-2 mb-4">
-          <p class="text-sm font-medium text-gray-800 flex items-center gap-2">
-            <lucide-icon [img]="Beer" [size]="14" class="text-[#E67E22]"></lucide-icon> {{ getNombreReceta(p.recetaId) }}
-          </p>
-          <p class="text-xs text-gray-500 flex items-center gap-2">
-            <lucide-icon [img]="FlaskConical" [size]="14"></lucide-icon> {{ getNombreFermentador(p.fermentadorId) }}
-          </p>
-        </div>
-        <div class="flex items-center justify-between pt-4 border-t border-gray-50">
-          <span class="text-lg font-black text-[#E67E22]">{{ p.volumenLitros }}L</span>
-          <button (click)="verDetalle(p.id)" class="text-sm font-bold text-blue-600 hover:underline">Ver Detalle</button>
+      </div>
+    </div>
+    
+    <div *ngIf="planificacionesFiltradas.length > 0" class="flex items-center justify-between bg-transparent px-4 py-3 sm:px-6 mt-4">
+      <div class="flex flex-1 justify-between sm:hidden">
+        <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1" class="...">Anterior</button>
+        <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual * itemsPorPagina >= planificacionesFiltradas.length" class="...">Siguiente</button>
+      </div>
+      <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+        <p class="text-sm text-gray-700">
+          Página <span class="font-medium">{{paginaActual}}</span>
+        </p>
+        <div class="flex gap-2">    
+          <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1" class="p-2 border bg-white rounded-lg hover:bg-gray-50 disabled:opacity-50">
+            <lucide-icon [img]="ChevronLeft" [size]="18"></lucide-icon>
+          </button>
+          <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual * itemsPorPagina >= planificacionesFiltradas.length" class="p-2 border bg-white rounded-lg hover:bg-gray-50 disabled:opacity-50">
+            <lucide-icon [img]="ChevronRight" [size]="18"></lucide-icon>
+          </button>
         </div>
       </div>
     </div>

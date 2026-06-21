@@ -125,7 +125,7 @@ export const routes: Routes = [
         path: 'planificacion/Listado',
         component: PlanificacionListComponent,
         canActivate: [roleGuard],
-        data: { title: 'Planificacion', subtitle: 'Planificaciones activas', roles: [A, RP] },
+        data: { title: 'Planificacion', subtitle: 'Gestión de planificaciones de producción', roles: [A, RP] },
       },
       {
         path: 'planificacion/nueva',

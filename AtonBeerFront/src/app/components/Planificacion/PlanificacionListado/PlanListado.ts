@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { PlanificacionService } from '../../../services/PlanificacionService';
 import { RecetaService, Receta } from '../../../services/receta';
 import { FermentadorService } from '../../../services/fermentador';
-import { LucideAngularModule, Plus, Calendar, FlaskConical, ClipboardList, Pencil, List, LayoutGrid, Search, Trash2, Beer } from 'lucide-angular';
+import { LucideAngularModule, Plus, Calendar, FlaskConical, ClipboardList, Pencil, List, LayoutGrid, Search, Trash2, Beer, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { PlanificacionCalendarComponent } from '../PlanificacionCalendario/PlanCalendario';
 import Swal from 'sweetalert2';
 
@@ -17,7 +17,7 @@ import Swal from 'sweetalert2';
   styleUrls: ['./PlanListado.scss']
 })
 export class PlanificacionListComponent implements OnInit {
-  hoy: string = new Date().toISOString().split('T')[0]; // formato yyyy-MM-dd para [min]
+  hoy: string = new Date().toISOString().split('T')[0];
 
   planificaciones: any[] = [];
   planificacionesFiltradas: any[] = [];
@@ -25,23 +25,22 @@ export class PlanificacionListComponent implements OnInit {
   fermentadores: any[] = [];
   loading: boolean = true;
 
-  // Vista: 'tabla' | 'tarjetas' | 'calendario'
   vista: string = 'tabla';
 
-  // Filtros
   filtroEstado: string = '2';
   filtroFermentador: string = '';
   filtroOrden: string = 'reciente';
   filtroFechaDesde: string = '';
   filtroFechaHasta: string = '';
 
-  // Modal edición
   mostrarModal: boolean = false;
   loteEditando: any = {};
   guardando: boolean = false;
   errorVolumenEdicion: string | null= null;
 
-  // Fermentadores visibles en el select de edición: solo Disponibles + el actualmente asignado
+  paginaActual: number = 1;
+  itemsPorPagina: number = 8;
+
   get fermentadoresDisponiblesEdicion(): any[] {
     return this.fermentadores.filter(f =>
       String(f.estado) === '1' || f.id === Number(this.loteEditando?.fermentadorId)
@@ -58,6 +57,8 @@ export class PlanificacionListComponent implements OnInit {
   Search = Search;
   Trash2 = Trash2;
   Beer = Beer;
+  ChevronLeft = ChevronLeft;
+  ChevronRight = ChevronRight;
   Swal = Swal;
 
   estadosMapping: { [key: number]: { nombre: string, clase: string, color: string } } = {
@@ -125,6 +126,7 @@ export class PlanificacionListComponent implements OnInit {
     }
 
     this.planificacionesFiltradas = resultado;
+    this.paginaActual = 1;
   }
 
   limpiarFiltros() {
@@ -136,10 +138,19 @@ export class PlanificacionListComponent implements OnInit {
     this.aplicarFiltros();
   }
 
+  get planificacionesPaginadas() {
+    const listaAVisualizar = this.planificacionesFiltradas || [];
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+    
+    return listaAVisualizar.slice(inicio, fin);
+  }
+
   verDetalle(id: number) {
     this.router.navigate(['/planificacion/detalle', id]);
   }
-   validarCapacidadEdicion() {
+
+  validarCapacidadEdicion() {
     const fermentador = this.fermentadores.find(f => f.id === Number(this.loteEditando.fermentadorId));
     
     if (fermentador && this.loteEditando.volumenLitros > fermentador.capacidad) {
@@ -200,11 +211,10 @@ export class PlanificacionListComponent implements OnInit {
           console.error('Error al guardar', e);
       this.guardando = false;
 
-      // --- LÓGICA PARA EL MENSAJE AMENO DE STOCK ---
       let mensajeDetalle = "No se pudieron guardar los cambios.";
       
       if (e.error && e.error.message) {
-        mensajeDetalle = e.error.message; // Aquí viene el "Stock insuficiente..." del Backend
+        mensajeDetalle = e.error.message;
       } else if (typeof e.error === 'string') {
         mensajeDetalle = e.error;
       }
@@ -212,9 +222,9 @@ export class PlanificacionListComponent implements OnInit {
       Swal.fire({
         title: 'Atención con el Stock',
         text: mensajeDetalle,
-        icon: 'warning', // Ícono amarillo de advertencia, menos agresivo que el rojo
+        icon: 'warning',
         confirmButtonText: 'Entendido',
-        confirmButtonColor: '#8d4925', // Tu color marrón
+        confirmButtonColor: '#8d4925',
         background: '#ffffff'
       });
   
@@ -237,6 +247,7 @@ export class PlanificacionListComponent implements OnInit {
       }
     });
   }
+
   eliminarLote(id: number) {
   Swal.fire({
     title: '¿Eliminar producción?',
@@ -249,11 +260,10 @@ export class PlanificacionListComponent implements OnInit {
     cancelButtonText: 'No, mantener'
   }).then((result) => {
     if (result.isConfirmed) {
-      // Llamamos al servicio (asegurate que el nombre coincida con tu PlanificacionService)
       this._planifService.eliminar(id).subscribe({
         next: () => {
           Swal.fire('¡Eliminado!', 'El registro fue borrado con éxito.', 'success');
-          this.cargarPlanificaciones(); // Refrescamos la lista
+          this.cargarPlanificaciones();
         },
         error: (err) => {
           console.error(err);

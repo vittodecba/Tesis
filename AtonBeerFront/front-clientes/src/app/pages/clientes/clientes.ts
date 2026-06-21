@@ -20,6 +20,8 @@ import {
   Mail,
   MapPin,
   Filter,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-angular';
 import { ClientesApiService } from '../../services/clientes-api';
 
@@ -42,10 +44,17 @@ export class Clientes implements OnInit {
   Mail = Mail;
   MapPin = MapPin;
   Filter = Filter;
+  ChevronLeft = ChevronLeft;
+  ChevronRight = ChevronRight;
+  Math = Math;
 
   clientes: any[] = [];
   clientesFiltrados: any[] = [];
   cargando = false;
+
+  // Paginación
+  paginaActual = 1;
+  itemsPorPagina = 10;
 
   // Filtros
   filtroBusqueda: string = '';
@@ -107,6 +116,12 @@ export class Clientes implements OnInit {
 
       return cumpleBusqueda && cumpleTipo && cumpleEstado;
     });
+    this.paginaActual = 1;
+  }
+
+  get clientesPaginados(): any[] {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    return this.clientesFiltrados.slice(inicio, inicio + this.itemsPorPagina);
   }
 
   toggleEstado(cliente: any): void {

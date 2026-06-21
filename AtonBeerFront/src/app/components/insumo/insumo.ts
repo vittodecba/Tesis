@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Pencil, Trash2, Plus, Search } from 'lucide-angular';
+import { LucideAngularModule, Pencil, Trash2, Plus, Search, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { InsumoService } from '../../services/insumo.service';
 import { UnidadMedidaService } from '../../services/unidadMedida';
 
@@ -17,26 +17,28 @@ export class InsumoComponent implements OnInit {
   readonly Trash2 = Trash2;
   readonly Plus = Plus;
   readonly Search = Search;
+  readonly ChevronLeft = ChevronLeft;
+  readonly ChevronRight = ChevronRight;
 
-  insumos: any[] = [];          
-  insumosOriginales: any[] = []; 
-  mostrarModal: boolean = false;  
+  insumos: any[] = [];
+  insumosOriginales: any[] = [];
+  mostrarModal: boolean = false;
   mensajeError: string | null = null;
-  tiposOpciones: any[] = []; 
+  tiposOpciones: any[] = [];
   unidadesOpciones: any[] = [];
-  unidadesFiltradas: any[] = []; 
+  unidadesFiltradas: any[] = [];
   ajuste: boolean = false;
   paginaActual: number = 1;
   itemsPorPagina: number = 10;
 
   filtroTexto: string = '';
-  filtroTipo: string = ''; 
+  filtroTipo: string = '';
   orden: string = 'nombre';
   datosForm: any = {
     id: null,
     codigo: '',
     nombreInsumo: '',
-    tipoInsumoId: null, 
+    tipoInsumoId: null,
     unidadMedidaId: null,
     stockActual: 0,
     observaciones: ''
@@ -50,19 +52,18 @@ export class InsumoComponent implements OnInit {
   ngOnInit(): void {
     this.cargarInsumos();
     this.cargarUnidades();
-    this.cargarTipos(); 
+    this.cargarTipos();
   }
 
-  // --- GESTIÓN DE TIPOS (Existente) ---
   crearTipos(objetivo: string) {
     const nombre = prompt(`Ingrese el nombre de la nueva categoría de ${objetivo}:`);
-    if (nombre && nombre.trim() !== '') {   
+    if (nombre && nombre.trim() !== '') {
       const nuevoObjeto = { nombre: nombre, activo: true };
       this.insumoService.crearTipo(nuevoObjeto).subscribe({
         next: (res: any) => {
           alert('Categoría creada con éxito');
           this.insumoService.obtenerTipos().subscribe(data => {
-            this.tiposOpciones = data;       
+            this.tiposOpciones = data;
             const creado = data.find((t: any) => t.nombre === nombre);
             if (creado) { this.datosForm.tipoInsumoId = creado.id; }
           });
@@ -85,7 +86,7 @@ export class InsumoComponent implements OnInit {
       alert('Primero seleccioná en el desplegable qué tipo querés eliminar');
       return;
     }
-    const tipoCualquiera = this.tiposOpciones.find(t => t.id == idABorrar);  
+    const tipoCualquiera = this.tiposOpciones.find(t => t.id == idABorrar);
     if (confirm(`¿Estás seguro de que querés eliminar la categoría "${tipoCualquiera.nombre}"?`)) {
       this.insumoService.eliminarTipo(idABorrar).subscribe({
         next: () => {
@@ -98,21 +99,19 @@ export class InsumoComponent implements OnInit {
     }
   }
 
-  // --- GESTIÓN DE UNIDADES (Nueva integración) ---
- cargarUnidades() {
-  this.unidadService.getUnidades().subscribe({
-    next: (data: any) => {
-      this.unidadesOpciones = data;
-      const unidadesAceptables = ['Kg', 'Gr', 'Lt', 'Ml', 'Un'];
-      
-      // Filtramos y guardamos en nuestra nueva variable
-      this.unidadesFiltradas = data.filter((u: any) => 
-        unidadesAceptables.includes(u.abreviatura)
-      );
-    },
-    error: (err: any) => console.error('Error al cargar unidades:', err)
-  });
-}
+  cargarUnidades() {
+    this.unidadService.getUnidades().subscribe({
+      next: (data: any) => {
+        this.unidadesOpciones = data;
+        const unidadesAceptables = ['Kg', 'Gr', 'Lt', 'Ml', 'Un'];
+        
+        this.unidadesFiltradas = data.filter((u: any) =>
+          unidadesAceptables.includes(u.abreviatura)
+        );
+      },
+      error: (err: any) => console.error('Error al cargar unidades:', err)
+    });
+  }
 
   crearUnidad() {
     const nombre = prompt("Nombre de la unidad (ej: Kilogramos):");
@@ -153,12 +152,11 @@ export class InsumoComponent implements OnInit {
     }
   }
 
-  // --- LÓGICA DE INSUMOS ---
   cargarInsumos() {
     this.insumoService.obtenerInsumos().subscribe({
       next: (data: any) => {
         this.insumosOriginales = data;
-        this.aplicarFiltros(); 
+        this.aplicarFiltros();
       },
       error: (err: any) => console.error('Error al cargar:', err)
     });
@@ -168,7 +166,7 @@ export class InsumoComponent implements OnInit {
     let resultado = [...this.insumosOriginales];
     if (this.filtroTexto) {
       const busqueda = this.filtroTexto.toLowerCase();
-      resultado = resultado.filter(i => 
+      resultado = resultado.filter(i =>
         i.nombreInsumo.toLowerCase().includes(busqueda) ||
         (i.codigo && i.codigo.toLowerCase().includes(busqueda))
       );
@@ -185,21 +183,30 @@ export class InsumoComponent implements OnInit {
       return 0;
     });
     this.insumos = resultado;
+    this.paginaActual = 1;
+  }
+
+  get insumosPaginados() {
+    const listaAVisualizar = this.insumos || [];
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+    
+    return listaAVisualizar.slice(inicio, fin);
   }
 
   abrirModal() { this.limpiarFormulario();  this.ajuste = false;this.mostrarModal = true; }
   cerrarModal() { this.mostrarModal = false; }
-  
+
   limpiarFormulario() {
     this.datosForm = { id: null, codigo: '', nombreInsumo: '', tipoInsumoId: null, unidadMedidaId: null, stockActual: 0, observaciones: '' };
   }
-  //Para editar lo que ya esta
-  prepararEdicion(item: any) { 
+
+  prepararEdicion(item: any) {
     this.datosForm = { ...item };
     this.ajuste = false;
-    this.mostrarModal = true; 
+    this.mostrarModal = true;
   }
-  //Para agregar, o sea sumar  
+
   prepararAjuste(item: any) {
     this.datosForm = { ...item, stockActual: 0 };
     this.ajuste = true;
@@ -207,43 +214,42 @@ export class InsumoComponent implements OnInit {
   }
 
   guardar() {
-  
-  if (!this.datosForm.nombreInsumo || !this.datosForm.tipoInsumoId || !this.datosForm.unidadMedidaId) {
-    alert('Por favor, completá Nombre, Tipo y Unidad.');
-    return;
-  }  
-  const payload = {
-    id: this.datosForm.id ? Number(this.datosForm.id) : 0, 
-    nombreInsumo: this.datosForm.nombreInsumo,
-    codigo: this.datosForm.codigo || "",
-    tipoInsumoId: Number(this.datosForm.tipoInsumoId),
-    unidadMedidaId: Number(this.datosForm.unidadMedidaId),
-    stockActual: Number(this.datosForm.stockActual) || 0,
-    observaciones: this.datosForm.observaciones || "",
-    ultimaActualizacion: new Date().toISOString() 
-  };
- 
-  if (payload.id > 0) {    
-    this.insumoService.actualizarInsumo(payload.id, payload, this.ajuste).subscribe({
-      next: () => {
-        this.finalizarOperacion(this.ajuste ? 'Stock actualizado con éxito' : 'Insumo editado con éxito');
-        this.ajuste = false;
-      },
-      error: (err) => {
-        const mensaje = err.error?.message || err.error || 'Error al actualizar';
-        alert(mensaje); 
-      }
-    });
-  } else {   
-    this.insumoService.crearInsumo(payload).subscribe({
-      next: () => this.finalizarOperacion('Insumo creado con éxito'),
-      error: (err) => {
-        this.mensajeError = err.error?.message || err.error || 'Ya existe un insumo con ese nombre.';
-        setTimeout(() => this.mensajeError = null, 5000);
-      }
-    });
+    if (!this.datosForm.nombreInsumo || !this.datosForm.tipoInsumoId || !this.datosForm.unidadMedidaId) {
+      alert('Por favor, completá Nombre, Tipo y Unidad.');
+      return;
+    }
+    const payload = {
+      id: this.datosForm.id ? Number(this.datosForm.id) : 0,
+      nombreInsumo: this.datosForm.nombreInsumo,
+      codigo: this.datosForm.codigo || "",
+      tipoInsumoId: Number(this.datosForm.tipoInsumoId),
+      unidadMedidaId: Number(this.datosForm.unidadMedidaId),
+      stockActual: Number(this.datosForm.stockActual) || 0,
+      observaciones: this.datosForm.observaciones || "",
+      ultimaActualizacion: new Date().toISOString()
+    };
+
+    if (payload.id > 0) {
+      this.insumoService.actualizarInsumo(payload.id, payload, this.ajuste).subscribe({
+        next: () => {
+          this.finalizarOperacion(this.ajuste ? 'Stock actualizado con éxito' : 'Insumo editado con éxito');
+          this.ajuste = false;
+        },
+        error: (err) => {
+          const mensaje = err.error?.message || err.error || 'Error al actualizar';
+          alert(mensaje);
+        }
+      });
+    } else {
+      this.insumoService.crearInsumo(payload).subscribe({
+        next: () => this.finalizarOperacion('Insumo creado con éxito'),
+        error: (err) => {
+          this.mensajeError = err.error?.message || err.error || 'Ya existe un insumo con ese nombre.';
+          setTimeout(() => this.mensajeError = null, 5000);
+        }
+      });
+    }
   }
-}
 
   eliminar(id: number) {
     if (confirm('¿Estás seguro de eliminar este insumo?')) {

@@ -8,10 +8,8 @@ import {
   CreateBarrilDto,
   FormatoRetornableDto,
 } from '../../services/barril.service';
-import { LucideAngularModule, Plus, Pencil, Barrel, Trash2, FileText } from 'lucide-angular';
+import { LucideAngularModule, Plus, Pencil, Barrel, Trash2, FileText, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
-
-
 
 interface OpcionEstado { valor: number; texto: string; }
 
@@ -28,6 +26,8 @@ export class BarrilesGestion implements OnInit {
   readonly Trash2 = Trash2;
   readonly Math   = Math;
   readonly FileText = FileText;
+  readonly ChevronLeft = ChevronLeft;
+  readonly ChevronRight = ChevronRight;
 
   lista: BarrilDto[] = [];
   filtrados: BarrilDto[] = [];
@@ -39,7 +39,6 @@ export class BarrilesGestion implements OnInit {
   filtroFormato  = 0;
   filtroCliente  = 0;
 
-  // Paginación
   paginaActual = 1;
   readonly itemsPorPagina = 10;
 

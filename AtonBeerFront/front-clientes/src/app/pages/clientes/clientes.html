@@ -52,7 +52,7 @@
   </div>
 
   <div class="card">
-    <table class="table">
+    <table class="table" *ngIf="clientesFiltrados.length > 0">
       <thead>
         <tr>
           <th>Nombre</th>
@@ -63,7 +63,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let c of clientesFiltrados">
+        <tr *ngFor="let c of clientesPaginados">
           <td class="strong">{{ c.razonSocial }}</td>
           <td>
             <span class="badge" [class.badgeOrange]="c.tipoCliente === 'Franquicia'">{{
@@ -93,6 +93,21 @@
         </tr>
       </tbody>
     </table>
+    
+    <div *ngIf="clientesFiltrados.length > 0" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-top: 1px solid #e2e8f0; margin-top: auto;">
+      <span style="font-size: 0.875rem; color: #64748b;">
+        Página <strong>{{ paginaActual }}</strong> de <strong>{{ Math.ceil(clientesFiltrados.length / itemsPorPagina) }}</strong>
+      </span>
+      <div style="display: flex; gap: 0.5rem;">
+        <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1" class="iconBtn" style="padding: 0.5rem; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; border-radius: 0.375rem;" [style.opacity]="paginaActual === 1 ? '0.5' : '1'">
+          <lucide-icon [img]="ChevronLeft" [size]="18"></lucide-icon>
+        </button>
+        <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual * itemsPorPagina >= clientesFiltrados.length" class="iconBtn" style="padding: 0.5rem; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; border-radius: 0.375rem;" [style.opacity]="paginaActual * itemsPorPagina >= clientesFiltrados.length ? '0.5' : '1'">
+          <lucide-icon [img]="ChevronRight" [size]="18"></lucide-icon>
+        </button>
+      </div>
+    </div>
+
     <div class="empty-state" *ngIf="clientesFiltrados.length === 0 && !cargando">
       No se encontraron clientes con esos filtros.
     </div>
