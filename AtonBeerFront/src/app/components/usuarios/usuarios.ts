@@ -109,6 +109,14 @@ export class UsuariosComponent implements OnInit {
       return;
     }
 
+    // Validación de formato de email: un único mensaje claro en vez de mezclar los
+    // distintos errores que devuelve el backend (formato + contraseña, etc.).
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.datosForm.email.trim())) {
+      alert('Email inválido');
+      return;
+    }
+
     const emailIngresado = this.datosForm.email.trim();
     const emailDuplicado = this.usuarios.some(u => 
       u.email.toLowerCase() === emailIngresado.toLowerCase() && 

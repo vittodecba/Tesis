@@ -48,8 +48,7 @@ namespace AtonBeerTesis.Application.Services
                 return fermentadores.Select(f =>
                 {
                     // Buscar la planificación activa (Planificado=1 o EnProceso=2)
-                    var planActiva = f.Planificaciones
-                        .FirstOrDefault(p => p.Estado == EstadoLote.EnProceso || p.Estado == EstadoLote.Planificado);
+                    var planActiva = SeleccionarPlanActiva(f.Planificaciones);
 
                     return new FermentadorDetalleDto
                     {
@@ -74,8 +73,7 @@ namespace AtonBeerTesis.Application.Services
 
                 return lista.Select(f =>
                 {
-                    var planActiva = f.Planificaciones
-                        .FirstOrDefault(p => p.Estado == EstadoLote.EnProceso || p.Estado == EstadoLote.Planificado);
+                    var planActiva = SeleccionarPlanActiva(f.Planificaciones);
 
                     return new FermentadorDto
                     {
@@ -91,6 +89,19 @@ namespace AtonBeerTesis.Application.Services
                         EstadoLote = planActiva != null ? ((int)planActiva.Estado).ToString() : null
                     };
                 }).ToList();
+            }
+
+            // Selecciona la planificación "activa" del fermentador priorizando la que está
+            // EnProceso (la realmente en curso) y, dentro de cada estado, la más reciente. Evita
+            // que un Planificado viejo le gane al lote en proceso cuando hay varias planificaciones
+            // activas asignadas al mismo fermentador.
+            private static PlanificacionProduccion? SeleccionarPlanActiva(IEnumerable<PlanificacionProduccion> planificaciones)
+            {
+                return planificaciones
+                    .Where(p => p.Estado == EstadoLote.EnProceso || p.Estado == EstadoLote.Planificado)
+                    .OrderBy(p => p.Estado == EstadoLote.EnProceso ? 0 : 1) // EnProceso primero
+                    .ThenByDescending(p => p.LoteId)                         // el más reciente
+                    .FirstOrDefault();
             }
 
             public async Task<bool> UpdateAsync(int id, UpdateFermentadorDto dto)

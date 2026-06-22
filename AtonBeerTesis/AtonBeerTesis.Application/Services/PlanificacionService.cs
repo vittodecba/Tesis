@@ -73,7 +73,15 @@ namespace AtonBeerTesis.Application.Services
 
             var mensajeError = await StockSuficientePorLote(loteGuardado.Id);
             if (mensajeError != null)
+            {
+                // El stock se valida recién acá porque StockSuficientePorLote necesita el lote
+                // persistido (lee los insumos de la receta por LoteId). Si falla, hay que eliminar
+                // el lote recién creado: de lo contrario queda un lote "fantasma" en estado
+                // Planificado, sin su PlanificacionProduccion, que ensucia el listado y el
+                // "lote activo" del fermentador.
+                await _loteRepository.DeleteByIdAsync(loteGuardado.Id);
                 throw new Exception(mensajeError);
+            }
 
             var planificacion = new PlanificacionProduccion
             {
@@ -196,6 +204,10 @@ namespace AtonBeerTesis.Application.Services
             var planificacion = await _repository.GetByLoteIdAsync(loteId);
             if (planificacion == null)
                 throw new Exception($"No se encontró la planificación con Lote ID {loteId}.");
+
+            // Guard: una planificación de un lote ya cerrado no admite cambios.
+            if (planificacion.Estado == EstadoLote.Finalizado || planificacion.Estado == EstadoLote.Descartado)
+                throw new Exception($"El lote ya está {planificacion.Estado} y no admite cambios.");
 
             if (planificacion.Estado != EstadoLote.Planificado)
             {

@@ -81,9 +81,16 @@ namespace AtonBeerTesis.WebApi.Controllers
                 }
             }
 
-            var ok = await _service.UpdateAsync(id, dto);
-            if (!ok) return NotFound();
-            return NoContent();
+            try
+            {
+                var ok = await _service.UpdateAsync(id, dto);
+                if (!ok) return NotFound();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
         }
 
         [HttpPatch("{id}/finalizar")]

@@ -1,5 +1,6 @@
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
+using AtonBeerTesis.Domain.Enums;
 using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -87,6 +88,14 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             return await _context.Ventas
                 .FirstOrDefaultAsync(v => v.PedidoId == pedidoId);
+        }
+
+        // Una venta está impaga mientras su EstadoVenta sea Pendiente (PagoService la pone en
+        // Pagado recién cuando el saldo llega a 0).
+        public async Task<bool> TieneClienteVentasImpagasAsync(int clienteId)
+        {
+            return await _context.Ventas
+                .AnyAsync(v => v.ClienteId == clienteId && v.EstadoVenta == EstadoVenta.Pendiente);
         }
     }
 }

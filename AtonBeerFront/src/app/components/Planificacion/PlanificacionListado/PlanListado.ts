@@ -220,7 +220,7 @@ export class PlanificacionListComponent implements OnInit {
       }
 
       Swal.fire({
-        title: 'Atención con el Stock',
+        title: 'Atención',
         text: mensajeDetalle,
         icon: 'warning',
         confirmButtonText: 'Entendido',

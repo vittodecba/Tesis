@@ -174,6 +174,10 @@ namespace AtonBeerTesis.Application.Services
             var lote = await _repository.GetByIdAsync(id);
             if (lote == null) return false;
 
+            // Guard: un lote ya cerrado no se puede editar ni revertir a un estado activo.
+            if (lote.Estado == EstadoLote.Finalizado || lote.Estado == EstadoLote.Descartado)
+                throw new InvalidOperationException($"El lote ya está {lote.Estado} y no admite cambios.");
+
             if (!string.IsNullOrWhiteSpace(dto.Codigo))
                 lote.Codigo = dto.Codigo;
 
@@ -212,6 +216,48 @@ namespace AtonBeerTesis.Application.Services
             var lote = await _repository.GetByIdAsync(id);
             if (lote == null) return false;
 
+            // Guard: un lote ya cerrado no se puede volver a finalizar/descartar (evita, entre
+            // otras cosas, duplicar la generación de stock).
+            if (lote.Estado == EstadoLote.Finalizado || lote.Estado == EstadoLote.Descartado)
+                throw new InvalidOperationException($"El lote ya está {lote.Estado} y no admite cambios de estado.");
+
+            // ── VALIDACIONES PREVIAS (antes de mutar nada) ──────────────────────────────
+            // Solo al Finalizar. Si alguna falla, salimos por excepción SIN haber tocado el
+            // lote, el fermentador ni la planificación. Antes estas validaciones corrían
+            // después de mutar el estado, lo que dejaba lotes "Finalizado" sin stock y
+            // fermentadores trabados en Sucio cuando la designación/barriles no daban.
+            var barrilesReservados = new Dictionary<int, List<Barril>>();
+            if (estadoFinal == EstadoLote.Finalizado)
+            {
+                // a) La designación de volumen debe cubrir todo el volumen del lote.
+                var volumenDesignado = lote.Designaciones.Sum(d => d.VolumenAsignado);
+                if (volumenDesignado < (decimal)lote.VolumenLitros)
+                    throw new InvalidOperationException(
+                        $"No se puede finalizar: {volumenDesignado}L designados de {lote.VolumenLitros}L totales. " +
+                        "Completá la designación de volumen en el detalle del lote.");
+
+                // b) Pre-validación de barriles: formatosRetornables = { formatoId -> capacidadLitros }.
+                var formatosRetornables = await _barrilRepository.ObtenerFormatosRetornablesAsync();
+                foreach (var des in lote.Designaciones)
+                {
+                    if (!formatosRetornables.TryGetValue(des.FormatoEnvaseId, out var capacidad))
+                        continue; // formato no retornable, sin barriles físicos
+
+                    int unidadesRequeridas = (int)(des.VolumenAsignado / capacidad);
+                    var disponibles = await _barrilRepository.GetDisponiblesAsync(des.FormatoEnvaseId, unidadesRequeridas);
+
+                    if (disponibles.Count < unidadesRequeridas)
+                        throw new InvalidOperationException(
+                            $"No hay barriles suficientes para el formato {des.FormatoEnvaseId}: " +
+                            $"se necesitan {unidadesRequeridas} y solo hay {disponibles.Count} disponible(s). " +
+                            "Registrá más barriles en el módulo de Barriles antes de finalizar.");
+
+                    barrilesReservados[des.FormatoEnvaseId] = disponibles;
+                }
+            }
+
+            // ── A partir de acá ya está todo validado: recién ahora mutamos ─────────────
+
             // 1. Cerrar el lote con el estado indicado
             lote.Estado = estadoFinal;
             lote.FechaFinReal = DateTime.Now;
@@ -237,43 +283,11 @@ namespace AtonBeerTesis.Application.Services
                 await _planificacionRepository.UpdateAsync(planificacion);
             }
 
-            // 4. Generar ingresos de stock para cada designación (solo si finaliza, no si descarta)
-            if (estadoFinal == EstadoLote.Finalizado)
-            {
-                var volumenDesignado = lote.Designaciones.Sum(d => d.VolumenAsignado);
-                if (volumenDesignado < (decimal)lote.VolumenLitros)
-                    throw new InvalidOperationException(
-                        $"No se puede finalizar: {volumenDesignado}L designados de {lote.VolumenLitros}L totales. " +
-                        "Completá la designación de volumen en el detalle del lote.");
-            }
-
+            // 4. Generar ingresos de stock + llenar barriles (solo si finaliza, no si descarta)
             if (estadoFinal == EstadoLote.Finalizado && lote.Designaciones.Any())
             {
                 var estiloLote = lote.Estilo ?? lote.Receta?.Estilo ?? string.Empty;
                 var todosLosProductos = await _productoStockRepository.FindAllAsync();
-
-                // 4. PRE-VALIDACIÓN DE BARRILES
-                // formatosRetornables = { formatoId -> capacidadLitros }, query directa sin tracking
-                var formatosRetornables = await _barrilRepository.ObtenerFormatosRetornablesAsync();
-
-                var barrilesReservados = new Dictionary<int, List<Barril>>();
-                foreach (var des in lote.Designaciones)
-                {
-                    if (!formatosRetornables.TryGetValue(des.FormatoEnvaseId, out var capacidad))
-                        continue; // formato no retornable, sin barriles físicos
-
-                    int unidadesRequeridas = (int)(des.VolumenAsignado / capacidad);
-                    var disponibles = await _barrilRepository.GetDisponiblesAsync(des.FormatoEnvaseId, unidadesRequeridas);
-
-                    if (disponibles.Count < unidadesRequeridas)
-                        throw new InvalidOperationException(
-                            $"No hay barriles suficientes para el formato {des.FormatoEnvaseId}: " +
-                            $"se necesitan {unidadesRequeridas} y solo hay {disponibles.Count} disponible(s). " +
-                            "Registrá más barriles en el módulo de Barriles antes de finalizar.");
-
-                    barrilesReservados[des.FormatoEnvaseId] = disponibles;
-                }
-
 
                 foreach (var designacion in lote.Designaciones)
                 {

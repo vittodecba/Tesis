@@ -85,8 +85,11 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task<bool> TieneClientePedidosActivosAsync(int clienteId)
         {
+            // Un pedido solo "bloquea" la desactivación del cliente si está en curso (Pendiente=1).
+            // Los estados terminales no bloquean: Entregado=2, Facturado=3 y Cancelado=4.
             return await _context.Pedidos
-                .AnyAsync(p => p.ClienteId == clienteId && p.EstadoId != 2 && p.EstadoId != 4);
+                .AnyAsync(p => p.ClienteId == clienteId
+                    && p.EstadoId != 2 && p.EstadoId != 3 && p.EstadoId != 4);
         }
 
         public async Task<Dictionary<int, decimal>> ObtenerReservasPendientesPorProductoAsync()

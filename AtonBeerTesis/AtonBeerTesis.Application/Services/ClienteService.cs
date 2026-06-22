@@ -11,11 +11,13 @@ namespace AtonBeerTesis.Application.Services
     {
         private readonly IClienteRepository _clienteRepository;
         private readonly IPedidoRepository _pedidoRepository;
+        private readonly IVentaRepository _ventaRepository;
 
-        public ClienteService(IClienteRepository clienteRepository, IPedidoRepository pedidoRepository)
+        public ClienteService(IClienteRepository clienteRepository, IPedidoRepository pedidoRepository, IVentaRepository ventaRepository)
         {
             _clienteRepository = clienteRepository;
             _pedidoRepository = pedidoRepository;
+            _ventaRepository = ventaRepository;
         }
 
         public async Task<List<ClienteDto>> GetAllAsync(string? tipo = null, string? ubicacion = null, string? estado = null)
@@ -168,6 +170,10 @@ namespace AtonBeerTesis.Application.Services
                     var tieneActivos = await _pedidoRepository.TieneClientePedidosActivosAsync(id);
                     if (tieneActivos)
                         throw new Exception("El cliente tiene pedidos activos y no puede ser desactivado.");
+
+                    var tieneImpagas = await _ventaRepository.TieneClienteVentasImpagasAsync(id);
+                    if (tieneImpagas)
+                        throw new Exception("El cliente tiene ventas pendientes de cobro y no puede ser desactivado.");
                 }
 
                 cliente.EstadoCliente = estado;
