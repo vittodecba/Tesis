@@ -78,6 +78,20 @@ export class StockGestion implements OnInit {
     );
   }
 
+  get movimientosFiltrados(): MovimientoDetalladoDto[] {
+    if (!this.searchTerm.trim()) return this.movimientos;
+    const term = this.searchTerm.toLowerCase();
+    return this.movimientos.filter(
+      (m) =>
+        (m.estilo?.toLowerCase().includes(term) ?? false) ||
+        (m.recetaNombre?.toLowerCase().includes(term) ?? false) ||
+        (m.formatoNombre?.toLowerCase().includes(term) ?? false) ||
+        (m.tipoMovimiento?.toLowerCase().includes(term) ?? false) ||
+        (m.motivoMovimiento?.toLowerCase().includes(term) ?? false) ||
+        (m.loteId != null && `l-${m.loteId}`.includes(term)),
+    );
+  }
+
   toggleExpand(id: number) {
     this.expandedId = this.expandedId === id ? null : id;
   }

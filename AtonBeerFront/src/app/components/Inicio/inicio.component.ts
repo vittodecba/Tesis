@@ -27,15 +27,14 @@ import { AuthService } from '../../core/services/auth.service';
 import { ROLES } from '../../core/constants/roles';
 import { VentasService, VentaDto } from '../../services/ventas.service';
 import { PedidoService } from '../../core/services/pedido.service';
-import { StockService, ProductoStockDto, MovimientoDetalladoDto } from '../../services/stock.service';
+import { StockService, MovimientoDetalladoDto } from '../../services/stock.service';
 import { LoteService } from '../../services/lote';
 import { FermentadorService } from '../../services/fermentador';
-import { InsumoService } from '../../services/insumo.service';
 import { BarrilService, BarrilDto } from '../../services/barril.service';
 import { RecetaService } from '../../services/receta';
 import { Lote } from '../../Interfaces/lote';
 import { Fermentador } from '../../Interfaces/fermentador';
-import { STOCK_BAJO_UMBRAL, LOTE_ESTADO } from './inicio.constants';
+import { LOTE_ESTADO } from './inicio.constants';
 
 type KpiColor = 'blue' | 'orange' | 'green' | 'purple' | 'red' | 'teal';
 
@@ -79,7 +78,6 @@ export class InicioComponent implements OnInit {
   private stockSvc = inject(StockService);
   private loteSvc = inject(LoteService);
   private fermentadorSvc = inject(FermentadorService);
-  private insumoSvc = inject(InsumoService);
   private barrilSvc = inject(BarrilService);
   private recetaSvc = inject(RecetaService);
 
@@ -110,11 +108,9 @@ export class InicioComponent implements OnInit {
       pedidos: [ROLES.ADMIN, ROLES.GERENTE, ROLES.RESP_PEDIDOS].includes(r as any),
       clientes: [ROLES.ADMIN, ROLES.GERENTE, ROLES.RESP_PEDIDOS].includes(r as any),
       barriles: [ROLES.ADMIN, ROLES.RESP_PEDIDOS, ROLES.RESP_PLANTA].includes(r as any),
-      lotes: [ROLES.ADMIN, ROLES.RESP_PLANTA, ROLES.COCINERO].includes(r as any),
+      lotes: [ROLES.ADMIN, ROLES.RESP_PLANTA].includes(r as any),
       fermentadores: [ROLES.COCINERO].includes(r as any),
-      productos: [ROLES.ADMIN].includes(r as any),
       movimientos: [ROLES.RESP_PLANTA].includes(r as any),
-      insumos: [ROLES.ADMIN, ROLES.RESP_PLANTA, ROLES.COCINERO].includes(r as any),
       recetas: [ROLES.RESP_PLANTA, ROLES.COCINERO].includes(r as any),
     };
 
@@ -125,9 +121,7 @@ export class InicioComponent implements OnInit {
     if (necesita.barriles) reqs.barriles = this.barrilSvc.getBarriles().pipe(catchError(() => of([] as BarrilDto[])));
     if (necesita.lotes) reqs.lotes = this.loteSvc.getLotes().pipe(catchError(() => of([] as Lote[])));
     if (necesita.fermentadores) reqs.fermentadores = this.fermentadorSvc.getFermentadores().pipe(catchError(() => of([] as Fermentador[])));
-    if (necesita.productos) reqs.productos = this.stockSvc.getProductos().pipe(catchError(() => of([] as ProductoStockDto[])));
     if (necesita.movimientos) reqs.movimientos = this.stockSvc.getMovimientos().pipe(catchError(() => of([] as MovimientoDetalladoDto[])));
-    if (necesita.insumos) reqs.insumos = this.insumoSvc.obtenerInsumos().pipe(catchError(() => of([] as any[])));
     if (necesita.recetas) reqs.recetas = this.recetaSvc.getAll().pipe(catchError(() => of([] as any[])));
 
     // forkJoin de un objeto vacío no emite; cubrimos ese caso.
@@ -220,7 +214,6 @@ export class InicioComponent implements OnInit {
   // ── Responsable de Planta (gestión) ──────────────────────────
   private vistaPlanta(d: any): void {
     const lotes: Lote[] = d.lotes ?? [];
-    const insumos: any[] = d.insumos ?? [];
     const movimientos: MovimientoDetalladoDto[] = d.movimientos ?? [];
     const recetas: any[] = d.recetas ?? [];
     const barriles: BarrilDto[] = d.barriles ?? [];
@@ -230,7 +223,6 @@ export class InicioComponent implements OnInit {
     const producidoMes = this.producidoEsteMes(movimientos);
 
     const listosFinalizar = enProceso.filter((l) => this.esHoyOAntes(l.fechaFinEstimada));
-    const insumosBajos = insumos.filter((i) => (i.stockActual ?? 0) <= STOCK_BAJO_UMBRAL);
 
     this.kpis = [
       { label: 'Lotes en proceso', value: enProceso.length, icon: FlaskConical, color: 'blue', route: '/planificacion' },
@@ -245,13 +237,6 @@ export class InicioComponent implements OnInit {
         level: 'warning',
         text: `${listosFinalizar.length} lote(s) llegaron a su fecha estimada de fin — listos para finalizar / designar volumen.`,
         route: '/planificacion',
-      });
-    }
-    if (insumosBajos.length) {
-      this.alerts.push({
-        level: 'danger',
-        text: `${insumosBajos.length} insumo(s) por debajo de ${STOCK_BAJO_UMBRAL} de stock.`,
-        route: '/insumos',
       });
     }
 
@@ -275,18 +260,13 @@ export class InicioComponent implements OnInit {
 
   // ── Cocinero (operativo) ─────────────────────────────────────
   private vistaCocinero(d: any): void {
-    const lotes: Lote[] = d.lotes ?? [];
     const fermentadores: Fermentador[] = d.fermentadores ?? [];
-    const insumos: any[] = d.insumos ?? [];
     const recetas: any[] = d.recetas ?? [];
 
-    const enProceso = lotes.filter((l) => this.estadoLote(l) === LOTE_ESTADO.EN_PROCESO);
     const ocupados = fermentadores.filter((f) => this.norm(f.estado) === 'ocupado');
     const disponibles = fermentadores.filter((f) => this.norm(f.estado) === 'disponible');
-    const insumosBajos = insumos.filter((i) => (i.stockActual ?? 0) <= STOCK_BAJO_UMBRAL);
 
     this.kpis = [
-      { label: 'Lotes en proceso', value: enProceso.length, icon: FlaskConical, color: 'blue', route: '/planificacion' },
       { label: 'En fermentación', value: ocupados.length, icon: Factory, color: 'orange', route: '/fermentadores' },
       { label: 'Fermentadores libres', value: disponibles.length, icon: Box, color: 'green', route: '/fermentadores' },
       { label: 'Recetas', value: recetas.length, icon: BookOpen, color: 'purple', route: '/recetas' },
@@ -301,14 +281,6 @@ export class InicioComponent implements OnInit {
         route: '/fermentadores',
       });
     }
-    if (insumosBajos.length) {
-      this.alerts.push({
-        level: 'danger',
-        text: `${insumosBajos.length} insumo(s) por debajo de ${STOCK_BAJO_UMBRAL} de stock.`,
-        route: '/insumos',
-      });
-    }
-
     this.shortcuts = [
       { label: 'Fermentadores', route: '/fermentadores', icon: Factory },
       { label: 'Recetas', route: '/recetas', icon: BookOpen },
@@ -393,30 +365,20 @@ export class InicioComponent implements OnInit {
     const lotes: Lote[] = d.lotes ?? [];
     const pedidos: any[] = d.pedidos ?? [];
     const ventas: VentaDto[] = d.ventas ?? [];
-    const productos: ProductoStockDto[] = d.productos ?? [];
-    const insumos: any[] = d.insumos ?? [];
 
     const enProceso = lotes.filter((l) => this.estadoLote(l) === LOTE_ESTADO.EN_PROCESO);
     const pedidosPendientes = pedidos.filter((p) => this.estadoPedido(p) === 'Pendiente');
     const vencidas = ventas.filter((v) => this.norm(v.estadoVenta) === 'pendiente' && this.esVencida(v.plazo));
-    const productosBajos = productos.filter((p) => (p.stockActual ?? 0) <= STOCK_BAJO_UMBRAL);
-    const insumosBajos = insumos.filter((i) => (i.stockActual ?? 0) <= STOCK_BAJO_UMBRAL);
+    const totalMes = this.suma(this.ventasDelMes(ventas), 'montoTotal');
 
     this.kpis = [
       { label: 'Lotes en proceso', value: enProceso.length, icon: FlaskConical, color: 'blue', route: '/planificacion' },
       { label: 'Pedidos pendientes', value: pedidosPendientes.length, icon: ClipboardList, color: 'orange', route: '/pedidos/registrar' },
       { label: 'Cobros vencidos', value: vencidas.length, icon: AlertTriangle, color: 'red', route: '/ventas' },
-      { label: 'Productos en stock bajo', value: productosBajos.length, icon: Package, color: 'purple', route: '/stock' },
+      { label: 'Ventas del mes', value: this.money(totalMes), icon: TrendingUp, color: 'green', route: '/ventas' },
     ];
 
     if (vencidas.length) this.alertasCobro(vencidas);
-    if (insumosBajos.length) {
-      this.alerts.push({
-        level: 'danger',
-        text: `${insumosBajos.length} insumo(s) por debajo de ${STOCK_BAJO_UMBRAL} de stock.`,
-        route: '/insumos',
-      });
-    }
 
     this.shortcuts = [
       { label: 'Pedidos', route: '/pedidos/registrar', icon: ClipboardList },

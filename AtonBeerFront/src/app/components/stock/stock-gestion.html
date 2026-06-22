@@ -154,11 +154,12 @@
 
   <!-- ── TAB HISTORIAL DE MOVIMIENTOS ── -->
   <div *ngIf="tab === 'stock'">
-    <div *ngIf="movimientos.length === 0" class="rounded-lg bg-white p-8 text-center text-gray-400 shadow-sm">
-      No hay movimientos de stock registrados aún.
+    <div *ngIf="movimientosFiltrados.length === 0" class="rounded-lg bg-white p-8 text-center text-gray-400 shadow-sm">
+      <span *ngIf="searchTerm.trim()">No se encontraron movimientos para "{{ searchTerm }}".</span>
+      <span *ngIf="!searchTerm.trim()">No hay movimientos de stock registrados aún.</span>
     </div>
 
-    <div class="overflow-x-auto rounded-lg bg-white shadow-sm" *ngIf="movimientos.length > 0">
+    <div class="overflow-x-auto rounded-lg bg-white shadow-sm" *ngIf="movimientosFiltrados.length > 0">
       <table class="w-full text-sm">
         <thead class="bg-amber-50 text-xs text-gray-600 uppercase tracking-wide">
           <tr>
@@ -174,7 +175,7 @@
         </thead>
         <tbody>
           <tr
-            *ngFor="let mov of movimientos"
+            *ngFor="let mov of movimientosFiltrados"
             class="border-t border-gray-100 hover:bg-gray-50 transition-colors">
             <td class="px-4 py-3 text-gray-500 whitespace-nowrap">
               {{ mov.fecha | date:'dd/MM/yyyy HH:mm' }}
