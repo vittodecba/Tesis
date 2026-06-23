@@ -52,7 +52,7 @@
   </div>
 
   <div class="card">
-    <table class="table">
+    <table class="table table-desktop">
       <thead>
         <tr>
           <th>Nombre</th>
@@ -93,7 +93,43 @@
         </tr>
       </tbody>
     </table>
-    
+
+    <!-- Vista de tarjetas (solo móvil) -->
+    <div class="cards-mobile">
+      <div class="cliente-card" *ngFor="let c of clientesPaginados">
+        <div class="cc-top">
+          <span class="cc-name">{{ c.razonSocial }}</span>
+          <span class="badge" [class.badgeOrange]="c.tipoCliente === 'Franquicia'">{{ c.tipoCliente }}</span>
+        </div>
+        <div class="cc-row">
+          <span class="cc-label">Ubicación</span>
+          <span class="cc-value">{{ c.ubicacion }}</span>
+        </div>
+        <div class="cc-row">
+          <span class="cc-label">Estado</span>
+          <span class="cc-value cc-estado">
+            <label class="switch">
+              <input
+                type="checkbox"
+                [checked]="c.estadoCliente === 'Activo'"
+                (change)="toggleEstado(c)"
+              />
+              <span class="slider"></span>
+            </label>
+            <span class="status-text">{{ c.estadoCliente }}</span>
+          </span>
+        </div>
+        <div class="cc-actions">
+          <button (click)="openEdit(c)" class="action-btn edit" title="Editar">
+            <lucide-icon [img]="Pencil" [size]="20"></lucide-icon>
+          </button>
+          <button (click)="verResumen(c)" class="action-btn view" title="Ver Resumen">
+            <lucide-icon [img]="FileText" [size]="20"></lucide-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div *ngIf="clientesFiltrados.length > 0" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-top: 1px solid #e2e8f0; margin-top: auto;">
       <span style="font-size: 0.875rem; color: #64748b;">
         Página <strong>{{ paginaActual }}</strong> de <strong>{{ Math.max(1, Math.ceil(clientesFiltrados.length / itemsPorPagina)) }}</strong>

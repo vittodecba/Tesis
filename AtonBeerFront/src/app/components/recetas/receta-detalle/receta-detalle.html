@@ -9,7 +9,7 @@
 
   <div class="container mt-4" *ngIf="!cargando && receta">
     
-    <div class="d-flex justify-content-between align-items-center mb-6">
+    <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-6">
       <div>
         <h2 class="text-3xl font-bold text-[#4A2C2A] mb-2">{{ receta.nombre }}</h2>
         <span class="px-3 py-1 rounded-full text-sm font-semibold"
@@ -72,7 +72,7 @@
 
         <div *ngIf="mostrarFormInsumo" class="bg-orange-50/50 rounded-xl p-4 mb-4 border border-orange-100 shadow-inner">
           <div class="row g-2 align-items-end">
-            <div class="col-5">
+            <div class="col-12 col-md-5">
               <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Insumo</label>
               <select [(ngModel)]="insumoIdSeleccionado" (change)="onInsumoChange(); verificarDuplicado()" class="w-full border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#E67E22] outline-none">
                 <option value="0" disabled>Seleccionar...</option>
@@ -82,11 +82,11 @@
   ⚠️ ATENCIÓN: Insumo ya presente en la lista.
 </p>
             </div>
-            <div class="col-2">
+            <div class="col-4 col-md-2">
               <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cant.</label>
               <input type="number" [(ngModel)]="cantidadIngresada" class="w-full border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#E67E22] outline-none" placeholder="0">
             </div>
-            <div class="col-3">
+            <div class="col-8 col-md-3">
               <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Unidad</label>
               <div class="d-flex gap-1">
                 <select [(ngModel)]="unidadIdSeleccionada" class="w-full border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#E67E22] outline-none">
@@ -95,7 +95,7 @@
                 </select>                
               </div>
             </div>
-            <div class="col-2">
+            <div class="col-12 col-md-2">
   <!-- BOTÓN AÑADIR: Solo se ve si NO estamos editando -->
   <button *ngIf="!editandoInsumo"
           (click)="agregarInsumoDinamico(false)" 
@@ -133,7 +133,7 @@
           <div class="bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] px-4 py-2 text-white">
             <h5 class="mb-0 text-sm font-bold uppercase tracking-wider">Lista de Ingredientes</h5>
           </div>
-          <div class="p-0">
+          <div class="p-0 overflow-x-auto">
             <table class="table table-hover mb-0 align-middle">
               <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
                 <tr>
@@ -171,7 +171,7 @@
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-5">
-          <div class="p-0">
+          <div class="p-0 overflow-x-auto">
             <table class="table table-hover mb-0 align-middle">
               <thead class="bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] text-white text-xs uppercase">
                 <tr>

@@ -1,6 +1,6 @@
-<div class="min-h-screen bg-gray-50 p-6">
+<div class="min-h-screen bg-gray-50 p-4 sm:p-6">
   <!-- Header -->
-  <div class="mb-6 flex items-center justify-between">
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
     <div>
       <h1 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Stock</h1>
       <p class="text-sm text-gray-500">Formatos de envase y stock por estilo</p>
@@ -81,9 +81,9 @@
           <table *ngIf="formato.productos.length > 0" class="w-full text-sm">
             <thead>
               <tr class="text-xs text-gray-500 uppercase tracking-wide">
-                <th class="px-6 py-2 text-left">Estilo</th>
-                <th class="px-6 py-2 text-right">Stock actual (unidades)</th>
-                <th class="px-6 py-2 text-right"></th>
+                <th class="px-3 sm:px-6 py-2 text-left">Estilo</th>
+                <th class="px-3 sm:px-6 py-2 text-right">Stock actual (unidades)</th>
+                <th class="px-3 sm:px-6 py-2 text-right"></th>
               </tr>
             </thead>
             <tbody>
@@ -91,10 +91,10 @@
 
                 <!-- Fila de estilo (cabecera del grupo) -->
                 <tr class="bg-amber-50/40 border-t border-gray-100 hover:bg-white transition-colors">
-                  <td class="px-6 py-3">
+                  <td class="px-3 sm:px-6 py-3">
                     <span class="font-semibold text-gray-800">{{ grupo.estilo }}</span>
                   </td>
-                  <td class="px-6 py-3 text-right">
+                  <td class="px-3 sm:px-6 py-3 text-right">
                     <span
                       [class.text-green-600]="grupo.total > 0"
                       [class.text-gray-400]="grupo.total === 0"
@@ -109,12 +109,12 @@
                 <ng-container>
                   <tr *ngFor="let prod of grupo.items"
                       class="border-t border-gray-50 hover:bg-white transition-colors bg-white">
-                    <td class="pl-12 pr-6 py-2">
+                    <td class="pl-6 pr-3 sm:pl-12 sm:pr-6 py-2">
                       <span class="text-sm text-amber-700 font-medium">
                         {{ prod.recetaNombre || '(sin receta)' }}
                       </span>
                     </td>
-                    <td class="px-6 py-2 text-right">
+                    <td class="px-3 sm:px-6 py-2 text-right">
                       <span
                         [class.text-green-600]="prod.stockActual > 0"
                         [class.text-gray-400]="prod.stockActual === 0"
@@ -122,7 +122,7 @@
                         {{ prod.stockActual }}
                       </span>
                     </td>
-                    <td class="px-6 py-2 text-right">
+                    <td class="px-3 sm:px-6 py-2 text-right">
                       <div class="flex justify-end gap-3">
                         <button
                           (click)="abrirIngreso(prod, formato.nombre); $event.stopPropagation()"
@@ -159,7 +159,7 @@
       <span *ngIf="!searchTerm.trim()">No hay movimientos de stock registrados aún.</span>
     </div>
 
-    <div class="overflow-x-auto rounded-lg bg-white shadow-sm" *ngIf="movimientosFiltrados.length > 0">
+    <div class="overflow-x-auto rounded-lg bg-white shadow-sm hidden md:block" *ngIf="movimientosFiltrados.length > 0">
       <table class="w-full text-sm">
         <thead class="bg-amber-50 text-xs text-gray-600 uppercase tracking-wide">
           <tr>
@@ -213,11 +213,45 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Vista de tarjetas (solo móvil) -->
+    <div class="md:hidden flex flex-col gap-3" *ngIf="movimientosFiltrados.length > 0">
+      <div *ngFor="let mov of movimientosFiltrados" class="rounded-lg bg-white shadow-sm border border-gray-100 p-4 flex flex-col gap-2">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="font-medium text-gray-800 truncate">{{ mov.estilo }}</p>
+            <p *ngIf="mov.recetaNombre" class="text-xs text-amber-600 font-medium truncate">{{ mov.recetaNombre }}</p>
+            <p class="text-xs text-gray-400">{{ mov.formatoNombre }} · {{ fmtCapacidad(mov.capacidadLitros) }}</p>
+          </div>
+          <span
+            class="shrink-0 inline-block rounded-full px-2 py-0.5 text-xs font-semibold"
+            [class.bg-green-100]="mov.tipoMovimiento === 'Ingreso'"
+            [class.text-green-700]="mov.tipoMovimiento === 'Ingreso'"
+            [class.bg-red-100]="mov.tipoMovimiento === 'Egreso'"
+            [class.text-red-700]="mov.tipoMovimiento === 'Egreso'">
+            {{ mov.tipoMovimiento }}
+          </span>
+        </div>
+        <div class="flex items-center justify-between text-sm">
+          <span class="font-semibold"
+            [class.text-green-600]="mov.tipoMovimiento === 'Ingreso'"
+            [class.text-red-500]="mov.tipoMovimiento === 'Egreso'">
+            {{ mov.tipoMovimiento === 'Ingreso' ? '+' : '-' }}{{ mov.cantidad }} u.
+          </span>
+          <span class="text-xs text-gray-400">{{ mov.stockPrevio }} → <strong class="text-gray-700">{{ mov.stockResultante }} u.</strong></span>
+        </div>
+        <div class="flex items-center justify-between text-xs text-gray-500">
+          <span>{{ mov.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+          <span *ngIf="mov.loteId" class="inline-block rounded bg-blue-50 px-2 py-0.5 text-blue-600 font-medium">L-{{ mov.loteId }}</span>
+        </div>
+        <p *ngIf="mov.motivoMovimiento" class="text-xs text-gray-400">{{ mov.motivoMovimiento }}</p>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- ── Modal Crear Formato ── -->
-<div *ngIf="modalFormatoOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+<div *ngIf="modalFormatoOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
   <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
     <h2 class="mb-4 text-lg font-bold text-gray-800">Nuevo Formato de Envase</h2>
     <div class="space-y-4">
@@ -284,7 +318,7 @@
 </div>
 
 <!-- ── Modal Ingreso Manual de Stock ── -->
-<div *ngIf="ingresoModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+<div *ngIf="ingresoModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
   <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
     <h2 class="mb-1 text-lg font-bold text-gray-800">Ingreso Manual de Stock</h2>
     <p class="mb-4 text-sm text-gray-500">
@@ -329,7 +363,7 @@
 </div>
 
 <!-- ── Modal Corrección de Stock ── -->
-<div *ngIf="correccionProducto" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+<div *ngIf="correccionProducto" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
   <div class="w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl">
     <h2 class="mb-1 text-lg font-bold text-[#4A2C2A]">Corregir Stock</h2>
     <p class="mb-1 text-sm text-gray-700 font-medium">
@@ -371,7 +405,7 @@
 </div>
 
 <!-- ── Modal Egreso Manual ── -->
-<div *ngIf="egresoProducto" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+<div *ngIf="egresoProducto" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
   <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
     <h2 class="mb-1 text-lg font-bold text-gray-800">Egreso de Stock</h2>
     <p class="mb-1 text-sm text-gray-700 font-medium">
@@ -418,7 +452,7 @@
 </div>
 
 <!-- ── Modal Confirmar Eliminar ── -->
-<div *ngIf="deleteModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+<div *ngIf="deleteModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
   <div class="w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl">
     <h2 class="mb-2 text-lg font-bold text-gray-800">Eliminar Formato</h2>
     <p class="mb-6 text-sm text-gray-600">

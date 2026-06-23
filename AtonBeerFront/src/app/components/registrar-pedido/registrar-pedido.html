@@ -67,8 +67,8 @@
     </div>    
   </div>
 
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-visible p-6 mb-8">
-    <table class="w-full text-left">
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-visible p-4 sm:p-6 mb-8">
+    <table class="w-full text-left hidden md:table">
       <thead class="bg-gray-50 border-b border-gray-100">
         <tr>
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">ID</th>
@@ -146,6 +146,33 @@
         </tr>
       </tbody>
     </table>
+
+    <!-- Vista de tarjetas (solo móvil) -->
+    <div class="md:hidden flex flex-col gap-3">
+      <div *ngFor="let ped of pedidosPaginados" class="border border-gray-100 rounded-xl p-4 flex flex-col gap-3">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="font-bold text-[#4A2C2A]">#{{ ped.idPedido || ped.id }}</p>
+            <p class="text-sm text-gray-700 font-medium truncate">{{ ped.clienteNombre || ped.razonSocial || 'ID: ' + ped.clienteId }}</p>
+          </div>
+          <span class="shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border" [ngClass]="ObtenerClaseEstado(ped.estadoPedido || ped.estadoNombre)">
+            {{ ped.estadoPedido || ped.estadoNombre || 'Sin Estado' }}
+          </span>
+        </div>
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-gray-500">{{ ped.fechaEntregaProgramada | date:'dd/MM/yyyy' }}</span>
+          <span class="font-bold text-[#E67E22]">${{ (ped.totalPedido || ped.total || 0) | number:'1.2-2' }}</span>
+        </div>
+        <div class="flex items-center justify-end gap-2 border-t border-gray-100 pt-2 flex-wrap">
+          <button type="button" (click)="OpenDetail(ped)" class="px-3 py-1.5 text-[11px] font-bold text-[#4A2C2A] uppercase tracking-wider hover:underline">Ver</button>
+          <button *ngIf="esPendiente(ped)" type="button" (click)="editarDesdeMenu(ped)" class="px-3 py-1.5 text-xs font-bold text-gray-700 bg-gray-50 rounded-lg">Editar</button>
+          <button *ngIf="esPendiente(ped)" type="button" (click)="entregarPedido(ped)" class="px-3 py-1.5 text-xs font-bold text-green-700 bg-green-50 rounded-lg">Entregar</button>
+          <button *ngIf="esPendiente(ped)" type="button" (click)="cancelarPedido(ped)" class="px-3 py-1.5 text-xs font-bold text-red-700 bg-red-50 rounded-lg">Cancelar</button>
+          <button *ngIf="(ped.estadoPedido || ped.estadoNombre) === 'Entregado'" type="button" (click)="deshacerEntrega(ped)" class="px-3 py-1.5 text-xs font-bold text-amber-600 bg-amber-50 rounded-lg">↩ Revertir</button>
+        </div>
+      </div>
+    </div>
+
     <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4 rounded-lg shadow-sm">
   <div class="flex flex-1 justify-between sm:hidden">
     <button (click)="cambiarPagina(paginaActual - 1)" [disabled]="paginaActual === 1" 
@@ -224,7 +251,7 @@
             </div>
 
             <div formArrayName="detalles" class="space-y-4">
-              <div *ngFor="let d of detalles.controls; let i = index" [formGroupName]="i" class="grid grid-cols-12 gap-3 items-end bg-gray-50/50 p-5 rounded-2xl border border-gray-200">
+              <div *ngFor="let d of detalles.controls; let i = index" [formGroupName]="i" class="grid grid-cols-2 md:grid-cols-12 gap-3 items-end bg-gray-50/50 p-4 sm:p-5 rounded-2xl border border-gray-200">
                 
                 <div class="col-span-1">
                   <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Envase</label>

@@ -18,7 +18,7 @@
   </div>
 
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto hidden md:block">
       <table class="w-full text-left">
         <thead class="bg-gray-50 border-b border-gray-100">
           <tr>
@@ -56,6 +56,32 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Vista de tarjetas (solo móvil) -->
+    <div class="md:hidden flex flex-col gap-3 p-3">
+      <div *ngFor="let u of usuarios" class="p-4 flex flex-col gap-3 border border-gray-100 rounded-xl shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-base font-bold text-[#4A2C2A] truncate">{{ u.nombre }} {{ u.apellido }}</p>
+            <p class="text-sm text-gray-500 truncate">{{ u.email }}</p>
+          </div>
+          <span class="shrink-0 px-3 py-1 rounded-full text-xs font-semibold" [ngClass]="u.activo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+            {{ u.activo ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+        <div class="flex items-center justify-between gap-3">
+          <span class="px-3 py-1 bg-orange-100 text-[#E67E22] rounded-full text-xs font-semibold">{{ u.rolNombre }}</span>
+          <div class="flex gap-5">
+            <button (click)="abrirModal(u)" class="text-[#4A2C2A]" title="Modificar">
+              <lucide-icon [img]="Pencil" [size]="20"></lucide-icon>
+            </button>
+            <button (click)="toggleActivo(u)" [ngClass]="u.activo ? 'text-red-500' : 'text-green-600'" [title]="u.activo ? 'Desactivar' : 'Activar'">
+              <lucide-icon [img]="u.activo ? Ban : CheckCircle" [size]="20"></lucide-icon>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

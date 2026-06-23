@@ -1,6 +1,6 @@
 <div class="p-6 min-h-screen bg-orange-50/30">
 
-  <div class="flex justify-between items-center mb-8">
+  <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
     <div>
       <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Barriles</h2>
       <p class="text-gray-600">Seguimiento de activos retornables y su ciclo de vida.</p>
@@ -75,7 +75,7 @@
       <p class="text-xs mt-1">Creá el primer barril con el botón "Nuevo Barril"</p>
     </div>
 
-    <table *ngIf="filtrados.length > 0" class="w-full text-left">
+    <table *ngIf="filtrados.length > 0" class="w-full text-left hidden md:table">
       <thead class="bg-gray-50 border-b border-gray-100 text-gray-400 text-xs uppercase font-bold">
         <tr>
           <th class="px-6 py-4">Código</th>
@@ -160,6 +160,32 @@
         </tr>
       </tbody>
     </table>
+
+    <!-- Vista de tarjetas (solo móvil) -->
+    <div class="md:hidden flex flex-col gap-3 p-3" *ngIf="filtrados.length > 0">
+      <div *ngFor="let b of paginados" class="p-4 flex flex-col gap-3 border border-gray-100 rounded-xl shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <span class="font-black text-[#4A2C2A] tracking-wider">{{ b.codigo }}</span>
+            <p class="text-sm font-medium text-gray-800">{{ b.nombreFormato }}</p>
+            <p class="text-[11px] text-gray-400">{{ formatearCapacidad(b.capacidadLitros) }}</p>
+          </div>
+          <span class="shrink-0 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider" [ngClass]="claseEstado(b.estadoTexto)">
+            {{ b.estadoTexto }}
+          </span>
+        </div>
+        <div class="flex items-center justify-between text-xs">
+          <span *ngIf="b.estadoTexto === 'Con Cliente' && b.clienteNombre" class="font-semibold text-[#e67e22]">{{ b.clienteNombre }}</span>
+          <span *ngIf="b.estadoTexto !== 'Con Cliente'" class="text-gray-300">—</span>
+          <span *ngIf="b.ultimaActualizacion" class="text-gray-400">{{ b.ultimaActualizacion | date: 'dd/MM/yy HH:mm' }}</span>
+        </div>
+        <div class="flex justify-end gap-2 border-t border-gray-100 pt-2">
+          <button (click)="abrirEditar(b)" class="p-2 text-[#4A2C2A] hover:bg-orange-100 rounded-lg" title="Editar"><lucide-icon [img]="Pencil" [size]="18"></lucide-icon></button>
+          <button (click)="eliminar(b)" class="p-2 text-red-400 hover:bg-red-50 rounded-lg" title="Eliminar"><lucide-icon [img]="Trash2" [size]="18"></lucide-icon></button>
+          <button [routerLink]="['/barriles', b.id]" class="p-2 text-blue-900 hover:bg-blue-50 rounded-lg" title="Ver detalle"><lucide-icon [img]="FileText" [size]="18"></lucide-icon></button>
+        </div>
+      </div>
+    </div>
 
     <div *ngIf="filtrados.length > 0" class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
       <div class="flex flex-1 justify-between sm:hidden">
@@ -287,7 +313,7 @@
 
     <div class="p-6 space-y-5">
 
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Código</label>
           <div class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 text-sm font-black text-[#4A2C2A] tracking-wider">

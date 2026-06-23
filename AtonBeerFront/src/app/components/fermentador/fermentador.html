@@ -1,5 +1,5 @@
 <div class="p-6 min-h-screen bg-orange-50/30">
-  <div class="flex justify-between items-center mb-8">
+  <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
     <div>
       <h2 class="text-3xl font-bold text-[#4A2C2A]">Gestión de Fermentadores</h2>
       <p class="text-gray-600">Administración de activos y estados de producción.</p>
@@ -14,7 +14,7 @@
     </button>
   </div>
 
-  <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 flex gap-4">
+  <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 flex flex-col sm:flex-row gap-4">
     <div class="flex-1">
       <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">
         Capacidad Mínima (Lts)
@@ -28,7 +28,7 @@
       />
     </div>
 
-    <div class="w-64">
+    <div class="w-full sm:w-64">
       <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Filtrar Estado</label>
       <select
         [(ngModel)]="filtroEstado"
@@ -45,7 +45,7 @@
   </div>
 
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-    <table class="w-full text-left">
+    <table class="w-full text-left hidden md:table">
       <thead class="bg-gray-50 border-b border-gray-100 text-gray-400 text-xs uppercase font-bold">
         <tr>
           <th class="px-6 py-4">Tanque</th>
@@ -129,6 +129,33 @@
         </tr>
       </tbody>
     </table>
+
+    <!-- Vista de tarjetas (solo móvil) -->
+    <div class="md:hidden flex flex-col gap-3 p-3">
+      <div *ngFor="let item of fermentadoresFiltrados" class="p-4 flex flex-col gap-3 border border-gray-100 rounded-xl shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <span class="font-bold text-[#4A2C2A]">{{ item.nombre }}</span>
+            <span *ngIf="item.loteId" class="block text-[9px] bg-[#412725] text-white px-1.5 py-0.5 rounded-md w-fit mt-1 font-bold">
+              {{ item.codigoLote || ('LOTE #' + item.loteId) }}
+            </span>
+          </div>
+          <span class="shrink-0 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider" [ngClass]="obtenerClaseEstado(item.estado)">
+            {{ obtenerTextoEstado(item.estado) }}
+          </span>
+        </div>
+        <div class="text-sm text-gray-600 font-medium">
+          {{ item.capacidad }} Lts
+          <span *ngIf="item.volumenLitrosLote" class="text-[#e67e22] font-bold">({{ item.volumenLitrosLote }}L en uso)</span>
+          <span *ngIf="item.estiloNombre" class="block text-[11px] text-[#e67e22] font-black uppercase italic">{{ item.estiloNombre }}</span>
+        </div>
+        <div class="flex justify-end gap-2 border-t border-gray-100 pt-2">
+          <button (click)="verGraficos(item)" class="p-2 text-orange-600 hover:bg-orange-100 rounded-lg" title="Ver seguimiento"><lucide-icon [img]="LineChart" [size]="18"></lucide-icon></button>
+          <button (click)="abrirModal(item)" class="p-2 text-[#4A2C2A] hover:bg-orange-100 rounded-lg" title="Editar"><lucide-icon [img]="Pencil" [size]="18"></lucide-icon></button>
+          <button (click)="eliminarFermentador(item)" class="p-2 text-red-400 hover:bg-red-50 rounded-lg" title="Eliminar"><lucide-icon [img]="Trash2" [size]="18"></lucide-icon></button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div
@@ -156,7 +183,7 @@
           />
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
               Capacidad (Lts)

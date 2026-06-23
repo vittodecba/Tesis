@@ -56,7 +56,7 @@
   </div>
 
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto hidden md:block">
       <table class="w-full text-left">
         <thead class="bg-gray-50 border-b border-gray-100">
           <tr>
@@ -89,6 +89,28 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Vista de tarjetas (solo móvil) -->
+    <div class="md:hidden flex flex-col gap-3 p-3">
+      <div *ngFor="let rol of roles" class="p-4 flex flex-col gap-2 border border-gray-100 rounded-xl shadow-sm">
+        <div class="flex items-center justify-between gap-3">
+          <span class="px-3 py-1 bg-orange-100 text-[#E67E22] rounded-full text-sm font-semibold">{{ rol.nombre }}</span>
+          <div class="flex gap-5">
+            <button (click)="cargarDatosEdicion(rol)" class="text-[#4A2C2A]" title="Editar">
+              <lucide-icon [img]="Pencil" [size]="20"></lucide-icon>
+            </button>
+            <button (click)="eliminarRol(rol.id)" class="text-red-500" title="Eliminar">
+              <lucide-icon [img]="Trash2" [size]="20"></lucide-icon>
+            </button>
+          </div>
+        </div>
+        <p class="text-sm text-gray-600 leading-relaxed">{{ rol.descripcion }}</p>
+        <span class="text-xs text-gray-400 font-medium">#{{ rol.id }}</span>
+      </div>
+      <div *ngIf="roles?.length === 0" class="p-8 text-center text-gray-500 font-semibold">
+        No hay roles cargados.
+      </div>
     </div>
   </div>
 </div>

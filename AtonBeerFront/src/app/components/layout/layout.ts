@@ -34,7 +34,9 @@ import {
   Receipt,
   Ruler,
   History,
-  Building2
+  Building2,
+  Menu,
+  X
 } from 'lucide-angular';
 
 @Component({
@@ -79,6 +81,13 @@ export class LayoutComponent implements OnInit {
   History = History;
   Building2 = Building2;
 
+  // Iconos del drawer móvil
+  Menu = Menu;
+  X = X;
+
+  // Estado del drawer (sidebar) en móvil
+  sidebarAbierto = false;
+
   ngOnInit() {
     this.currentUser = this.authService.getCurrentUser();
     this.updateHeader();
@@ -87,7 +96,17 @@ export class LayoutComponent implements OnInit {
       .subscribe(() => {
         this.updateHeader();
         this.currentUser = this.authService.getCurrentUser();
+        // Cerrar el drawer al navegar en móvil
+        this.cerrarSidebar();
       });
+  }
+
+  toggleSidebar(): void {
+    this.sidebarAbierto = !this.sidebarAbierto;
+  }
+
+  cerrarSidebar(): void {
+    this.sidebarAbierto = false;
   }
 
   hasRole(...roles: string[]): boolean {

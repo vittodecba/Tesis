@@ -69,6 +69,9 @@
 
 .strong { font-weight: 600; color: #4a2c2a; }
 
+/* Tarjetas móviles (ocultas en desktop) */
+.cards-mobile { display: none; }
+
 /* Badges generales */
 .badge {
   padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600;
@@ -210,4 +213,69 @@ input.input-error {
   font-size: 12px;
   margin-top: 2px;
   display: block;
+}
+
+/* ============================================
+   RESPONSIVE MÓVIL (< 768px)
+   ============================================ */
+@media (max-width: 767px) {
+  /* Header apilado */
+  .header { flex-direction: column; gap: 16px; }
+  .title h1 { font-size: 24px; }
+
+  /* Acciones a ancho completo */
+  .actions { flex-direction: column; gap: 12px; width: 100%; }
+  .search { width: 100%; }
+  .btnPrimary { width: 100%; justify-content: center; }
+
+  /* Filtros: ocupan todo el ancho */
+  .filters-container { gap: 12px; }
+  .filter-box { flex: 1 1 100%; }
+  .filter-select { min-width: 0; width: 100%; }
+  .filter-actions { width: 100%; }
+  .btn-clear { width: 100%; justify-content: center; }
+
+  /* Ocultar tabla, mostrar tarjetas */
+  .table-desktop { display: none; }
+  .cards-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .cliente-card {
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+  .cc-top {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .cc-name { font-weight: 700; color: #4a2c2a; font-size: 15px; }
+  .cc-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px;
+  }
+  .cc-label { color: #64748b; font-weight: 500; font-size: 13px; }
+  .cc-value { color: #1e293b; font-weight: 600; text-align: right; }
+  .cc-estado { display: flex; align-items: center; }
+  .cc-actions {
+    display: flex; justify-content: flex-end; gap: 24px;
+    border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 2px;
+  }
+
+  /* Modal: formulario a una columna */
+  .form-grid { grid-template-columns: 1fr; }
+  .field.full { grid-column: span 1; }
+  .form-scroll { padding: 16px; max-height: 75vh; }
+  .modal-header { padding: 14px 16px; }
+  .modal-footer { padding: 14px 16px; }
+
+  /* Resumen: métricas a una columna */
+  .summary-modal .summary-body { padding: 16px; }
+  .summary-modal .metrics-grid { grid-template-columns: 1fr; }
 }

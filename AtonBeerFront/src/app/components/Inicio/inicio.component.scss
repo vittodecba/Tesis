@@ -206,3 +206,18 @@
     border-color: #f59e0b;
   }
 }
+
+/* Responsive móvil (< 768px) */
+@media (max-width: 767px) {
+  .welcome-section { margin-bottom: 20px; }
+  .welcome-section h1 { font-size: 21px; }
+
+  /* Una sola columna: lista + accesos rápidos apilados */
+  .dashboard-content { grid-template-columns: 1fr; gap: 16px; }
+
+  .stats-grid { gap: 14px; margin-bottom: 20px; }
+  .stat-card { padding: 18px; }
+
+  .main-card,
+  .side-card { padding: 18px; }
+}

@@ -1,5 +1,12 @@
 <div class="shell">
-  <aside class="sidebar">
+  <!-- Backdrop del drawer (solo móvil, cuando está abierto) -->
+  <div
+    class="backdrop"
+    [class.show]="sidebarAbierto"
+    (click)="cerrarSidebar()"
+  ></div>
+
+  <aside class="sidebar" [class.open]="sidebarAbierto">
     <div class="brand">
       <div class="brandIcon">
         <lucide-icon [img]="Beer" [size]="18"></lucide-icon>
@@ -8,6 +15,14 @@
         <div class="brandTitle">Aton Beer</div>
         <div class="brandSub">Sistema de Gestión</div>
       </div>
+      <button
+        class="closeBtn"
+        type="button"
+        (click)="cerrarSidebar()"
+        aria-label="Cerrar menú"
+      >
+        <lucide-icon [img]="X" [size]="20"></lucide-icon>
+      </button>
     </div>
 
     <nav class="nav">
@@ -106,8 +121,18 @@
   <main class="main">
     <header class="topbar">
       <div class="topbarLeft">
-        <div class="pageTitle">{{ pageTitle }}</div>
-        <div class="pageSub">{{ pageSub }}</div>
+        <button
+          class="menuBtn"
+          type="button"
+          (click)="toggleSidebar()"
+          aria-label="Abrir menú"
+        >
+          <lucide-icon [img]="Menu" [size]="22"></lucide-icon>
+        </button>
+        <div>
+          <div class="pageTitle">{{ pageTitle }}</div>
+          <div class="pageSub">{{ pageSub }}</div>
+        </div>
       </div>
 
       <div class="topbarRight">
