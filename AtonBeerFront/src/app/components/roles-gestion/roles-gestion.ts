@@ -90,7 +90,12 @@ export class RolesGestion implements OnInit {
     if (confirm('¿Estás seguro de que querés eliminar este rol?')) {
       this.rolService.eliminarRol(id).subscribe({
         next: () => { this.obtenerRoles(); },
-        error: (e) => alert('No se pudo eliminar el rol (tal vez esté en uso).')
+        error: (e) => {
+          let mensaje = 'No se pudo eliminar el rol (tal vez esté en uso).';
+          if (typeof e.error === 'string') mensaje = e.error;
+          else if (e.error?.message) mensaje = e.error.message;
+          alert(mensaje);
+        }
       });
     }
   }

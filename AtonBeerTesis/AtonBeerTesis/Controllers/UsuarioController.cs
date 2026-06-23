@@ -81,5 +81,19 @@ namespace AtonBeerTesis.Controllers
             await _usuarioService.DeleteAsync(id);
             return Ok(new { message = "Estado de usuario actualizado" });
         }
+
+        [HttpDelete("{id}/permanente")]
+        public async Task<IActionResult> EliminarPermanente(int id)
+        {
+            try
+            {
+                await _usuarioService.EliminarPermanenteAsync(id);
+                return Ok(new { message = "Usuario eliminado permanentemente" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

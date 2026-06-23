@@ -17,5 +17,8 @@ namespace AtonBeerTesis.Application.Interfaces
 
         // Activar/Desactivar (Baja Lógica)
         Task DeleteAsync(int id);
+
+        // Borrado físico permanente (solo usuarios inactivos)
+        Task EliminarPermanenteAsync(int id);
     }
 }

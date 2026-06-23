@@ -48,6 +48,16 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task EliminarFisicoAsync(int id)
+        {
+            var usuario = await _context.usuarios.FindAsync(id);
+            if (usuario != null)
+            {
+                _context.usuarios.Remove(usuario);
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public object Add(Usuario entity)
         {
             _context.usuarios.Add(entity);

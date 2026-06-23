@@ -226,12 +226,20 @@
                   {{ lote.fermentadorNombre || 'Sin asignar' }}
                 </p>
                 <button
+                  *ngIf="puedeEditarFermentador"
                   (click)="iniciarEdicionFermentador()"
                   class="p-1 text-gray-400 hover:text-[#E67E22] hover:bg-orange-50 rounded transition-colors"
                   title="Vincular fermentador"
                 >
                   <lucide-icon [img]="Edit2" [size]="16"></lucide-icon>
                 </button>
+                <span
+                  *ngIf="!puedeEditarFermentador"
+                  class="text-xs text-gray-400 italic"
+                  title="El lote ya está en proceso en este fermentador"
+                >
+                  (no modificable)
+                </span>
               </div>
 
               <div *ngIf="editandoFermentador" class="flex items-center gap-2 mt-1">

@@ -99,7 +99,7 @@
         <span>Pedidos</span>
       </a>
 
-      <a *ngIf="puedeVerVentas()" class="navItem" routerLink="/ventas" routerLinkActive="active">
+      <a *ngIf="puedeVerVentas()" class="navItem" routerLink="/ventas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
         <lucide-icon [img]="CreditCard" class="navIcon" [size]="18"></lucide-icon>
         <span>Ventas</span>
       </a>

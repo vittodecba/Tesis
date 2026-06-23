@@ -171,13 +171,16 @@ export class InicioComponent implements OnInit {
     const clientes: any[] = d.clientes ?? [];
     const barriles: BarrilDto[] = d.barriles ?? [];
 
-    const pendientes = pedidos.filter((p) => this.estadoPedido(p) === 'Pendiente');
-    const entregasHoy = pendientes.filter((p) => this.esHoy(p.fechaEntregaProgramada));
-    const entregasVencidas = pendientes.filter((p) => this.esVencida(p.fechaEntregaProgramada));
+    // "No entregados" = pedidos aún por entregar: Pendiente o Atrasado.
+    // El backend pasa automáticamente los Pendientes vencidos a "Atrasado", así que
+    // las entregas de hoy son Pendiente y las vencidas son Atrasado: ambas deben contarse.
+    const noEntregados = pedidos.filter((p) => this.esNoEntregado(p));
+    const entregasHoy = noEntregados.filter((p) => this.esHoy(p.fechaEntregaProgramada));
+    const entregasVencidas = noEntregados.filter((p) => this.esVencida(p.fechaEntregaProgramada));
     const barrilesCliente = barriles.filter((b) => b.clienteId != null);
 
     this.kpis = [
-      { label: 'Pedidos pendientes', value: pendientes.length, icon: ClipboardList, color: 'blue', route: '/pedidos/registrar' },
+      { label: 'Pedidos pendientes', value: noEntregados.length, icon: ClipboardList, color: 'blue', route: '/pedidos/registrar' },
       { label: 'Entregas para hoy', value: entregasHoy.length, icon: Truck, color: 'orange', route: '/pedidos/registrar' },
       { label: 'Clientes activos', value: this.clientesActivos(clientes), icon: Users, color: 'green', route: '/clientes' },
       { label: 'Barriles en cliente', value: barrilesCliente.length, icon: Box, color: 'purple', route: '/barriles' },
@@ -451,6 +454,12 @@ export class InicioComponent implements OnInit {
 
   private estadoPedido(p: any): string {
     return p.estadoPedido ?? p.estadoNombre ?? '';
+  }
+
+  // Pedido todavía por entregar (no Entregado / Cancelado / Facturado).
+  private esNoEntregado(p: any): boolean {
+    const e = this.norm(this.estadoPedido(p));
+    return e === 'pendiente' || e === 'atrasado';
   }
 
   private estadoLote(l: Lote): number {

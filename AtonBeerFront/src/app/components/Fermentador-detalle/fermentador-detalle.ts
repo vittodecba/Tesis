@@ -236,7 +236,7 @@ export class FermentadorDetalleComponent implements OnInit {
     };
   }
 
-  guardarRegistro() {
+  async guardarRegistro() {
     if (!this.loteActivo) return;
 
     this.errorRegistro = '';
@@ -276,6 +276,22 @@ export class FermentadorDetalleComponent implements OnInit {
       this.errorRegistro = 'La presión no puede ser negativa.';
       return;
     }
+
+    const confirmacion = await Swal.fire({
+      title: '⚠️ Verificá los valores antes de guardar',
+      html:
+        'Estás por registrar métricas de fermentación. <strong>Estos datos son sensibles y no se pueden modificar ni eliminar una vez guardados.</strong><br><br>' +
+        'Asegurate de que la temperatura, pH, densidad y presión sean correctos: valores erróneos pueden afectar la calidad del lote y provocar <strong>pérdidas materiales</strong>.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Estoy seguro, guardar',
+      cancelButtonText: 'Revisar valores',
+      confirmButtonColor: '#E67E22',
+      cancelButtonColor: '#6c757d',
+      reverseButtons: true,
+    });
+
+    if (!confirmacion.isConfirmed) return;
 
     this.guardandoRegistro = true;
 

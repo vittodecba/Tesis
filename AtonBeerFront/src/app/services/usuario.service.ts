@@ -33,4 +33,9 @@ export class UsuarioService {
   toggleActivo(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  // 6. Borrado permanente (solo usuarios inactivos)
+  eliminarPermanente(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}/permanente`);
+  }
 }
