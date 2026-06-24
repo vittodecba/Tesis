@@ -1,5 +1,4 @@
 <div class="shell">
-  <!-- Backdrop del drawer (solo móvil, cuando está abierto) -->
   <div
     class="backdrop"
     [class.show]="sidebarAbierto"
@@ -62,11 +61,6 @@
         <span>Insumos</span>
       </a>
 
-      <a *ngIf="puedeVerProduccion()" class="navItem" routerLink="/stock" routerLinkActive="active">
-        <lucide-icon [img]="Boxes" class="navIcon" [size]="18"></lucide-icon>
-        <span>Stock</span>
-      </a>
-
       <a *ngIf="puedeVerProduccion()" class="navItem" routerLink="/recetas" routerLinkActive="active">
         <lucide-icon [img]="BookOpen" class="navIcon" [size]="18"></lucide-icon>
         <span>Recetas</span>
@@ -80,6 +74,11 @@
       <a *ngIf="puedeVerProduccion()" class="navItem" routerLink="/fermentadores" routerLinkActive="active">
         <lucide-icon [img]="FlaskConical" class="navIcon" [size]="18"></lucide-icon>
         <span>Fermentación</span>
+      </a>
+
+      <a *ngIf="puedeVerProduccion()" class="navItem" routerLink="/stock" routerLinkActive="active">
+        <lucide-icon [img]="Boxes" class="navIcon" [size]="18"></lucide-icon>
+        <span>Stock</span>
       </a>
 
       <a *ngIf="puedeVerBarriles()" class="navItem" routerLink="/barriles" routerLinkActive="active">
@@ -99,7 +98,7 @@
         <span>Pedidos</span>
       </a>
 
-      <a *ngIf="puedeVerVentas()" class="navItem" routerLink="/ventas" routerLinkActive="active">
+      <a *ngIf="puedeVerVentas()" class="navItem" routerLink="/ventas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
         <lucide-icon [img]="CreditCard" class="navIcon" [size]="18"></lucide-icon>
         <span>Ventas</span>
       </a>

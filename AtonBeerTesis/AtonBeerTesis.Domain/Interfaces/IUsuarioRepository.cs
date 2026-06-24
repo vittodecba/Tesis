@@ -17,5 +17,8 @@ namespace AtonBeerTesis.Domain.Interfaces
 
         // Tarea 325 y 326: Editar y Activar/Desactivar
         Task UpdateAsync(Usuario usuario);
+
+        // Borrado físico permanente
+        Task EliminarFisicoAsync(int id);
     }
 }

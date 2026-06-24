@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Pencil, Ban, CheckCircle, Eye, EyeOff } from 'lucide-angular';
+import { LucideAngularModule, Pencil, Ban, CheckCircle, Eye, EyeOff, Trash2, AlertTriangle } from 'lucide-angular';
 import { UsuarioService } from '../../services/usuario.service';
 import { RolService } from '../../services/rol';
 import { Usuario, UsuarioCreate, UsuarioUpdate } from '../../Interfaces/usuario.interface';
@@ -19,10 +19,14 @@ export class UsuariosComponent implements OnInit {
   readonly CheckCircle = CheckCircle;
   readonly Eye = Eye;
   readonly EyeOff = EyeOff;
+  readonly Trash2 = Trash2;
+  readonly AlertTriangle = AlertTriangle;
 
   usuarios: Usuario[] = [];
   roles: any[] = [];
   mostrarModal: boolean = false;
+  mostrarModalEliminar: boolean = false;
+  usuarioAEliminar: Usuario | null = null;
   esEdicion: boolean = false;
   tituloModal: string = 'Nuevo Usuario';
   verInactivos: boolean = false;
@@ -196,6 +200,42 @@ export class UsuariosComponent implements OnInit {
         error: (err) => console.error("Error al cambiar estado:", err)
       });
     }
+  }
+
+  abrirModalEliminar(usuario: Usuario) {
+    const userJson = localStorage.getItem('aton_user');
+    const idLogueado = userJson ? JSON.parse(userJson).id : null;
+
+    if (usuario.id === idLogueado) {
+      alert('No podés eliminar tu propia cuenta mientras estás en sesión.');
+      return;
+    }
+
+    this.usuarioAEliminar = usuario;
+    this.mostrarModalEliminar = true;
+  }
+
+  cerrarModalEliminar() {
+    this.mostrarModalEliminar = false;
+    this.usuarioAEliminar = null;
+  }
+
+  confirmarEliminar() {
+    if (!this.usuarioAEliminar) return;
+
+    this.usuarioService.eliminarPermanente(this.usuarioAEliminar.id).subscribe({
+      next: () => {
+        alert('Usuario eliminado permanentemente.');
+        this.cerrarModalEliminar();
+        this.cargarUsuarios();
+      },
+      error: (e) => {
+        let mensaje = 'No se pudo eliminar el usuario.';
+        if (typeof e.error === 'string') mensaje = e.error;
+        else if (e.error?.message) mensaje = e.error.message;
+        alert(mensaje);
+      }
+    });
   }
 
   limpiarFormulario() {

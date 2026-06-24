@@ -158,5 +158,13 @@ namespace AtonBeerTesis.Application.Services
                 await _usuarioRepository.UpdateAsync(usuario);
             }
         }
+
+        public async Task EliminarPermanenteAsync(int id)
+        {
+            var usuario = await _usuarioRepository.GetByIdAsync(id);
+            if (usuario == null) throw new Exception("Usuario no encontrado.");
+            if (usuario.Activo) throw new Exception("Solo se pueden eliminar permanentemente usuarios inactivos.");
+            await _usuarioRepository.EliminarFisicoAsync(id);
+        }
     }
 }

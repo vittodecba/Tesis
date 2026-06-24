@@ -46,6 +46,14 @@ export class LoteDetalleComponent implements OnInit {
     return litros < 1 ? `${litros * 1000} ml` : `${litros} L`;
   }
 
+  // Solo se puede cambiar/vincular el fermentador mientras el lote esté Planificado.
+  // Una vez En Proceso (o Finalizado/Descartado) queda bloqueado: el lote ya entró
+  // físicamente en un fermentador. El backend también lo valida (BUG 10).
+  get puedeEditarFermentador(): boolean {
+    const estado = this.lote?.estado;
+    return estado === 'Planificado' || estado === 1 || estado === '1';
+  }
+
   // ── Designaciones ─────────────────────────────────────────────────────
   designaciones: LoteDesignacionDto[] = [];
   formatosDisponibles: FormatoEnvaseDto[] = [];
