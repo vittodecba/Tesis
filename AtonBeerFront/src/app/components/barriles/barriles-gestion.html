@@ -358,17 +358,24 @@
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
-          Cliente asociado
-        </label>
-        <select
-          [(ngModel)]="clienteIdEditar"
-          class="w-full border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-orange-300 font-medium bg-white text-sm"
-        >
-          <option [ngValue]="null">— Sin cliente —</option>
-          <option *ngFor="let c of clientes" [ngValue]="c.idCliente">{{ c.razonSocial }}</option>
-        </select>
-      </div>
+  <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+    Cliente asociado
+  </label>
+
+  <div class="w-full border border-gray-100 rounded-xl p-3 bg-gray-50 text-sm font-bold text-gray-700">
+    <ng-container *ngIf="barrilEditando.estadoTexto === 'Con Cliente' && barrilEditando.clienteNombre; else sinCliente">
+      {{ barrilEditando.clienteNombre }}
+    </ng-container>
+
+    <ng-template #sinCliente>
+      <span class="text-gray-400 font-medium">Sin cliente asignado</span>
+    </ng-template>
+  </div>
+
+  <p class="mt-1 text-[11px] text-gray-400 font-medium ml-1">
+    Se actualiza automáticamente al entregar o revertir pedidos.
+  </p>
+</div>
 
       <div>
         <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">

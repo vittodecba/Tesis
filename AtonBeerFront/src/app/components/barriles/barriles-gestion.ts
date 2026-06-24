@@ -52,11 +52,10 @@ export class BarrilesGestion implements OnInit {
   observacionesEditar    = '';
   fechaAdquisicionEditar = '';
   estadoEditar: number | null = null;
-  clienteIdEditar: number | null = null;
 
   private readonly transiciones: Record<number, OpcionEstado[]> = {
     0: [{ valor: 5, texto: 'Mantenimiento' }],
-    1: [{ valor: 2, texto: 'Con Cliente' }],
+    1: [{ valor: 5, texto: 'Mantenimiento' }],
     2: [{ valor: 3, texto: 'Sucio' }],
     3: [{ valor: 4, texto: 'En Lavado' }],
     4: [{ valor: 0, texto: 'Disponible' }],
@@ -132,7 +131,6 @@ export class BarrilesGestion implements OnInit {
     this.observacionesEditar    = barril.observaciones ?? '';
     this.fechaAdquisicionEditar = barril.fechaAdquisicion.substring(0, 10);
     this.estadoEditar           = null;
-    this.clienteIdEditar        = barril.clienteId;
     this.error                  = '';
     this.mostrarModalEditar     = true;
   }
@@ -156,20 +154,12 @@ export class BarrilesGestion implements OnInit {
     if (!this.barrilEditando) return;
     this.guardando = true;
     this.error = '';
-
-    const clienteOriginal = this.barrilEditando.clienteId;
-    const desasociar = clienteOriginal !== null && this.clienteIdEditar === null;
-    const nuevoCliente = this.clienteIdEditar !== clienteOriginal && this.clienteIdEditar !== null
-      ? this.clienteIdEditar : undefined;
-
     this._service
-      .actualizarBarril(this.barrilEditando.id, {
-        estado: this.estadoEditar ?? undefined,
-        clienteId: nuevoCliente,
-        desasociarCliente: desasociar,
-        fechaAdquisicion: this.fechaAdquisicionEditar || undefined,
-        observaciones: this.observacionesEditar || null,
-      })
+  .actualizarBarril(this.barrilEditando.id, {
+    estado: this.estadoEditar ?? undefined,
+    fechaAdquisicion: this.fechaAdquisicionEditar || undefined,
+    observaciones: this.observacionesEditar || null,
+  })
       .subscribe({
         next: () => { this.guardando = false; this.cerrarEditar(); this.cargar(); },
         error: (err) => {

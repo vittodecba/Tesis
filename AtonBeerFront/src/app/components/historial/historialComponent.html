@@ -43,8 +43,7 @@
         <tr>
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Fecha</th>
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Usuario</th>
-          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Email</th>
-          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">IP</th>
+          <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Email</th>          
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-center">Estado</th>
           <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Detalles</th>
         </tr>
@@ -52,7 +51,7 @@
 
       <tbody>
         <tr *ngIf="cargando">
-          <td colspan="6" class="px-6 py-8 text-center text-gray-500 font-medium">
+          <td colspan="5" class="px-6 py-8 text-center text-gray-500 font-medium">
             Cargando historial...
           </td>
         </tr>
@@ -66,10 +65,7 @@
           </td>
           <td class="px-6 py-4 text-gray-600">
             {{ item.email }}
-          </td>
-          <td class="px-6 py-4 text-gray-600">
-            {{ item.ip || '-' }}
-          </td>
+          </td>          
           <td class="px-6 py-4 text-center">
             <span class="px-3 py-1 rounded-full text-xs font-bold"
                   [ngClass]="item.exitoso ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
