@@ -127,6 +127,12 @@ export class VentasReporte implements OnInit {
       } else if (valor === 'mes_anterior') {
         desde = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1).toISOString().split('T')[0];
         hasta = new Date(hoy.getFullYear(), hoy.getMonth(), 0).toISOString().split('T')[0];
+      } else if (valor === 'anio_actual') {
+        desde = new Date(hoy.getFullYear(), 0, 1).toISOString().split('T')[0];
+        hasta = new Date(hoy.getFullYear(), 11, 31).toISOString().split('T')[0];
+      } else if (valor === 'anio_anterior') {
+        desde = new Date(hoy.getFullYear() - 1, 0, 1).toISOString().split('T')[0];
+        hasta = new Date(hoy.getFullYear() - 1, 11, 31).toISOString().split('T')[0];
       }
 
       if (desde && hasta) {

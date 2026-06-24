@@ -20,6 +20,8 @@
           <option value="">Personalizado...</option>
           <option value="mes_actual">Mes Actual</option>
           <option value="mes_anterior">Mes Anterior</option>
+          <option value="anio_actual">Año Actual</option>
+          <option value="anio_anterior">Año Anterior</option>
         </select>
       </div>
       <div class="space-y-2 flex-1">
@@ -28,7 +30,7 @@
       </div>
       <div class="space-y-2 flex-1">
         <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest">Fecha Hasta</label>
-        <input type="date" formControlName="fechaHasta" class="w-full border-2 border-gray-100 rounded-xl py-2.5 px-4 outline-none focus:border-[#E67E22] text-gray-700 font-medium bg-gray-50/50" />
+        <input type="date" formControlName="fechaHasta" [min]="filtroForm.get('fechaDesde')?.value" class="w-full border-2 border-gray-100 rounded-xl py-2.5 px-4 outline-none focus:border-[#E67E22] text-gray-700 font-medium bg-gray-50/50" />
       </div>
       <div *ngIf="tabActiva === 'clientes'" class="space-y-2 flex-1 animate-fade-in">
         <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest">Filtrar por Cliente</label>
