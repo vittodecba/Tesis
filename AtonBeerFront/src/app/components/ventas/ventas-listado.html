@@ -24,9 +24,10 @@
         <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest">Estado de Pago</label>
         <select formControlName="estadoPago" class="w-full border-2 border-gray-100 rounded-xl py-2.5 px-4 outline-none focus:border-[#E67E22] focus:ring-4 focus:ring-orange-500/10 transition-all text-gray-700 font-medium bg-gray-50/50 cursor-pointer appearance-none">
           <option value="">Todos los estados</option>
-          <option value="Pagado">Pagado</option>
+          <option value="Pagada">Pagada</option>
           <option value="Pendiente">Pendiente</option>
-          <option value="Atrasado">Atrasado</option>         
+          <option value="Atrasada">Atrasada</option>
+          <option value="Anulada">Anulada</option>     
         </select>
       </div>
       <div class="space-y-2">
@@ -44,9 +45,19 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
     <div *ngFor="let v of ventasPaginadas" 
          class="relative bg-gradient-to-br from-white to-orange-50/80 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border flex flex-col overflow-hidden group"
-         [ngClass]="{'border-green-200': obtenerEstadoReal(v) === 'Pagado', 'border-amber-200': obtenerEstadoReal(v) === 'Pendiente', 'border-red-200': obtenerEstadoReal(v) === 'Atrasado'}">
+         [ngClass]="{
+  'border-green-200': esVentaPagada(v),
+  'border-amber-200': obtenerEstadoReal(v) === 'Pendiente',
+  'border-red-200': obtenerEstadoReal(v) === 'Atrasada',
+  'border-gray-300': esVentaAnulada(v)
+         }">
       
-      <div class="absolute top-0 left-0 w-1.5 h-full" [ngClass]="{'bg-green-500': obtenerEstadoReal(v) === 'Pagado', 'bg-amber-500': obtenerEstadoReal(v) === 'Pendiente', 'bg-red-500': obtenerEstadoReal(v) === 'Atrasado'}"></div>
+      <div class="absolute top-0 left-0 w-1.5 h-full" [ngClass]="{
+  'bg-green-500': esVentaPagada(v),
+  'bg-amber-500': obtenerEstadoReal(v) === 'Pendiente',
+  'bg-red-500': obtenerEstadoReal(v) === 'Atrasada',
+  'bg-gray-400': esVentaAnulada(v)
+}"></div>
 
       <div class="p-6 flex-1 ml-1.5">
         <div class="flex justify-between items-start mb-6">
@@ -54,8 +65,18 @@
             #{{ v.numeroVenta || v.id }}
           </span>
           <span class="px-4 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 border-2 shadow-sm"
-                [ngClass]="{'bg-green-50 text-green-700 border-green-200': obtenerEstadoReal(v) === 'Pagado', 'bg-amber-50 text-amber-700 border-amber-200': obtenerEstadoReal(v) === 'Pendiente', 'bg-red-50 text-red-700 border-red-200': obtenerEstadoReal(v) === 'Atrasado'}">
-            <span class="w-2 h-2 rounded-full" [ngClass]="{'bg-green-500': obtenerEstadoReal(v) === 'Pagado', 'bg-amber-500 animate-pulse': obtenerEstadoReal(v) === 'Pendiente', 'bg-red-500 animate-pulse': obtenerEstadoReal(v) === 'Atrasado'}"></span>
+                [ngClass]="{
+  'bg-green-50 text-green-700 border-green-200': esVentaPagada(v),
+  'bg-amber-50 text-amber-700 border-amber-200': obtenerEstadoReal(v) === 'Pendiente',
+  'bg-red-50 text-red-700 border-red-200': obtenerEstadoReal(v) === 'Atrasada',
+  'bg-gray-100 text-gray-700 border-gray-300': esVentaAnulada(v)
+}">
+            <span class="w-2 h-2 rounded-full" [ngClass]="{
+  'bg-green-500': esVentaPagada(v),
+  'bg-amber-500 animate-pulse': obtenerEstadoReal(v) === 'Pendiente',
+  'bg-red-500 animate-pulse': obtenerEstadoReal(v) === 'Atrasada',
+  'bg-gray-500': esVentaAnulada(v)
+}"></span>
             {{ obtenerEstadoReal(v) }}
           </span>
         </div>
@@ -106,7 +127,7 @@
       Descuento aplicado
     </span>
 
-    <button *ngIf="v.totalPagado === 0 && obtenerEstadoReal(v) !== 'Pagado'"
+    <button *ngIf="v.totalPagado === 0 && !esVentaPagada(v) && !esVentaAnulada(v)"
             type="button"
             (click)="abrirModalDescuento(v)"
             class="text-[#E67E22] text-xs font-black hover:underline">
@@ -190,7 +211,7 @@
         
         <div class="flex gap-2.5">
 
-<button *ngIf="obtenerEstadoReal(v) !== 'Pagado' && v.saldoPendiente > 0"
+<button *ngIf="!esVentaPagada(v) && !esVentaAnulada(v) && v.saldoPendiente > 0"
         type="button"
         (click)="abrirModalPago(v)"
         class="p-3 bg-white/10 text-white hover:bg-green-600 hover:scale-105 rounded-xl transition-all duration-300 shadow-sm"
@@ -198,7 +219,7 @@
   <span class="font-black text-base">$</span>
 </button>
 
-<button *ngIf="obtenerEstadoReal(v) !== 'Pagado'"
+<button *ngIf="!esVentaPagada(v) && !esVentaAnulada(v)"
         type="button"
         (click)="editarVenta(v)"
         class="p-3 bg-white/10 text-white hover:bg-[#E67E22] hover:scale-105 rounded-xl transition-all duration-300 shadow-sm"
@@ -209,10 +230,11 @@
     </path>
   </svg>
 </button>
-<button (click)="facturar(v)"
-        [disabled]="facturandoId === v.id || (!v.tieneFactura && obtenerEstadoReal(v) !== 'Pagado')"
+<button *ngIf="!esVentaAnulada(v)"
+        (click)="facturar(v)"
+        [disabled]="facturandoId === v.id || (!v.tieneFactura && !esVentaPagada(v))"
         class="p-3 bg-white/10 text-white hover:bg-[#E67E22] hover:scale-105 rounded-xl transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-        [title]="v.tieneFactura ? 'Descargar Factura PDF' : (obtenerEstadoReal(v) === 'Pagado' ? 'Generar Factura' : 'No se puede facturar: la venta no está 100% pagada')">
+        [title]="v.tieneFactura ? 'Descargar Factura PDF' : (esVentaPagada(v) ? 'Generar Factura' : 'No se puede facturar: la venta no está 100% pagada')">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>

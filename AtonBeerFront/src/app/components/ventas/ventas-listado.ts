@@ -96,19 +96,34 @@ facturandoId: number | null = null;
     });
   }
 
-  obtenerEstadoReal(venta: VentaDto): string {
-    if (venta.estadoVenta === 'Pendiente' && venta.plazo) {
-      const hoy = new Date();
-      hoy.setHours(0, 0, 0, 0);
-      const fechaPlazo = new Date(venta.plazo);
-      fechaPlazo.setHours(0, 0, 0, 0);
-      
-      if (fechaPlazo < hoy) {
-        return 'Atrasado';
-      }
-    }
-    return venta.estadoVenta;
+ obtenerEstadoReal(venta: VentaDto): string {
+  if (venta.estadoVenta === 'Anulada') {
+    return 'Anulada';
   }
+
+  if (venta.estadoVenta === 'Pendiente' && venta.plazo) {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const fechaPlazo = new Date(venta.plazo);
+    fechaPlazo.setHours(0, 0, 0, 0);
+
+    if (fechaPlazo < hoy) {
+      return 'Atrasada';
+    }
+  }
+
+  return venta.estadoVenta;
+}
+  
+  esVentaAnulada(venta: VentaDto): boolean {
+  return this.obtenerEstadoReal(venta) === 'Anulada';
+}
+
+esVentaPagada(venta: VentaDto): boolean {
+  const estado = this.obtenerEstadoReal(venta);
+  return estado === 'Pagada' || estado === 'Pagado';
+}
 
   aplicarFiltros(): void {
     const filtros = this.filtroForm.value;
@@ -237,6 +252,10 @@ facturandoId: number | null = null;
     });
   }
 abrirModalDescuento(venta: VentaDto): void {
+  if (this.esVentaAnulada(venta)) {
+  this.mostrarToast('No se puede modificar el descuento de una venta anulada.', 'error');
+  return;
+}
   this.ventaParaDescuento = venta;
   this.tipoDescuento = 'Porcentaje';
   this.valorDescuento = venta.descuentoPorcentaje || null;
@@ -333,6 +352,10 @@ guardarDescuento(): void {
 
   //Metodos-PAGO//
   abrirModalPago(venta: VentaDto): void {
+    if (this.esVentaAnulada(venta)) {
+  this.mostrarToast('No se pueden registrar pagos sobre una venta anulada.', 'error');
+  return;
+}
   this.ventaParaPago = venta;
   this.pagoMonto = null;
   this.pagoMetodoPago = venta.metodoPago || 'Efectivo';
@@ -413,11 +436,15 @@ registrarPago(): void {
       return;
     }
 
-    // Solo se puede emitir factura cuando la venta está 100% pagada.
-    if (this.obtenerEstadoReal(venta) !== 'Pagado') {
-      this.mostrarToast('No se puede facturar: la venta todavía no está 100% pagada.', 'error');
-      return;
-    }
+    if (this.esVentaAnulada(venta)) {
+  this.mostrarToast('No se puede facturar una venta anulada.', 'error');
+  return;
+}
+
+if (!this.esVentaPagada(venta)) {
+  this.mostrarToast('No se puede facturar: la venta todavía no está 100% pagada.', 'error');
+  return;
+}
 
     this.facturandoId = venta.id;
     this.ventasService.generarFactura(venta.id).subscribe({

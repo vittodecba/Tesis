@@ -94,7 +94,7 @@ namespace AtonBeerTesis.Application.Services
             var venta = await _ventaRepository.GetByIdAsync(id);
             if (venta is null) return false;
 
-            if (venta.EstadoVenta == EstadoVenta.Pagado)
+            if (venta.EstadoVenta == EstadoVenta.Pagada)
                 throw new Exception("La venta ya está pagada y no puede modificarse.");
 
             if (dto.Plazo is not null)
@@ -126,13 +126,16 @@ namespace AtonBeerTesis.Application.Services
             var venta = await _ventaRepository.GetByIdAsync(id);
             if (venta is null) return false;
 
-            if (venta.EstadoVenta == EstadoVenta.Pagado)
+            if (venta.EstadoVenta == EstadoVenta.Pagada)
                 throw new Exception("No se puede modificar el descuento de una venta pagada.");
 
             var totalPagado = await _pagoRepository.GetTotalPagadoByVentaIdAsync(id);
             if (totalPagado > 0)
                 throw new Exception("No se puede modificar el descuento porque la venta ya tiene pagos registrados.");
-
+            if (venta.EstadoVenta == EstadoVenta.Anulada)
+            {
+                throw new Exception("No se puede modificar el descuento de una venta anulada.");
+            }
             if (dto.Valor <= 0)
                 throw new Exception("El valor del descuento debe ser mayor a 0.");
 

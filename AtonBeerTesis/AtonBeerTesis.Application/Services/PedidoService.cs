@@ -1,4 +1,5 @@
 ﻿using AtonBeerTesis.Application.Dtos;
+using AtonBeerTesis.Application.Dtos.VENTAS;
 using AtonBeerTesis.Application.Interfaces;
 using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Enums;
@@ -15,12 +16,13 @@ namespace AtonBeerTesis.Application.Services
         private readonly IPedidoRepository _pedidoRepository;
         private readonly IBarrilRepository _barrilRepository;
         private readonly IVentaRepository _ventaRepository;
-
-        public PedidoService(IPedidoRepository pedidoRepository, IBarrilRepository barrilRepository, IVentaRepository ventaRepository)
+        private readonly IPagoRepository _pagoRepository;
+        public PedidoService(IPedidoRepository pedidoRepository, IBarrilRepository barrilRepository, IVentaRepository ventaRepository, IPagoRepository pagoRepository)
         {
             _pedidoRepository = pedidoRepository;
             _barrilRepository = barrilRepository;
             _ventaRepository = ventaRepository;
+            _pagoRepository = pagoRepository;
         }
 
         public async Task<bool> ActualizarPedidoAsync(PedidoEdicionDTO pedidoDto)
@@ -306,12 +308,34 @@ namespace AtonBeerTesis.Application.Services
             if (pedido.EstadoId == 3)
             {
                 throw new Exception("El pedido ya fue facturado; no se puede deshacer la entrega.");
-            }
+            }           
             if (pedido.EstadoId != 2)
             {
                 throw new Exception("Solo se puede deshacer la entrega de pedidos que figuren como 'Entregados'.");
             }
+            var venta = await _ventaRepository.GetByPedidoIdAsync(pedidoId);
 
+            if (venta != null)
+            {
+                var totalPagado = await _pagoRepository.GetTotalPagadoByVentaIdAsync(venta.Id);
+                if (totalPagado > 0)
+                {
+                    throw new Exception("No se puede revertir la entrega, porque la venta asociada ya tiene pagos registrados");
+                }
+                if (venta.EstadoVenta == EstadoVenta.Pagada)
+                {
+                    throw new Exception("No se puede revertir la entrega porque la venta asociada ya está pagada.");
+                }
+                if (venta.EstadoVenta == EstadoVenta.Anulada)
+                {
+                    throw new Exception("No se pueden registrar pagos sobre una venta anulada.");
+                }
+                if (venta.EstadoVenta == EstadoVenta.Anulada)
+                {
+                    throw new Exception("La venta asociada ya está anulada.");
+                }
+
+            }
             var detallesAgrupados = pedido.Detalles
                 .GroupBy(d => d.ProductoStockId)
                 .Select(g => new
@@ -371,6 +395,11 @@ namespace AtonBeerTesis.Application.Services
             }
             pedido.EstadoId = 1;
             await _pedidoRepository.UpdateAsync(pedido);
+            if (venta != null)
+            {
+                venta.EstadoVenta = EstadoVenta.Anulada;
+                await _ventaRepository.UpdateAsync(venta);
+            }
 
             return true;
         }

@@ -40,8 +40,11 @@ namespace AtonBeerTesis.Application.Services
 
             var venta = await _ventaRepository.GetByIdAsync(ventaId)
                 ?? throw new Exception($"No existe la venta con ID {ventaId}.");
-
-            if (venta.EstadoVenta != EstadoVenta.Pagado)
+            if (venta.EstadoVenta == EstadoVenta.Anulada)
+            {
+                throw new Exception("No se puede facturar una venta anulada.");
+            }
+            if (venta.EstadoVenta != EstadoVenta.Pagada)
                 throw new Exception("No se puede facturar: la venta todavía no está 100% pagada.");
 
             var empresa = await _empresaRepository.GetAsync()
@@ -52,6 +55,7 @@ namespace AtonBeerTesis.Application.Services
 
             var cliente = venta.Cliente ?? pedido.Cliente
                 ?? throw new Exception("La venta no tiene un cliente asociado.");
+
 
             // ── Tipo de comprobante según condición IVA del cliente ──
             var tipo = cliente.CondicionIVA is CondicionIVA.ResponsableInscripto or CondicionIVA.Monotributo

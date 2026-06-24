@@ -9,6 +9,7 @@ namespace AtonBeerTesis.Domain.Enums
     public enum EstadoVenta
     {
         Pendiente = 1,
-        Pagado    = 2
+        Pagada  = 2,
+        Anulada = 3
     }
 }

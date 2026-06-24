@@ -34,7 +34,7 @@ namespace AtonBeerTesis.Application.Services
             {
                 throw new Exception($"No se encontró la venta con ID {dto.VentaId}.");
             }
-            if (venta.EstadoVenta == EstadoVenta.Pagado)
+            if (venta.EstadoVenta == EstadoVenta.Pagada)
             {
                 throw new Exception("La venta ya se encuentra pagada.");
             }
@@ -70,7 +70,7 @@ namespace AtonBeerTesis.Application.Services
 
             if (nuevoSaldo <= 0)
             {
-                venta.EstadoVenta = EstadoVenta.Pagado;
+                venta.EstadoVenta = EstadoVenta.Pagada;
             }
             else
             {

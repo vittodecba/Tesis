@@ -29,7 +29,7 @@ END
             migrationBuilder.Sql(@"
 IF EXISTS (SELECT 1 FROM [EstadosPedido] WHERE [Id] = 5)
 BEGIN
-    DELETE FROM [EstadosPedido]
+    DELETE FROM [EstadosPedido]c
     WHERE [Id] = 5;
 END
 ");

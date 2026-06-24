@@ -35,7 +35,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                     TotalPedidos = _context.Pedidos
                         .Count(p => p.ClienteId == c.IdCliente && p.EstadoId == 2),
                     UltimaCompra = _context.Ventas
-                        .Where(v => v.ClienteId == c.IdCliente && v.EstadoVenta == EstadoVenta.Pagado)
+                        .Where(v => v.ClienteId == c.IdCliente && v.EstadoVenta == EstadoVenta.Pagada)
                         .OrderByDescending(v => v.FechaCreacion)
                         .Select(v => (DateTime?)v.FechaCreacion)
                         .FirstOrDefault()
