@@ -121,6 +121,7 @@ namespace AtonBeerTesis.Application.Services
             await _ventaRepository.UpdateAsync(venta);
             return true;
         }
+
         public async Task<bool> AplicarDescuentoAsync(int id, AplicarDescuentoDto dto)
         {
             var venta = await _ventaRepository.GetByIdAsync(id);
@@ -234,12 +235,12 @@ namespace AtonBeerTesis.Application.Services
                 .Select(g => new { Dia = g.Key, Total = g.Sum(v => v.MontoTotal) })
                 .ToListAsync();
 
-            var comparativaMensual = ventasDiariasActuales.Select(va => new ComparativaMesDto
+            var comparativaMensual = Enumerable.Range(1, 31).Select(dia => new ComparativaMesDto
             {
-                DiaDelPeriodo = va.Dia,
-                TotalActual = va.Total,
-                TotalAnterior = ventasDiariasAnteriores.FirstOrDefault(van => van.Dia == va.Dia)?.Total ?? 0
-            }).OrderBy(x => x.DiaDelPeriodo).ToList();
+                DiaDelPeriodo = dia,
+                TotalActual = ventasDiariasActuales.FirstOrDefault(va => va.Dia == dia)?.Total ?? 0m,
+                TotalAnterior = ventasDiariasAnteriores.FirstOrDefault(van => van.Dia == dia)?.Total ?? 0m
+            }).ToList();
 
             var topClientes = await qActuales
                 .Where(v => v.Cliente != null)

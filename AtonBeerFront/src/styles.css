@@ -2,10 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base responsive: evita desborde horizontal en móvil */
+@media (min-width: 1024px) {
+  html {
+    zoom: 0.8;
+  }
+  
+  .shell, .sidebar, .main {
+    min-height: 125vh !important;
+  }
+}
+
 html,
 body {
   overflow-x: hidden;
+  background-color: #f8fafc; 
 }
 
 *,
