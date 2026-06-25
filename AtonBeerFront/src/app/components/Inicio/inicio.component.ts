@@ -46,12 +46,6 @@ interface KpiCard {
   route?: string;
 }
 
-interface AlertItem {
-  level: 'danger' | 'warning';
-  text: string;
-  route?: string;
-}
-
 interface Shortcut {
   label: string;
   route: string;
@@ -81,16 +75,12 @@ export class InicioComponent implements OnInit {
   private barrilSvc = inject(BarrilService);
   private recetaSvc = inject(RecetaService);
 
-  // Iconos
-  AlertTriangle = AlertTriangle;
-
   currentUser = this.authService.getCurrentUser();
   rolNombre = this.currentUser?.rolNombre ?? '';
   fechaActual = new Date();
 
   loading = true;
   kpis: KpiCard[] = [];
-  alerts: AlertItem[] = [];
   shortcuts: Shortcut[] = [];
   lista: ListaHoy | null = null;
 
@@ -186,14 +176,6 @@ export class InicioComponent implements OnInit {
       { label: 'Barriles en cliente', value: barrilesCliente.length, icon: Box, color: 'purple', route: '/barriles' },
     ];
 
-    if (entregasVencidas.length) {
-      this.alerts.push({
-        level: 'danger',
-        text: `${entregasVencidas.length} pedido(s) con fecha de entrega vencida y aún pendientes.`,
-        route: '/pedidos/registrar',
-      });
-    }
-
     this.shortcuts = [
       { label: 'Nuevo pedido', route: '/pedidos/registrar', icon: ClipboardList },
       { label: 'Barriles', route: '/barriles', icon: Box },
@@ -225,8 +207,6 @@ export class InicioComponent implements OnInit {
     const planificados = lotes.filter((l) => this.estadoLote(l) === LOTE_ESTADO.PLANIFICADO);
     const producidoMes = this.producidoEsteMes(movimientos);
 
-    const listosFinalizar = enProceso.filter((l) => this.esHoyOAntes(l.fechaFinEstimada));
-
     this.kpis = [
       { label: 'Lotes en proceso', value: enProceso.length, icon: FlaskConical, color: 'blue', route: '/planificacion' },
       { label: 'Lotes planificados', value: planificados.length, icon: CalendarClock, color: 'purple', route: '/planificacion' },
@@ -234,14 +214,6 @@ export class InicioComponent implements OnInit {
       { label: 'Producido este mes (u)', value: producidoMes, icon: Beer, color: 'orange', route: '/stock' },
       { label: 'Barriles', value: barriles.length, icon: Box, color: 'green', route: '/barriles' },
     ];
-
-    if (listosFinalizar.length) {
-      this.alerts.push({
-        level: 'warning',
-        text: `${listosFinalizar.length} lote(s) llegaron a su fecha estimada de fin — listos para finalizar / designar volumen.`,
-        route: '/planificacion',
-      });
-    }
 
     this.shortcuts = [
       { label: 'Nuevo lote', route: '/planificacion/nueva', icon: FlaskConical },
@@ -266,8 +238,8 @@ export class InicioComponent implements OnInit {
     const fermentadores: Fermentador[] = d.fermentadores ?? [];
     const recetas: any[] = d.recetas ?? [];
 
-    const ocupados = fermentadores.filter((f) => this.norm(f.estado) === 'ocupado');
-    const disponibles = fermentadores.filter((f) => this.norm(f.estado) === 'disponible');
+    const ocupados = fermentadores.filter((f) => this.estadoFermentador(f) === 'ocupado');
+    const disponibles = fermentadores.filter((f) => this.estadoFermentador(f) === 'disponible');
 
     this.kpis = [
       { label: 'En fermentación', value: ocupados.length, icon: Factory, color: 'orange', route: '/fermentadores' },
@@ -275,15 +247,6 @@ export class InicioComponent implements OnInit {
       { label: 'Recetas', value: recetas.length, icon: BookOpen, color: 'purple', route: '/recetas' },
     ];
 
-    // Fallback acordado: "registros de fermentación pendientes hoy" se aproxima con
-    // los fermentadores ocupados (cada uno requiere su carga diaria de pH/densidad/temp).
-    if (ocupados.length) {
-      this.alerts.push({
-        level: 'warning',
-        text: `${ocupados.length} fermentador(es) en fermentación — recordá cargar el registro diario.`,
-        route: '/fermentadores',
-      });
-    }
     this.shortcuts = [
       { label: 'Fermentadores', route: '/fermentadores', icon: Factory },
       { label: 'Recetas', route: '/recetas', icon: BookOpen },
@@ -306,14 +269,14 @@ export class InicioComponent implements OnInit {
     const ventas: VentaDto[] = d.ventas ?? [];
     const delMes = this.ventasDelMes(ventas);
     const totalMes = this.suma(delMes, 'montoTotal');
-    const cobradoMes = delMes.reduce((acc, v) => acc + (v.totalPagado ?? 0), 0);
     const ticket = delMes.length ? totalMes / delMes.length : 0;
+    const pendientesCobro = ventas.filter((v) => this.norm(v.estadoVenta) === 'pendiente');
 
     this.kpis = [
       { label: 'Ventas del mes', value: this.money(totalMes), icon: TrendingUp, color: 'green', route: '/ventas' },
       { label: 'N° de ventas (mes)', value: delMes.length, icon: ClipboardList, color: 'blue', route: '/ventas' },
-      { label: 'Cobrado este mes', value: this.money(cobradoMes), icon: Wallet, color: 'teal', route: '/ventas' },
       { label: 'Ticket promedio', value: this.money(ticket), icon: DollarSign, color: 'purple', route: '/ventas' },
+      { label: 'Pendiente de cobro', value: this.money(this.sumaPendiente(pendientesCobro)), icon: Wallet, color: 'orange', route: '/ventas' },
     ];
 
     this.shortcuts = [
@@ -351,8 +314,6 @@ export class InicioComponent implements OnInit {
       { label: 'Clientes activos', value: this.clientesActivos(clientes), icon: Users, color: 'purple', route: '/clientes' },
     ];
 
-    this.alertasCobro(vencidas);
-
     this.shortcuts = [
       { label: 'Cobrar / Ventas', route: '/ventas', icon: Wallet },
       { label: 'Roles y accesos', route: '/roles', icon: Shield },
@@ -381,8 +342,6 @@ export class InicioComponent implements OnInit {
       { label: 'Ventas del mes', value: this.money(totalMes), icon: TrendingUp, color: 'green', route: '/ventas' },
     ];
 
-    if (vencidas.length) this.alertasCobro(vencidas);
-
     this.shortcuts = [
       { label: 'Pedidos', route: '/pedidos/registrar', icon: ClipboardList },
       { label: 'Ventas', route: '/ventas', icon: TrendingUp },
@@ -394,18 +353,8 @@ export class InicioComponent implements OnInit {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // Helpers de alerta/lista reutilizables (ventas)
+  // Helper de lista reutilizable (ventas)
   // ─────────────────────────────────────────────────────────────
-  private alertasCobro(vencidas: VentaDto[]): void {
-    if (vencidas.length) {
-      this.alerts.push({
-        level: 'danger',
-        text: `${vencidas.length} cobro(s) vencido(s) — venta(s) pendientes con plazo cumplido.`,
-        route: '/ventas',
-      });
-    }
-  }
-
   private listaCobros(vencidas: VentaDto[], titulo = 'Cobros vencidos'): void {
     this.lista = {
       titulo,
@@ -462,6 +411,22 @@ export class InicioComponent implements OnInit {
     return e === 'pendiente' || e === 'atrasado';
   }
 
+  // El backend manda el estado del fermentador como número en string ("1".."4").
+  // 1=Disponible, 2=Ocupado, 3=Sucio, 4=Mantenimiento. Aceptamos también el nombre.
+  private estadoFermentador(f: any): string {
+    const mapa: Record<string, string> = {
+      '1': 'disponible',
+      '2': 'ocupado',
+      '3': 'sucio',
+      '4': 'mantenimiento',
+      disponible: 'disponible',
+      ocupado: 'ocupado',
+      sucio: 'sucio',
+      mantenimiento: 'mantenimiento',
+    };
+    return mapa[this.norm(f.estado)] ?? this.norm(f.estado);
+  }
+
   private estadoLote(l: Lote): number {
     if (typeof l.estado === 'number') return l.estado;
     const mapa: Record<string, number> = {
@@ -499,10 +464,6 @@ export class InicioComponent implements OnInit {
     return !!f && this.soloDia(f) < this.soloDia(new Date());
   }
 
-  private esHoyOAntes(d: any): boolean {
-    const f = this.parse(d);
-    return !!f && this.soloDia(f) <= this.soloDia(new Date());
-  }
 
   fechaCorta(d: any): string {
     const f = this.parse(d);

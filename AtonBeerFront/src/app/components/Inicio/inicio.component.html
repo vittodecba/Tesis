@@ -1,4 +1,4 @@
-<!-- Zona A: saludo + alertas -->
+<!-- Zona A: saludo -->
 <div class="welcome-section">
   <div class="welcome-text">
     <h1>¡Hola de nuevo, {{ currentUser?.nombre }}! 👋</h1>
@@ -6,19 +6,6 @@
       Hoy es {{ fechaActual | date: "EEEE, d 'de' MMMM" }}.
       <span *ngIf="rolNombre">Vista de {{ rolNombre }}.</span>
     </p>
-  </div>
-</div>
-
-<div class="alerts" *ngIf="alerts.length">
-  <div
-    class="alert"
-    *ngFor="let a of alerts"
-    [ngClass]="a.level"
-    (click)="irA(a.route)"
-    [class.clickable]="a.route"
-  >
-    <lucide-icon [img]="AlertTriangle" [size]="18"></lucide-icon>
-    <span>{{ a.text }}</span>
   </div>
 </div>
 
