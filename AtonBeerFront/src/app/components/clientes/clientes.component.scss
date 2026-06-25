@@ -1,5 +1,5 @@
 /* Página */
-.page { width: 100%; padding: 0; }
+.page { width: 100%; min-height: 100vh; padding: 0; background: rgba(255, 247, 237, 0.3); }
 
 .header {
   display: flex; align-items: flex-start; justify-content: space-between;
