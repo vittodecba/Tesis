@@ -87,7 +87,9 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         public async Task<Venta?> GetByPedidoIdAsync(int pedidoId)
         {
             return await _context.Ventas
-                .FirstOrDefaultAsync(v => v.PedidoId == pedidoId);
+                .Where(v => v.PedidoId == pedidoId && v.EstadoVenta != EstadoVenta.Anulada)
+                .OrderByDescending(v => v.Id)
+                .FirstOrDefaultAsync();
         }
 
         // Una venta está impaga mientras su EstadoVenta sea Pendiente (PagoService la pone en

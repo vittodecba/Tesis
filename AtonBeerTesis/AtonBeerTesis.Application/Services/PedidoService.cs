@@ -253,7 +253,7 @@ namespace AtonBeerTesis.Application.Services
             var totalConIva = Math.Round(netoGravado + ivaMonto, 2);
             var ventaExistente = await _ventaRepository.GetByPedidoIdAsync(pedido.Id);
 
-            if (ventaExistente != null)
+            if (ventaExistente != null && ventaExistente.EstadoVenta != EstadoVenta.Anulada)
             {
                 ventaExistente.ClienteId = pedido.ClienteId;
                 ventaExistente.Subtotal = subtotalVenta;
