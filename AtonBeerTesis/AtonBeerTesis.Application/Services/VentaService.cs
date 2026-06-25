@@ -33,11 +33,17 @@ namespace AtonBeerTesis.Application.Services
             var facturasPorVenta = await _facturaRepository.GetFacturaIdsPorVentaAsync();
             var pagosPorVenta = await _pagoRepository.GetTotalPagadoPorVentasAsync(ventasIds);
 
+            var todosLosPagos = await _ventaRepository.GetQueryable()
+    .Where(v => ventasIds.Contains(v.Id))
+    .SelectMany(v => v.Pagos)
+    .ToListAsync();
+
             foreach (var v in ventas)
             {
                 decimal totalPagado = pagosPorVenta.TryGetValue(v.Id, out var monto) ? monto : 0m;
                 var saldoPendiente = v.MontoTotal - totalPagado;
-                var pagosVenta = await _pagoRepository.GetByVentaIdAsync(v.Id);
+
+                var pagosVenta = todosLosPagos.Where(p => p.VentaId == v.Id).ToList();
 
                 var metodosPago = pagosVenta
                     .Select(p => p.MetodoPago.ToString())
@@ -54,6 +60,7 @@ namespace AtonBeerTesis.Application.Services
                 {
                     metodoCobroReal = "Mixto";
                 }
+
                 resultado.Add(new VentaDto
                 {
                     Id = v.Id,
@@ -76,11 +83,9 @@ namespace AtonBeerTesis.Application.Services
                     : v.MontoTotal,
                     DescuentoMonto = v.DescuentoMonto,
                     DescuentoPorcentaje = v.DescuentoPorcentaje,
-
                     NetoGravado = v.NetoGravado,
                     IvaPorcentaje = v.IvaPorcentaje,
                     IvaMonto = v.IvaMonto,
-
                     MotivoDescuento = v.MotivoDescuento,
                     TieneFactura = facturasPorVenta.ContainsKey(v.Id),
                     FacturaId = facturasPorVenta.TryGetValue(v.Id, out var fid) ? fid : null
