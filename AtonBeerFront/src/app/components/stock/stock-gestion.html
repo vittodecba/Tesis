@@ -8,8 +8,9 @@
     <button
       *ngIf="tab === 'formatos'"
       (click)="openCrearFormato()"
-      class="rounded-lg bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] px-4 py-2 text-sm font-medium text-white transition-colors">
-      + Nuevo Formato
+      class="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-gradient-to-r from-[#4A2C2A] to-[#E67E22] px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:opacity-90 hover:shadow-md">
+      <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
+      Nuevo Formato
     </button>
   </div>
 
@@ -19,134 +20,165 @@
       (click)="tab = 'formatos'"
       [class.border-b-2]="tab === 'formatos'"
       [class.border-amber-600]="tab === 'formatos'"
-      [class.text-amber-700]="tab === 'formatos'"
-      class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
+      [class.text-amber-800]="tab === 'formatos'"
+      [class.font-semibold]="tab === 'formatos'"
+      class="inline-flex cursor-pointer items-center gap-2 px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200">
+      <lucide-icon [img]="Package" [size]="16"></lucide-icon>
       Formatos de Envase
     </button>
     <button
       (click)="tab = 'stock'"
       [class.border-b-2]="tab === 'stock'"
       [class.border-amber-600]="tab === 'stock'"
-      [class.text-amber-700]="tab === 'stock'"
-      class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
+      [class.text-amber-800]="tab === 'stock'"
+      [class.font-semibold]="tab === 'stock'"
+      class="inline-flex cursor-pointer items-center gap-2 px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200">
+      <lucide-icon [img]="History" [size]="16"></lucide-icon>
       Historial de Movimientos
     </button>
   </div>
 
   <!-- Buscador -->
-  <div class="mb-4">
+  <div class="mb-4 relative">
+    <lucide-icon
+      [img]="Search"
+      [size]="18"
+      class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></lucide-icon>
     <input
       [(ngModel)]="searchTerm"
       placeholder="Buscar por formato, estilo o receta..."
-      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-amber-500 focus:outline-none" />
+      class="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm transition-shadow duration-200 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
   </div>
 
   <!-- ── TAB FORMATOS ── -->
   <div *ngIf="tab === 'formatos'">
-    <div *ngIf="formatosFiltrados.length === 0" class="rounded-lg bg-white p-8 text-center text-gray-400 shadow-sm">
-      No hay formatos creados. Creá el primero con "+ Nuevo Formato".
+    <div *ngIf="formatosFiltrados.length === 0" class="rounded-xl border border-gray-200 bg-white p-10 text-center shadow-sm">
+      <lucide-icon [img]="Package" [size]="40" class="mx-auto mb-3 text-gray-300"></lucide-icon>
+      <p class="text-sm text-gray-400">No hay formatos creados. Creá el primero con <span class="font-medium text-amber-700">"Nuevo Formato"</span>.</p>
     </div>
 
     <div class="space-y-3">
       <div
         *ngFor="let formato of formatosFiltrados"
-        class="rounded-lg bg-white shadow-sm border border-gray-100 overflow-hidden">
+        class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:border-amber-200 hover:shadow-md">
         <!-- Cabecera del formato -->
         <div
-          class="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+          class="flex cursor-pointer items-center justify-between p-4 transition-colors duration-200 hover:bg-amber-50/40"
           (click)="toggleExpand(formato.id)">
           <div class="flex items-center gap-3">
-            <span class="text-lg">🍺</span>
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+              <lucide-icon [img]="Beer" [size]="20"></lucide-icon>
+            </span>
             <div>
-              <p class="font-semibold text-gray-800">{{ formato.nombre }}</p>
+              <p class="text-base font-semibold text-gray-800">{{ formato.nombre }}</p>
               <p class="text-xs text-gray-500">{{ fmtCapacidad(formato.capacidadLitros) }} por unidad · {{ formato.productos.length }} estilo(s)</p>
             </div>
           </div>
-          <div class="flex items-center gap-4">
-            <span class="text-sm font-medium text-amber-700">{{ getTotalStock(formato) }} u. total</span>
+          <div class="flex items-center gap-2 sm:gap-3">
+            <span
+              class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold tabular-nums"
+              [class.bg-green-50]="getTotalStock(formato) > 0"
+              [class.text-green-700]="getTotalStock(formato) > 0"
+              [class.bg-gray-100]="getTotalStock(formato) === 0"
+              [class.text-gray-500]="getTotalStock(formato) === 0">
+              {{ getTotalStock(formato) }} u. total
+            </span>
             <button
               (click)="confirmarEliminar(formato); $event.stopPropagation()"
-              class="rounded p-1 text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors text-xs">
-              Eliminar
+              title="Eliminar formato"
+              class="cursor-pointer rounded-lg p-2 text-red-400 transition-colors duration-200 hover:bg-red-50 hover:text-red-600">
+              <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
             </button>
-            <span class="text-gray-400 text-sm">{{ expandedId === formato.id ? '▲' : '▼' }}</span>
+            <lucide-icon
+              [img]="ChevronDown"
+              [size]="18"
+              class="chevron text-gray-400 transition-transform duration-200"
+              [class.rotate-180]="expandedId === formato.id"></lucide-icon>
           </div>
         </div>
 
         <!-- Estilos expandibles -->
-        <div *ngIf="expandedId === formato.id" class="border-t border-gray-100 bg-gray-50">
-          <div *ngIf="formato.productos.length === 0" class="p-4 text-sm text-gray-400 text-center">
-            Sin estilos aún. Creá una receta para que aparezcan automáticamente.
-          </div>
-          <table *ngIf="formato.productos.length > 0" class="w-full text-sm">
-            <thead>
-              <tr class="text-xs text-gray-500 uppercase tracking-wide">
-                <th class="px-3 sm:px-6 py-2 text-left">Estilo</th>
-                <th class="px-3 sm:px-6 py-2 text-right">Stock actual (unidades)</th>
-                <th class="px-3 sm:px-6 py-2 text-right"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <ng-container *ngFor="let grupo of agruparPorEstilo(formato.productos)">
-
-                <!-- Fila de estilo (cabecera del grupo) -->
-                <tr class="bg-amber-50/40 border-t border-gray-100 hover:bg-white transition-colors">
-                  <td class="px-3 sm:px-6 py-3">
-                    <span class="font-semibold text-gray-800">{{ grupo.estilo }}</span>
-                  </td>
-                  <td class="px-3 sm:px-6 py-3 text-right">
-                    <span
-                      [class.text-green-600]="grupo.total > 0"
-                      [class.text-gray-400]="grupo.total === 0"
-                      class="font-bold">
-                      {{ grupo.total }}
-                    </span>
-                  </td>
-                  <td></td>
+        <div class="expandWrap" [class.expanded]="expandedId === formato.id">
+          <div class="border-t border-gray-100 bg-gray-50">
+            <div *ngIf="formato.productos.length === 0" class="p-4 text-sm text-gray-400 text-center">
+              Sin estilos aún. Creá una receta para que aparezcan automáticamente.
+            </div>
+            <table *ngIf="formato.productos.length > 0" class="w-full text-sm">
+              <thead>
+                <tr class="text-xs text-gray-500 uppercase tracking-wide">
+                  <th class="px-3 sm:px-6 py-2 text-left">Estilo</th>
+                  <th class="px-3 sm:px-6 py-2 text-right">Stock actual (unidades)</th>
+                  <th class="px-3 sm:px-6 py-2 text-right"></th>
                 </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let grupo of agruparPorEstilo(formato.productos)">
 
-                <!-- Sub-filas por receta -->
-                <ng-container>
-                  <tr *ngFor="let prod of grupo.items"
-                      class="border-t border-gray-50 hover:bg-white transition-colors bg-white">
-                    <td class="pl-6 pr-3 sm:pl-12 sm:pr-6 py-2">
-                      <span class="text-sm text-amber-700 font-medium">
-                        {{ prod.recetaNombre || '(sin receta)' }}
-                      </span>
+                  <!-- Fila de estilo (cabecera del grupo) -->
+                  <tr class="border-t border-gray-100 bg-amber-50/60 border-l-[3px] border-l-amber-400">
+                    <td class="px-3 sm:px-6 py-3">
+                      <span class="font-semibold text-gray-800">{{ grupo.estilo }}</span>
                     </td>
-                    <td class="px-3 sm:px-6 py-2 text-right">
+                    <td class="px-3 sm:px-6 py-3 text-right">
                       <span
-                        [class.text-green-600]="prod.stockActual > 0"
-                        [class.text-gray-400]="prod.stockActual === 0"
-                        class="text-sm font-semibold">
-                        {{ prod.stockActual }}
+                        class="inline-flex min-w-[2.75rem] items-center justify-center rounded-full px-2 py-0.5 text-xs font-bold tabular-nums"
+                        [class.bg-green-50]="grupo.total > 0"
+                        [class.text-green-700]="grupo.total > 0"
+                        [class.bg-gray-100]="grupo.total === 0"
+                        [class.text-gray-400]="grupo.total === 0">
+                        {{ grupo.total }}
                       </span>
                     </td>
-                    <td class="px-3 sm:px-6 py-2 text-right">
-                      <div class="flex justify-end gap-3">
-                        <button
-                          (click)="abrirIngreso(prod, formato.nombre); $event.stopPropagation()"
-                          class="text-xs font-medium text-amber-600 hover:text-amber-800 transition-colors">
-                          + Agregar
-                        </button>
-                        <button
-                          (click)="abrirCorreccion(prod, formato.nombre); $event.stopPropagation()"
-                          class="text-xs font-medium text-blue-500 hover:text-blue-700 transition-colors">
-                          Editar
-                        </button>
-                        <button
-                          (click)="abrirEgreso(prod, formato.nombre); $event.stopPropagation()"
-                          class="text-xs font-medium text-red-400 hover:text-red-600 transition-colors">
-                          - Retirar
-                        </button>
-                      </div>
-                    </td>
+                    <td></td>
                   </tr>
-                </ng-container>
 
-              </ng-container>
-            </tbody>
-          </table>
+                  <!-- Sub-filas por receta -->
+                  <ng-container>
+                    <tr *ngFor="let prod of grupo.items"
+                        class="border-t border-gray-50 bg-white transition-colors duration-200 hover:bg-amber-50/30">
+                      <td class="pl-6 pr-3 sm:pl-12 sm:pr-6 py-2">
+                        <span class="inline-flex items-center gap-2 text-sm font-medium text-amber-700">
+                          <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-300"></span>
+                          {{ prod.recetaNombre || '(sin receta)' }}
+                        </span>
+                      </td>
+                      <td class="px-3 sm:px-6 py-2 text-right">
+                        <span
+                          class="inline-flex min-w-[2.75rem] items-center justify-center px-2 py-0.5 text-sm font-semibold tabular-nums"
+                          [class.text-green-600]="prod.stockActual > 0"
+                          [class.text-gray-400]="prod.stockActual === 0">
+                          {{ prod.stockActual }}
+                        </span>
+                      </td>
+                      <td class="px-3 sm:px-6 py-2 text-right">
+                        <div class="flex justify-end gap-1.5">
+                          <button
+                            (click)="abrirIngreso(prod, formato.nombre); $event.stopPropagation()"
+                            class="inline-flex cursor-pointer items-center gap-1 rounded-md bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-800 transition-colors duration-200 hover:bg-amber-200">
+                            <lucide-icon [img]="Plus" [size]="12"></lucide-icon>
+                            Agregar
+                          </button>
+                          <button
+                            (click)="abrirCorreccion(prod, formato.nombre); $event.stopPropagation()"
+                            class="inline-flex cursor-pointer items-center gap-1 rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 transition-colors duration-200 hover:bg-blue-200">
+                            <lucide-icon [img]="Pencil" [size]="12"></lucide-icon>
+                            Editar
+                          </button>
+                          <button
+                            (click)="abrirEgreso(prod, formato.nombre); $event.stopPropagation()"
+                            class="inline-flex cursor-pointer items-center gap-1 rounded-md bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700 transition-colors duration-200 hover:bg-red-200">
+                            <lucide-icon [img]="Minus" [size]="12"></lucide-icon>
+                            Retirar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -154,14 +186,17 @@
 
   <!-- ── TAB HISTORIAL DE MOVIMIENTOS ── -->
   <div *ngIf="tab === 'stock'">
-    <div *ngIf="movimientosFiltrados.length === 0" class="rounded-lg bg-white p-8 text-center text-gray-400 shadow-sm">
-      <span *ngIf="searchTerm.trim()">No se encontraron movimientos para "{{ searchTerm }}".</span>
-      <span *ngIf="!searchTerm.trim()">No hay movimientos de stock registrados aún.</span>
+    <div *ngIf="movimientosFiltrados.length === 0" class="rounded-xl border border-gray-200 bg-white p-10 text-center shadow-sm">
+      <lucide-icon [img]="History" [size]="40" class="mx-auto mb-3 text-gray-300"></lucide-icon>
+      <p class="text-sm text-gray-400">
+        <span *ngIf="searchTerm.trim()">No se encontraron movimientos para "{{ searchTerm }}".</span>
+        <span *ngIf="!searchTerm.trim()">No hay movimientos de stock registrados aún.</span>
+      </p>
     </div>
 
-    <div class="overflow-x-auto rounded-lg bg-white shadow-sm hidden md:block" *ngIf="movimientosFiltrados.length > 0">
+    <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm hidden md:block" *ngIf="movimientosFiltrados.length > 0">
       <table class="w-full text-sm">
-        <thead class="bg-amber-50 text-xs text-gray-600 uppercase tracking-wide">
+        <thead class="sticky top-0 bg-amber-50 text-xs text-gray-600 uppercase tracking-wide">
           <tr>
             <th class="px-4 py-3 text-left">Fecha</th>
             <th class="px-4 py-3 text-left">Tipo</th>
@@ -176,17 +211,19 @@
         <tbody>
           <tr
             *ngFor="let mov of movimientosFiltrados"
-            class="border-t border-gray-100 hover:bg-gray-50 transition-colors">
+            class="border-t border-gray-100 transition-colors duration-200 hover:bg-amber-50/40">
             <td class="px-4 py-3 text-gray-500 whitespace-nowrap">
               {{ mov.fecha | date:'dd/MM/yyyy HH:mm' }}
             </td>
             <td class="px-4 py-3">
               <span
-                class="inline-block rounded-full px-2 py-0.5 text-xs font-semibold"
+                class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
                 [class.bg-green-100]="mov.tipoMovimiento === 'Ingreso'"
                 [class.text-green-700]="mov.tipoMovimiento === 'Ingreso'"
                 [class.bg-red-100]="mov.tipoMovimiento === 'Egreso'"
                 [class.text-red-700]="mov.tipoMovimiento === 'Egreso'">
+                <lucide-icon *ngIf="mov.tipoMovimiento === 'Ingreso'" [img]="Plus" [size]="12"></lucide-icon>
+                <lucide-icon *ngIf="mov.tipoMovimiento === 'Egreso'" [img]="Minus" [size]="12"></lucide-icon>
                 {{ mov.tipoMovimiento }}
               </span>
             </td>
@@ -195,14 +232,14 @@
               <p *ngIf="mov.recetaNombre" class="text-xs text-amber-600 font-medium">{{ mov.recetaNombre }}</p>
               <p class="text-xs text-gray-400">{{ mov.formatoNombre }} · {{ fmtCapacidad(mov.capacidadLitros) }}</p>
             </td>
-            <td class="px-4 py-3 text-right font-semibold"
+            <td class="px-4 py-3 text-right font-semibold tabular-nums"
               [class.text-green-600]="mov.tipoMovimiento === 'Ingreso'"
               [class.text-red-500]="mov.tipoMovimiento === 'Egreso'">
               {{ mov.tipoMovimiento === 'Ingreso' ? '+' : '-' }}{{ mov.cantidad }} u.
             </td>
             <td class="px-4 py-3 text-gray-500">{{ mov.motivoMovimiento }}</td>
-            <td class="px-4 py-3 text-right text-gray-400">{{ mov.stockPrevio }} u.</td>
-            <td class="px-4 py-3 text-right font-semibold text-gray-700">{{ mov.stockResultante }} u.</td>
+            <td class="px-4 py-3 text-right text-gray-400 tabular-nums">{{ mov.stockPrevio }} u.</td>
+            <td class="px-4 py-3 text-right font-semibold text-gray-700 tabular-nums">{{ mov.stockResultante }} u.</td>
             <td class="px-4 py-3">
               <span *ngIf="mov.loteId" class="inline-block rounded bg-blue-50 px-2 py-0.5 text-xs text-blue-600 font-medium">
                 L-{{ mov.loteId }}
@@ -216,7 +253,7 @@
 
     <!-- Vista de tarjetas (solo móvil) -->
     <div class="md:hidden flex flex-col gap-3" *ngIf="movimientosFiltrados.length > 0">
-      <div *ngFor="let mov of movimientosFiltrados" class="rounded-lg bg-white shadow-sm border border-gray-100 p-4 flex flex-col gap-2">
+      <div *ngFor="let mov of movimientosFiltrados" class="rounded-xl border border-gray-200 bg-white shadow-sm p-4 flex flex-col gap-2">
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
             <p class="font-medium text-gray-800 truncate">{{ mov.estilo }}</p>
@@ -224,21 +261,23 @@
             <p class="text-xs text-gray-400">{{ mov.formatoNombre }} · {{ fmtCapacidad(mov.capacidadLitros) }}</p>
           </div>
           <span
-            class="shrink-0 inline-block rounded-full px-2 py-0.5 text-xs font-semibold"
+            class="shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
             [class.bg-green-100]="mov.tipoMovimiento === 'Ingreso'"
             [class.text-green-700]="mov.tipoMovimiento === 'Ingreso'"
             [class.bg-red-100]="mov.tipoMovimiento === 'Egreso'"
             [class.text-red-700]="mov.tipoMovimiento === 'Egreso'">
+            <lucide-icon *ngIf="mov.tipoMovimiento === 'Ingreso'" [img]="Plus" [size]="12"></lucide-icon>
+            <lucide-icon *ngIf="mov.tipoMovimiento === 'Egreso'" [img]="Minus" [size]="12"></lucide-icon>
             {{ mov.tipoMovimiento }}
           </span>
         </div>
         <div class="flex items-center justify-between text-sm">
-          <span class="font-semibold"
+          <span class="font-semibold tabular-nums"
             [class.text-green-600]="mov.tipoMovimiento === 'Ingreso'"
             [class.text-red-500]="mov.tipoMovimiento === 'Egreso'">
             {{ mov.tipoMovimiento === 'Ingreso' ? '+' : '-' }}{{ mov.cantidad }} u.
           </span>
-          <span class="text-xs text-gray-400">{{ mov.stockPrevio }} → <strong class="text-gray-700">{{ mov.stockResultante }} u.</strong></span>
+          <span class="text-xs text-gray-400 tabular-nums">{{ mov.stockPrevio }} → <strong class="text-gray-700">{{ mov.stockResultante }} u.</strong></span>
         </div>
         <div class="flex items-center justify-between text-xs text-gray-500">
           <span>{{ mov.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
@@ -260,7 +299,7 @@
         <input
           [(ngModel)]="nuevoNombre"
           placeholder="Ej: Barril, Lata, Botella..."
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition-shadow duration-200 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
       </div>
       <div>
         <div class="mb-1 flex items-center justify-between">
@@ -274,7 +313,7 @@
               [class.bg-amber-600]="unidadCapacidad === 'L'"
               [class.text-white]="unidadCapacidad === 'L'"
               [class.text-gray-500]="unidadCapacidad !== 'L'"
-              class="px-3 py-1 transition-colors">
+              class="cursor-pointer px-3 py-1 transition-colors duration-200">
               L
             </button>
             <button
@@ -283,7 +322,7 @@
               [class.bg-amber-600]="unidadCapacidad === 'ml'"
               [class.text-white]="unidadCapacidad === 'ml'"
               [class.text-gray-500]="unidadCapacidad !== 'ml'"
-              class="px-3 py-1 transition-colors">
+              class="cursor-pointer px-3 py-1 transition-colors duration-200">
               ml
             </button>
           </div>
@@ -294,7 +333,7 @@
           [step]="unidadCapacidad === 'ml' ? 1 : 0.001"
           [min]="unidadCapacidad === 'ml' ? 1 : 0.001"
           [placeholder]="unidadCapacidad === 'ml' ? 'Ej: 473, 330, 750...' : 'Ej: 50, 20, 5...'"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition-shadow duration-200 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
         <p class="mt-1 text-xs text-gray-400">
           Esta capacidad se usará para validar que los volúmenes del lote sean múltiplos exactos.
         </p>
@@ -304,13 +343,13 @@
     <div class="mt-6 flex gap-3 justify-end">
       <button
         (click)="modalFormatoOpen = false"
-        class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+        class="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 transition-colors duration-200 hover:bg-gray-50">
         Cancelar
       </button>
       <button
         (click)="guardarFormato()"
         [disabled]="creandoFormato"
-        class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 transition-colors disabled:opacity-50">
+        class="cursor-pointer rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-amber-700 disabled:opacity-50">
         {{ creandoFormato ? 'Creando...' : 'Crear Formato' }}
       </button>
     </div>
@@ -334,7 +373,7 @@
           min="1"
           step="1"
           placeholder="Ej: 10"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition-shadow duration-200 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
       </div>
       <div>
         <label class="mb-1 block text-sm font-medium text-gray-700">Motivo</label>
@@ -342,20 +381,20 @@
           [(ngModel)]="ingresoMotivo"
           type="text"
           placeholder="Ej: Compra, Devolución..."
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition-shadow duration-200 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
       </div>
       <p *ngIf="errorIngreso" class="text-sm text-red-500">{{ errorIngreso }}</p>
     </div>
     <div class="mt-6 flex gap-3 justify-end">
       <button
         (click)="ingresoModalOpen = false"
-        class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+        class="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 transition-colors duration-200 hover:bg-gray-50">
         Cancelar
       </button>
       <button
         (click)="confirmarIngreso()"
         [disabled]="ingresando"
-        class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 transition-colors disabled:opacity-50">
+        class="cursor-pointer rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-amber-700 disabled:opacity-50">
         {{ ingresando ? 'Registrando...' : 'Confirmar ingreso' }}
       </button>
     </div>
@@ -379,7 +418,7 @@
           min="0"
           step="1"
           placeholder="Ej: 45"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition-shadow duration-200 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
         <p *ngIf="correccionNuevaCantidad !== null && correccionNuevaCantidad !== correccionProducto.stockActual"
           class="mt-1 text-xs text-gray-400">
           Diferencia: {{ correccionNuevaCantidad - correccionProducto.stockActual > 0 ? '+' : '' }}{{ correccionNuevaCantidad - correccionProducto.stockActual }} u.
@@ -391,13 +430,13 @@
       <button
         (click)="correccionProducto = null"
         [disabled]="corrigiendo"
-        class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50">
+        class="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 transition-colors duration-200 hover:bg-gray-50 disabled:opacity-50">
         Cancelar
       </button>
       <button
         (click)="confirmarCorreccion()"
         [disabled]="corrigiendo"
-        class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 transition-colors disabled:opacity-50">
+        class="cursor-pointer rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-amber-700 disabled:opacity-50">
         {{ corrigiendo ? 'Guardando...' : 'Aplicar corrección' }}
       </button>
     </div>
@@ -422,7 +461,7 @@
           step="1"
           [max]="egresoProducto.stockActual"
           placeholder="Ej: 5"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition-shadow duration-200 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
       </div>
       <div>
         <label class="mb-1 block text-sm font-medium text-gray-700">Motivo</label>
@@ -430,7 +469,7 @@
           [(ngModel)]="egresoMotivo"
           type="text"
           placeholder="Ej: Venta, Merma, Devolución..."
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none" />
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition-shadow duration-200 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
       </div>
       <p *ngIf="errorEgreso" class="text-sm text-red-500">{{ errorEgreso }}</p>
     </div>
@@ -438,13 +477,13 @@
       <button
         (click)="egresoProducto = null"
         [disabled]="egresando"
-        class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50">
+        class="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 transition-colors duration-200 hover:bg-gray-50 disabled:opacity-50">
         Cancelar
       </button>
       <button
         (click)="confirmarEgreso()"
         [disabled]="egresando"
-        class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50">
+        class="cursor-pointer rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-red-700 disabled:opacity-50">
         {{ egresando ? 'Registrando...' : 'Confirmar egreso' }}
       </button>
     </div>
@@ -461,12 +500,12 @@
     <div class="flex gap-3 justify-end">
       <button
         (click)="deleteModalOpen = false; formatoAEliminar = null"
-        class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+        class="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 transition-colors duration-200 hover:bg-gray-50">
         Cancelar
       </button>
       <button
         (click)="eliminarFormato()"
-        class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors">
+        class="cursor-pointer rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-red-700">
         Eliminar
       </button>
     </div>

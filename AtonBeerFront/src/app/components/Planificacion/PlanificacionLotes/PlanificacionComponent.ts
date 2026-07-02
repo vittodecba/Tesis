@@ -3,6 +3,17 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { Router, RouterModule } from '@angular/router';
+import {
+  LucideAngularModule,
+  BookOpen,
+  FlaskConical,
+  CalendarDays,
+  StickyNote,
+  Package,
+  Check,
+  X,
+  TriangleAlert,
+} from 'lucide-angular';
 import { Receta, RecetaService } from '../../../services/receta';
 import {FermentadorService} from '../../../services/fermentador';
 import { PlanificacionService } from '../../../services/PlanificacionService';
@@ -11,12 +22,26 @@ import { AuthService } from '../../../core/services/auth.service';
 @Component({
   selector: 'app-planificacion-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule],
   templateUrl: './PlanificacionComponent.html'
 })
 export class PlanificacionFormComponent implements OnInit {
 
+  readonly BookOpen = BookOpen;
+  readonly FlaskConical = FlaskConical;
+  readonly CalendarDays = CalendarDays;
+  readonly StickyNote = StickyNote;
+  readonly Package = Package;
+  readonly Check = Check;
+  readonly X = X;
+  readonly TriangleAlert = TriangleAlert;
+
   hoy: string = new Date().toISOString().split('T')[0]; // formato yyyy-MM-dd para [min]
+
+  // Solo presentación: cantidad de insumos cuyo stock no alcanza
+  get insumosFaltantes(): number {
+    return this.previsualizacionInsumos.filter((i) => !i.alcanza).length;
+  }
 
   recetas: any[] = [];
   fermentadores: any[] = [];

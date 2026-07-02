@@ -2,6 +2,18 @@ import Swal from 'sweetalert2';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import {
+  LucideAngularModule,
+  Beer,
+  ChevronDown,
+  Plus,
+  Pencil,
+  Minus,
+  Trash2,
+  Search,
+  Package,
+  History,
+} from 'lucide-angular';
 import { StockService, FormatoEnvaseDto, MovimientoDetalladoDto, ProductoStockDto } from '../../services/stock.service';
 
 interface GrupoEstilo {
@@ -13,11 +25,21 @@ interface GrupoEstilo {
 @Component({
   selector: 'app-stock-gestion',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './stock-gestion.html',
   styleUrls: ['./stock-gestion.scss'],
 })
 export class StockGestion implements OnInit {
+  readonly Beer = Beer;
+  readonly ChevronDown = ChevronDown;
+  readonly Plus = Plus;
+  readonly Pencil = Pencil;
+  readonly Minus = Minus;
+  readonly Trash2 = Trash2;
+  readonly Search = Search;
+  readonly Package = Package;
+  readonly History = History;
+
   tab: 'formatos' | 'stock' = 'formatos';
   expandedId: number | null = null;
   searchTerm = '';

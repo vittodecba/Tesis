@@ -8,13 +8,23 @@
   overflow: hidden;
   max-height: 0;
   opacity: 0;
-  transition: all 0.3s ease-in-out;
+  transition: max-height 0.3s ease-in-out, opacity 0.25s ease-in-out;
   &.expanded {
-    max-height: 800px;
+    max-height: 2000px;
     opacity: 1;
   }
 }
 
 button:active {
   transform: scale(0.95);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expandWrap,
+  .chevron {
+    transition: none !important;
+  }
+  button:active {
+    transform: none;
+  }
 }
