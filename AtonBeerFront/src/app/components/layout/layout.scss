@@ -224,10 +224,11 @@
 .topbar {
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
-  padding: 16px 20px;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  min-height: 52px;
 }
 
 .topbarLeft {

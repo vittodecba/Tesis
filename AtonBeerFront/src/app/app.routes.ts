@@ -59,7 +59,7 @@ export const routes: Routes = [
         path: 'usuarios',
         component: UsuariosComponent,
         canActivate: [roleGuard],
-        data: { title: 'Usuarios', subtitle: 'Administración de accesos', roles: [A, G] },
+        data: { title: 'Usuarios', subtitle: 'Control de accesos', roles: [A, G] },
       },
       {
         path: 'roles',
