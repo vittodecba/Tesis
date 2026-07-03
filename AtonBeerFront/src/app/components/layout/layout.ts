@@ -21,7 +21,6 @@ import {
   Lock,
   LayoutDashboard,
   Settings,
-  Beer,
   LineChart,
   User,
   Barrel,
@@ -60,7 +59,6 @@ export class LayoutComponent implements OnInit {
   Lock = Lock;
   LayoutDashboard = LayoutDashboard;
   Settings = Settings;
-  Beer = Beer;
   LineChart = LineChart;
   User = User;
   Barrel = Barrel;
@@ -99,6 +97,10 @@ export class LayoutComponent implements OnInit {
         // Cerrar el drawer al navegar en móvil
         this.cerrarSidebar();
       });
+  }
+
+  esRutaActiva(prefix: string): boolean {
+    return this.router.url.startsWith(prefix);
   }
 
   toggleSidebar(): void {

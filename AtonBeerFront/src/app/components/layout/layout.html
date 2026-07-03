@@ -8,7 +8,7 @@
   <aside class="sidebar" [class.open]="sidebarAbierto">
     <div class="brand">
       <div class="brandIcon">
-        <lucide-icon [img]="Beer" [size]="18"></lucide-icon>
+        <img src="logo-aton-white.png" alt="Aton Beer" class="logoImg" />
       </div>
       <div class="brandText">
         <div class="brandTitle">Aton Beer</div>
@@ -66,7 +66,7 @@
         <span>Recetas</span>
       </a>
 
-      <a *ngIf="puedeVerPlanificacion()" class="navItem" routerLink="/planificacion/Listado" routerLinkActive="active">
+      <a *ngIf="puedeVerPlanificacion()" class="navItem" routerLink="/planificacion/Listado" [class.active]="esRutaActiva('/planificacion')">
         <lucide-icon [img]="CalendarDays" class="navIcon" [size]="18"></lucide-icon>
         <span>Planificación</span>
       </a>

@@ -1,7 +1,7 @@
 <!-- Zona A: saludo -->
 <div class="welcome-section">
   <div class="welcome-text">
-    <h1>¡Hola de nuevo, {{ currentUser?.nombre }}! 👋</h1>
+    <h1>¡Hola de nuevo, {{ currentUser?.nombre }}!</h1>
     <p>
       Hoy es {{ fechaActual | date: "EEEE, d 'de' MMMM" }}.
       <span *ngIf="rolNombre">Vista de {{ rolNombre }}.</span>
