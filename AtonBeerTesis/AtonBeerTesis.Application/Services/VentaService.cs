@@ -257,7 +257,6 @@ namespace AtonBeerTesis.Application.Services
                     CantidadVentas = g.Count()
                 })
                 .OrderByDescending(x => x.TotalComprado)
-                .Take(5)
                 .ToListAsync();
 
             var topProductosDb = await qActuales
@@ -474,7 +473,7 @@ namespace AtonBeerTesis.Application.Services
                                     header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingBottom(5).AlignRight().Text("Total Comprado").SemiBold().FontSize(10).FontColor(Colors.Grey.Darken2);
                                 });
 
-                                foreach (var cliente in data.TopClientes)
+                                foreach (var cliente in data.TopClientes.Take(5))
                                 {
                                     tabla.Cell().PaddingVertical(5).BorderBottom(1).BorderColor(Colors.Grey.Lighten4).Text(cliente.Cliente).FontSize(10);
                                     tabla.Cell().PaddingVertical(5).BorderBottom(1).BorderColor(Colors.Grey.Lighten4).AlignRight().Text($"${cliente.TotalComprado:N2}").FontSize(10).SemiBold().FontColor("#E67E22");
