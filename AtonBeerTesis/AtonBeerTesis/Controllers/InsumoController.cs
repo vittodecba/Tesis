@@ -141,6 +141,26 @@ namespace AtonBeerTesis.Api.Controllers
             return Ok(new { message = "Insumo actualizado con éxito" });
         }
 
+        [HttpGet("{id}/recetas")]
+        public async Task<IActionResult> GetRecetasQueUsanInsumo(int id)
+        {
+            // Devuelve las recetas que contienen este insumo, para avisar antes de borrarlo
+            // (al borrar el insumo, el cascade elimina las RecetaInsumo y esas recetas quedan sin el ingrediente).
+            var recetas = await _context.RecetaInsumos
+                .Where(ri => ri.InsumoId == id)
+                .Select(ri => new
+                {
+                    id = ri.Receta.IdReceta,
+                    nombre = ri.Receta.Nombre,
+                    estilo = ri.Receta.Estilo,
+                    estado = ri.Receta.Estado.ToString()
+                })
+                .Distinct()
+                .ToListAsync();
+
+            return Ok(recetas);
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarInsumo(int id)
         {

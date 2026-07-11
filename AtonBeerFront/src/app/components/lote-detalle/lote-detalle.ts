@@ -9,6 +9,7 @@ import { ArrowLeft, Edit2, Check, X, LucideAngularModule } from 'lucide-angular'
 import { AuthService } from '../../core/services/auth.service';
 import { RecetaService, Receta } from '../../services/receta';
 import { StockService, FormatoEnvaseDto, LoteDesignacionDto } from '../../services/stock.service';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-lote-detalle',
@@ -77,7 +78,8 @@ export class LoteDetalleComponent implements OnInit {
     private fermentadorService: FermentadorService,
     private authService: AuthService,
     private recetaService: RecetaService,
-    private stockService: StockService
+    private stockService: StockService,
+    private noti: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -156,7 +158,7 @@ export class LoteDetalleComponent implements OnInit {
         this.guardandoFermentador = false;
       },
       error: () => {
-        alert('Error al vincular fermentador.');
+        this.noti.error('Error al vincular fermentador.');
         this.editandoFermentador = false;
         this.guardandoFermentador = false;
       }
@@ -164,7 +166,7 @@ export class LoteDetalleComponent implements OnInit {
   }
 
   volver() {
-    this.router.navigate(['/planificacion/Listado']);
+    this.router.navigate(['/planificacion']);
   }
   
   getNombreReceta(recetaId: number): string {
@@ -250,7 +252,7 @@ export class LoteDetalleComponent implements OnInit {
   eliminarDesignacion(desId: number) {
     this.stockService.deleteDesignacion(this.loteRealId, desId).subscribe({
       next: () => this.cargarDesignaciones(this.loteRealId),
-      error: () => alert('Error al eliminar designación')
+      error: () => this.noti.error('Error al eliminar designación')
     });
   }
 

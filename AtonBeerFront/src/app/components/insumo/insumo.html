@@ -85,7 +85,7 @@
                   <lucide-icon [name]="Plus" class="h-5 w-5"></lucide-icon>
                 </button>
 
-                <button (click)="eliminar(item.id)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                <button (click)="eliminar(item)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                   <lucide-icon [name]="Trash2" class="h-5 w-5"></lucide-icon>
                 </button>
               </div>
@@ -118,7 +118,7 @@
           <button (click)="prepararAjuste(item)" class="p-2 text-green-600 hover:bg-green-50 rounded-lg" title="Cargar Stock">
             <lucide-icon [name]="Plus" class="h-5 w-5"></lucide-icon>
           </button>
-          <button (click)="eliminar(item.id)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar">
+          <button (click)="eliminar(item)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar">
             <lucide-icon [name]="Trash2" class="h-5 w-5"></lucide-icon>
           </button>
         </div>
@@ -221,6 +221,70 @@
                 </button>
             </div>
         </div>
+    </div>
+  </div>
+
+  <!-- Modal de aviso al eliminar un insumo -->
+  <div *ngIf="mostrarModalEliminar" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between p-6 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-red-100 rounded-full text-red-600">
+            <lucide-icon [name]="Trash2" class="h-5 w-5"></lucide-icon>
+          </div>
+          <h2 class="text-xl font-bold text-[#4A2C2A]">
+            Eliminar insumo «{{ insumoAEliminar?.nombreInsumo }}»
+          </h2>
+        </div>
+        <button (click)="cerrarModalEliminar()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <lucide-icon [name]="Plus" class="h-6 w-6 rotate-45"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <p class="text-sm text-gray-600">
+          Al eliminar este insumo se quitará automáticamente de todas las recetas que lo utilizan.
+        </p>
+
+        <!-- Cargando -->
+        <div *ngIf="cargandoRecetas" class="text-sm text-gray-400 italic">
+          Verificando recetas…
+        </div>
+
+        <!-- Recetas afectadas -->
+        <div *ngIf="!cargandoRecetas && recetasAfectadas.length > 0"
+             class="rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <p class="text-sm font-semibold text-amber-800 mb-2">
+            ⚠️ Este insumo se usa en {{ recetasAfectadas.length }} receta(s). Revisalas y editalas con urgencia: quedarán sin este ingrediente.
+          </p>
+          <ul class="divide-y divide-amber-200 max-h-56 overflow-y-auto">
+            <li *ngFor="let r of recetasAfectadas" class="py-2 flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-[#4A2C2A] truncate">{{ r.nombre }}</p>
+                <p class="text-xs text-gray-500 truncate">{{ r.estilo || 'Sin estilo' }}</p>
+              </div>
+              <span class="shrink-0 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                    [ngClass]="r.estado === 'Activa' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'">
+                {{ r.estado }}
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Sin recetas -->
+        <div *ngIf="!cargandoRecetas && recetasAfectadas.length === 0"
+             class="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+          Este insumo no está en ninguna receta. Se puede eliminar de forma segura.
+        </div>
+      </div>
+
+      <div class="px-6 pb-6 flex justify-end gap-3 border-t pt-4">
+        <button (click)="cerrarModalEliminar()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
+        <button (click)="confirmarEliminacion()" [disabled]="cargandoRecetas"
+                class="px-6 py-2 rounded-lg font-semibold bg-red-600 text-white shadow hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+          Eliminar de todas formas
+        </button>
+      </div>
     </div>
   </div>
 </div>

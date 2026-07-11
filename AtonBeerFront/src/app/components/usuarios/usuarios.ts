@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Pencil, Ban, CheckCircle, Eye, EyeOff, Trash2, AlertTriangle } from 'lucide-angular';
 import { UsuarioService } from '../../services/usuario.service';
 import { RolService } from '../../services/rol';
+import { NotificationService } from '../../core/services/notification.service';
 import { Usuario, UsuarioCreate, UsuarioUpdate } from '../../Interfaces/usuario.interface';
 
 @Component({
@@ -47,6 +48,7 @@ export class UsuariosComponent implements OnInit {
   constructor(
     private usuarioService: UsuarioService,
     private rolService: RolService,
+    private noti: NotificationService,
   ) {}
 
   ngOnInit(): void {
@@ -109,7 +111,7 @@ export class UsuariosComponent implements OnInit {
 
   guardar() {
     if (!this.datosForm.nombre.trim() || !this.datosForm.apellido.trim() || !this.datosForm.email.trim() || !this.datosForm.rolId) {
-      alert('Por favor, completá los campos obligatorios: Nombre, Apellido, Email y Rol.');
+      this.noti.warning('Por favor, completá los campos obligatorios: Nombre, Apellido, Email y Rol.');
       return;
     }
 
@@ -117,7 +119,7 @@ export class UsuariosComponent implements OnInit {
     // distintos errores que devuelve el backend (formato + contraseña, etc.).
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.datosForm.email.trim())) {
-      alert('Email inválido');
+      this.noti.warning('Email inválido');
       return;
     }
 
@@ -128,7 +130,7 @@ export class UsuariosComponent implements OnInit {
     );
 
     if (emailDuplicado) {
-      alert('Ese email ya está registrado. Por favor, ingresá uno distinto.');
+      this.noti.warning('Ese email ya está registrado. Por favor, ingresá uno distinto.');
       return;
     }
 
@@ -144,7 +146,7 @@ export class UsuariosComponent implements OnInit {
 
       this.usuarioService.updateUsuario(this.datosForm.id, dto).subscribe({
         next: () => {
-          alert('¡Usuario modificado!');
+          this.noti.success('¡Usuario modificado!');
           this.cerrarModal();
           this.cargarUsuarios();
         },
@@ -153,18 +155,18 @@ export class UsuariosComponent implements OnInit {
           if (typeof e.error === 'string') mensaje = e.error;
           else if (e.error?.errors) mensaje = Object.values(e.error.errors).flat().join('\n');
           else if (e.error?.message) mensaje = e.error.message;
-          alert(mensaje);
+          this.noti.error(mensaje);
         }
       });
     } else {
       if (this.datosForm.password !== this.datosForm.confirmarPassword) {
-        alert('Las contraseñas no coinciden');
+        this.noti.warning('Las contraseñas no coinciden');
         return;
       }
       const dto: UsuarioCreate = { ...this.datosForm, rolId: Number(this.datosForm.rolId) };
       this.usuarioService.createUsuario(dto).subscribe({
         next: () => {
-          alert('¡Usuario creado!');
+          this.noti.success('¡Usuario creado!');
           this.cerrarModal();
           this.cargarUsuarios();
         },
@@ -173,31 +175,36 @@ export class UsuariosComponent implements OnInit {
           if (typeof e.error === 'string') mensaje = e.error;
           else if (e.error?.errors) mensaje = Object.values(e.error.errors).flat().join('\n');
           else if (e.error?.message) mensaje = e.error.message;
-          alert(mensaje);
+          this.noti.error(mensaje);
         }
       });
     }
   }
 
-  toggleActivo(usuario: Usuario) {
+  async toggleActivo(usuario: Usuario) {
     const userJson = localStorage.getItem('aton_user');
     const idLogueado = userJson ? JSON.parse(userJson).id : null;
 
     if (usuario.id === idLogueado) {
-      alert('No podés desactivar tu propia cuenta mientras estás en sesión.');
+      this.noti.warning('No podés desactivar tu propia cuenta mientras estás en sesión.');
       return;
     }
 
     const accion = usuario.activo ? 'desactivar' : 'activar';
     const estadoFinal = usuario.activo ? 'desactivado' : 'activado';
 
-    if (confirm(`¿Seguro que deseas ${accion} a ${usuario.nombre}?`)) {
+    const ok = await this.noti.confirm({
+      titulo: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} usuario?`,
+      texto: `Se va a ${accion} a ${usuario.nombre}.`,
+      peligro: usuario.activo
+    });
+    if (ok) {
       this.usuarioService.toggleActivo(usuario.id).subscribe({
         next: () => {
-          alert(`Usuario ${estadoFinal} con éxito`);
+          this.noti.success(`Usuario ${estadoFinal} con éxito`);
           this.cargarUsuarios();
         },
-        error: (err) => console.error("Error al cambiar estado:", err)
+        error: (err) => this.noti.error('Error al cambiar el estado del usuario.')
       });
     }
   }
@@ -207,7 +214,7 @@ export class UsuariosComponent implements OnInit {
     const idLogueado = userJson ? JSON.parse(userJson).id : null;
 
     if (usuario.id === idLogueado) {
-      alert('No podés eliminar tu propia cuenta mientras estás en sesión.');
+      this.noti.warning('No podés eliminar tu propia cuenta mientras estás en sesión.');
       return;
     }
 
@@ -225,7 +232,7 @@ export class UsuariosComponent implements OnInit {
 
     this.usuarioService.eliminarPermanente(this.usuarioAEliminar.id).subscribe({
       next: () => {
-        alert('Usuario eliminado permanentemente.');
+        this.noti.success('Usuario eliminado permanentemente.');
         this.cerrarModalEliminar();
         this.cargarUsuarios();
       },
@@ -233,7 +240,7 @@ export class UsuariosComponent implements OnInit {
         let mensaje = 'No se pudo eliminar el usuario.';
         if (typeof e.error === 'string') mensaje = e.error;
         else if (e.error?.message) mensaje = e.error.message;
-        alert(mensaje);
+        this.noti.error(mensaje);
       }
     });
   }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Pencil, Trash2, Plus } from 'lucide-angular';
 import { RolService } from '../../services/rol';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-roles-gestion',
@@ -23,7 +24,7 @@ export class RolesGestion implements OnInit {
   formDescripcion = '';
   roles: any[] = [];
 
-  constructor(private rolService: RolService) {}
+  constructor(private rolService: RolService, private noti: NotificationService) {}
 
   ngOnInit(): void {
     this.obtenerRoles();
@@ -59,7 +60,7 @@ export class RolesGestion implements OnInit {
     );
 
     if (nombreDuplicado) {
-      alert('Ya existe un rol con ese nombre. Por favor, ingresá uno distinto.');
+      this.noti.warning('Ya existe un rol con ese nombre. Por favor, ingresá uno distinto.');
       return;
     }
 
@@ -67,34 +68,35 @@ export class RolesGestion implements OnInit {
       const rolEditado = { id: this.idEdicion, nombre: nombreIngresado, descripcion: this.formDescripcion };
       this.rolService.editarRol(this.idEdicion, rolEditado).subscribe({
         next: () => {
-          alert('¡Rol editado con éxito!');
+          this.noti.success('¡Rol editado con éxito!');
           this.obtenerRoles();
           this.cerrarYLimpiar();
         },
-        error: (e) => alert('Error al editar el rol.')
+        error: (e) => this.noti.error('Error al editar el rol.')
       });
     } else {
       const nuevoRol = { nombre: nombreIngresado, descripcion: this.formDescripcion };
       this.rolService.crearRol(nuevoRol).subscribe({
         next: () => {
-          alert('¡Rol creado con éxito!');
+          this.noti.success('¡Rol creado con éxito!');
           this.obtenerRoles();
           this.cerrarYLimpiar();
         },
-        error: (e) => alert('Error al crear el rol.')
+        error: (e) => this.noti.error('Error al crear el rol.')
       });
     }
   }
 
-  eliminarRol(id: number) {
-    if (confirm('¿Estás seguro de que querés eliminar este rol?')) {
+  async eliminarRol(id: number) {
+    const ok = await this.noti.confirm({ titulo: '¿Eliminar rol?', texto: 'Esta acción no se puede deshacer.', peligro: true });
+    if (ok) {
       this.rolService.eliminarRol(id).subscribe({
-        next: () => { this.obtenerRoles(); },
+        next: () => { this.noti.success('Rol eliminado'); this.obtenerRoles(); },
         error: (e) => {
           let mensaje = 'No se pudo eliminar el rol (tal vez esté en uso).';
           if (typeof e.error === 'string') mensaje = e.error;
           else if (e.error?.message) mensaje = e.error.message;
-          alert(mensaje);
+          this.noti.error(mensaje);
         }
       });
     }

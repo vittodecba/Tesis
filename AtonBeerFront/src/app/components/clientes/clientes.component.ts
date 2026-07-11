@@ -26,6 +26,7 @@ import {
   ChevronRight
 } from 'lucide-angular';
 import { ClientesApiService } from '../../services/clientes-api';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-clientes',
@@ -64,7 +65,7 @@ export class ClientesComponent implements OnInit {
   submitAttempted = false;
   form: FormGroup;
 
-  constructor(private api: ClientesApiService, private fb: FormBuilder) {
+  constructor(private api: ClientesApiService, private fb: FormBuilder, private noti: NotificationService) {
     this.form = this.fb.group({
       razonSocial: ['', [Validators.required]],
       cuit: ['', [Validators.required]],
@@ -122,7 +123,7 @@ export class ClientesComponent implements OnInit {
       },
       error: (err: any) => {
         const msg = err?.error?.message ?? 'No se pudo cambiar el estado del cliente.';
-        alert(msg);
+        this.noti.error(msg);
         this.loadClientes();
       },
     });
@@ -191,10 +192,10 @@ export class ClientesComponent implements OnInit {
         this.saving = false;
         
         // Cartel de éxito dinámico según la acción
-        const mensaje = this.isEditing 
-          ? 'Cliente actualizado con éxito' 
+        const mensaje = this.isEditing
+          ? 'Cliente actualizado con éxito'
           : 'Cliente creado correctamente';
-        alert(mensaje);
+        this.noti.success(mensaje);
 
         this.closeModals();
         this.loadClientes();

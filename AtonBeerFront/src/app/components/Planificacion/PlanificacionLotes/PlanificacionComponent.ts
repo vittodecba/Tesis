@@ -152,7 +152,7 @@ export class PlanificacionFormComponent implements OnInit {
           html: 'La producción fue planificada correctamente.<br><br><span style="font-size:0.9em">📋 <strong>Recordá hacer la designación de volumen</strong> en el detalle del lote antes de finalizarlo.</span>',
           icon: 'success'
         });
-        this.router.navigate(['/planificacion/Listado']);
+        this.router.navigate(['/planificacion']);
       },
       error: (err: any) => {
         const msg = err.error?.message || 'Error al guardar la planificación';
@@ -161,6 +161,6 @@ export class PlanificacionFormComponent implements OnInit {
     });
   }
   cancelar() {
-    this.router.navigate(['/planificacion/Listado']);
+    this.router.navigate(['/planificacion']);
   }
 }

@@ -1,12 +1,13 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 import { AuthService } from './core/services/auth.service';
+import { ToastHostComponent } from './shared/toast-host/toast-host';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
-  template: '<router-outlet></router-outlet>',
+  imports: [RouterOutlet, ToastHostComponent],
+  template: '<router-outlet></router-outlet><app-toast-host></app-toast-host>',
 })
 export class App implements OnInit {
   private authService = inject(AuthService);

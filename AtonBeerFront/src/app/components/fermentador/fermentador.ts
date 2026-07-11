@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Fermentador } from '../../Interfaces/fermentador';
 import { FermentadorService } from '../../services/fermentador';
+import { NotificationService } from '../../core/services/notification.service';
 import { LucideAngularModule, Plus, Pencil, Trash2, LineChart } from 'lucide-angular';
 
 @Component({
@@ -33,6 +34,7 @@ export class FermentadorComponent implements OnInit {
   constructor(
     private _fermentadorService: FermentadorService,
     private router: Router,
+    private noti: NotificationService,
   ) {}
 
   ngOnInit(): void {
@@ -145,11 +147,11 @@ export class FermentadorComponent implements OnInit {
   guardarFermentador() {
     // Validación en el front antes de enviar
     if (!this.nuevoFermentador.nombre?.trim()) {
-      alert('El nombre es obligatorio.');
+      this.noti.warning('El nombre es obligatorio.');
       return;
     }
     if (!this.nuevoFermentador.capacidad || this.nuevoFermentador.capacidad <= 0) {
-      alert('La capacidad debe ser mayor a 0.');
+      this.noti.warning('La capacidad debe ser mayor a 0.');
       return;
     }
 
@@ -163,37 +165,44 @@ export class FermentadorComponent implements OnInit {
     if (this.esEdicion && this.idFermentadorEditar) {
       this._fermentadorService.actualizarFermentador(this.idFermentadorEditar, dto).subscribe({
         next: () => {
+          this.noti.success('Fermentador actualizado con éxito');
           this.obtenerFermentadores();
           this.cerrarModal();
         },
         error: (err) => {
-          alert(this.extraerMensajeError(err, 'No se pudo actualizar el fermentador.'));
+          this.noti.error(this.extraerMensajeError(err, 'No se pudo actualizar el fermentador.'));
         },
       });
     } else {
       this._fermentadorService.crearFermentador(dto).subscribe({
         next: () => {
+          this.noti.success('Fermentador creado con éxito');
           this.obtenerFermentadores();
           this.cerrarModal();
         },
         error: (err) => {
-          alert(this.extraerMensajeError(err, 'No se pudo crear el fermentador.'));
+          this.noti.error(this.extraerMensajeError(err, 'No se pudo crear el fermentador.'));
         },
       });
     }
   }
 
-  eliminarFermentador(item: Fermentador) {
+  async eliminarFermentador(item: Fermentador) {
     if (!item.id) return;
-    const confirmar = window.confirm(`¿Seguro que querés eliminar "${item.nombre}"?`);
+    const confirmar = await this.noti.confirm({
+      titulo: '¿Eliminar fermentador?',
+      texto: `Se eliminará "${item.nombre}".`,
+      peligro: true
+    });
     if (!confirmar) return;
 
     this._fermentadorService.eliminarFermentador(item.id).subscribe({
       next: () => {
+        this.noti.success('Fermentador eliminado');
         this.obtenerFermentadores();
       },
       error: (err) => {
-        alert(this.extraerMensajeError(err, 'No se pudo eliminar el fermentador.'));
+        this.noti.error(this.extraerMensajeError(err, 'No se pudo eliminar el fermentador.'));
       },
     });
   }

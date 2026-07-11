@@ -27,3 +27,6 @@ obj/
 *.ldf
 /AtonBeerFrontV2/node_modules
 *.pdf
+
+# --- Documentacion local (no versionar) ---
+docs/
