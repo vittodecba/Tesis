@@ -118,5 +118,10 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             _context.Pedidos.UpdateRange(pedidos);
             await _context.SaveChangesAsync();
         }
+
+        public IQueryable<Pedido> GetQueryable()
+        {
+            return _context.Set<Pedido>();
+        }
     }
 }

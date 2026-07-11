@@ -180,12 +180,12 @@ export class VentasReporte implements OnInit {
     this.ventasService.obtenerReporteVentas(fechaDesde, fechaHasta, clienteId).subscribe({
       next: (data: ReporteVentas) => {
         this.resumen = {
-          totalVendido: data.totalVendido,
-          cantidadVentas: data.cantidadVentas,
-          efectivoTotal: data.efectivoTotal,
-          transferenciaTotal: data.transferenciaTotal,
-          ticketPromedio: data.ticketPromedio,
-          variacionIngresosPorcentaje: data.variacionIngresosPorcentaje
+          totalVendido: Number(data.totalVendido) || 0,
+          cantidadVentas: Number(data.cantidadVentas) || 0,
+          efectivoTotal: Number(data.efectivoTotal) || 0,
+          transferenciaTotal: Number(data.transferenciaTotal) || 0,
+          ticketPromedio: Number(data.ticketPromedio) || 0,
+          variacionIngresosPorcentaje: Number(data.variacionIngresosPorcentaje) || 0
         };
 
         if (!clienteId) {
@@ -204,7 +204,7 @@ export class VentasReporte implements OnInit {
             {
               data: diasDelMes.map(d => {
                 const dia = data.comparativaMensual.find(c => c.diaDelPeriodo === d);
-                return dia ? dia.totalActual : 0;
+                return dia ? Number(dia.totalActual) : 0;
               }),
               label: labelActual,
               backgroundColor: '#e67e22'
@@ -212,7 +212,7 @@ export class VentasReporte implements OnInit {
             {
               data: diasDelMes.map(d => {
                 const dia = data.comparativaMensual.find(c => c.diaDelPeriodo === d);
-                return dia ? dia.totalAnterior : 0;
+                return dia ? Number(dia.totalAnterior) : 0;
               }),
               label: labelAnterior,
               backgroundColor: '#d1d5db'
@@ -222,11 +222,11 @@ export class VentasReporte implements OnInit {
 
         this.mensualBarChartLabels = data.evolucionMensualIngresos.map(m => m.mes);
         this.mensualBarChartDatasets = [
-          { data: data.evolucionMensualIngresos.map(m => m.total), label: 'Ingresos Mensuales', backgroundColor: '#3b82f6' }
+          { data: data.evolucionMensualIngresos.map(m => Number(m.total) || 0), label: 'Ingresos Mensuales', backgroundColor: '#3b82f6' }
         ];
 
         this.doughnutChartDatasets = [
-          { data: [data.efectivoTotal, data.transferenciaTotal], backgroundColor: ['#22c55e', '#3b82f6'], hoverBackgroundColor: ['#16a34a', '#2563eb'], borderWidth: 2 }
+          { data: [Number(data.efectivoTotal) || 0, Number(data.transferenciaTotal) || 0], backgroundColor: ['#22c55e', '#3b82f6'], hoverBackgroundColor: ['#16a34a', '#2563eb'], borderWidth: 2 }
         ];
 
         const coloresScatter = [
@@ -237,7 +237,7 @@ export class VentasReporte implements OnInit {
 
         this.scatterChartDatasets = data.topClientes.map((c, i) => ({
           label: c.cliente,
-          data: [{ x: c.cantidadVentas, y: c.totalComprado }],
+          data: [{ x: Number(c.cantidadVentas) || 0, y: Number(c.totalComprado) || 0 }],
           backgroundColor: coloresScatter[i % coloresScatter.length],
           pointRadius: 8,
           pointHoverRadius: 11
@@ -256,7 +256,7 @@ export class VentasReporte implements OnInit {
           label: estilo,
           data: fechas.map(f => {
             const registro = data.evolucionEstilos.find(e => e.fecha === f && e.estilo === estilo);
-            return registro ? registro.cantidad : 0;
+            return registro ? Number(registro.cantidad) : 0;
           }),
           borderColor: coloresLine[i % coloresLine.length],
           backgroundColor: coloresLine[i % coloresLine.length],
