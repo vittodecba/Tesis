@@ -14,7 +14,6 @@ import { UnidadMedidaComponent } from './components/unidadesMedida/unidadMedidaC
 import { RecetaListComponent } from './components/recetas/receta-list/receta-list';
 import { RecetaDetalle } from './components/recetas/receta-detalle/receta-detalle';
 import { LoteDetalleComponent } from './components/lote-detalle/lote-detalle';
-import { LoteListadoComponent } from './components/lote-listado/lote-listado';
 import { FermentadorComponent } from './components/fermentador/fermentador';
 import { PlanificacionListComponent } from './components/Planificacion/PlanificacionListado/PlanListado';
 import { PlanificacionFormComponent } from './components/Planificacion/PlanificacionLotes/PlanificacionComponent';
@@ -117,15 +116,14 @@ export const routes: Routes = [
       },
       {
         path: 'planificacion',
-        component: LoteListadoComponent,
+        component: PlanificacionListComponent,
         canActivate: [roleGuard],
-        data: { title: 'Planificación', subtitle: 'Gestión y seguimiento de lotes', roles: [A, RP] },
+        data: { title: 'Planificación', subtitle: 'Gestión de planificaciones de producción', roles: [A, RP] },
       },
       {
         path: 'planificacion/Listado',
-        component: PlanificacionListComponent,
-        canActivate: [roleGuard],
-        data: { title: 'Planificacion', subtitle: 'Gestión de planificaciones de producción', roles: [A, RP] },
+        redirectTo: 'planificacion',
+        pathMatch: 'full',
       },
       {
         path: 'planificacion/nueva',

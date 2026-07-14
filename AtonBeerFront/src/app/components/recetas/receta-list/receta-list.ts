@@ -9,6 +9,7 @@ import {
 import { RecetaService, Receta } from '../../../services/receta';
 import { InsumoService } from '../../../services/insumo.service';
 import { UnidadMedidaService } from '../../../services/unidadMedida';
+import { NotificationService } from '../../../core/services/notification.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -53,7 +54,8 @@ export class RecetaListComponent implements OnInit {
     private fb: FormBuilder, 
     private insumoService: InsumoService,
     private unidadService: UnidadMedidaService, // <--- INYECTADO
-    private router : Router
+    private router : Router,
+    private noti: NotificationService
   ) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required]],
@@ -91,8 +93,8 @@ export class RecetaListComponent implements OnInit {
     localStorage.setItem('estilos_cerveza', JSON.stringify(this.estilos));
   }
 
-  agregarEstilo() {
-    const nuevoEstilo = prompt('Ingrese el nombre del nuevo estilo de cerveza:');
+  async agregarEstilo() {
+    const nuevoEstilo = await this.noti.prompt({ titulo: 'Nuevo estilo de cerveza', placeholder: 'ej: IPA' });
     if (nuevoEstilo && nuevoEstilo.trim() !== '') {
       const estiloLimpio = nuevoEstilo.trim();
       if (!this.estilos.includes(estiloLimpio)) {
@@ -103,9 +105,11 @@ export class RecetaListComponent implements OnInit {
     }
   }
 
-  eliminarEstilo() {
+  async eliminarEstilo() {
     const estiloSeleccionado = this.form.get('estilo')?.value;
-    if (estiloSeleccionado && confirm(`¿Desea eliminar el estilo "${estiloSeleccionado}"?`)) {
+    if (!estiloSeleccionado) return;
+    const ok = await this.noti.confirm({ titulo: '¿Eliminar estilo?', texto: `Se eliminará "${estiloSeleccionado}".`, peligro: true });
+    if (ok) {
       this.estilos = this.estilos.filter(e => e !== estiloSeleccionado);
       this.guardarEstilosLocales();
       this.form.patchValue({ estilo: '' });
@@ -122,7 +126,7 @@ export class RecetaListComponent implements OnInit {
       const insumoRepetido = this.insumosElegidos.find(i => i.insumoId == this.insumoIdSeleccionado)
       if(insumoRepetido)
         {
-          alert("Este insumo ya fue seleccionado en la lista")
+          this.noti.warning("Este insumo ya fue seleccionado en la lista")
           return;
         }
       const insumoBase = this.listaInsumos.find(i => i.id == this.insumoIdSeleccionado);    
@@ -141,7 +145,7 @@ export class RecetaListComponent implements OnInit {
         this.unidadIdSeleccionada = 0;
       }
     } else {
-      alert('Por favor seleccione insumo, cantidad y unidad.');
+      this.noti.warning('Por favor seleccione insumo, cantidad y unidad.');
     }
   }
     insumoYaEnLista(): boolean {
@@ -152,27 +156,28 @@ export class RecetaListComponent implements OnInit {
     this.insumosElegidos.splice(index, 1);
   }
 
-  crearUnidad() {
-    const nombre = prompt("Nombre de la unidad (ej: Kilogramos):");
+  async crearUnidad() {
+    const nombre = await this.noti.prompt({ titulo: 'Nueva unidad', texto: 'Nombre de la unidad', placeholder: 'ej: Kilogramos' });
     if (!nombre) return;
-    const abreviatura = prompt("Abreviatura (ej: Kg):");
+    const abreviatura = await this.noti.prompt({ titulo: 'Nueva unidad', texto: 'Abreviatura', placeholder: 'ej: Kg' });
     if (!abreviatura) return;
 
     this.unidadService.crear({ nombre: nombre.trim(), abreviatura: abreviatura.trim() }).subscribe({
       next: () => {
-        alert('Unidad creada');
+        this.noti.success('Unidad creada');
         this.cargarUnidades();
       }
     });
   }
 
-  eliminarUnidadDeLista() {
+  async eliminarUnidadDeLista() {
     if (!this.unidadIdSeleccionada) return;
     const unidad = this.listaUnidades.find(u => u.id == this.unidadIdSeleccionada);
-    if (confirm(`¿Eliminar "${unidad?.nombre}"?`)) {
+    const ok = await this.noti.confirm({ titulo: '¿Eliminar unidad?', texto: `Se eliminará "${unidad?.nombre}".`, peligro: true });
+    if (ok) {
       this.unidadService.eliminar(this.unidadIdSeleccionada).subscribe({
         next: () => {
-          alert('Unidad eliminada');
+          this.noti.success('Unidad eliminada');
           this.unidadIdSeleccionada = 0;
           this.cargarUnidades();
         }
@@ -214,9 +219,9 @@ export class RecetaListComponent implements OnInit {
       };
       this.recetaService.create(recetaParaEnviar).subscribe({
         next: () => {
-          alert('¡Receta creada con éxito!');
+          this.noti.success('¡Receta creada con éxito!');
           this.closeModal();
-          this.loadRecetas(); 
+          this.loadRecetas();
         },
         error: (err) => { this.cargando = false;
           console.error("Error completo:", err);
@@ -274,13 +279,14 @@ export class RecetaListComponent implements OnInit {
       next: () => this.loadRecetas()
     });
   }
-  duplicarReceta(id: number) {
-  if (confirm('¿Deseas crear una copia de esta receta?')) {
+  async duplicarReceta(id: number) {
+  const ok = await this.noti.confirm({ titulo: '¿Duplicar receta?', texto: 'Se creará una copia de esta receta.' });
+  if (ok) {
     this.recetaService.duplicarReceta(id).subscribe({
-      next: (nuevoId) => {        
+      next: (nuevoId) => {
         this.router.navigate(['/recetas/detalle', nuevoId]);
       },
-      error: (err) => alert('Error al duplicar la receta')
+      error: (err) => this.noti.error('Error al duplicar la receta')
     });
   }
 }

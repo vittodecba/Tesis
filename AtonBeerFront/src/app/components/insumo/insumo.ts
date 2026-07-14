@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Pencil, Trash2, Plus, Search, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { InsumoService } from '../../services/insumo.service';
 import { UnidadMedidaService } from '../../services/unidadMedida';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-insumo',
@@ -23,6 +24,10 @@ export class InsumoComponent implements OnInit {
   insumos: any[] = [];
   insumosOriginales: any[] = [];
   mostrarModal: boolean = false;
+  mostrarModalEliminar: boolean = false;
+  insumoAEliminar: any = null;
+  recetasAfectadas: any[] = [];
+  cargandoRecetas: boolean = false;
   mensajeError: string | null = null;
   tiposOpciones: any[] = [];
   unidadesOpciones: any[] = [];
@@ -46,7 +51,8 @@ export class InsumoComponent implements OnInit {
 
   constructor(
     private insumoService: InsumoService,
-    private unidadService: UnidadMedidaService
+    private unidadService: UnidadMedidaService,
+    private noti: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -55,20 +61,20 @@ export class InsumoComponent implements OnInit {
     this.cargarTipos();
   }
 
-  crearTipos(objetivo: string) {
-    const nombre = prompt(`Ingrese el nombre de la nueva categoría de ${objetivo}:`);
+  async crearTipos(objetivo: string) {
+    const nombre = await this.noti.prompt({ titulo: `Nueva categoría de ${objetivo}`, placeholder: 'Nombre de la categoría' });
     if (nombre && nombre.trim() !== '') {
       const nuevoObjeto = { nombre: nombre, activo: true };
       this.insumoService.crearTipo(nuevoObjeto).subscribe({
         next: (res: any) => {
-          alert('Categoría creada con éxito');
+          this.noti.success('Categoría creada con éxito');
           this.insumoService.obtenerTipos().subscribe(data => {
             this.tiposOpciones = data;
             const creado = data.find((t: any) => t.nombre === nombre);
             if (creado) { this.datosForm.tipoInsumoId = creado.id; }
           });
         },
-        error: (err) => alert('Error al crear: ' + err.error)
+        error: (err) => this.noti.error('Error al crear: ' + err.error)
       });
     }
   }
@@ -80,21 +86,26 @@ export class InsumoComponent implements OnInit {
     });
   }
 
-  eliminarTipoDeLista() {
+  async eliminarTipoDeLista() {
     const idABorrar = this.datosForm.tipoInsumoId;
     if (!idABorrar) {
-      alert('Primero seleccioná en el desplegable qué tipo querés eliminar');
+      this.noti.warning('Primero seleccioná en el desplegable qué tipo querés eliminar');
       return;
     }
     const tipoCualquiera = this.tiposOpciones.find(t => t.id == idABorrar);
-    if (confirm(`¿Estás seguro de que querés eliminar la categoría "${tipoCualquiera.nombre}"?`)) {
+    const ok = await this.noti.confirm({
+      titulo: '¿Eliminar categoría?',
+      texto: `Se eliminará la categoría "${tipoCualquiera.nombre}".`,
+      peligro: true
+    });
+    if (ok) {
       this.insumoService.eliminarTipo(idABorrar).subscribe({
         next: () => {
-          alert('Categoría eliminada con éxito');
+          this.noti.success('Categoría eliminada con éxito');
           this.datosForm.tipoInsumoId = null;
           this.cargarTipos();
         },
-        error: (err) => alert('No se puede eliminar: ' + (err.error?.message || 'La categoría está en uso'))
+        error: (err) => this.noti.error('No se puede eliminar: ' + (err.error?.message || 'La categoría está en uso'))
       });
     }
   }
@@ -103,51 +114,52 @@ export class InsumoComponent implements OnInit {
     this.unidadService.getUnidades().subscribe({
       next: (data: any) => {
         this.unidadesOpciones = data;
-        const unidadesAceptables = ['Kg', 'Gr', 'Lt', 'Ml', 'Un'];
-        
-        this.unidadesFiltradas = data.filter((u: any) =>
-          unidadesAceptables.includes(u.abreviatura)
-        );
+        this.unidadesFiltradas = data.filter((u: any) => u.activo);
       },
       error: (err: any) => console.error('Error al cargar unidades:', err)
     });
   }
 
-  crearUnidad() {
-    const nombre = prompt("Nombre de la unidad (ej: Kilogramos):");
+  async crearUnidad() {
+    const nombre = await this.noti.prompt({ titulo: 'Nueva unidad', texto: 'Nombre de la unidad', placeholder: 'ej: Kilogramos' });
     if (!nombre) return;
-    const abreviatura = prompt("Abreviatura (ej: Kg):");
+    const abreviatura = await this.noti.prompt({ titulo: 'Nueva unidad', texto: 'Abreviatura', placeholder: 'ej: Kg' });
     if (!abreviatura) return;
 
     const nuevaUnidad = { nombre: nombre.trim(), abreviatura: abreviatura.trim() };
     this.unidadService.crear(nuevaUnidad).subscribe({
       next: () => {
-        alert('Unidad creada con éxito');
+        this.noti.success('Unidad creada con éxito');
         this.unidadService.getUnidades().subscribe(data => {
           this.unidadesOpciones = data;
           const creada = data.find((u: any) => u.nombre === nuevaUnidad.nombre);
           if (creada) { this.datosForm.unidadMedidaId = creada.id; }
         });
       },
-      error: (err) => alert('Error al crear unidad')
+      error: (err) => this.noti.error('Error al crear unidad')
     });
   }
 
-  eliminarUnidadDeLista() {
+  async eliminarUnidadDeLista() {
     const idABorrar = this.datosForm.unidadMedidaId;
     if (!idABorrar) {
-      alert('Seleccioná una unidad en el desplegable para eliminarla');
+      this.noti.warning('Seleccioná una unidad en el desplegable para eliminarla');
       return;
     }
     const unidad = this.unidadesOpciones.find(u => u.id == idABorrar);
-    if (confirm(`¿Estás seguro de eliminar "${unidad.nombre}"?`)) {
+    const ok = await this.noti.confirm({
+      titulo: '¿Eliminar unidad?',
+      texto: `Se eliminará la unidad "${unidad.nombre}".`,
+      peligro: true
+    });
+    if (ok) {
       this.unidadService.eliminar(idABorrar).subscribe({
         next: () => {
-          alert('Unidad eliminada');
+          this.noti.success('Unidad eliminada');
           this.datosForm.unidadMedidaId = null;
           this.cargarUnidades();
         },
-        error: (err) => alert('No se puede eliminar: está siendo usada por insumos')
+        error: (err) => this.noti.error('No se puede eliminar: está siendo usada por insumos')
       });
     }
   }
@@ -215,7 +227,7 @@ export class InsumoComponent implements OnInit {
 
   guardar() {
     if (!this.datosForm.nombreInsumo || !this.datosForm.tipoInsumoId || !this.datosForm.unidadMedidaId) {
-      alert('Por favor, completá Nombre, Tipo y Unidad.');
+      this.noti.warning('Por favor, completá Nombre, Tipo y Unidad.');
       return;
     }
     const payload = {
@@ -237,7 +249,7 @@ export class InsumoComponent implements OnInit {
         },
         error: (err) => {
           const mensaje = err.error?.message || err.error || 'Error al actualizar';
-          alert(mensaje);
+          this.noti.error(mensaje);
         }
       });
     } else {
@@ -251,17 +263,44 @@ export class InsumoComponent implements OnInit {
     }
   }
 
-  eliminar(id: number) {
-    if (confirm('¿Estás seguro de eliminar este insumo?')) {
-      this.insumoService.eliminarInsumo(id).subscribe({
-        next: () => this.cargarInsumos(),
-        error: (err: any) => alert('Error al eliminar')
-      });
-    }
+  eliminar(item: any) {
+    this.insumoAEliminar = item;
+    this.recetasAfectadas = [];
+    this.cargandoRecetas = true;
+    this.mostrarModalEliminar = true;
+
+    this.insumoService.getRecetasQueUsanInsumo(item.id).subscribe({
+      next: (data: any[]) => {
+        this.recetasAfectadas = data || [];
+        this.cargandoRecetas = false;
+      },
+      error: () => {
+        this.recetasAfectadas = [];
+        this.cargandoRecetas = false;
+      }
+    });
+  }
+
+  confirmarEliminacion() {
+    if (!this.insumoAEliminar) return;
+    this.insumoService.eliminarInsumo(this.insumoAEliminar.id).subscribe({
+      next: () => {
+        this.cerrarModalEliminar();
+        this.cargarInsumos();
+      },
+      error: (err: any) => this.noti.error('Error al eliminar')
+    });
+  }
+
+  cerrarModalEliminar() {
+    this.mostrarModalEliminar = false;
+    this.insumoAEliminar = null;
+    this.recetasAfectadas = [];
+    this.cargandoRecetas = false;
   }
 
   finalizarOperacion(mensaje: string) {
-    alert(mensaje);
+    this.noti.success(mensaje);
     this.cerrarModal();
     this.cargarInsumos();
   }

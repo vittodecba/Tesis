@@ -22,7 +22,7 @@ export class VentasReporte implements OnInit {
   cargando: boolean = false;
   descargandoPdf: boolean = false;
   mostrarComparativaDiaria: boolean = true;
-  
+
   resumen = {
     totalVendido: 0,
     cantidadVentas: 0,
@@ -32,6 +32,7 @@ export class VentasReporte implements OnInit {
     variacionIngresosPorcentaje: 0
   };
 
+  todosLosClientes: any[] = [];
   topClientes: any[] = [];
   topProductos: any[] = [];
   topEstilos: any[] = [];
@@ -43,8 +44,8 @@ export class VentasReporte implements OnInit {
     { data: [], label: 'Período Anterior', backgroundColor: '#d1d5db' }
   ];
 
-  public mensualBarChartOptions: ChartOptions<'bar'> = { 
-    responsive: true, 
+  public mensualBarChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
     maintainAspectRatio: false,
     scales: {
       x: { title: { display: true, text: 'Meses' } },
@@ -56,43 +57,52 @@ export class VentasReporte implements OnInit {
     { data: [], label: 'Ingresos Mensuales', backgroundColor: '#3b82f6' }
   ];
 
-  public doughnutChartOptions: ChartOptions<'doughnut'> = { 
-    responsive: true, 
-    maintainAspectRatio: false, 
-    plugins: { legend: { position: 'bottom', labels: { font: { size: 14 } } } } 
+  public doughnutChartOptions: ChartOptions<'doughnut'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { font: { size: 14 } } } }
   };
   public doughnutChartLabels: string[] = ['Efectivo', 'Transferencia'];
   public doughnutChartDatasets: any[] = [
     { data: [], backgroundColor: ['#22c55e', '#3b82f6'], hoverBackgroundColor: ['#16a34a', '#2563eb'], borderWidth: 2 }
   ];
 
-  public scatterChartOptions: ChartOptions<'scatter'> = { 
-    responsive: true, 
+  public scatterChartOptions: ChartOptions<'scatter'> = {
+    responsive: true,
     maintainAspectRatio: false,
-    scales: { 
-      x: { title: { display: true, text: 'Cantidad de Pedidos' } }, 
-      y: { title: { display: true, text: 'Monto Total Comprado ($)' } } 
-    },
     plugins: {
-      legend: { display: true, position: 'bottom', labels: { boxWidth: 15, padding: 15 } },
+      legend: {
+        display: true,
+        position: 'bottom',
+        labels: { boxWidth: 12, padding: 10, font: { size: 10 } }
+      },
       tooltip: {
         callbacks: {
           label: function(context: any) {
-            const data = context.raw;
-            return `${data.cliente} - Pedidos: ${data.x}, Total: $${data.y}`;
+            return `${context.dataset.label} - Pedidos: ${context.parsed.x}, Total: $${context.parsed.y}`;
           }
         }
+      }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Cantidad de Pedidos' },
+        ticks: { stepSize: 1, precision: 0 }
+      },
+      y: {
+        title: { display: true, text: 'Monto Total Comprado ($)' },
+        beginAtZero: true
       }
     }
   };
   public scatterChartDatasets: any[] = [];
 
-  public lineChartOptions: ChartOptions<'line'> = { 
-    responsive: true, 
+  public lineChartOptions: ChartOptions<'line'> = {
+    responsive: true,
     maintainAspectRatio: false,
-    layout: { padding: { top: 10, right: 20 } },
+    layout: { padding: { top: 10, right: 20, left: 10, bottom: 10 } },
     scales: {
-      x: { 
+      x: {
         title: { display: true, text: 'Fechas' },
         ticks: { autoSkip: true, maxTicksLimit: 12, maxRotation: 0, minRotation: 0 }
       },
@@ -143,13 +153,6 @@ export class VentasReporte implements OnInit {
 
   cambiarTab(tab: string): void {
     this.tabActiva = tab;
-    setTimeout(() => {
-      this.charts?.forEach(chart => {
-        if (chart && chart.chart) {
-          chart.chart.update();
-        }
-      });
-    }, 50);
   }
 
   filtrarReporte(): void {
@@ -177,15 +180,19 @@ export class VentasReporte implements OnInit {
     this.ventasService.obtenerReporteVentas(fechaDesde, fechaHasta, clienteId).subscribe({
       next: (data: ReporteVentas) => {
         this.resumen = {
-          totalVendido: data.totalVendido,
-          cantidadVentas: data.cantidadVentas,
-          efectivoTotal: data.efectivoTotal,
-          transferenciaTotal: data.transferenciaTotal,
-          ticketPromedio: data.ticketPromedio,
-          variacionIngresosPorcentaje: data.variacionIngresosPorcentaje
+          totalVendido: Number(data.totalVendido) || 0,
+          cantidadVentas: Number(data.cantidadVentas) || 0,
+          efectivoTotal: Number(data.efectivoTotal) || 0,
+          transferenciaTotal: Number(data.transferenciaTotal) || 0,
+          ticketPromedio: Number(data.ticketPromedio) || 0,
+          variacionIngresosPorcentaje: Number(data.variacionIngresosPorcentaje) || 0
         };
 
-        this.topClientes = data.topClientes.slice(0, 5);
+        if (!clienteId) {
+          this.todosLosClientes = [...data.topClientes];
+        }
+        this.topClientes = clienteId ? data.topClientes : data.topClientes.slice(0, 5);
+
         this.topProductos = data.topProductos;
         this.topEstilos = data.topEstilos;
 
@@ -194,38 +201,43 @@ export class VentasReporte implements OnInit {
 
           this.barChartLabels = diasDelMes.map(d => `Día ${d}`);
           this.barChartDatasets = [
-            { 
+            {
               data: diasDelMes.map(d => {
                 const dia = data.comparativaMensual.find(c => c.diaDelPeriodo === d);
-                return dia ? dia.totalActual : 0;
-              }), 
-              label: labelActual, 
-              backgroundColor: '#e67e22' 
+                return dia ? Number(dia.totalActual) : 0;
+              }),
+              label: labelActual,
+              backgroundColor: '#e67e22'
             },
-            { 
+            {
               data: diasDelMes.map(d => {
                 const dia = data.comparativaMensual.find(c => c.diaDelPeriodo === d);
-                return dia ? dia.totalAnterior : 0;
-              }), 
-              label: labelAnterior, 
-              backgroundColor: '#d1d5db' 
+                return dia ? Number(dia.totalAnterior) : 0;
+              }),
+              label: labelAnterior,
+              backgroundColor: '#d1d5db'
             }
           ];
         }
 
         this.mensualBarChartLabels = data.evolucionMensualIngresos.map(m => m.mes);
         this.mensualBarChartDatasets = [
-          { data: data.evolucionMensualIngresos.map(m => m.total), label: 'Ingresos Mensuales', backgroundColor: '#3b82f6' }
+          { data: data.evolucionMensualIngresos.map(m => Number(m.total) || 0), label: 'Ingresos Mensuales', backgroundColor: '#3b82f6' }
         ];
 
         this.doughnutChartDatasets = [
-          { data: [data.efectivoTotal, data.transferenciaTotal], backgroundColor: ['#22c55e', '#3b82f6'], hoverBackgroundColor: ['#16a34a', '#2563eb'], borderWidth: 2 }
+          { data: [Number(data.efectivoTotal) || 0, Number(data.transferenciaTotal) || 0], backgroundColor: ['#22c55e', '#3b82f6'], hoverBackgroundColor: ['#16a34a', '#2563eb'], borderWidth: 2 }
         ];
 
-        const coloresScatter = ['#8b5cf6', '#e67e22', '#3b82f6', '#22c55e', '#ef4444'];
+        const coloresScatter = [
+          '#8b5cf6', '#e67e22', '#3b82f6', '#22c55e', '#ef4444',
+          '#ec4899', '#14b8a6', '#f59e0b', '#6366f1', '#10b981',
+          '#f43f5e', '#84cc16', '#0ea5e9', '#d946ef', '#64748b'
+        ];
+
         this.scatterChartDatasets = data.topClientes.map((c, i) => ({
           label: c.cliente,
-          data: [{ x: c.cantidadVentas, y: c.totalComprado, cliente: c.cliente }],
+          data: [{ x: Number(c.cantidadVentas) || 0, y: Number(c.totalComprado) || 0 }],
           backgroundColor: coloresScatter[i % coloresScatter.length],
           pointRadius: 8,
           pointHoverRadius: 11
@@ -234,7 +246,7 @@ export class VentasReporte implements OnInit {
         const estilos = [...new Set(data.evolucionEstilos.map(e => e.estilo))];
         const fechas = [...new Set(data.evolucionEstilos.map(e => e.fecha))].sort();
         const coloresLine = [
-          '#e67e22', '#3b82f6', '#22c55e', '#ef4444', '#a855f7', 
+          '#e67e22', '#3b82f6', '#22c55e', '#ef4444', '#a855f7',
           '#06b6d4', '#f59e0b', '#ec4899', '#84cc16', '#64748b',
           '#10b981', '#f43f5e', '#d946ef', '#0ea5e9', '#eab308'
         ];
@@ -244,7 +256,7 @@ export class VentasReporte implements OnInit {
           label: estilo,
           data: fechas.map(f => {
             const registro = data.evolucionEstilos.find(e => e.fecha === f && e.estilo === estilo);
-            return registro ? registro.cantidad : 0;
+            return registro ? Number(registro.cantidad) : 0;
           }),
           borderColor: coloresLine[i % coloresLine.length],
           backgroundColor: coloresLine[i % coloresLine.length],
@@ -256,14 +268,6 @@ export class VentasReporte implements OnInit {
         }));
 
         this.cargando = false;
-
-        setTimeout(() => {
-          this.charts?.forEach(chart => {
-            if (chart && chart.chart) {
-              chart.chart.update();
-            }
-          });
-        }, 50);
       },
       error: (err: any) => {
         this.cargando = false;

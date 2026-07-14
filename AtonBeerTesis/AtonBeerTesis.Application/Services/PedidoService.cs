@@ -17,6 +17,7 @@ namespace AtonBeerTesis.Application.Services
         private readonly IBarrilRepository _barrilRepository;
         private readonly IVentaRepository _ventaRepository;
         private readonly IPagoRepository _pagoRepository;
+
         public PedidoService(IPedidoRepository pedidoRepository, IBarrilRepository barrilRepository, IVentaRepository ventaRepository, IPagoRepository pagoRepository)
         {
             _pedidoRepository = pedidoRepository;
@@ -65,7 +66,9 @@ namespace AtonBeerTesis.Application.Services
         public async Task<IEnumerable<object>> ObtenerTodosAsync()
         {
             await VerificarPedidosAtrasadosAsync();
+
             var pedidos = await _pedidoRepository.GetAllAsync();
+
             return pedidos.Select(p => new
             {
                 idPedido = p.Id,
@@ -112,6 +115,7 @@ namespace AtonBeerTesis.Application.Services
                 }).ToList()
             };
         }
+
         public async Task<int> RegistrarPedidoAsync(PedidoCreacionDTO pedidoDto)
         {
             var nuevoPedido = new Pedido
@@ -139,6 +143,7 @@ namespace AtonBeerTesis.Application.Services
             var pedidoGuardado = await _pedidoRepository.AddAsync(nuevoPedido);
             return pedidoGuardado.Id;
         }
+
         public async Task<bool> CancelarPedidoAsync(int id)
         {
             var pedido = await _pedidoRepository.GetByIdAsync(id);
@@ -205,6 +210,7 @@ namespace AtonBeerTesis.Application.Services
                     Fecha = DateTime.Now
                 });
             }
+
             if (pedidoDto.BarrilesIds != null && pedidoDto.BarrilesIds.Any())
             {
                 foreach (var barrilId in pedidoDto.BarrilesIds)
@@ -216,7 +222,7 @@ namespace AtonBeerTesis.Application.Services
                         var estadoPrevio = barrilFisico.Estado;
                         barrilFisico.Estado = EstadoBarril.ConCliente;
                         barrilFisico.ClienteId = pedido.ClienteId;
-                        //Aca vinculo con el movimiento automatico del barril
+
                         var nuevoMovimiento = new MovimientoBarril
                         {
                             Fecha = DateTime.Now,
@@ -259,7 +265,7 @@ namespace AtonBeerTesis.Application.Services
                 ventaExistente.Subtotal = subtotalVenta;
                 ventaExistente.DescuentoMonto = Math.Round(descuentoMonto, 2);
                 ventaExistente.DescuentoPorcentaje = Math.Round(descuentoPorcentaje, 2);
-                ventaExistente.MotivoDescuento = descuentoMonto > 0 ? "Descuento franquicia" : null;  
+                ventaExistente.MotivoDescuento = descuentoMonto > 0 ? "Descuento franquicia" : null;
                 ventaExistente.EstadoVenta = EstadoVenta.Pendiente;
                 ventaExistente.Plazo = pedidoDto.Plazo;
                 ventaExistente.MetodoPago = pedidoDto.MetodoPago;
@@ -281,7 +287,7 @@ namespace AtonBeerTesis.Application.Services
                     Subtotal = subtotalVenta,
                     DescuentoMonto = Math.Round(descuentoMonto, 2),
                     DescuentoPorcentaje = Math.Round(descuentoPorcentaje, 2),
-                    MotivoDescuento = descuentoMonto > 0 ? "Descuento franquicia" : null,                   
+                    MotivoDescuento = descuentoMonto > 0 ? "Descuento franquicia" : null,
 
                     NetoGravado = Math.Round(netoGravado, 2),
                     IvaPorcentaje = ivaPorcentaje,
@@ -301,6 +307,7 @@ namespace AtonBeerTesis.Application.Services
 
             return true;
         }
+
         public async Task<bool> DeshacerEntregaPedidoAsync(int pedidoId)
         {
             var pedido = await _pedidoRepository.GetByIdAsync(pedidoId);
@@ -308,7 +315,7 @@ namespace AtonBeerTesis.Application.Services
             if (pedido.EstadoId == 3)
             {
                 throw new Exception("El pedido ya fue facturado; no se puede deshacer la entrega.");
-            }           
+            }
             if (pedido.EstadoId != 2)
             {
                 throw new Exception("Solo se puede deshacer la entrega de pedidos que figuren como 'Entregados'.");
@@ -403,7 +410,6 @@ namespace AtonBeerTesis.Application.Services
 
             return true;
         }
-
 
         private async Task VerificarPedidosAtrasadosAsync()
         {

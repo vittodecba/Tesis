@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PedidoService } from '../../core/services/pedido.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { LucideAngularModule, Receipt, Plus, Trash2 } from 'lucide-angular';
 import { BarrilService, BarrilDto } from '../../services/barril.service';
 
@@ -56,8 +57,9 @@ export class RegistrarPedidoComponent implements OnInit {
   constructor(
     private fb: FormBuilder, 
     private pedidoService: PedidoService,
-    private barrilService: BarrilService, 
-    private cdr: ChangeDetectorRef
+    private barrilService: BarrilService,
+    private cdr: ChangeDetectorRef,
+    private noti: NotificationService
   ) {
     this.pedidoForm = this.fb.group({
       clienteId: ['', Validators.required],
@@ -445,12 +447,15 @@ editarDesdeMenu(pedido: any): void {
   this.openEdit(pedido);
 }
 
-cancelarPedido(pedido: any): void {
+async cancelarPedido(pedido: any): Promise<void> {
   const id = this.getPedidoId(pedido);
 
-  if (!confirm(
-  `¿Cancelar el pedido #${id}?\n\nEsta acción cambia el estado del pedido y no se puede deshacer desde esta pantalla.`
-)) return;
+  const ok = await this.noti.confirm({
+    titulo: `¿Cancelar el pedido #${id}?`,
+    texto: 'Esta acción cambia el estado del pedido y no se puede deshacer desde esta pantalla.',
+    peligro: true
+  });
+  if (!ok) return;
 
   this.pedidoService.cancelarPedido(id).subscribe({
     next: () => {
@@ -465,10 +470,11 @@ cancelarPedido(pedido: any): void {
   });
 }
 
-entregarPedido(pedido: any): void {
+async entregarPedido(pedido: any): Promise<void> {
     const id = this.getPedidoId(pedido);
 
-    if (!confirm(`¿Marcar como entregado el pedido #${id}?`)) return;
+    const ok = await this.noti.confirm({ titulo: `¿Marcar como entregado el pedido #${id}?` });
+    if (!ok) return;
 
     this.pedidoService.getPedidoPorId(id).subscribe({
       next: (pedidoCompleto: any) => {        
@@ -544,13 +550,15 @@ entregarPedido(pedido: any): void {
     });
 }
 
-deshacerEntrega(pedido: any): void {
+async deshacerEntrega(pedido: any): Promise<void> {
   const id = this.getPedidoId(pedido);
 
-  if (!confirm(
-    `¿Estás seguro de que querés deshacer la entrega del pedido #${id}?\n\n` +
-    `Esto devolverá el stock virtual a los productos y pondrá los barriles físicos asignados nuevamente en estado 'Lleno' en la fábrica.`
-  )) return;
+  const ok = await this.noti.confirm({
+    titulo: `¿Deshacer la entrega del pedido #${id}?`,
+    texto: `Esto devolverá el stock virtual a los productos y pondrá los barriles físicos asignados nuevamente en estado 'Lleno' en la fábrica.`,
+    peligro: true
+  });
+  if (!ok) return;
 
   this.pedidoService.deshacerEntregaPedido(id).subscribe({
     next: () => {

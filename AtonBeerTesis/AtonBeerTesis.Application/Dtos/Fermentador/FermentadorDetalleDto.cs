@@ -10,6 +10,6 @@
     public int? LoteId { get; set; }
     public string? EstiloNombre { get; set; }
     public string? CodigoLote { get; set; }
-    public int? VolumenLitrosLote { get; set; }
+    public decimal? VolumenLitrosLote { get; set; }
     public string? EstadoLote { get; set; }
 }

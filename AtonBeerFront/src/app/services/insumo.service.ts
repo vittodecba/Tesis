@@ -28,6 +28,10 @@ export class InsumoService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
+  getRecetasQueUsanInsumo(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${id}/recetas`);
+  }
+
   // --- MÉTODOS DE TIPOS ---
   obtenerTipos(): Observable<any[]> {
     return this.http.get<any[]>(this.tipoUrl);

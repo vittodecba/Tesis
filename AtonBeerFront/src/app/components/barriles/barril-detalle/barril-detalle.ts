@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { BarrilService } from '../../../services/barril.service';
 import { ClientesApiService } from '../../../services/clientes-api';
+import { NotificationService } from '../../../core/services/notification.service';
 import { LucideAngularModule, Pencil, Check, X } from 'lucide-angular';
 
 @Component({
@@ -38,9 +39,10 @@ export class BarrilDetalleComponent implements OnInit {
   opcionesMovimiento: { valor: number, texto: string }[] = [];
 
   constructor(
-    private route: ActivatedRoute, 
+    private route: ActivatedRoute,
     private _service: BarrilService,
-    private clientesApi: ClientesApiService
+    private clientesApi: ClientesApiService,
+    private noti: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -209,15 +211,20 @@ export class BarrilDetalleComponent implements OnInit {
     });
   }
 
-  deshacerUltimoMovimiento() {
-    if (confirm('¿Estás seguro de que querés eliminar el último movimiento? El barril volverá a su estado anterior.')) {
+  async deshacerUltimoMovimiento() {
+    const ok = await this.noti.confirm({
+      titulo: '¿Deshacer último movimiento?',
+      texto: 'El barril volverá a su estado anterior.',
+      peligro: true
+    });
+    if (ok) {
       this.loading = true;
       this._service.eliminarUltimoMovimiento(this.barril.id).subscribe({
         next: () => {
           this.cargarBarril();
         },
         error: (err) => {
-          console.error('Error al deshacer movimiento:', err);
+          this.noti.error('Error al deshacer el movimiento.');
           this.loading = false;
         }
       });

@@ -10,6 +10,7 @@ import {
 } from '../../services/barril.service';
 import { LucideAngularModule, Plus, Pencil, Barrel, Trash2, FileText, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
+import { NotificationService } from '../../core/services/notification.service';
 
 interface OpcionEstado { valor: number; texto: string; }
 
@@ -62,7 +63,7 @@ export class BarrilesGestion implements OnInit {
     5: [{ valor: 0, texto: 'Disponible' }],
   };
 
-  constructor(private _service: BarrilService) {}
+  constructor(private _service: BarrilService, private noti: NotificationService) {}
 
   ngOnInit(): void {
     this.cargar();
@@ -137,11 +138,16 @@ export class BarrilesGestion implements OnInit {
 
   cerrarEditar() { this.mostrarModalEditar = false; this.barrilEditando = null; }
 
-  eliminar(barril: BarrilDto) {
-    if (!confirm(`¿Seguro que querés eliminar el barril "${barril.codigo}"? Esta acción no se puede deshacer.`)) return;
+  async eliminar(barril: BarrilDto) {
+    const ok = await this.noti.confirm({
+      titulo: '¿Eliminar barril?',
+      texto: `Se eliminará el barril "${barril.codigo}". Esta acción no se puede deshacer.`,
+      peligro: true
+    });
+    if (!ok) return;
     this._service.eliminarBarril(barril.id).subscribe({
-      next: () => this.cargar(),
-      error: (err) => alert(typeof err.error === 'string' ? err.error : 'No se pudo eliminar el barril.'),
+      next: () => { this.noti.success('Barril eliminado'); this.cargar(); },
+      error: (err) => this.noti.error(typeof err.error === 'string' ? err.error : 'No se pudo eliminar el barril.'),
     });
   }
 

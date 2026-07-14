@@ -9,7 +9,7 @@ namespace AtonBeerTesis.Application.Dtos
         public int RecetaId { get; set; }
         public string? RecetaNombre { get; set; }
         public string? Estilo { get; set; }
-        public int VolumenLitros { get; set; }
+        public decimal VolumenLitros { get; set; }
         public int LoteId { get; set; }
         public int? FermentadorId { get; set; }
         public EstadoLote Estado { get; set; }

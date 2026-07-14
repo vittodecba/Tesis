@@ -207,7 +207,7 @@
             >
               <option value="1">Disponible</option>
               <option value="3">Sucio</option>
-              <option value="4">Mantenimiento</option>
+              <option value="4" [disabled]="!puedeSeleccionarMantenimiento()">Mantenimiento</option>
             </select>
 
             <p
@@ -215,6 +215,12 @@
               class="text-[11px] text-orange-600 font-semibold mt-1 ml-1"
             >
               Un fermentador ocupado no debe cambiarse manualmente de estado.
+            </p>
+            <p
+              *ngIf="esEdicion && !puedeSeleccionarMantenimiento()"
+              class="text-[11px] text-gray-400 font-medium mt-1 ml-1"
+            >
+              Mantenimiento solo está disponible si el fermentador está actualmente en estado Disponible.
             </p>
           </div>
         </div>

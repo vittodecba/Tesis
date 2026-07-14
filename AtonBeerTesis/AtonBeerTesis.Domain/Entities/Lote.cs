@@ -20,7 +20,7 @@ namespace AtonBeerTesis.Domain.Entities
         [ForeignKey("RecetaId")]
         public Receta Receta { get; set; }
 
-        public int VolumenLitros { get; set; }
+        public decimal VolumenLitros { get; set; }
 
         public EstadoLote Estado { get; set; }
 

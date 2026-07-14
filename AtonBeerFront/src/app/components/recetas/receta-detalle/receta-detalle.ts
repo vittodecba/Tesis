@@ -4,8 +4,9 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LucideAngularModule, Pencil, Plus, Trash2, X, Beer, Save, Check} from 'lucide-angular'; 
 import { Receta, RecetaService} from '../../../services/receta';
-import { InsumoService } from '../../../services/insumo.service'; 
+import { InsumoService } from '../../../services/insumo.service';
 import { UnidadMedidaService } from '../../../services/unidadMedida';
+import { NotificationService } from '../../../core/services/notification.service';
 
 export interface RecetaPaso {
   id?: number;
@@ -57,7 +58,8 @@ export class RecetaDetalle implements OnInit {
     private recetaService: RecetaService,
     private fb: FormBuilder,
     private insumoService: InsumoService,
-    private unidadService: UnidadMedidaService,    
+    private unidadService: UnidadMedidaService,
+    private noti: NotificationService,
   ) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required]],
@@ -216,9 +218,11 @@ unidadesPermitidasParaInsumo(): any[] {
     this.showModalPaso = true;
   }
 
-  eliminarPaso(index: number) {
+  async eliminarPaso(index: number) {
     const paso = this.pasos[index];
-    if (paso.id && confirm('¿Desea eliminar este paso permanentemente?')) {
+    if (!paso.id) return;
+    const ok = await this.noti.confirm({ titulo: '¿Eliminar paso?', texto: 'Se eliminará permanentemente.', peligro: true });
+    if (ok) {
       this.recetaService.deletePaso(this.receta!.idReceta, paso.id).subscribe({
         next: () => this.cargarReceta(this.receta!.idReceta)
       });
@@ -244,7 +248,7 @@ unidadesPermitidasParaInsumo(): any[] {
     if (this.form.invalid || !this.receta) return;
     this.recetaService.update(this.receta.idReceta, this.form.value).subscribe({
       next: () => {
-        alert('Receta actualizada');
+        this.noti.success('Receta actualizada');
         this.closeModal();
         this.cargarReceta(this.receta!.idReceta);
       },
@@ -304,7 +308,7 @@ limpiarFormInsumo() {
         this.limpiarFormInsumo();
         this.editandoInsumo = false;
       },
-      error: (err) => alert(err.error || "No se pudo actualizar el insumo.")
+      error: (err) => this.noti.error(err.error || "No se pudo actualizar el insumo.")
     });
   }else{
 
@@ -313,7 +317,7 @@ limpiarFormInsumo() {
         this.cargarReceta(this.receta!.idReceta);
         this.limpiarFormInsumo();
       },
-      error: (err) => alert(err.error || "⚠️ El insumo ya existe en la receta.")
+      error: (err) => this.noti.error(err.error || "El insumo ya existe en la receta.")
     });
   }
 }
@@ -328,8 +332,9 @@ prepararNuevoInsumo() {
   }
 }
 
-  eliminarInsumo(insumoId: number): void {
-    if (confirm('¿Quitar ingrediente?')) {
+  async eliminarInsumo(insumoId: number): Promise<void> {
+    const ok = await this.noti.confirm({ titulo: '¿Quitar ingrediente?', peligro: true });
+    if (ok) {
       this.recetaService.removeInsumo(this.receta!.idReceta, insumoId).subscribe({
         next: () => this.cargarReceta(this.receta!.idReceta)
       });
@@ -337,11 +342,11 @@ prepararNuevoInsumo() {
   }
 
   //CREAR UNIDAD
-  crearUnidad() {
-    const nombre = prompt("Nombre de la unidad (ej: Kilogramos):");
+  async crearUnidad() {
+    const nombre = await this.noti.prompt({ titulo: 'Nueva unidad', texto: 'Nombre de la unidad', placeholder: 'ej: Kilogramos' });
     if (!nombre) return;
 
-    const abreviatura = prompt("Abreviatura (ej: Kg):");
+    const abreviatura = await this.noti.prompt({ titulo: 'Nueva unidad', texto: 'Abreviatura', placeholder: 'ej: Kg' });
     if (!abreviatura) return;
 
     const nuevaUnidad = {
@@ -351,22 +356,23 @@ prepararNuevoInsumo() {
 
     this.unidadService.crear(nuevaUnidad).subscribe({
       next: () => {
-        alert('Unidad creada con éxito');
+        this.noti.success('Unidad creada con éxito');
         this.cargarUnidades();
       }
     });
   }
 
   //ELIMINAR UNIDAD
-  eliminarUnidadDeLista() {
+  async eliminarUnidadDeLista() {
     if (!this.unidadIdSeleccionada) return;
 
     const unidad = this.listaUnidades.find(u => u.id == this.unidadIdSeleccionada);
 
-    if (confirm(`¿Eliminar "${unidad?.nombre}"?`)) {
+    const ok = await this.noti.confirm({ titulo: '¿Eliminar unidad?', texto: `Se eliminará "${unidad?.nombre}".`, peligro: true });
+    if (ok) {
       this.unidadService.eliminar(this.unidadIdSeleccionada).subscribe({
         next: () => {
-          alert('Unidad eliminada');
+          this.noti.success('Unidad eliminada');
           this.unidadIdSeleccionada = 0;
           this.cargarUnidades();
         }

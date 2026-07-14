@@ -25,7 +25,11 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task<IEnumerable<VentaDto>> ObtenerTodasAsync()
         {
-            var ventas = await _ventaRepository.GetAllAsync();
+            var ventas = await _ventaRepository.GetQueryable()
+    .AsNoTracking()
+    .Include(v => v.Cliente)
+    .ToListAsync();
+
             var resultado = new List<VentaDto>();
 
             var ventasIds = ventas.Select(v => v.Id).ToList();
@@ -34,6 +38,7 @@ namespace AtonBeerTesis.Application.Services
             var pagosPorVenta = await _pagoRepository.GetTotalPagadoPorVentasAsync(ventasIds);
 
             var todosLosPagos = await _ventaRepository.GetQueryable()
+    .AsNoTracking()
     .Where(v => ventasIds.Contains(v.Id))
     .SelectMany(v => v.Pagos)
     .ToListAsync();

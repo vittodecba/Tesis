@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
 import { UnidadMedidaService } from '../../services/unidadMedida';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-unidad-medida',
@@ -14,7 +15,7 @@ export class UnidadMedidaComponent implements OnInit {
   mostrarModal = false; 
   datosForm: any = { id: 0, nombre: '', abreviatura: '', activo: true };
 
-  constructor(private unidadService: UnidadMedidaService) {}
+  constructor(private unidadService: UnidadMedidaService, private noti: NotificationService) {}
 
   ngOnInit(): void {
     this.listar();
@@ -42,7 +43,7 @@ export class UnidadMedidaComponent implements OnInit {
     );
 
     if (existe) {
-      alert('Esta unidad de medida ya existe.');
+      this.noti.warning('Esta unidad de medida ya existe.');
       return;
     }
 
@@ -57,9 +58,11 @@ export class UnidadMedidaComponent implements OnInit {
     }
   }
 
-  eliminar(id: number): void {
-    if (confirm('¿Desea eliminar esta unidad?')) {
+  async eliminar(id: number): Promise<void> {
+    const ok = await this.noti.confirm({ titulo: '¿Eliminar unidad?', peligro: true });
+    if (ok) {
       this.unidadService.eliminar(id).subscribe(() => {
+        this.noti.success('Unidad eliminada');
         this.listar();
       });
     }
