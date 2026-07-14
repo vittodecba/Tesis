@@ -33,6 +33,7 @@ const RPE = ROLES.RESP_PEDIDOS;
 const C = ROLES.COCINERO;
 import { VentasListadoComponent } from './components/ventas/ventas-listado';
 import { VentasReporte } from './components/ventas-reporte/ventas-reporte';
+import { CumplimientoReporte } from './components/cumplimiento-reporte/cumplimiento-reporte';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -165,6 +166,12 @@ export const routes: Routes = [
         path: 'ventas/reporte',
         component: VentasReporte,
         data: { title: 'Reportes de Ventas', subtitle: 'Análisis financiero' },
+      },
+      {
+        path: 'planificacion/reporte-cumplimiento',
+        component: CumplimientoReporte,
+        canActivate: [roleGuard],
+        data: { title: 'Cumplimiento de Planificación', subtitle: 'Días estimados vs. reales', roles: [A, RP, G, GM] },
       },
       {
         path: 'empresa',

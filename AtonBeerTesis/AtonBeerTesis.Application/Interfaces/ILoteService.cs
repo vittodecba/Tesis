@@ -10,5 +10,9 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<LoteDto> CreateAsync(CreateLoteDto dto);
         Task<bool> UpdateAsync(int id, UpdateLoteDto dto);
         Task<bool> FinalizarAsync(int id, AtonBeerTesis.Domain.Enums.EstadoLote estadoFinal = AtonBeerTesis.Domain.Enums.EstadoLote.Finalizado);
+
+        // Reporte P2 · Cumplimiento de planificación.
+        Task<ReporteCumplimientoDto> ObtenerReporteCumplimientoAsync(DateTime fechaDesde, DateTime fechaHasta);
+        Task<byte[]> GenerarPdfReporteCumplimientoAsync(ReportePdfRequestDto request);
     }
 }

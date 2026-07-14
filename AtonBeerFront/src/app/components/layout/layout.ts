@@ -34,6 +34,7 @@ import {
   Ruler,
   History,
   Building2,
+  ClipboardCheck,
   Menu,
   X
 } from 'lucide-angular';
@@ -78,6 +79,7 @@ export class LayoutComponent implements OnInit {
   //Historial
   History = History;
   Building2 = Building2;
+  ClipboardCheck = ClipboardCheck;
 
   // Iconos del drawer móvil
   Menu = Menu;
@@ -145,6 +147,14 @@ export class LayoutComponent implements OnInit {
 
   puedeVerReportes(): boolean {
     return this.hasRole(ROLES.ADMIN, ROLES.GERENTE_MAYOR);
+  }
+
+  puedeVerReporteCumplimiento(): boolean {
+    return this.hasRole(ROLES.ADMIN, ROLES.RESP_PLANTA, ROLES.GERENTE, ROLES.GERENTE_MAYOR);
+  }
+
+  puedeVerSeccionReportes(): boolean {
+    return this.puedeVerReportes() || this.puedeVerReporteCumplimiento();
   }
 
   private updateHeader() {

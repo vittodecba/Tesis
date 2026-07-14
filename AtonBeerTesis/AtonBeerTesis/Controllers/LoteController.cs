@@ -44,6 +44,37 @@ namespace AtonBeerTesis.WebApi.Controllers
             return Ok(lote);
         }
 
+        // ── Reporte P2 · Cumplimiento de planificación ─────────────────────────────
+        [HttpGet("reporte-cumplimiento")]
+        public async Task<ActionResult<ReporteCumplimientoDto>> ObtenerReporteCumplimiento(
+            [FromQuery] DateTime fechaDesde, [FromQuery] DateTime fechaHasta)
+        {
+            try
+            {
+                var reporte = await _service.ObtenerReporteCumplimientoAsync(fechaDesde, fechaHasta);
+                return Ok(reporte);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+            }
+        }
+
+        [HttpPost("reporte-cumplimiento/pdf")]
+        public async Task<IActionResult> DescargarPdfReporteCumplimiento([FromBody] ReportePdfRequestDto request)
+        {
+            try
+            {
+                var pdfBytes = await _service.GenerarPdfReporteCumplimientoAsync(request);
+                var nombreArchivo = $"Reporte_Cumplimiento_{request.FechaDesde:yyyyMMdd}_al_{request.FechaHasta:yyyyMMdd}.pdf";
+                return File(pdfBytes, "application/pdf", nombreArchivo);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult<LoteDto>> Create([FromBody] CreateLoteDto dto)
         {

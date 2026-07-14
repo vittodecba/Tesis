@@ -62,6 +62,23 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Lote>> GetFinalizadosEnRangoAsync(DateTime desde, DateTime hasta)
+        {
+            // Se filtra por FechaFinReal porque el reporte mide lo que se cerró en el período.
+            // El límite superior se lleva al fin del día para incluir toda la fecha "hasta".
+            var hastaInclusive = hasta.Date.AddDays(1).AddTicks(-1);
+
+            return await _context.Lotes
+                .Include(l => l.Receta)
+                .Where(l =>
+                    (l.Estado == EstadoLote.Finalizado || l.Estado == EstadoLote.Descartado) &&
+                    l.FechaFinReal != null &&
+                    l.FechaFinReal >= desde.Date &&
+                    l.FechaFinReal <= hastaInclusive)
+                .OrderByDescending(l => l.FechaFinReal)
+                .ToListAsync();
+        }
+
         public async Task<Lote?> GetActivoByFermentadorIdAsync(int fermentadorId)
         {
             // Solo retorna el lote realmente EN CURSO (EnProceso). Las reservas futuras
