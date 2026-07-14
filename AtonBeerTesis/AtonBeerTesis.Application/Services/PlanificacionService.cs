@@ -398,6 +398,17 @@ namespace AtonBeerTesis.Application.Services
                     await _repository.UpdateFermentadorAsync(fermentadorNuevo);
                 }
             }
+            else if (dto.Estado == EstadoLote.EnProceso && dto.FermentadorId.HasValue)
+            {
+                // Mismo fermentador: reafirmar que quede Ocupado al entrar en proceso,
+                // por si había quedado desincronizado por una operación anterior.
+                var fermentadorActual = await _repository.GetFermentadorByIdAsync(dto.FermentadorId.Value);
+                if (fermentadorActual != null && fermentadorActual.Estado != EstadoFermentador.Ocupado)
+                {
+                    fermentadorActual.Estado = EstadoFermentador.Ocupado;
+                    await _repository.UpdateFermentadorAsync(fermentadorActual);
+                }
+            }
 
             planificacion.FermentadorId = dto.FermentadorId;
             planificacion.FechaInicio = dto.FechaInicio;
@@ -489,29 +500,40 @@ namespace AtonBeerTesis.Application.Services
             var planificacion = await _repository.GetByLoteIdAsync(id);
             if (planificacion == null) return false;
 
-            var fermentador = planificacion.FermentadorId.HasValue
-                ? await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId.Value)
-                : null;
-            if (fermentador != null)
+            using var transaction = await _repository.BeginTransactionAsync();
+            try
             {
-                if (planificacion.Estado == EstadoLote.Planificado)
+                var fermentador = planificacion.FermentadorId.HasValue
+                    ? await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId.Value)
+                    : null;
+                if (fermentador != null)
                 {
-                    // Nunca se usó → liberar fermentador
-                    fermentador.Estado = EstadoFermentador.Disponible;
-                    await _repository.UpdateFermentadorAsync(fermentador);
+                    if (planificacion.Estado == EstadoLote.Planificado)
+                    {
+                        // Nunca se usó → liberar fermentador
+                        fermentador.Estado = EstadoFermentador.Disponible;
+                        await _repository.UpdateFermentadorAsync(fermentador);
+                    }
+                    else if (planificacion.Estado == EstadoLote.EnProceso)
+                    {
+                        // Estaba en uso → marcar como Sucio
+                        fermentador.Estado = EstadoFermentador.Sucio;
+                        await _repository.UpdateFermentadorAsync(fermentador);
+                    }
+                    // Finalizado/Descartado: fermentador ya quedó Sucio durante la finalización, no tocar
                 }
-                else if (planificacion.Estado == EstadoLote.EnProceso)
-                {
-                    // Estaba en uso → marcar como Sucio
-                    fermentador.Estado = EstadoFermentador.Sucio;
-                    await _repository.UpdateFermentadorAsync(fermentador);
-                }
-                // Finalizado/Descartado: fermentador ya quedó Sucio durante la finalización, no tocar
-            }
 
-            // Eliminar el Lote — EF Core cascade borra PlanificacionProduccion, SQL cascade borra RegistrosFermentacion
-            await _loteRepository.DeleteByIdAsync(planificacion.LoteId);
-            return true;
+                // Eliminar el Lote — EF Core cascade borra PlanificacionProduccion, SQL cascade borra RegistrosFermentacion
+                await _loteRepository.DeleteByIdAsync(planificacion.LoteId);
+
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

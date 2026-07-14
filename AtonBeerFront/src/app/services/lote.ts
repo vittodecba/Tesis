@@ -37,10 +37,6 @@ export class LoteService {
     return this.http.post<any>(this.apiUrl, lote);
   }
 
-  getFermentadoresDisponibles(): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:5190/api/Fermentadores?estado=disponible`);
-  }
-
   asignarFermentador(loteId: number, fermentadorId: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${loteId}/asignar-fermentador/${fermentadorId}`, {});
   }

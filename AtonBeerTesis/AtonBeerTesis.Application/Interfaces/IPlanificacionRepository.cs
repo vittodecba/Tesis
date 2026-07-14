@@ -1,4 +1,5 @@
 ﻿using AtonBeerTesis.Domain.Entities;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ namespace AtonBeerTesis.Application.Interfaces
 {
     public interface IPlanificacionRepository
     {
+        Task<IDbContextTransaction> BeginTransactionAsync();
         Task<PlanificacionProduccion> CreateAsync(PlanificacionProduccion planificacion);
         Task<IEnumerable<PlanificacionProduccion>> GetAllAsync();
         Task<bool> ExisteFermentadorOcupado(int fermentadorId, DateTime fechaInicio, DateTime fechaFin, int excluirLoteId = 0);

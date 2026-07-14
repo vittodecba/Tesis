@@ -7,6 +7,7 @@ using AtonBeerTesis.Domain.Entities;
 using AtonBeerTesis.Domain.Enums;
 using AtonBeerTesis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace AtonBeerTesis.Infrastructure.Repositories
 {
@@ -18,6 +19,9 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         {
             _context = context;
         }
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+            => await _context.Database.BeginTransactionAsync();
 
         public async Task<PlanificacionProduccion> CreateAsync(PlanificacionProduccion planificacion)
         {

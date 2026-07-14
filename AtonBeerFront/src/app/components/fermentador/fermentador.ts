@@ -25,6 +25,7 @@ export class FermentadorComponent implements OnInit {
   mostrarModal = false;
   esEdicion = false;
   idFermentadorEditar?: number;
+  estadoOriginalEdicion: string = '1';
 
   filtroCapacidad: number | null = null;
   filtroEstado: string = 'Todos';
@@ -118,6 +119,7 @@ export class FermentadorComponent implements OnInit {
     if (item) {
       this.esEdicion = true;
       this.idFermentadorEditar = item.id;
+      this.estadoOriginalEdicion = this.normalizarEstado(item.estado);
       this.nuevoFermentador = {
         ...item,
         estado: this.normalizarEstado(item.estado),
@@ -125,6 +127,7 @@ export class FermentadorComponent implements OnInit {
     } else {
       this.esEdicion = false;
       this.idFermentadorEditar = undefined;
+      this.estadoOriginalEdicion = '1';
       this.nuevoFermentador = this.crearFermentadorVacio();
     }
     this.mostrarModal = true;
@@ -152,6 +155,14 @@ export class FermentadorComponent implements OnInit {
     }
     if (!this.nuevoFermentador.capacidad || this.nuevoFermentador.capacidad <= 0) {
       this.noti.warning('La capacidad debe ser mayor a 0.');
+      return;
+    }
+    if (
+      this.esEdicion &&
+      this.normalizarEstado(this.nuevoFermentador.estado) === '4' &&
+      this.estadoOriginalEdicion !== '1'
+    ) {
+      this.noti.warning('Solo se puede pasar a mantenimiento desde el estado Disponible.');
       return;
     }
 
@@ -216,5 +227,9 @@ export class FermentadorComponent implements OnInit {
     return (
       !this.nuevoFermentador.loteId && this.normalizarEstado(this.nuevoFermentador.estado) !== '2'
     );
+  }
+
+  puedeSeleccionarMantenimiento(): boolean {
+    return this.estadoOriginalEdicion === '1';
   }
 }
