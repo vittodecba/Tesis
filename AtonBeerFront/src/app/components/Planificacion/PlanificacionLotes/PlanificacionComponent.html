@@ -24,7 +24,7 @@
       </div>
       <div>
         <label class="mb-1 block text-sm font-medium text-gray-700">Volumen a producir (litros)</label>
-        <input type="number" [(ngModel)]="nuevaPlanif.volumenLitros"
+        <input type="number" step="any" [(ngModel)]="nuevaPlanif.volumenLitros"
                placeholder="Ej: 100"
                (input)="actualizarPrevisualizacion()"
                class="w-full rounded-lg border px-3 py-2 text-sm transition-shadow duration-200 focus:outline-none focus:ring-2"

@@ -97,13 +97,9 @@ namespace AtonBeerTesis.Application.Services
 
             await _repository.CreateAsync(planificacion);
 
-            // Marcar fermentador como Ocupado
-            var fermentador = await _repository.GetFermentadorByIdAsync(dto.FermentadorId ?? 0);
-            if (fermentador != null)
-            {
-                fermentador.Estado = EstadoFermentador.Ocupado;
-                await _repository.UpdateFermentadorAsync(fermentador);
-            }
+            // NO se marca el fermentador como Ocupado: una planificación futura es una RESERVA,
+            // no una ocupación física. El fermentador solo pasa a Ocupado cuando el lote arranca
+            // (EnProceso). La doble-reserva se previene por fechas (ExisteFermentadorOcupado).
 
             dto.LoteId = loteGuardado.Id;
             return dto;
@@ -143,6 +139,18 @@ namespace AtonBeerTesis.Application.Services
                     p.Lote.Estado = EstadoLote.EnProceso;
                     // BUG 7: FechaElaboracion = fecha real de inicio del proceso
                     p.Lote.FechaElaboracion = DateTime.Today;
+                }
+
+                // Al arrancar la producción, el fermentador pasa a Ocupado (se ocupa físicamente
+                // ahora). Se ocupa aunque estuviera Sucio/Mantenimiento: el lote empieza igual.
+                if (p.FermentadorId.HasValue)
+                {
+                    var ferm = await _repository.GetFermentadorByIdAsync(p.FermentadorId.Value);
+                    if (ferm != null)
+                    {
+                        ferm.Estado = EstadoFermentador.Ocupado;
+                        await _repository.UpdateFermentadorAsync(ferm);
+                    }
                 }
 
                 await _repository.UpdateAsync(p);
@@ -380,28 +388,11 @@ namespace AtonBeerTesis.Application.Services
                     throw new Exception("El fermentador ya está ocupado en ese rango de fechas.");
             }
 
-            if (planificacion.FermentadorId != dto.FermentadorId)
+            // El fermentador solo pasa a Ocupado cuando el lote está EnProceso (ocupación física).
+            // Cambiar el fermentador de una reserva Planificado NO ocupa el nuevo ni libera el anterior
+            // por flag (una reserva no ocupa el flag; la doble-reserva se previene por fechas más arriba).
+            if (dto.Estado == EstadoLote.EnProceso && dto.FermentadorId.HasValue)
             {
-                var fermentadorAnterior = planificacion.FermentadorId.HasValue
-                    ? await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId.Value)
-                    : null;
-                if (fermentadorAnterior != null)
-                {
-                    fermentadorAnterior.Estado = EstadoFermentador.Disponible;
-                    await _repository.UpdateFermentadorAsync(fermentadorAnterior);
-                }
-
-                var fermentadorNuevo = await _repository.GetFermentadorByIdAsync(dto.FermentadorId ?? 0);
-                if (fermentadorNuevo != null)
-                {
-                    fermentadorNuevo.Estado = EstadoFermentador.Ocupado;
-                    await _repository.UpdateFermentadorAsync(fermentadorNuevo);
-                }
-            }
-            else if (dto.Estado == EstadoLote.EnProceso && dto.FermentadorId.HasValue)
-            {
-                // Mismo fermentador: reafirmar que quede Ocupado al entrar en proceso,
-                // por si había quedado desincronizado por una operación anterior.
                 var fermentadorActual = await _repository.GetFermentadorByIdAsync(dto.FermentadorId.Value);
                 if (fermentadorActual != null && fermentadorActual.Estado != EstadoFermentador.Ocupado)
                 {
@@ -447,16 +438,11 @@ namespace AtonBeerTesis.Application.Services
             if (ocupado)
                 throw new Exception("El fermentador ya está ocupado en ese rango de fechas.");
 
-            // Liberar fermentador anterior
-            if (lote.FermentadorId.HasValue && lote.FermentadorId.Value != fermentadorId)
-            {
-                var anterior = await _repository.GetFermentadorByIdAsync(lote.FermentadorId.Value);
-                if (anterior != null)
-                {
-                    anterior.Estado = EstadoFermentador.Disponible;
-                    await _repository.UpdateFermentadorAsync(anterior);
-                }
-            }
+            // Solo opera sobre lotes Planificado (reservas, guard arriba). Una reserva NO ocupa el
+            // flag del fermentador: no se libera el anterior ni se marca Ocupado el nuevo. El flag
+            // Ocupado solo se setea cuando el lote arranca (EnProceso).
+            var nuevo = await _repository.GetFermentadorByIdAsync(fermentadorId);
+            if (nuevo == null) throw new Exception("Fermentador no encontrado.");
 
             // Actualizar PlanificacionProduccion.FermentadorId
             lote.FermentadorId = fermentadorId;
@@ -467,12 +453,6 @@ namespace AtonBeerTesis.Application.Services
                 lote.Lote.FermentadorId = fermentadorId;
                 await _loteRepository.UpdateAsync(lote.Lote);
             }
-
-            // Marcar nuevo fermentador como Ocupado
-            var nuevo = await _repository.GetFermentadorByIdAsync(fermentadorId);
-            if (nuevo == null) throw new Exception("Fermentador no encontrado.");
-            nuevo.Estado = EstadoFermentador.Ocupado;
-            await _repository.UpdateFermentadorAsync(nuevo);
 
             await _repository.UpdateAsync(lote);
         }
@@ -506,21 +486,14 @@ namespace AtonBeerTesis.Application.Services
                 var fermentador = planificacion.FermentadorId.HasValue
                     ? await _repository.GetFermentadorByIdAsync(planificacion.FermentadorId.Value)
                     : null;
-                if (fermentador != null)
+                if (fermentador != null && planificacion.Estado == EstadoLote.EnProceso)
                 {
-                    if (planificacion.Estado == EstadoLote.Planificado)
-                    {
-                        // Nunca se usó → liberar fermentador
-                        fermentador.Estado = EstadoFermentador.Disponible;
-                        await _repository.UpdateFermentadorAsync(fermentador);
-                    }
-                    else if (planificacion.Estado == EstadoLote.EnProceso)
-                    {
-                        // Estaba en uso → marcar como Sucio
-                        fermentador.Estado = EstadoFermentador.Sucio;
-                        await _repository.UpdateFermentadorAsync(fermentador);
-                    }
-                    // Finalizado/Descartado: fermentador ya quedó Sucio durante la finalización, no tocar
+                    // Solo un lote EnProceso ocupa físicamente el fermentador → al borrarlo, queda Sucio.
+                    // Si era Planificado (reserva), NUNCA ocupó el flag: no se toca el fermentador
+                    // (podría estar Ocupado/Sucio por otro lote que comparte el mismo tanque).
+                    // Finalizado/Descartado: el fermentador ya quedó Sucio durante la finalización, no tocar.
+                    fermentador.Estado = EstadoFermentador.Sucio;
+                    await _repository.UpdateFermentadorAsync(fermentador);
                 }
 
                 // Eliminar el Lote — EF Core cascade borra PlanificacionProduccion, SQL cascade borra RegistrosFermentacion

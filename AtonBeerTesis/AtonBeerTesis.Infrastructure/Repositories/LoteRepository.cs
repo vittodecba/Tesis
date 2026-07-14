@@ -64,19 +64,20 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task<Lote?> GetActivoByFermentadorIdAsync(int fermentadorId)
         {
-            // Retorna lotes EnProceso o Planificados (futuros) asignados al fermentador.
-            // Un fermentador puede tener varios lotes asignados en estos estados (p. ej. un
-            // Planificado viejo que quedó sin iniciar + el que está EnProceso). Se prioriza el
-            // EnProceso (el realmente activo) y, dentro de cada estado, el más reciente.
+            // Solo retorna el lote realmente EN CURSO (EnProceso). Las reservas futuras
+            // (Planificado) NO ocupan el fermentador ni se muestran acá: se ven en el listado
+            // de planificación. Esto mantiene el detalle consistente con el estado del
+            // fermentador (Disponible → sin lote activo; Ocupado → lote EnProceso) y evita
+            // mostrar una reserva futura como "lote activo". Además, el seguimiento diario de
+            // fermentación solo aplica a un lote EnProceso.
             return await _context.Lotes
                 .Include(l => l.Receta)
                 .Include(l => l.Fermentador)
                 .Include(l => l.RegistrosFermentacion)
                 .Where(l =>
                     l.FermentadorId == fermentadorId &&
-                    (l.Estado == EstadoLote.EnProceso || l.Estado == EstadoLote.Planificado))
-                .OrderBy(l => l.Estado == EstadoLote.EnProceso ? 0 : 1)
-                .ThenByDescending(l => l.Id)
+                    l.Estado == EstadoLote.EnProceso)
+                .OrderByDescending(l => l.Id)
                 .FirstOrDefaultAsync();
         }
 
