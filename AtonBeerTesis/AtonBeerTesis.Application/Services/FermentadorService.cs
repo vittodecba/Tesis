@@ -21,10 +21,12 @@ namespace AtonBeerTesis.Application.Services
         public class FermentadorService : IFermentadorService
         {
             private readonly IFermentadorRepository _repository;
+            private readonly ILoteRepository _loteRepository;
 
-            public FermentadorService(IFermentadorRepository repository)
+            public FermentadorService(IFermentadorRepository repository, ILoteRepository loteRepository)
             {
                 _repository = repository;
+                _loteRepository = loteRepository;
             }
 
             public async Task<bool> DeleteAsync(int id)
@@ -109,9 +111,15 @@ namespace AtonBeerTesis.Application.Services
                 var fermentadorExistente = await _repository.GetByIdAsync(id);
                 if (fermentadorExistente == null) return false;
 
-                // Bloquear edición solo si el fermentador está Ocupado (hay un lote corriendo activamente)
+                // Bloquear edición solo si el Ocupado está respaldado por un lote REALMENTE EnProceso.
+                // Si el flag quedó Ocupado huérfano (sin lote activo que lo respalde), se permite
+                // corregirlo desde acá; de lo contrario el fermentador quedaría trabado para siempre.
                 if (fermentadorExistente.Estado == EstadoFermentador.Ocupado)
-                    throw new Exception("No se puede editar un fermentador con un lote activo asignado. Finalizá el lote primero.");
+                {
+                    var loteActivo = await _loteRepository.GetActivoByFermentadorIdAsync(id);
+                    if (loteActivo != null)
+                        throw new Exception("No se puede editar un fermentador con un lote activo asignado. Finalizá el lote primero.");
+                }
 
                 if (!string.IsNullOrWhiteSpace(dto.Nombre))
                 {
