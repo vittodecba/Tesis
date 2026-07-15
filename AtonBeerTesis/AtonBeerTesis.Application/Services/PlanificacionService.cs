@@ -111,13 +111,28 @@ namespace AtonBeerTesis.Application.Services
             var lista = planificaciones.ToList();
             var hoy = DateTime.Now.Date;
 
-            // Auto-transición: Planificado → EnProceso cuando llega la FechaInicio
+            // Fermentadores que ya tienen un lote EnProceso: no pueden recibir otro hasta liberarse.
+            // Un fermentador solo admite UN lote EnProceso a la vez.
+            var fermentadoresOcupados = lista
+                .Where(p => p.Estado == EstadoLote.EnProceso && p.FermentadorId.HasValue)
+                .Select(p => p.FermentadorId!.Value)
+                .ToHashSet();
+
+            // Auto-transición: Planificado → EnProceso cuando llega la FechaInicio.
+            // Se ordena por FechaInicio (y desempata por Id) para que arranque la reserva más antigua.
             var aTransicionar = lista
                 .Where(p => p.Estado == EstadoLote.Planificado && p.FechaInicio.Date <= hoy)
+                .OrderBy(p => p.FechaInicio)
+                .ThenBy(p => p.Id)
                 .ToList();
 
             foreach (var p in aTransicionar)
             {
+                // Si el fermentador ya tiene un lote EnProceso (previo o transicionado en este mismo
+                // loop), esta reserva espera y queda en Planificado.
+                if (p.FermentadorId.HasValue && fermentadoresOcupados.Contains(p.FermentadorId.Value))
+                    continue;
+
                 // Descontar stock de insumos (igual que la transición manual)
                 var recetaInsumos = await _loteRepository.GetRecetaInsumosByLoteIdAsync(p.LoteId);
                 if (p.Lote?.Receta != null && p.Lote.Receta.BatchSizeLitros > 0)
@@ -145,6 +160,9 @@ namespace AtonBeerTesis.Application.Services
                 // ahora). Se ocupa aunque estuviera Sucio/Mantenimiento: el lote empieza igual.
                 if (p.FermentadorId.HasValue)
                 {
+                    // Bloquea a otras reservas del mismo fermentador en este mismo loop.
+                    fermentadoresOcupados.Add(p.FermentadorId.Value);
+
                     var ferm = await _repository.GetFermentadorByIdAsync(p.FermentadorId.Value);
                     if (ferm != null)
                     {
@@ -247,6 +265,25 @@ namespace AtonBeerTesis.Application.Services
             // Solo validamos y descontamos stock si pasamos de Planificado a En Proceso
             if (planificacion.Estado == EstadoLote.Planificado && dto.Estado == EstadoLote.EnProceso)
             {
+                // 0. Un fermentador solo puede tener UN lote EnProceso a la vez: si ya hay otro
+                // lote en proceso en ese fermentador, no se puede arrancar este hasta finalizarlo.
+                if (dto.FermentadorId.HasValue)
+                {
+                    var loteActivo = await _loteRepository.GetActivoByFermentadorIdAsync(dto.FermentadorId.Value);
+                    if (loteActivo != null && loteActivo.Id != planificacion.LoteId)
+                        throw new Exception("Ese fermentador ya tiene un lote en proceso. Debe finalizarlo antes de iniciar otro.");
+
+                    // 0.b Respetar el ORDEN de planificación: no se puede arrancar este lote si hay
+                    // una reserva anterior (fecha más temprana) todavía pendiente en el fermentador.
+                    var reservaAnterior = await _repository.GetReservaAnteriorPendienteAsync(
+                        dto.FermentadorId.Value, dto.FechaInicio, planificacion.Id);
+                    if (reservaAnterior != null)
+                        throw new Exception(
+                            $"Debe respetar el orden de planificación: primero finalice, descarte o elimine el lote " +
+                            $"'{reservaAnterior.Lote?.Codigo}' (planificado para el {reservaAnterior.FechaInicio:dd/MM/yyyy}) " +
+                            $"antes de iniciar este.");
+                }
+
                 // 1. Validar Stock
                 var mensajeError = await StockSuficientePorLote(loteId);
                 if (mensajeError != null)

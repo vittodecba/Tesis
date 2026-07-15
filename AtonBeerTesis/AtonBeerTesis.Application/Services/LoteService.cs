@@ -207,7 +207,35 @@ namespace AtonBeerTesis.Application.Services
                 lote.Observaciones = dto.Observaciones;
 
             if (!string.IsNullOrWhiteSpace(dto.Estado))
-                lote.Estado = Enum.Parse<EstadoLote>(dto.Estado);
+            {
+                var nuevoEstado = Enum.Parse<EstadoLote>(dto.Estado);
+
+                // Un fermentador solo puede tener UN lote EnProceso a la vez: si este lote arranca
+                // (pasa a EnProceso) y su fermentador ya tiene otro lote en proceso, se rechaza.
+                if (nuevoEstado == EstadoLote.EnProceso
+                    && lote.Estado != EstadoLote.EnProceso
+                    && lote.FermentadorId.HasValue)
+                {
+                    var loteActivo = await _repository.GetActivoByFermentadorIdAsync(lote.FermentadorId.Value);
+                    if (loteActivo != null && loteActivo.Id != lote.Id)
+                        throw new Exception("Ese fermentador ya tiene un lote en proceso.");
+
+                    // Respetar el ORDEN de planificación: si el lote tiene una reserva anterior
+                    // pendiente en el mismo fermentador, no puede arrancar hasta que esa se cierre.
+                    var plan = await _planificacionRepository.GetByLoteIdAsync(lote.Id);
+                    if (plan != null)
+                    {
+                        var reservaAnterior = await _planificacionRepository.GetReservaAnteriorPendienteAsync(
+                            lote.FermentadorId.Value, plan.FechaInicio, plan.Id);
+                        if (reservaAnterior != null)
+                            throw new Exception(
+                                $"Debe respetar el orden de planificación: primero finalice, descarte o elimine el lote " +
+                                $"'{reservaAnterior.Lote?.Codigo}' antes de iniciar este.");
+                    }
+                }
+
+                lote.Estado = nuevoEstado;
+            }
 
             return await _repository.UpdateAsync(lote);
         }

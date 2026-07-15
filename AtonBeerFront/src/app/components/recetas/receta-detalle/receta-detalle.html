@@ -89,10 +89,16 @@
             <div class="col-8 col-md-3">
               <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Unidad</label>
               <div class="d-flex gap-1">
-                <select [(ngModel)]="unidadIdSeleccionada" class="w-full border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#E67E22] outline-none">
-                  <option value="0" disabled>...</option>
-                  <option *ngFor="let u of listaUnidades" [value]="u.id">{{ u.abreviatura }}</option>
-                </select>                
+                <select
+  [(ngModel)]="unidadIdSeleccionada"
+  [disabled]="!insumoIdSeleccionado || insumoIdSeleccionado == 0"
+  class="w-full border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-[#E67E22] outline-none"
+>
+  <option value="0" disabled>...</option>
+  <option *ngFor="let u of unidadesPermitidasParaInsumo()" [value]="u.id">
+    {{ u.abreviatura }}
+  </option>
+</select>
               </div>
             </div>
             <div class="col-12 col-md-2">

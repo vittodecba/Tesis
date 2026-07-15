@@ -33,5 +33,6 @@ namespace AtonBeerTesis.Application.Interfaces
         Task<PasosElaboracion> AddPasoAsync(PasosElaboracion paso);
         Task<bool> UpdatePasoAsync(PasosElaboracion paso);
         Task<bool> DeletePasoAsync(int pasoId);
+        Task<unidadMedida?> GetUnidadMedidaByIdAsync(int id);
     }
 }

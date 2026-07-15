@@ -43,6 +43,8 @@ export class RecetaDetalle implements OnInit {
   insumoIdSeleccionado: number = 0;
   cantidadIngresada: number = 0;
   unidadIdSeleccionada: number = 0;
+  private unidadesVolumen = ['lt', 'l', 'ml', 'cl'];
+  private unidadesPeso = ['kg', 'gr', 'g', 'mg'];
   mensajeErrorNombre: string = '';
 
   pasos: RecetaPaso[] = []; 
@@ -112,15 +114,59 @@ export class RecetaDetalle implements OnInit {
       next: (data) => this.listaUnidades = data
     });
   }
+private normalizarUnidad(valor: string | null | undefined): string {
+  return (valor || '').trim().toLowerCase();
+}
 
-  onInsumoChange() {
-    const insumo = this.listaInsumos.find(i => 
-      (i.id == this.insumoIdSeleccionado) || (i.idInsumo == this.insumoIdSeleccionado)
-    );
-    if (insumo) {
-      this.unidadIdSeleccionada = insumo.unidadMedidaId || insumo.idUnidadMedida || 0;
-    }
+private getInsumoSeleccionado(): any {
+  return this.listaInsumos.find(i =>
+    Number(i.id) === Number(this.insumoIdSeleccionado) ||
+    Number(i.idInsumo) === Number(this.insumoIdSeleccionado)
+  );
+}
+
+private getUnidadBaseInsumo(insumo: any): string {
+  return this.normalizarUnidad(
+    insumo?.unidad ||
+    insumo?.Unidad ||
+    insumo?.unidadMedida?.abreviatura ||
+    insumo?.unidadMedidaNombre ||
+    ''
+  );
+}
+
+private getGrupoUnidad(abreviatura: string): 'volumen' | 'peso' | null {
+  const unidad = this.normalizarUnidad(abreviatura);
+
+  if (this.unidadesVolumen.includes(unidad)) return 'volumen';
+  if (this.unidadesPeso.includes(unidad)) return 'peso';
+
+  return null;
+}
+
+unidadesPermitidasParaInsumo(): any[] {
+  const insumo = this.getInsumoSeleccionado();
+
+  if (!insumo) return [];
+
+  const unidadBase = this.getUnidadBaseInsumo(insumo);
+  const grupoBase = this.getGrupoUnidad(unidadBase);
+
+  if (!grupoBase) return this.listaUnidades;
+
+  return this.listaUnidades.filter(u =>
+    this.getGrupoUnidad(u.abreviatura) === grupoBase
+  );
+}
+  onInsumoChange(): void {
+  const insumo = this.getInsumoSeleccionado();
+
+  if (insumo) {
+    this.unidadIdSeleccionada = insumo.unidadMedidaId || insumo.idUnidadMedida || 0;
+  } else {
+    this.unidadIdSeleccionada = 0;
   }
+}
 
   getUnidadSeleccionada(): string {
     if (this.insumoIdSeleccionado == 0) return '';

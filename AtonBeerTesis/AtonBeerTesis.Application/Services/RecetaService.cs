@@ -286,14 +286,21 @@ namespace AtonBeerTesis.Application.Services
         public async Task<bool> AddInsumoToReceta(int id, RecetaInsumoDto dto)
         {
             var receta = await _recetaRepository.GetByIdAsync(id);
-            if (receta == null) return false;         
-         
+            if (receta == null) return false;
+
+            if (dto.Cantidad <= 0)
+                throw new Exception("La cantidad debe ser mayor a 0.");
+
+            if (dto.UnidadMedidaId <= 0)
+                throw new Exception("Debe seleccionar una unidad de medida.");
+
             if (receta.RecetaInsumos.Any(x => x.InsumoId == dto.InsumoId))
             {               
                 throw new Exception("Este insumo ya está cargado en la receta. Use el botón editar si desea cambiar la cantidad.");
-            }     
-            
-             var nuevaRelacion = new RecetaInsumo
+            }
+            if (dto.Cantidad <= 0)
+                throw new Exception("La cantidad debe ser mayor a 0.");
+            var nuevaRelacion = new RecetaInsumo
                 {
                     RecetaId = id,
                     InsumoId = dto.InsumoId,
@@ -303,7 +310,51 @@ namespace AtonBeerTesis.Application.Services
 
                 return await _recetaRepository.AddInsumoAsync(nuevaRelacion);             
         }
+        //Calculos de insumos en detalle de receta
+        private static readonly string[] UnidadesVolumen = { "lt", "l", "ml", "cl" };
+        private static readonly string[] UnidadesPeso = { "kg", "gr", "g", "mg" };
 
+        private static string NormalizarUnidad(string? unidad)
+        {
+            return (unidad ?? string.Empty).Trim().ToLower();
+        }
+
+        private static string? ObtenerGrupoUnidad(string? abreviatura)
+        {
+            var unidad = NormalizarUnidad(abreviatura);
+
+            if (UnidadesVolumen.Contains(unidad)) return "volumen";
+            if (UnidadesPeso.Contains(unidad)) return "peso";
+
+            return null;
+        }
+
+        private static decimal ObtenerFactor(double? factor)
+        {
+            return factor.HasValue && factor.Value > 0
+                ? Convert.ToDecimal(factor.Value)
+                : 1m;
+        }
+
+        private static decimal ConvertirCantidad(decimal cantidad, unidadMedida? unidadOrigen, unidadMedida? unidadDestino)
+        {
+            if (unidadOrigen == null || unidadDestino == null)
+                throw new Exception("No se pudo validar la unidad de medida del insumo.");
+
+            var grupoOrigen = ObtenerGrupoUnidad(unidadOrigen.Abreviatura);
+            var grupoDestino = ObtenerGrupoUnidad(unidadDestino.Abreviatura);
+
+            if (grupoOrigen == null || grupoDestino == null)
+                throw new Exception("La unidad de medida seleccionada no tiene un grupo de conversión válido.");
+
+            if (grupoOrigen != grupoDestino)
+                throw new Exception($"La unidad {unidadOrigen.Abreviatura} no corresponde con la unidad base {unidadDestino.Abreviatura} del insumo.");
+
+            var factorOrigen = ObtenerFactor(unidadOrigen.Factor);
+            var factorDestino = ObtenerFactor(unidadDestino.Factor);
+
+            return cantidad * factorOrigen / factorDestino;
+        }
 
         public async Task<bool> RemoveInsumoDeReceta(int id, int insumoId)
         {
@@ -315,18 +366,46 @@ namespace AtonBeerTesis.Application.Services
             var receta = await _recetaRepository.GetByIdAsync(recetaId);
             if (receta == null) return false;
 
-            // Relación existente entre la receta y el insumo para actualizar
+            if (dto.Cantidad <= 0)
+                throw new Exception("La cantidad debe ser mayor a 0.");
+
+            if (dto.UnidadMedidaId <= 0)
+                throw new Exception("Debe seleccionar una unidad de medida.");
+
             var existente = receta.RecetaInsumos.FirstOrDefault(x => x.InsumoId == dto.InsumoId);
             if (existente == null) return false;
-            if (Suma)
+
+            var unidadBase = existente.Insumo?.unidadMedida;
+            var unidadActual = existente.unidadMedida;
+
+            if (unidadBase == null || unidadActual == null)
+                throw new Exception("No se pudo validar la unidad base del insumo.");
+
+            var cantidadActualEnBase = ConvertirCantidad(existente.Cantidad, unidadActual, unidadBase);
+
+            decimal cantidadIngresadaEnBase;
+
+            if (dto.UnidadMedidaId == unidadBase.id)
             {
-                existente.Cantidad += dto.Cantidad; // SUMA: (Cantidad actual + lo ingresado)
+                cantidadIngresadaEnBase = dto.Cantidad;
             }
             else
             {
-                existente.Cantidad = dto.Cantidad;  // REEMPLAZA: (Pisa el valor con lo nuevo)
+                var unidadIngresada = await _recetaRepository.GetUnidadMedidaByIdAsync(dto.UnidadMedidaId);
+
+                if (unidadIngresada == null)
+                    throw new Exception("No se pudo validar la unidad seleccionada.");
+
+                cantidadIngresadaEnBase = ConvertirCantidad(dto.Cantidad, unidadIngresada, unidadBase);
             }
-            existente.unidadMedidaId = dto.UnidadMedidaId;            
+
+            existente.Cantidad = Suma
+                ? cantidadActualEnBase + cantidadIngresadaEnBase
+                : cantidadIngresadaEnBase;
+
+            existente.Cantidad = Math.Round(existente.Cantidad, 4);
+            existente.unidadMedidaId = unidadBase.id;
+
             return await _recetaRepository.UpdateAsync(receta);
         }
 
