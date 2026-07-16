@@ -66,7 +66,7 @@
         <span>Recetas</span>
       </a>
 
-      <a *ngIf="puedeVerPlanificacion()" class="navItem" routerLink="/planificacion" [class.active]="esRutaActiva('/planificacion')">
+      <a *ngIf="puedeVerPlanificacion()" class="navItem" routerLink="/planificacion" [class.active]="esRutaActiva('/planificacion') && !esRutaActiva('/planificacion/reporte-cumplimiento')">
         <lucide-icon [img]="CalendarDays" class="navIcon" [size]="18"></lucide-icon>
         <span>Planificación</span>
       </a>

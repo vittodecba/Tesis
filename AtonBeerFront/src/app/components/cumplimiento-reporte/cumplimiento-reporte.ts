@@ -34,20 +34,123 @@ export class CumplimientoReporte implements OnInit {
   };
 
   detalle: LoteCumplimiento[] = [];
+  // Subconjunto que se grafica: solo finalizados (los descartados no tienen desvío de cumplimiento).
+  detalleGrafico: LoteCumplimiento[] = [];
+
+  // Ancho mínimo del canvas: crece con la cantidad de lotes para que las barras no se
+  // amontonen; el contenedor tiene scroll horizontal cuando supera el ancho visible.
+  public chartMinWidth = 600;
+
+  // Colores de serie validados (par azul/naranja, CVD-safe). Estimado = referencia (azul),
+  // Real = valor de marca (naranja).
+  private readonly COLOR_ESTIMADO = '#2a78d6';
+  private readonly COLOR_REAL = '#E67E22';
 
   public barChartOptions: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { position: 'top' } },
+    // 'index' → al pasar el mouse muestra AMBAS series (Estimado y Real) del mismo lote.
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'circle',
+          boxWidth: 8,
+          boxHeight: 8,
+          padding: 16,
+          color: '#52514e',
+          font: { size: 13, weight: 600 },
+        },
+      },
+      tooltip: {
+        backgroundColor: '#3A2220',
+        titleColor: '#ffffff',
+        bodyColor: '#f5f5f4',
+        footerColor: '#fcd9b6',
+        padding: 12,
+        cornerRadius: 10,
+        titleFont: { size: 13, weight: 700 },
+        bodyFont: { size: 12 },
+        footerFont: { size: 12, weight: 700 },
+        usePointStyle: true,
+        callbacks: {
+          // Título: código del lote + estilo (que sacamos del eje X para no amontonar).
+          title: (items: any) => {
+            const l = this.detalleGrafico[items[0]?.dataIndex];
+            return l ? `${l.codigoLote}${l.estilo ? ' · ' + l.estilo : ''}` : '';
+          },
+          label: (ctx: any) => `  ${ctx.dataset.label}: ${ctx.parsed.y} días`,
+          // Pie: desvío del lote (real - estimado), con signo.
+          footer: (items: any) => {
+            const l = this.detalleGrafico[items[0]?.dataIndex];
+            if (!l) return '';
+            const pct = this.desvioPorcentaje(l);
+            if (pct === null) return 'Desvío: —';
+            const signo = pct > 0 ? '+' : '';
+            return `Desvío: ${signo}${pct}%`;
+          },
+        },
+      },
+    },
     scales: {
-      y: { beginAtZero: true, title: { display: true, text: 'Días' } },
+      x: {
+        grid: { display: false },
+        border: { color: '#c3c2b7' },
+        ticks: { color: '#898781', font: { size: 11 }, maxRotation: 55, minRotation: 45, autoSkip: false },
+      },
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: 'Días', color: '#898781', font: { size: 12, weight: 600 } },
+        grid: { color: '#e1e0d9' },
+        border: { display: false },
+        ticks: { color: '#898781', font: { size: 11 }, precision: 0 },
+      },
     },
   };
   public barChartLabels: string[] = [];
   public barChartDatasets: any[] = [
-    { data: [], label: 'Estimado', backgroundColor: '#9ca3af' },
-    { data: [], label: 'Real', backgroundColor: '#E67E22' },
+    this.buildDataset([], 'Estimado', this.COLOR_ESTIMADO),
+    this.buildDataset([], 'Real', this.COLOR_REAL),
   ];
+
+  // Barras finas, con puntas redondeadas ancladas a la base y una separación de 2px
+  // (borde del color de superficie) entre barras adyacentes.
+  private buildDataset(data: number[], label: string, color: string) {
+    return {
+      data,
+      label,
+      backgroundColor: color,
+      hoverBackgroundColor: color,
+      borderColor: '#ffffff',
+      borderWidth: 2,
+      borderRadius: 4,
+      borderSkipped: false,
+      categoryPercentage: 0.7,
+      barPercentage: 0.9,
+      maxBarThickness: 30,
+    };
+  }
+
+  // Desvío como % respecto de los días estimados: (real - estimado) / estimado * 100.
+  // null cuando no hay estimado (evita dividir por cero).
+  desvioPorcentaje(l: LoteCumplimiento): number | null {
+    if (l.estado !== 'Finalizado') return null; // descartado: no completó fermentación, sin desvío de cumplimiento
+    if (!l.diasEstimados) return null;
+    return Math.round((l.desvioDias / l.diasEstimados) * 100);
+  }
+
+  // Promedio de los desvíos porcentuales, solo sobre lotes FINALIZADOS (igual que el
+  // cálculo original en días del backend; los descartados no cuentan para el cumplimiento).
+  get desvioPromedioPorcentaje(): number | null {
+    const vals = this.detalle
+      .filter((l) => l.estado === 'Finalizado')
+      .map((l) => this.desvioPorcentaje(l))
+      .filter((v): v is number => v !== null);
+    if (!vals.length) return null;
+    return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+  }
 
   private fb = inject(FormBuilder);
   private reporteService = inject(CumplimientoReporteService);
@@ -109,12 +212,14 @@ export class CumplimientoReporte implements OnInit {
 
         this.detalle = data.detalle || [];
 
-        this.barChartLabels = this.detalle.map((l) =>
-          `${l.codigoLote}${l.estilo ? ' ' + l.estilo : ''}`
-        );
+        // Solo se grafican los lotes finalizados (los descartados no tienen desvío de cumplimiento).
+        this.detalleGrafico = this.detalle.filter((l) => l.estado === 'Finalizado');
+        // Eje X: solo el código (el estilo va en el tooltip) para no amontonar etiquetas.
+        this.barChartLabels = this.detalleGrafico.map((l) => l.codigoLote);
+        this.chartMinWidth = Math.max(this.detalleGrafico.length * 62, 600);
         this.barChartDatasets = [
-          { data: this.detalle.map((l) => l.diasEstimados), label: 'Estimado', backgroundColor: '#9ca3af' },
-          { data: this.detalle.map((l) => l.diasReales), label: 'Real', backgroundColor: '#E67E22' },
+          this.buildDataset(this.detalleGrafico.map((l) => l.diasEstimados), 'Estimado', this.COLOR_ESTIMADO),
+          this.buildDataset(this.detalleGrafico.map((l) => l.diasReales), 'Real', this.COLOR_REAL),
         ];
 
         this.hayDatos = true;

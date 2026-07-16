@@ -65,7 +65,7 @@
       </div>
       <div class="bg-white rounded-2xl p-6 border-l-4 border-[#E67E22] shadow-sm">
         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Desvío Promedio</span>
-        <h3 class="text-3xl font-black text-[#3A2220]">{{ resumen.desvioPromedioDias > 0 ? '+' : '' }}{{ resumen.desvioPromedioDias }} días</h3>
+        <h3 class="text-3xl font-black text-[#3A2220]">{{ desvioPromedioPorcentaje === null ? '—' : (desvioPromedioPorcentaje > 0 ? '+' : '') + desvioPromedioPorcentaje + '%' }}</h3>
       </div>
       <div class="bg-white rounded-2xl p-6 border-l-4 border-red-500 shadow-sm">
         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Tasa de Descarte</span>
@@ -76,10 +76,12 @@
     <!-- Gráfico -->
     <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 mb-8 flex flex-col">
       <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Días estimados vs. reales por lote</h3>
-      <div *ngIf="detalle.length > 0" style="position: relative; height: 380px; width: 100%;">
-        <canvas style="width: 100%; height: 100%; display: block;" baseChart [datasets]="barChartDatasets" [labels]="barChartLabels" [options]="barChartOptions" [type]="'bar'"></canvas>
+      <div *ngIf="detalleGrafico.length > 0" class="overflow-x-auto pb-2">
+        <div style="position: relative; height: 400px;" [style.min-width.px]="chartMinWidth">
+          <canvas style="width: 100%; height: 100%; display: block;" baseChart [datasets]="barChartDatasets" [labels]="barChartLabels" [options]="barChartOptions" [type]="'bar'"></canvas>
+        </div>
       </div>
-      <p *ngIf="detalle.length === 0" class="text-gray-400 font-medium py-10 text-center">No hay lotes cerrados en el período seleccionado.</p>
+      <p *ngIf="detalleGrafico.length === 0" class="text-gray-400 font-medium py-10 text-center">No hay lotes finalizados para graficar en el período seleccionado.</p>
     </div>
 
     <!-- Detalle por lote -->
@@ -93,7 +95,7 @@
               <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Receta</th>
               <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Días Est.</th>
               <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Días Reales</th>
-              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Desvío</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Desvío %</th>
               <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Estado</th>
             </tr>
           </thead>
@@ -103,7 +105,7 @@
               <td class="py-3 px-4 text-sm font-medium text-gray-700">{{ l.receta || '—' }}</td>
               <td class="py-3 px-4 text-sm text-gray-700 text-right">{{ l.diasEstimados }}</td>
               <td class="py-3 px-4 text-sm text-gray-700 text-right">{{ l.diasReales }}</td>
-              <td class="py-3 px-4 text-sm font-bold text-right" [ngClass]="l.desvioDias > 0 ? 'text-red-500' : 'text-green-600'">{{ l.desvioDias > 0 ? '+' : '' }}{{ l.desvioDias }} días</td>
+              <td class="py-3 px-4 text-sm font-bold text-right" [ngClass]="desvioPorcentaje(l) === null ? 'text-gray-400' : (l.desvioDias > 0 ? 'text-red-500' : 'text-green-600')">{{ desvioPorcentaje(l) === null ? '—' : (l.desvioDias > 0 ? '+' : '') + desvioPorcentaje(l) + '%' }}</td>
               <td class="py-3 px-4 text-center">
                 <span class="inline-block px-3 py-1 rounded-full text-xs font-bold"
                       [ngClass]="l.estado === 'Finalizado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'">
