@@ -30,14 +30,12 @@ namespace AtonBeerTesis.Application.Services
                 clientes = clientes.Where(c => c.EstadoCliente == estadoEnum).ToList();
             }
 
-            // Tipo
             if (!string.IsNullOrWhiteSpace(tipo) &&
                 Enum.TryParse<TipoCliente>(tipo, true, out var tipoEnum))
             {
                 clientes = clientes.Where(c => c.Tipocliente == tipoEnum).ToList();
             }
 
-            // Ubicacion
             if (!string.IsNullOrWhiteSpace(ubicacion))
             {
                 clientes = clientes
@@ -75,7 +73,7 @@ namespace AtonBeerTesis.Application.Services
             var cliente = new Cliente
             {
                 RazonSocial = dto.RazonSocial,
-                Cuit = cuit, // ← guardado normalizado
+                Cuit = cuit,
                 Tipocliente = tipo,
                 CondicionIVA = condicionIva,
                 EstadoCliente = EstadoCliente.Activo,
@@ -130,12 +128,12 @@ namespace AtonBeerTesis.Application.Services
             await _clienteRepository.UpdateAsync(cliente);
             return true;
         }
+
         public async Task<bool> PatchAsync(int id, PatchClienteDto dto)
         {
             var cliente = await _clienteRepository.GetByIdAsync(id);
             if (cliente is null) return false;
 
-            // Strings simples
             if (dto.RazonSocial is not null) cliente.RazonSocial = dto.RazonSocial;
             if (dto.Email is not null) cliente.Email = dto.Email;
             if (dto.Ubicacion is not null) cliente.Ubicacion = dto.Ubicacion;
@@ -144,13 +142,12 @@ namespace AtonBeerTesis.Application.Services
             if (dto.ContactoTelefono is not null) cliente.ContactoTelefono = dto.ContactoTelefono;
             if (dto.ContactoEmail is not null) cliente.ContactoEmail = dto.ContactoEmail;
 
-            // Enums (solo si vienen)
             if (dto.TipoCliente is not null)
             {
                 if (!Enum.TryParse<TipoCliente>(dto.TipoCliente, true, out var tipo))
                     throw new Exception("Tipo de cliente inválido");
 
-                cliente.Tipocliente = tipo; // OJO: en tu entidad es Tipocliente
+                cliente.Tipocliente = tipo;
             }
 
             if (dto.CondicionIVA is not null)
@@ -183,7 +180,6 @@ namespace AtonBeerTesis.Application.Services
             return true;
         }
 
-
         public async Task<bool> DeactivateAsync(int id)
         {
             var cliente = await _clienteRepository.GetByIdAsync(id);
@@ -197,6 +193,7 @@ namespace AtonBeerTesis.Application.Services
 
         public List<string> GetTiposCliente() => Enum.GetNames(typeof(TipoCliente)).ToList();
         public List<string> GetEstadosCliente() => Enum.GetNames(typeof(EstadoCliente)).ToList();
+
         private async Task<bool> ExisteCuitAsync(string cuit, int? excluirId = null)
         {
             var clientes = await _clienteRepository.GetAllAsync();
@@ -206,6 +203,7 @@ namespace AtonBeerTesis.Application.Services
                 (!excluirId.HasValue || c.IdCliente != excluirId.Value)
             );
         }
+
         private static ClienteDto MapToDto(Cliente c) => new ClienteDto
         {
             IdCliente = c.IdCliente,

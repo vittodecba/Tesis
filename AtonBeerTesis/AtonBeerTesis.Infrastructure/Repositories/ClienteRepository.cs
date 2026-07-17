@@ -17,30 +17,27 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task<List<Cliente>> GetAllAsync()
         {
-            return await _context.Clientes
-                .AsNoTracking()
-                .Select(c => new Cliente
-                {
-                    IdCliente = c.IdCliente,
-                    Tipocliente = c.Tipocliente,
-                    EstadoCliente = c.EstadoCliente,
-                    RazonSocial = c.RazonSocial,
-                    Cuit = c.Cuit,
-                    Email = c.Email,
-                    Ubicacion = c.Ubicacion,
-                    ContactoNombre = c.ContactoNombre,
-                    ContactoTelefono = c.ContactoTelefono,
-                    ContactoEmail = c.ContactoEmail,
-                    UltimoPedido = c.UltimoPedido,
-                    TotalPedidos = _context.Pedidos
-                        .Count(p => p.ClienteId == c.IdCliente && p.EstadoId == 2),
-                    UltimaCompra = _context.Ventas
-                        .Where(v => v.ClienteId == c.IdCliente && v.EstadoVenta == EstadoVenta.Pagada)
-                        .OrderByDescending(v => v.FechaCreacion)
-                        .Select(v => (DateTime?)v.FechaCreacion)
-                        .FirstOrDefault()
-                })
-                .ToListAsync();
+            var clientes = await _context.Clientes.AsNoTracking().ToListAsync();
+
+            var pedidosDict = await _context.Pedidos
+                .Where(p => p.EstadoId == 2)
+                .GroupBy(p => p.ClienteId)
+                .Select(g => new { Id = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.Id, x => x.Count);
+
+            var ventasDict = await _context.Ventas
+                .Where(v => v.EstadoVenta == EstadoVenta.Pagada)
+                .GroupBy(v => v.ClienteId)
+                .Select(g => new { Id = g.Key, Fecha = g.Max(x => x.FechaCreacion) })
+                .ToDictionaryAsync(x => x.Id, x => (DateTime?)x.Fecha);
+
+            foreach (var c in clientes)
+            {
+                c.TotalPedidos = pedidosDict.TryGetValue(c.IdCliente, out var pCount) ? pCount : 0;
+                c.UltimaCompra = ventasDict.TryGetValue(c.IdCliente, out var vFecha) ? vFecha : null;
+            }
+
+            return clientes;
         }
 
         public async Task<Cliente?> GetByIdAsync(int id)

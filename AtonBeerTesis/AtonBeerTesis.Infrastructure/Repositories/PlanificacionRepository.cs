@@ -78,6 +78,24 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .FirstOrDefaultAsync(p => p.LoteId == loteId);
         }
 
+        // Devuelve la reserva pendiente (Planificado/EnProceso) de fecha ANTERIOR más cercana en el
+        // mismo fermentador, para forzar que las planificaciones arranquen en orden de FechaInicio.
+        // null = no hay ninguna reserva anterior sin cerrar → este lote puede arrancar.
+        public async Task<PlanificacionProduccion?> GetReservaAnteriorPendienteAsync(
+            int fermentadorId, DateTime fechaInicio, int excluirPlanificacionId)
+        {
+            return await _context.PlanificacionProduccion
+                .Include(p => p.Lote)
+                .Where(p => p.FermentadorId == fermentadorId
+                    && p.Id != excluirPlanificacionId
+                    && (p.Estado == EstadoLote.Planificado || p.Estado == EstadoLote.EnProceso)
+                    && (p.FechaInicio < fechaInicio
+                        || (p.FechaInicio == fechaInicio && p.Id < excluirPlanificacionId)))
+                .OrderByDescending(p => p.FechaInicio)
+                .ThenByDescending(p => p.Id)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<PlanificacionProduccion> UpdateAsync(PlanificacionProduccion planificacion)
         {
             _context.PlanificacionProduccion.Update(planificacion);

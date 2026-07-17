@@ -20,10 +20,9 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         public async Task<IEnumerable<Pedido>> GetAllAsync()
         {
             return await _context.Pedidos
+                .AsNoTracking()
                 .Include(p => p.Cliente)
                 .Include(p => p.Estado)
-                .Include(p => p.Detalles)
-                .ThenInclude(d => d.ProductoStock)
                 .ToListAsync();
         }
 
@@ -45,6 +44,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
                 .Include(p => p.Detalles)
                 .ThenInclude(d => d.ProductoStock)
                 .ThenInclude(ps => ps.FormatoEnvase)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
@@ -54,7 +54,6 @@ namespace AtonBeerTesis.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        //Chequea luego lo de abajo
         public async Task<ProductoStock?> GetProductoStockByIdAsync(int id)
         {
             return await _context.ProductosStock
@@ -85,8 +84,6 @@ namespace AtonBeerTesis.Infrastructure.Repositories
 
         public async Task<bool> TieneClientePedidosActivosAsync(int clienteId)
         {
-            // Un pedido solo "bloquea" la desactivación del cliente si está en curso (Pendiente=1).
-            // Los estados terminales no bloquean: Entregado=2, Facturado=3 y Cancelado=4.
             return await _context.Pedidos
                 .AnyAsync(p => p.ClienteId == clienteId
                     && p.EstadoId != 2 && p.EstadoId != 3 && p.EstadoId != 4);
@@ -105,7 +102,7 @@ namespace AtonBeerTesis.Infrastructure.Repositories
         .ToDictionaryAsync(x => x.ProductoStockId, x => (decimal)x.CantidadReservada);
         }
         public async Task<List<Pedido>> GetPedidosVencidosAsync(DateTime fechaLimite, int estadoPendienteId)
-        {            
+        {
             return await _context.Pedidos
                 .Where(p => p.EstadoId == estadoPendienteId
                          && p.FechaEntregaProgramada != null
