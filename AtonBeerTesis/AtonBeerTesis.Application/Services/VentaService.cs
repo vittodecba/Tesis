@@ -26,34 +26,24 @@ namespace AtonBeerTesis.Application.Services
         public async Task<IEnumerable<VentaDto>> ObtenerTodasAsync()
         {
             var ventas = await _ventaRepository.GetQueryable()
-    .AsNoTracking()
-    .Include(v => v.Cliente)
-    .ToListAsync();
-
-            var resultado = new List<VentaDto>();
-
-            var ventasIds = ventas.Select(v => v.Id).ToList();
+                .AsNoTracking()
+                .Include(v => v.Cliente)
+                .Include(v => v.Pagos)
+                .AsSplitQuery()
+                .ToListAsync();
 
             var facturasPorVenta = await _facturaRepository.GetFacturaIdsPorVentaAsync();
-            var pagosPorVenta = await _pagoRepository.GetTotalPagadoPorVentasAsync(ventasIds);
-
-            var todosLosPagos = await _ventaRepository.GetQueryable()
-    .AsNoTracking()
-    .Where(v => ventasIds.Contains(v.Id))
-    .SelectMany(v => v.Pagos)
-    .ToListAsync();
+            var resultado = new List<VentaDto>();
 
             foreach (var v in ventas)
             {
-                decimal totalPagado = pagosPorVenta.TryGetValue(v.Id, out var monto) ? monto : 0m;
+                var totalPagado = v.Pagos?.Sum(p => p.Monto) ?? 0m;
                 var saldoPendiente = v.MontoTotal - totalPagado;
 
-                var pagosVenta = todosLosPagos.Where(p => p.VentaId == v.Id).ToList();
-
-                var metodosPago = pagosVenta
+                var metodosPago = v.Pagos?
                     .Select(p => p.MetodoPago.ToString())
                     .Distinct()
-                    .ToList();
+                    .ToList() ?? new List<string>();
 
                 var metodoCobroReal = "Sin pagos";
 
@@ -82,10 +72,10 @@ namespace AtonBeerTesis.Application.Services
                     TotalPagado = totalPagado,
                     SaldoPendiente = saldoPendiente,
                     Subtotal = v.Subtotal > 0
-                    ? v.Subtotal
-                    : v.NetoGravado > 0
-                    ? v.NetoGravado + v.DescuentoMonto
-                    : v.MontoTotal,
+                        ? v.Subtotal
+                        : v.NetoGravado > 0
+                        ? v.NetoGravado + v.DescuentoMonto
+                        : v.MontoTotal,
                     DescuentoMonto = v.DescuentoMonto,
                     DescuentoPorcentaje = v.DescuentoPorcentaje,
                     NetoGravado = v.NetoGravado,
@@ -203,47 +193,56 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task<ReporteVentasDto> ObtenerReporteVentasAsync(DateTime fechaDesde, DateTime fechaHasta, string? cliente = null)
         {
-            var query = _ventaRepository.GetQueryable();
+            var queryVentas = _ventaRepository.GetQueryable().AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(cliente))
             {
-                query = query.Where(v => v.Cliente != null && v.Cliente.RazonSocial == cliente);
+                queryVentas = queryVentas.Where(v => v.Cliente != null && v.Cliente.RazonSocial == cliente);
             }
 
-            var fechaHastaReal = fechaHasta.Date.AddDays(1).AddTicks(-1);
+            var fechaDesdeFiltro = fechaDesde.Date;
+            var fechaHastaFiltro = fechaHasta.Date.AddDays(1).AddTicks(-1);
             var diasDiferencia = (fechaHasta - fechaDesde).TotalDays;
             var fechaDesdeAnterior = fechaDesde.AddDays(-diasDiferencia - 1).Date;
             var fechaHastaAnterior = fechaDesde.AddDays(-1).Date.AddDays(1).AddTicks(-1);
 
-            var qActuales = query.Where(v => v.FechaCreacion >= fechaDesde.Date && v.FechaCreacion <= fechaHastaReal);
-            var qAnteriores = query.Where(v => v.FechaCreacion >= fechaDesdeAnterior && v.FechaCreacion <= fechaHastaAnterior);
-
-            var totalVendido = await qActuales.SumAsync(v => v.MontoTotal);
-            var cantidadVentas = await qActuales.CountAsync();
-            var totalAnterior = await qAnteriores.SumAsync(v => v.MontoTotal);
-
-            var actualesIds = await qActuales.Select(v => v.Id).ToListAsync();
-
-            var pagosActuales = await _ventaRepository.GetQueryable()
-                .Where(v => actualesIds.Contains(v.Id))
+            var pagosActualesDb = await queryVentas
                 .SelectMany(v => v.Pagos)
+                .Where(p => p.Fecha >= fechaDesdeFiltro && p.Fecha <= fechaHastaFiltro)
+                .Select(p => new {
+                    p.Monto,
+                    p.VentaId,
+                    p.MetodoPago,
+                    p.Fecha,
+                    Cliente = p.Venta.Cliente != null ? p.Venta.Cliente.RazonSocial : "Desconocido"
+                })
                 .ToListAsync();
 
-            var efectivoTotal = pagosActuales.Where(p => p.MetodoPago == MetodoPago.Efectivo).Sum(p => p.Monto);
-            var transferenciaTotal = pagosActuales.Where(p => p.MetodoPago == MetodoPago.Transferencia).Sum(p => p.Monto);
+            var pagosAnterioresDb = await queryVentas
+                .SelectMany(v => v.Pagos)
+                .Where(p => p.Fecha >= fechaDesdeAnterior && p.Fecha <= fechaHastaAnterior)
+                .Select(p => new { p.Monto, p.Fecha })
+                .ToListAsync();
+
+            var totalVendido = pagosActualesDb.Sum(p => p.Monto);
+            var cantidadVentas = pagosActualesDb.Select(p => p.VentaId).Distinct().Count();
+            var totalAnterior = pagosAnterioresDb.Sum(p => p.Monto);
+
+            var efectivoTotal = pagosActualesDb.Where(p => p.MetodoPago == MetodoPago.Efectivo).Sum(p => p.Monto);
+            var transferenciaTotal = pagosActualesDb.Where(p => p.MetodoPago == MetodoPago.Transferencia).Sum(p => p.Monto);
 
             var ticketPromedio = cantidadVentas > 0 ? Math.Round(totalVendido / cantidadVentas, 2) : 0;
-            var variacion = totalAnterior == 0 ? 100 : Math.Round(((totalVendido - totalAnterior) / totalAnterior) * 100, 2);
+            var variacion = totalAnterior == 0 ? (totalVendido > 0 ? 100 : 0) : Math.Round(((totalVendido - totalAnterior) / totalAnterior) * 100, 2);
 
-            var ventasDiariasActuales = await qActuales
-                .GroupBy(v => v.FechaCreacion.Day)
-                .Select(g => new { Dia = g.Key, Total = g.Sum(v => v.MontoTotal) })
-                .ToListAsync();
+            var ventasDiariasActuales = pagosActualesDb
+                .GroupBy(p => p.Fecha.Day)
+                .Select(g => new { Dia = g.Key, Total = g.Sum(p => p.Monto) })
+                .ToList();
 
-            var ventasDiariasAnteriores = await qAnteriores
-                .GroupBy(v => v.FechaCreacion.Day)
-                .Select(g => new { Dia = g.Key, Total = g.Sum(v => v.MontoTotal) })
-                .ToListAsync();
+            var ventasDiariasAnteriores = pagosAnterioresDb
+                .GroupBy(p => p.Fecha.Day)
+                .Select(g => new { Dia = g.Key, Total = g.Sum(p => p.Monto) })
+                .ToList();
 
             var comparativaMensual = Enumerable.Range(1, 31).Select(dia => new ComparativaMesDto
             {
@@ -252,99 +251,87 @@ namespace AtonBeerTesis.Application.Services
                 TotalAnterior = ventasDiariasAnteriores.FirstOrDefault(van => van.Dia == dia)?.Total ?? 0m
             }).ToList();
 
-            var topClientes = await qActuales
-                .Where(v => v.Cliente != null)
-                .GroupBy(v => v.Cliente.RazonSocial)
+            var topClientes = pagosActualesDb
+                .GroupBy(p => p.Cliente)
                 .Select(g => new TopClienteDto
                 {
-                    Cliente = g.Key ?? "Desconocido",
-                    TotalComprado = g.Sum(v => v.MontoTotal),
-                    CantidadVentas = g.Count()
+                    Cliente = g.Key,
+                    TotalComprado = g.Sum(p => p.Monto),
+                    CantidadVentas = g.Select(p => p.VentaId).Distinct().Count()
                 })
                 .OrderByDescending(x => x.TotalComprado)
                 .Take(5)
-                .ToListAsync();
-
-            var topProductosDb = await qActuales
-                .Where(v => v.Pedido != null)
-                .SelectMany(v => v.Pedido.Detalles)
-                .Where(d => d.ProductoStock != null)
-                .GroupBy(d => new
-                {
-                    Estilo = d.ProductoStock.Estilo,
-                    RecetaNombre = d.ProductoStock.Receta != null ? d.ProductoStock.Receta.Nombre : "Sin Receta",
-                    EnvaseNombre = d.ProductoStock.FormatoEnvase != null ? d.ProductoStock.FormatoEnvase.Nombre : "",
-                    CapacidadLitros = d.ProductoStock.FormatoEnvase != null ? d.ProductoStock.FormatoEnvase.CapacidadLitros : 0
-                })
-                .Select(g => new
-                {
-                    g.Key.Estilo,
-                    g.Key.RecetaNombre,
-                    g.Key.EnvaseNombre,
-                    g.Key.CapacidadLitros,
-                    CantidadVendida = g.Sum(d => d.Cantidad)
-                })
-                .OrderByDescending(x => x.CantidadVendida)
-                .Take(5)
-                .ToListAsync();
-
-            var topProductos = topProductosDb.Select(x => new TopProductoDto
-            {
-                Producto = $"Estilo: {x.Estilo} - Receta: \"{x.RecetaNombre}\" - {x.EnvaseNombre} {x.CapacidadLitros.ToString("0.##")}L",
-                CantidadVendida = x.CantidadVendida
-            }).ToList();
-
-            var topEstilos = await qActuales
-                .Where(v => v.Pedido != null)
-                .SelectMany(v => v.Pedido.Detalles)
-                .Where(d => d.ProductoStock != null && d.ProductoStock.Estilo != null)
-                .GroupBy(d => d.ProductoStock.Estilo)
-                .Select(g => new TopEstiloDto
-                {
-                    Estilo = g.Key,
-                    CantidadVendida = g.Sum(d => d.Cantidad)
-                })
-                .OrderByDescending(x => x.CantidadVendida)
-                .Take(5)
-                .ToListAsync();
-
-            var detallesEstilos = await qActuales
-                .Where(v => v.Pedido != null)
-                .SelectMany(v => v.Pedido.Detalles)
-                .Where(d => d.ProductoStock != null)
-                .Select(d => new { d.Pedido.Fecha, Estilo = d.ProductoStock.Estilo ?? "Sin Estilo", d.Cantidad })
-                .ToListAsync();
-
-            var evolucionLimpia = detallesEstilos
-                .GroupBy(d => new {
-                    ClaveFecha = diasDiferencia > 31 ? d.Fecha.ToString("yyyy-MM") : d.Fecha.ToString("yyyy-MM-dd"),
-                    d.Estilo
-                })
-                .Select(g => new EvolucionEstiloDto
-                {
-                    Fecha = g.Key.ClaveFecha,
-                    Estilo = g.Key.Estilo,
-                    Cantidad = g.Sum(x => x.Cantidad)
-                })
-                .OrderBy(x => x.Fecha)
                 .ToList();
 
-            var evolucionMensualIngresos = await qActuales
-                .GroupBy(v => new { v.FechaCreacion.Year, v.FechaCreacion.Month })
-                .Select(g => new
+            var evolucionMensualDto = pagosActualesDb
+                .GroupBy(p => new { p.Fecha.Year, p.Fecha.Month })
+                .Select(g => new IngresoPorMesDto
                 {
-                    Year = g.Key.Year,
-                    Month = g.Key.Month,
-                    Total = g.Sum(v => v.MontoTotal)
+                    Mes = $"{g.Key.Year}-{g.Key.Month:D2}",
+                    Total = g.Sum(p => p.Monto)
                 })
-                .OrderBy(x => x.Year).ThenBy(x => x.Month)
-                .ToListAsync();
+                .OrderBy(x => x.Mes)
+                .ToList();
 
-            var evolucionMensualDto = evolucionMensualIngresos.Select(e => new IngresoPorMesDto
+            var ventasActualesIds = pagosActualesDb.Select(p => p.VentaId).Distinct().ToList();
+            var topProductos = new List<TopProductoDto>();
+            var topEstilos = new List<TopEstiloDto>();
+            var evolucionLimpia = new List<EvolucionEstiloDto>();
+
+            if (ventasActualesIds.Any())
             {
-                Mes = $"{e.Year}-{e.Month:D2}",
-                Total = e.Total
-            }).ToList();
+                var topProductosDb = await _ventaRepository.GetQueryable()
+                    .AsNoTracking()
+                    .Where(v => ventasActualesIds.Contains(v.Id) && v.Pedido != null)
+                    .SelectMany(v => v.Pedido.Detalles)
+                    .Where(d => d.ProductoStock != null)
+                    .Select(d => new
+                    {
+                        Estilo = d.ProductoStock.Estilo ?? "Sin Estilo",
+                        RecetaNombre = d.ProductoStock.Receta != null ? d.ProductoStock.Receta.Nombre : "Sin Receta",
+                        EnvaseNombre = d.ProductoStock.FormatoEnvase != null ? d.ProductoStock.FormatoEnvase.Nombre : "",
+                        CapacidadLitros = d.ProductoStock.FormatoEnvase != null ? d.ProductoStock.FormatoEnvase.CapacidadLitros : 0,
+                        Cantidad = d.Cantidad,
+                        Fecha = d.Pedido.Fecha
+                    })
+                    .ToListAsync();
+
+                topProductos = topProductosDb
+                    .GroupBy(d => new { d.Estilo, d.RecetaNombre, d.EnvaseNombre, d.CapacidadLitros })
+                    .Select(g => new TopProductoDto
+                    {
+                        Producto = $"Estilo: {g.Key.Estilo} - Receta: \"{g.Key.RecetaNombre}\" - {g.Key.EnvaseNombre} {g.Key.CapacidadLitros.ToString("0.##")}L",
+                        CantidadVendida = g.Sum(d => d.Cantidad)
+                    })
+                    .OrderByDescending(x => x.CantidadVendida)
+                    .Take(5)
+                    .ToList();
+
+                topEstilos = topProductosDb
+                    .GroupBy(d => d.Estilo)
+                    .Select(g => new TopEstiloDto
+                    {
+                        Estilo = g.Key,
+                        CantidadVendida = g.Sum(d => d.Cantidad)
+                    })
+                    .OrderByDescending(x => x.CantidadVendida)
+                    .Take(5)
+                    .ToList();
+
+                evolucionLimpia = topProductosDb
+                    .GroupBy(d => new {
+                        ClaveFecha = diasDiferencia > 31 ? d.Fecha.ToString("yyyy-MM") : d.Fecha.ToString("yyyy-MM-dd"),
+                        d.Estilo
+                    })
+                    .Select(g => new EvolucionEstiloDto
+                    {
+                        Fecha = g.Key.ClaveFecha,
+                        Estilo = g.Key.Estilo,
+                        Cantidad = g.Sum(x => x.Cantidad)
+                    })
+                    .OrderBy(x => x.Fecha)
+                    .ToList();
+            }
 
             return new ReporteVentasDto
             {
