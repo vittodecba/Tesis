@@ -32,13 +32,33 @@ export class PlanificacionCalendarComponent implements OnInit {
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth'
+      right: ''
     },
     events: [],    
    eventContent: (arg: any) => this.renderEvento(arg),
-    eventClick: (info: any) => {
-  console.log("Lote seleccionado:", info.event.extendedProps.loteId);
-} 
+   eventDidMount: (info: any) => {
+  const p = info.event.extendedProps;
+
+  info.el.setAttribute(
+    'data-tooltip',
+    `Lote L-${String(p.loteId).padStart(3, '0')}\n` +
+    `Volumen: ${p.volumen} L\n` +
+    `Estado: ${p.estadoNombre}\n` +
+    `Inicio: ${p.fechaInicio ?? '-'}\n` +
+    `Fin: ${p.fechaFin ?? '-'}`
+  );
+},
+
+  eventClick: (info: any) => {
+    const p = info.event.extendedProps;
+
+    alert(
+      `Lote: L-${String(p.loteId).padStart(3, '0')}\n` +
+      `Volumen: ${p.volumen} L\n` +
+      `Estado: ${p.estadoNombre}\n` +
+      `Receta: ${p.recetaId ?? '-'}`
+    );
+  } 
   };
 
   constructor(private _planifService: PlanificacionService) {}
@@ -49,18 +69,15 @@ export class PlanificacionCalendarComponent implements OnInit {
 
   cargarDatos() {
     this._planifService.getPlanificaciones().subscribe({
-      next: (data) => {
-        console.log('fechaFin raw:', data[0]?.fechaFinEstimada);
-        console.log('fechaFin substring:', data[0]?.fechaFinEstimada?.substring(0, 10));        
+      next: (data) => {      
         const colores = this.estadoConfig;
         this.calendarOptions = {
           ...this.calendarOptions,
           events: data.map(p => {
-            const fechaFinStr = p.fechaFinEstimada.substring(0, 10); // "2026-04-18"
+            const fechaFinStr = p.fechaFinEstimada?.substring(0, 10) ?? p.fechaInicio.substring(0, 10); // "2026-04-18"
             const [year, month, day] = fechaFinStr.split('-').map(Number);
             const fechaFin = new Date(year, month - 1, day + 1); // mes es 0-indexed
             const endStr = `${fechaFin.getFullYear()}-${String(fechaFin.getMonth()+1).padStart(2,'0')}-${String(fechaFin.getDate()).padStart(2,'0')}`;
-            console.log('endStr calculado:', endStr);
             return{
             id: String(p.loteId),
             title: `Lote #${p.loteId}`,
@@ -76,6 +93,8 @@ export class PlanificacionCalendarComponent implements OnInit {
               estado: p.estado,
               estadoNombre: colores[p.estado]?.nombre ?? 'Desconocido',
               estadoIcono: colores[p.estado]?.icono ?? '?',
+              fechaInicio: p.fechaInicio?.substring(0, 10),
+              fechaFin: p.fechaFinEstimada?.substring(0, 10),
             }
          }})
         };
@@ -85,26 +104,33 @@ export class PlanificacionCalendarComponent implements OnInit {
 
   // Tarjeta visual personalizada
   renderEvento(arg: any) {
-    const p = arg.event.extendedProps;
-    const color = this.estadoConfig[p.estado]?.color ?? '#6c757d';
-    const bg = this.estadoConfig[p.estado]?.bg ?? '#f8f9fa';
+  const p = arg.event.extendedProps;
+  const color = this.estadoConfig[p.estado]?.color ?? '#6c757d';
+  const bg = this.estadoConfig[p.estado]?.bg ?? '#f8f9fa';
+  const loteCodigo = `L-${String(p.loteId).padStart(3, '0')}`;
 
-    // 🔴 SI NO ES EL DÍA DE INICIO: Retornamos una barra de color sólida y vacía
-    if (!arg.isStart) {
-      return { 
-        html: `<div style="background: ${bg}; height: 40px; width: 100%; border-top: 1px solid ${color}22; border-bottom: 1px solid ${color}22;"></div>` 
-      };
-    }
-
-    // 🟢 SI ES EL DÍA DE INICIO: Retornamos la tarjetita con todos los datos
+  if (!arg.isStart) {
     return {
       html: `
-        <div class="lote-card shadow-sm" style="border-left: 4px solid ${color}; background: ${bg}; min-height: 40px;">
-          <div class="lote-id" style="color: ${color}">#L${String(p.loteId).padStart(3, '0')}</div>
-          <div class="lote-vol">🧪 ${p.volumen}L</div>
-          <div class="lote-estado" style="color: ${color}; font-size: 9px;">${p.estadoIcono} ${p.estadoNombre}</div>
-        </div>
+        <div
+          class="lote-card-empty"
+          style="background: ${bg}; border-color: ${color}22;"
+        ></div>
       `
     };
   }
+
+  return {
+    html: `
+      <div class="lote-card shadow-sm" style="border-left: 4px solid ${color}; background: ${bg};">
+        <div class="lote-linea-principal" style="color: ${color}">
+          ${loteCodigo} · ${p.volumen}L
+        </div>
+        <div class="lote-linea-secundaria" style="color: ${color}">
+          ${p.estadoIcono} ${p.estadoNombre}
+        </div>
+      </div>
+    `
+  };
+}
 }

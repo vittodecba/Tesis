@@ -1,10 +1,8 @@
-// Contenedor principal
 .calendar-wrapper {
   background-color: white;
   min-height: 700px;
 }
 
-// Estilo de la Leyenda (el que tenías tipo "pastilla")
 .leyenda-item {
   display: flex;
   align-items: center;
@@ -23,15 +21,14 @@
   }
 }
 
-// Configuración profunda de FullCalendar
 :host ::ng-deep {
   .fc-daygrid-event-harness {
-    margin-bottom: 2px !important; // Espacio entre barras
+    margin-bottom: 2px !important;
   }
 
-  /* 🔴 ESTILO PARA LA TARJETA DETALLADA (Día 1) */
   .fc-event {
-    background-color: transparent !important; // Quitamos el fondo por defecto
+    position: relative;
+    background-color: transparent !important;
     border: none !important;
     padding: 0 !important;
     border-radius: 0 !important;
@@ -44,21 +41,76 @@
     }
   }
 
-  /* Redondeamos solo el inicio (día 1) y el fin real del lote */
+  .fc-event:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 8px;
+    top: -74px;
+    z-index: 9999;
+    background: #172235;
+    color: #ffffff;
+    padding: 9px 11px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.45;
+    white-space: pre-line;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.22);
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    pointer-events: none;
+  }
+
+  .fc-event:hover::before {
+    content: '';
+    position: absolute;
+    left: 18px;
+    top: -8px;
+    z-index: 9999;
+    border: 6px solid transparent;
+    border-top-color: #172235;
+    pointer-events: none;
+  }
+
   .fc-event-start {
     border-top-left-radius: 6px !important;
     border-bottom-left-radius: 6px !important;
   }
+
   .fc-event-end {
     border-top-right-radius: 6px !important;
     border-bottom-right-radius: 6px !important;
   }
 
-  /* 🔴 ESTILO PARA LA BARRA CONTINUA VACÍA (Día 2 en adelante) */
+  .lote-card {
+    min-height: 34px;
+    padding: 4px 6px;
+    border-radius: 6px 0 0 6px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .lote-linea-principal {
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.15;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lote-linea-secundaria {
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1.15;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .lote-card-empty {
     width: 100%;
-    height: 100%; // Ocupa todo el alto de la harness
-    min-height: 25px; // Asegura visibilidad si no hay texto
+    min-height: 34px;
+    height: 100%;
+    border-top: 1px solid;
+    border-bottom: 1px solid;
     border-radius: 0 !important;
   }
 }
