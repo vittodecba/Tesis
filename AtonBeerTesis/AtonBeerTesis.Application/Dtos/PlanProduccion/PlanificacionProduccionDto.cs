@@ -11,6 +11,7 @@ namespace AtonBeerTesis.Application.Dtos
         public string? Estilo { get; set; }
         public decimal VolumenLitros { get; set; }
         public int LoteId { get; set; }
+        public string? CodigoLote { get; set; }
         public int? FermentadorId { get; set; }
         public EstadoLote Estado { get; set; }
         public DateTime FechaInicio { get; set; }

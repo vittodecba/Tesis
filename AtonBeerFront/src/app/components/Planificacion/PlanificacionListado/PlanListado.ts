@@ -166,6 +166,7 @@ export class PlanificacionListComponent implements OnInit {
     this.errorVolumenEdicion = null;
     this.loteEditando = {
       loteId: p.loteId,
+      codigoLote: p.codigoLote,
       recetaId: p.recetaId,
       fermentadorId: p.fermentadorId,
       volumenLitros: p.volumenLitros,

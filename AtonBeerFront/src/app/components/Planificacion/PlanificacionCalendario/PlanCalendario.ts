@@ -63,7 +63,7 @@ export class PlanificacionCalendarComponent implements OnInit {
             console.log('endStr calculado:', endStr);
             return{
             id: String(p.loteId),
-            title: `Lote #${p.loteId}`,
+            title: p.codigoLote || `Lote #${p.loteId}`,
             start: p.fechaInicio,
             end: endStr,
             backgroundColor: colores[p.estado]?.bg ?? '#6c757d',
@@ -71,6 +71,7 @@ export class PlanificacionCalendarComponent implements OnInit {
             textColor: colores[p.estado]?.color ?? '#ffffff',
             extendedProps: {
               loteId: p.loteId,
+              codigoLote: p.codigoLote,
               volumen: p.volumenLitros,
               recetaId: p.recetaId,
               estado: p.estado,
@@ -100,7 +101,7 @@ export class PlanificacionCalendarComponent implements OnInit {
     return {
       html: `
         <div class="lote-card shadow-sm" style="border-left: 4px solid ${color}; background: ${bg}; min-height: 40px;">
-          <div class="lote-id" style="color: ${color}">#L${String(p.loteId).padStart(3, '0')}</div>
+          <div class="lote-id" style="color: ${color}">${p.codigoLote || '#L' + String(p.loteId).padStart(3, '0')}</div>
           <div class="lote-vol">🧪 ${p.volumen}L</div>
           <div class="lote-estado" style="color: ${color}; font-size: 9px;">${p.estadoIcono} ${p.estadoNombre}</div>
         </div>

@@ -17,6 +17,7 @@ export interface ReporteCumplimiento {
   porcentajeATiempo: number;
   desvioPromedioDias: number;
   tasaDescarte: number;
+  lotesExcluidos: number;
   detalle: LoteCumplimiento[];
 }
 

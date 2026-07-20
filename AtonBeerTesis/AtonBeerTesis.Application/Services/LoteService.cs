@@ -402,8 +402,11 @@ namespace AtonBeerTesis.Application.Services
             // válido (lote cerrado el mismo día que arrancó, o FechaFinReal anterior a la de
             // elaboración — típico de data de prueba). Contaminan las estadísticas: como su real
             // siempre es <= estimado cuentan como "a tiempo" y hunden el desvío promedio con
-            // valores tipo -100% / -117%. Se sacan del detalle y de todos los cálculos.
+            // valores tipo -100% / -117%. Se sacan del detalle y de todos los cálculos,
+            // pero se cuentan aparte para que la UI pueda avisar (si no, "desaparecen").
+            var totalAntesDeFiltrar = detalle.Count;
             detalle = detalle.Where(d => d.DiasReales > 0).ToList();
+            var lotesExcluidos = totalAntesDeFiltrar - detalle.Count;
 
             var finalizados = detalle.Where(d => d.Estado == EstadoLote.Finalizado.ToString()).ToList();
             var descartados = detalle.Count(d => d.Estado == EstadoLote.Descartado.ToString());
@@ -424,6 +427,7 @@ namespace AtonBeerTesis.Application.Services
                 TasaDescarte = cerradosTotal > 0
                     ? Math.Round((double)descartados / cerradosTotal * 100, 1)
                     : 0,
+                LotesExcluidos = lotesExcluidos,
                 Detalle = detalle
             };
         }

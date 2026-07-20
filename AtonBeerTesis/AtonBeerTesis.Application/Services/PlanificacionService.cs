@@ -178,6 +178,7 @@ namespace AtonBeerTesis.Application.Services
             {
                 Id = p.Id,
                 LoteId = p.LoteId,
+                CodigoLote = p.Lote?.CodigoLote,
                 FermentadorId = p.FermentadorId,
                 FechaInicio = p.FechaInicio,
                 FermentadorNombre = p.Fermentador?.Nombre ?? "Sin asignar",
