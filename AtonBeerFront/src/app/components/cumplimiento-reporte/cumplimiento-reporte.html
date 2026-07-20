@@ -53,14 +53,6 @@
   </div>
 
   <div *ngIf="!cargando && hayDatos">
-    <!-- Aviso: lotes excluidos por duración inválida -->
-    <div *ngIf="resumen.lotesExcluidos > 0" class="mb-6 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-      <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-      <p class="text-sm text-amber-800 font-medium">
-        {{ resumen.lotesExcluidos }} lote{{ resumen.lotesExcluidos === 1 ? '' : 's' }} cerrado{{ resumen.lotesExcluidos === 1 ? '' : 's' }} en el período no se muestra{{ resumen.lotesExcluidos === 1 ? '' : 'n' }} por tener una duración inválida (0 días o negativa): la fecha de cierre coincide con la de inicio o es anterior. No se incluyen en las estadísticas.
-      </p>
-    </div>
-
     <!-- KPIs -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div class="bg-white rounded-2xl p-6 border-l-4 border-blue-500 shadow-sm">

@@ -18,11 +18,6 @@ namespace AtonBeerTesis.Application.DTOs
         // Descartado / (Finalizado + Descartado), en % (0-100).
         public double TasaDescarte { get; set; }
 
-        // Lotes cerrados en el rango que se excluyeron por duración inválida
-        // (real <= 0 días: cerrados el mismo día o con fecha de cierre anterior a la
-        // de elaboración). Se informa para que la UI avise y no confunda al usuario.
-        public int LotesExcluidos { get; set; }
-
         public List<LoteCumplimientoDto> Detalle { get; set; } = new();
     }
 

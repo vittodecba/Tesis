@@ -398,16 +398,9 @@ namespace AtonBeerTesis.Application.Services
                 };
             }).ToList();
 
-            // Excluir lotes degenerados: una fermentación de 0 o días negativos no es un dato
-            // válido (lote cerrado el mismo día que arrancó, o FechaFinReal anterior a la de
-            // elaboración — típico de data de prueba). Contaminan las estadísticas: como su real
-            // siempre es <= estimado cuentan como "a tiempo" y hunden el desvío promedio con
-            // valores tipo -100% / -117%. Se sacan del detalle y de todos los cálculos,
-            // pero se cuentan aparte para que la UI pueda avisar (si no, "desaparecen").
-            var totalAntesDeFiltrar = detalle.Count;
-            detalle = detalle.Where(d => d.DiasReales > 0).ToList();
-            var lotesExcluidos = totalAntesDeFiltrar - detalle.Count;
-
+            // Se muestran todos los lotes cerrados del rango tal cual estén. Un lote con
+            // duración inválida (0 días o negativa) debe manejarse marcándolo Descartado a mano,
+            // no ocultándolo automáticamente.
             var finalizados = detalle.Where(d => d.Estado == EstadoLote.Finalizado.ToString()).ToList();
             var descartados = detalle.Count(d => d.Estado == EstadoLote.Descartado.ToString());
 
@@ -427,7 +420,6 @@ namespace AtonBeerTesis.Application.Services
                 TasaDescarte = cerradosTotal > 0
                     ? Math.Round((double)descartados / cerradosTotal * 100, 1)
                     : 0,
-                LotesExcluidos = lotesExcluidos,
                 Detalle = detalle
             };
         }

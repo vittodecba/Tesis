@@ -31,7 +31,6 @@ export class CumplimientoReporte implements OnInit {
     porcentajeATiempo: 0,
     desvioPromedioDias: 0,
     tasaDescarte: 0,
-    lotesExcluidos: 0,
   };
 
   detalle: LoteCumplimiento[] = [];
@@ -209,7 +208,6 @@ export class CumplimientoReporte implements OnInit {
           porcentajeATiempo: Number(data.porcentajeATiempo) || 0,
           desvioPromedioDias: Number(data.desvioPromedioDias) || 0,
           tasaDescarte: Number(data.tasaDescarte) || 0,
-          lotesExcluidos: Number(data.lotesExcluidos) || 0,
         };
 
         this.detalle = data.detalle || [];
