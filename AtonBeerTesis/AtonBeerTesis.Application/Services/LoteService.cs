@@ -119,10 +119,6 @@ namespace AtonBeerTesis.Application.Services
 
         public async Task<LoteDto> CreateAsync(CreateLoteDto dto)
         {
-            var existeCodigo = await _repository.ExisteCodigoAsync(dto.Codigo);
-            if (existeCodigo)
-                throw new Exception("Ya existe un lote con ese código.");
-
             var fermentador = await _fermentadorRepository.GetByIdAsync(dto.FermentadorId);
             if (fermentador == null)
                 throw new Exception("Fermentador no encontrado.");
@@ -136,7 +132,9 @@ namespace AtonBeerTesis.Application.Services
 
             var lote = new Lote
             {
-                Codigo = dto.Codigo,
+                // El código lo asigna el sistema como "L-{Id}" (corto y único); se ignora
+                // cualquier código provisto por el cliente. Placeholder hasta conocer el Id.
+                Codigo = "L-PENDIENTE",
                 RecetaId = dto.RecetaId ?? 0,
                 FermentadorId = dto.FermentadorId,
                 FechaElaboracion = dto.FechaElaboracion,
@@ -150,6 +148,10 @@ namespace AtonBeerTesis.Application.Services
             };
 
             await _repository.CreateAsync(lote);
+
+            // Código definitivo basado en el Id secuencial.
+            lote.Codigo = $"L-{lote.Id}";
+            await _repository.UpdateAsync(lote);
 
             fermentador.Estado = EstadoFermentador.Ocupado;
             await _fermentadorRepository.UpdateAsync(fermentador);
@@ -182,8 +184,8 @@ namespace AtonBeerTesis.Application.Services
             if (lote.Estado == EstadoLote.Finalizado || lote.Estado == EstadoLote.Descartado)
                 throw new InvalidOperationException($"El lote ya está {lote.Estado} y no admite cambios.");
 
-            if (!string.IsNullOrWhiteSpace(dto.Codigo))
-                lote.Codigo = dto.Codigo;
+            // El código de lote lo gestiona el sistema ("L-{Id}") y no se edita a mano,
+            // para no romper el esquema de nombrado. Se ignora dto.Codigo si viene.
 
             if (dto.RecetaId.HasValue)
                 lote.RecetaId = dto.RecetaId.Value;

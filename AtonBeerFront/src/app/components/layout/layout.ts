@@ -150,7 +150,10 @@ export class LayoutComponent implements OnInit {
   }
 
   puedeVerReporteCumplimiento(): boolean {
-    return this.hasRole(ROLES.ADMIN, ROLES.RESP_PLANTA, ROLES.GERENTE, ROLES.GERENTE_MAYOR);
+    // Admin y Resp. Planta ahora acceden al reporte desde un botón dentro de Planificación,
+    // no desde el menú. Gerente y Gerente Mayor no tienen acceso a /planificacion, así que
+    // conservan el enlace acá.
+    return this.hasRole(ROLES.GERENTE, ROLES.GERENTE_MAYOR);
   }
 
   puedeVerSeccionReportes(): boolean {

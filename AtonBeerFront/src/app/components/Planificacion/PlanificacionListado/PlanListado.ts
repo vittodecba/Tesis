@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { PlanificacionService } from '../../../services/PlanificacionService';
 import { RecetaService, Receta } from '../../../services/receta';
 import { FermentadorService } from '../../../services/fermentador';
-import { LucideAngularModule, Plus, Calendar, FlaskConical, ClipboardList, Pencil, List, LayoutGrid, Search, Trash2, Beer, ChevronLeft, ChevronRight } from 'lucide-angular';
+import { LucideAngularModule, Plus, Calendar, FlaskConical, ClipboardList, Pencil, List, LayoutGrid, Search, Trash2, Beer, ChevronLeft, ChevronRight, ClipboardCheck } from 'lucide-angular';
 import { PlanificacionCalendarComponent } from '../PlanificacionCalendario/PlanCalendario';
 import Swal from 'sweetalert2';
 
@@ -54,6 +54,7 @@ export class PlanificacionListComponent implements OnInit {
   Pencil = Pencil;
   List = List;
   LayoutGrid = LayoutGrid;
+  ClipboardCheck = ClipboardCheck;
   Search = Search;
   Trash2 = Trash2;
   Beer = Beer;

@@ -45,10 +45,21 @@ export class CumplimientoReporte implements OnInit {
   // Real = valor de marca (naranja).
   private readonly COLOR_ESTIMADO = '#2a78d6';
   private readonly COLOR_REAL = '#E67E22';
+  // Versiones atenuadas (para las barras NO seleccionadas cuando hay un lote marcado).
+  private readonly COLOR_ESTIMADO_FADE = 'rgba(42,120,214,0.20)';
+  private readonly COLOR_REAL_FADE = 'rgba(230,126,34,0.20)';
+
+  // Índice (sobre detalleGrafico) del lote marcado por click en el gráfico; null = ninguno.
+  loteSeleccionadoIndex: number | null = null;
+  get loteSeleccionado(): LoteCumplimiento | null {
+    return this.loteSeleccionadoIndex !== null ? this.detalleGrafico[this.loteSeleccionadoIndex] ?? null : null;
+  }
 
   public barChartOptions: ChartOptions<'bar'> = {
-    responsive: true,
-    maintainAspectRatio: false,
+    // responsive:false → Chart.js NO mide el DOM; usa el tamaño explícito del canvas
+    // ([width]/[height] en el template). Esto elimina el desajuste por devicePixelRatio que
+    // desincronizaba el ancho interno del mostrado y rompía el hit-testing del tooltip.
+    responsive: false,
     // 'index' → al pasar el mouse muestra AMBAS series (Estimado y Real) del mismo lote.
     interaction: { mode: 'index', intersect: false },
     plugins: {
@@ -98,7 +109,17 @@ export class CumplimientoReporte implements OnInit {
       x: {
         grid: { display: false },
         border: { color: '#c3c2b7' },
-        ticks: { color: '#898781', font: { size: 11 }, maxRotation: 55, minRotation: 45, autoSkip: false },
+        ticks: {
+          // La etiqueta del lote seleccionado va en negrita y más oscura para resaltarla.
+          color: (ctx: any) => (ctx.index === this.loteSeleccionadoIndex ? '#3A2220' : '#898781'),
+          font: (ctx: any) =>
+            ctx.index === this.loteSeleccionadoIndex
+              ? { size: 12, weight: 700 }
+              : { size: 11, weight: 400 },
+          maxRotation: 55,
+          minRotation: 45,
+          autoSkip: false,
+        },
       },
       y: {
         beginAtZero: true,
@@ -117,12 +138,14 @@ export class CumplimientoReporte implements OnInit {
 
   // Barras finas, con puntas redondeadas ancladas a la base y una separación de 2px
   // (borde del color de superficie) entre barras adyacentes.
-  private buildDataset(data: number[], label: string, color: string) {
+  // backgroundColor puede ser un color único o un array por barra (para atenuar las no seleccionadas).
+  private buildDataset(data: number[], label: string, backgroundColor: string | string[]) {
+    const base = Array.isArray(backgroundColor) ? backgroundColor[this.loteSeleccionadoIndex ?? 0] : backgroundColor;
     return {
       data,
       label,
-      backgroundColor: color,
-      hoverBackgroundColor: color,
+      backgroundColor,
+      hoverBackgroundColor: base,
       borderColor: '#ffffff',
       borderWidth: 2,
       borderRadius: 4,
@@ -131,6 +154,39 @@ export class CumplimientoReporte implements OnInit {
       barPercentage: 0.9,
       maxBarThickness: 30,
     };
+  }
+
+  // Array de colores por barra: si hay un lote seleccionado, esa barra va a color pleno y el
+  // resto atenuado; si no hay selección, todas a color pleno.
+  private coloresBarras(base: string, fade: string): string[] {
+    return this.detalleGrafico.map((_, i) =>
+      this.loteSeleccionadoIndex === null || i === this.loteSeleccionadoIndex ? base : fade,
+    );
+  }
+
+  // Reconstruye los datasets (nueva referencia para que ng2-charts la tome) aplicando el
+  // esquema de colores según la selección actual.
+  private rebuildDatasets(): void {
+    this.barChartDatasets = [
+      this.buildDataset(
+        this.detalleGrafico.map((l) => l.diasEstimados),
+        'Estimado',
+        this.coloresBarras(this.COLOR_ESTIMADO, this.COLOR_ESTIMADO_FADE),
+      ),
+      this.buildDataset(
+        this.detalleGrafico.map((l) => l.diasReales),
+        'Real',
+        this.coloresBarras(this.COLOR_REAL, this.COLOR_REAL_FADE),
+      ),
+    ];
+  }
+
+  // Click en una barra: selecciona/deselecciona el lote (toggle). Click en zona vacía deselecciona.
+  onChartClick(e: { event?: any; active?: any[] }): void {
+    const idx = e?.active?.length ? e.active[0].index : null;
+    this.loteSeleccionadoIndex = idx === null || idx === this.loteSeleccionadoIndex ? null : idx;
+    this.rebuildDatasets();
+    this.chart?.chart?.update();
   }
 
   // Desvío como % respecto de los días estimados: (real - estimado) / estimado * 100.
@@ -217,10 +273,9 @@ export class CumplimientoReporte implements OnInit {
         // Eje X: solo el código (el estilo va en el tooltip) para no amontonar etiquetas.
         this.barChartLabels = this.detalleGrafico.map((l) => l.codigoLote);
         this.chartMinWidth = Math.max(this.detalleGrafico.length * 62, 600);
-        this.barChartDatasets = [
-          this.buildDataset(this.detalleGrafico.map((l) => l.diasEstimados), 'Estimado', this.COLOR_ESTIMADO),
-          this.buildDataset(this.detalleGrafico.map((l) => l.diasReales), 'Real', this.COLOR_REAL),
-        ];
+        // Nuevo filtro → limpiar la selección previa y reconstruir los datasets.
+        this.loteSeleccionadoIndex = null;
+        this.rebuildDatasets();
 
         this.hayDatos = true;
         this.cargando = false;
