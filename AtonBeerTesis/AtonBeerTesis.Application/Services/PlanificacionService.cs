@@ -60,13 +60,15 @@ namespace AtonBeerTesis.Application.Services
             {
                 RecetaId = dto.RecetaId,
                 VolumenLitros = dto.VolumenLitros,
-                CodigoLote = $"L-{DateTime.Now:yyyyMMdd}-{new Random().Next(100, 999)}",
+                // Código provisional: el definitivo es "L-{Id}", pero el Id recién existe tras
+                // guardar. Se asigna más abajo, una vez pasada la validación de stock.
+                CodigoLote = "L-PENDIENTE",
                 Estado = EstadoLote.Planificado,
                 FechaCreacion = DateTime.Now,
                 FermentadorId = dto.FermentadorId,
                 FechaElaboracion = dto.FechaInicio,
                 Responsable = responsable,
-                DiasEstimadosFermentacion = (int)(dto.FechaFinEstimada - dto.FechaInicio).TotalDays,                
+                DiasEstimadosFermentacion = (int)(dto.FechaFinEstimada - dto.FechaInicio).TotalDays,
             };
 
             var loteGuardado = await _loteRepository.CreateAsync(nuevoLote);
@@ -82,6 +84,10 @@ namespace AtonBeerTesis.Application.Services
                 await _loteRepository.DeleteByIdAsync(loteGuardado.Id);
                 throw new Exception(mensajeError);
             }
+
+            // Código definitivo basado en el Id secuencial (corto y único): "L-{Id}".
+            loteGuardado.CodigoLote = $"L-{loteGuardado.Id}";
+            await _loteRepository.UpdateAsync(loteGuardado);
 
             var planificacion = new PlanificacionProduccion
             {
@@ -178,6 +184,7 @@ namespace AtonBeerTesis.Application.Services
             {
                 Id = p.Id,
                 LoteId = p.LoteId,
+                CodigoLote = p.Lote?.CodigoLote,
                 FermentadorId = p.FermentadorId,
                 FechaInicio = p.FechaInicio,
                 FermentadorNombre = p.Fermentador?.Nombre ?? "Sin asignar",

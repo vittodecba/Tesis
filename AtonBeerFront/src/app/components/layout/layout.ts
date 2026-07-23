@@ -34,6 +34,7 @@ import {
   Ruler,
   History,
   Building2,
+  ClipboardCheck,
   Menu,
   X
 } from 'lucide-angular';
@@ -78,6 +79,7 @@ export class LayoutComponent implements OnInit {
   //Historial
   History = History;
   Building2 = Building2;
+  ClipboardCheck = ClipboardCheck;
 
   // Iconos del drawer móvil
   Menu = Menu;
@@ -145,6 +147,17 @@ export class LayoutComponent implements OnInit {
 
   puedeVerReportes(): boolean {
     return this.hasRole(ROLES.ADMIN, ROLES.GERENTE_MAYOR);
+  }
+
+  puedeVerReporteCumplimiento(): boolean {
+    // Admin y Resp. Planta ahora acceden al reporte desde un botón dentro de Planificación,
+    // no desde el menú. Gerente y Gerente Mayor no tienen acceso a /planificacion, así que
+    // conservan el enlace acá.
+    return this.hasRole(ROLES.GERENTE, ROLES.GERENTE_MAYOR);
+  }
+
+  puedeVerSeccionReportes(): boolean {
+    return this.puedeVerReportes() || this.puedeVerReporteCumplimiento();
   }
 
   private updateHeader() {

@@ -66,7 +66,7 @@
         <span>Recetas</span>
       </a>
 
-      <a *ngIf="puedeVerPlanificacion()" class="navItem" routerLink="/planificacion" [class.active]="esRutaActiva('/planificacion')">
+      <a *ngIf="puedeVerPlanificacion()" class="navItem" routerLink="/planificacion" [class.active]="esRutaActiva('/planificacion') && !esRutaActiva('/planificacion/reporte-cumplimiento')">
         <lucide-icon [img]="CalendarDays" class="navIcon" [size]="18"></lucide-icon>
         <span>Planificación</span>
       </a>
@@ -103,9 +103,18 @@
         <span>Ventas</span>
       </a>
 
+      <hr *ngIf="puedeVerSeccionReportes()" class="border-orange-200/20 my-2 mx-4" />
+
+      <p *ngIf="puedeVerSeccionReportes()" class="px-4 pt-1 pb-1 text-[10px] font-black uppercase tracking-widest text-orange-200/40">Reportes</p>
+
       <a *ngIf="puedeVerReportes()" class="navItem" routerLink="/ventas/reporte" routerLinkActive="active">
         <lucide-icon [img]="LineChart" class="navIcon" [size]="18"></lucide-icon>
         <span>Reportes de Ventas</span>
+      </a>
+
+      <a *ngIf="puedeVerReporteCumplimiento()" class="navItem" routerLink="/planificacion/reporte-cumplimiento" routerLinkActive="active">
+        <lucide-icon [img]="ClipboardCheck" class="navIcon" [size]="18"></lucide-icon>
+        <span>Cumplimiento de Planificación</span>
       </a>
     </nav>
 

@@ -80,7 +80,7 @@ export class PlanificacionCalendarComponent implements OnInit {
             const endStr = `${fechaFin.getFullYear()}-${String(fechaFin.getMonth()+1).padStart(2,'0')}-${String(fechaFin.getDate()).padStart(2,'0')}`;
             return{
             id: String(p.loteId),
-            title: `Lote #${p.loteId}`,
+            title: p.codigoLote || `Lote #${p.loteId}`,
             start: p.fechaInicio,
             end: endStr,
             backgroundColor: colores[p.estado]?.bg ?? '#6c757d',
@@ -88,6 +88,7 @@ export class PlanificacionCalendarComponent implements OnInit {
             textColor: colores[p.estado]?.color ?? '#ffffff',
             extendedProps: {
               loteId: p.loteId,
+              codigoLote: p.codigoLote,
               volumen: p.volumenLitros,
               recetaId: p.recetaId,
               estado: p.estado,

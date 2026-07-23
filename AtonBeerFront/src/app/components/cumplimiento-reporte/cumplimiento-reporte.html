@@ -1,0 +1,157 @@
+<div class="p-6 min-h-screen bg-orange-50/40 text-start font-sans relative">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+      <h2 class="text-3xl font-bold text-[#4A2C2A]">Reporte de Cumplimiento de Planificación</h2>
+      <p class="text-gray-600">Días de fermentación estimados vs. reales y tasa de descarte por lote.</p>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 mb-8">
+    <form [formGroup]="filtroForm" (ngSubmit)="filtrarReporte()" class="flex flex-col md:flex-row items-end gap-4">
+      <div class="space-y-2 flex-1">
+        <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest">Período Rápido</label>
+        <select formControlName="periodoRapido" class="w-full border-2 border-gray-100 rounded-xl py-2.5 px-4 outline-none focus:border-[#E67E22] text-gray-700 font-medium bg-gray-50/50">
+          <option value="">Personalizado...</option>
+          <option value="mes_actual">Mes Actual</option>
+          <option value="ultimos_3_meses">Últimos 3 meses</option>
+          <option value="ultimos_6_meses">Últimos 6 meses</option>
+          <option value="anio_actual">Año Actual</option>
+          <option value="anio_anterior">Año Anterior</option>
+        </select>
+      </div>
+      <div class="space-y-2 flex-1">
+        <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest">Fecha Desde</label>
+        <input type="date" formControlName="fechaDesde" class="w-full border-2 border-gray-100 rounded-xl py-2.5 px-4 outline-none focus:border-[#E67E22] text-gray-700 font-medium bg-gray-50/50" />
+      </div>
+      <div class="space-y-2 flex-1">
+        <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest">Fecha Hasta</label>
+        <input type="date" formControlName="fechaHasta" [min]="filtroForm.get('fechaDesde')?.value" class="w-full border-2 border-gray-100 rounded-xl py-2.5 px-4 outline-none focus:border-[#E67E22] text-gray-700 font-medium bg-gray-50/50" />
+      </div>
+
+      <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+        <button type="submit" [disabled]="cargando || descargandoPdf" class="w-full md:w-auto px-8 py-3 bg-[#4A2C2A] text-white font-bold rounded-xl hover:bg-[#3A2220] transition-colors shadow-sm disabled:opacity-50">
+          <span *ngIf="!cargando">Filtrar Datos</span>
+          <span *ngIf="cargando">Cargando...</span>
+        </button>
+
+        <button type="button" (click)="descargarPdf()" [disabled]="cargando || descargandoPdf || !hayDatos" class="w-full md:w-auto px-6 py-3 bg-[#E67E22] text-white font-bold rounded-xl hover:bg-[#d6721b] transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
+          <svg *ngIf="!descargandoPdf" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          <svg *ngIf="descargandoPdf" class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          <span *ngIf="!descargandoPdf">Exportar PDF</span>
+          <span *ngIf="descargandoPdf">Generando...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="cargando" class="flex flex-col items-center justify-center py-20">
+    <svg class="animate-spin h-12 w-12 text-[#E67E22] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    <p class="text-gray-500 font-bold text-lg">Procesando información...</p>
+  </div>
+
+  <div *ngIf="!cargando && hayDatos">
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-2xl p-6 border-l-4 border-blue-500 shadow-sm">
+        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Lotes Finalizados</span>
+        <h3 class="text-3xl font-black text-[#3A2220]">{{ resumen.lotesFinalizados }}</h3>
+      </div>
+      <div class="bg-white rounded-2xl p-6 border-l-4 border-green-500 shadow-sm">
+        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Finalizados a Tiempo</span>
+        <h3 class="text-3xl font-black text-[#3A2220]">{{ resumen.porcentajeATiempo }}%</h3>
+      </div>
+      <div class="bg-white rounded-2xl p-6 border-l-4 border-[#E67E22] shadow-sm">
+        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Desvío Promedio</span>
+        <h3 class="text-3xl font-black text-[#3A2220]">{{ desvioPromedioPorcentaje === null ? '—' : (desvioPromedioPorcentaje > 0 ? '+' : '') + desvioPromedioPorcentaje + '%' }}</h3>
+      </div>
+      <div class="bg-white rounded-2xl p-6 border-l-4 border-red-500 shadow-sm">
+        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Tasa de Descarte</span>
+        <h3 class="text-3xl font-black text-[#3A2220]">{{ resumen.tasaDescarte }}%</h3>
+      </div>
+    </div>
+
+    <!-- Gráfico -->
+    <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 mb-8 flex flex-col">
+      <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Días estimados vs. reales por lote</h3>
+      <!-- chart-unzoom: neutraliza el `html { zoom: 0.8 }` global (styles.css, solo ≥1024px).
+           El `zoom` de CSS descoloca el hit-testing de canvas de Chart.js (el mouse→barra se
+           desfasa por el factor de zoom). Al aplicar el zoom inverso SOLO al contenedor del
+           gráfico, el canvas queda a escala 1:1 y el tooltip apunta a la barra correcta. -->
+      <div *ngIf="detalleGrafico.length > 0" class="overflow-x-auto pb-2 chart-unzoom">
+        <canvas baseChart
+                [width]="chartMinWidth" [height]="400"
+                style="display: block; max-width: none;"
+                (chartClick)="onChartClick($event)"
+                [datasets]="barChartDatasets" [labels]="barChartLabels" [options]="barChartOptions" [type]="'bar'"></canvas>
+      </div>
+      <p *ngIf="detalleGrafico.length > 0" class="text-xs text-gray-400 mt-1">Hacé clic en un lote para resaltarlo y ver su resumen. Clic de nuevo para quitar la selección.</p>
+      <p *ngIf="detalleGrafico.length === 0" class="text-gray-400 font-medium py-10 text-center">No hay lotes finalizados para graficar en el período seleccionado.</p>
+    </div>
+
+    <!-- Resumen del lote seleccionado -->
+    <div *ngIf="loteSeleccionado as l" class="bg-white rounded-2xl shadow-sm border-l-4 border-[#E67E22] p-6 mb-8">
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Lote seleccionado</span>
+          <h3 class="text-2xl font-black text-[#3A2220]">{{ l.codigoLote }}<span *ngIf="l.estilo" class="text-gray-400 font-semibold text-lg"> · {{ l.estilo }}</span></h3>
+        </div>
+        <button type="button" (click)="onChartClick({ active: [] })" class="text-gray-400 hover:text-gray-700 text-sm font-bold px-3 py-1 rounded-lg hover:bg-gray-100">✕ Quitar</button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-blue-50/60 rounded-xl p-4">
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Días Estimados</span>
+          <span class="text-2xl font-black text-[#2a78d6]">{{ l.diasEstimados }}</span>
+        </div>
+        <div class="bg-orange-50/60 rounded-xl p-4">
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Días Reales</span>
+          <span class="text-2xl font-black text-[#E67E22]">{{ l.diasReales }}</span>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4">
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Desvío</span>
+          <span class="text-2xl font-black" [ngClass]="desvioPorcentaje(l) === null ? 'text-gray-400' : (l.desvioDias > 0 ? 'text-red-500' : 'text-green-600')">{{ desvioPorcentaje(l) === null ? '—' : (l.desvioDias > 0 ? '+' : '') + desvioPorcentaje(l) + '%' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detalle por lote -->
+    <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-6">
+      <h3 class="text-lg font-bold text-[#4A2C2A] mb-4">Detalle por lote</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-gray-100">
+              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Lote</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Receta</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Días Est.</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Días Reales</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Desvío %</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let l of detalle" class="border-b border-gray-50 transition-colors"
+                [ngClass]="loteSeleccionado && l.codigoLote === loteSeleccionado.codigoLote ? 'bg-orange-50' : ''">
+              <td class="py-3 px-4 text-sm font-black text-[#3A2220]">{{ l.codigoLote }}</td>
+              <td class="py-3 px-4 text-sm font-medium text-gray-700">{{ l.receta || '—' }}</td>
+              <td class="py-3 px-4 text-sm text-gray-700 text-right">{{ l.diasEstimados }}</td>
+              <td class="py-3 px-4 text-sm text-gray-700 text-right">{{ l.diasReales }}</td>
+              <td class="py-3 px-4 text-sm font-bold text-right" [ngClass]="desvioPorcentaje(l) === null ? 'text-gray-400' : (l.desvioDias > 0 ? 'text-red-500' : 'text-green-600')">{{ desvioPorcentaje(l) === null ? '—' : (l.desvioDias > 0 ? '+' : '') + desvioPorcentaje(l) + '%' }}</td>
+              <td class="py-3 px-4 text-center">
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold"
+                      [ngClass]="l.estado === 'Finalizado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'">
+                  {{ l.estado }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="detalle.length === 0">
+              <td colspan="6" class="py-8 text-center text-gray-400 font-medium">No hay lotes cerrados en el período seleccionado.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -11,6 +11,11 @@ namespace AtonBeerTesis.Application.Interfaces
 
         // Métodos del LoteService (Feature)
         Task<List<Lote>> GetAllAsync();
+
+        // Reporte P2 · Cumplimiento: lotes cerrados (Finalizado/Descartado) cuya
+        // FechaFinReal cae dentro del rango, con la receta cargada para el detalle.
+        Task<List<Lote>> GetFinalizadosEnRangoAsync(DateTime desde, DateTime hasta);
+
         Task<Lote?> GetActivoByFermentadorIdAsync(int fermentadorId);
         Task<bool> ExisteCodigoAsync(string codigo);
         Task<bool> UpdateAsync(Lote lote);

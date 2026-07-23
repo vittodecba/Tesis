@@ -1,0 +1,11 @@
+/* Estilos vía Tailwind en el template. */
+
+/* Contra-zoom del gráfico: styles.css aplica `html { zoom: 0.8 }` en pantallas >=1024px.
+   Ese `zoom` global rompe el hit-testing del canvas de Chart.js (el tooltip apunta a la barra
+   equivocada, desfasado por el factor de zoom). Neutralizamos ese zoom SOLO en el contenedor del
+   gráfico, con el mismo breakpoint, para que el canvas quede a escala 1:1 y el hover sea exacto. */
+@media (min-width: 1024px) {
+  .chart-unzoom {
+    zoom: 1.25; /* 1 / 0.8 */
+  }
+}
